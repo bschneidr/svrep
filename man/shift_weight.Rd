@@ -2,7 +2,7 @@
 % Please edit documentation in R/redistribute_weights.R
 \name{shift_weight}
 \alias{shift_weight}
-\title{Shift weight from one set of cases to another, potentially separately for each value of a grouping variable.}
+\title{Shift weight from one set of cases to another}
 \usage{
 shift_weight(wt_set, is_upweight_case, is_downweight_case)
 }
@@ -17,7 +17,7 @@ shift_weight(wt_set, is_upweight_case, is_downweight_case)
 A numeric vector of adjusted weights, of the same length as \code{wt_set}.
 }
 \description{
-Shift weight from one set of cases to another, potentially separately for each value of a grouping variable.
+Shift weight from one set of cases to another
 }
 \examples{
 
@@ -25,7 +25,7 @@ example_data <- data.frame(weight = c(1.5, 1.25, 1.25, 2, 0.5, 1.5),
                            response_status = c(1, 1, 0, 0, 1, 1),
                            stratum = c('A', 'B', 'A', 'A', 'B', 'B'))
 
-shift_weight(wt_set = example_data$weight,
-             is_upweight_case = example_data$response_status == 1,
-             is_downweight_case = example_data$response_status == 0)
+svrep:::shift_weight(wt_set = example_data$weight,
+                     is_upweight_case = example_data$response_status == 1,
+                     is_downweight_case = example_data$response_status == 0)
 }

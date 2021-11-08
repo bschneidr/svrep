@@ -1,4 +1,4 @@
-#' Shift weight from one set of cases to another, potentially separately for each value of a grouping variable.
+#' Shift weight from one set of cases to another
 #'
 #' @param wt_set A numeric vector of weights
 #' @param is_upweight_case A logical vector indicating cases whose weight should be increased
@@ -12,9 +12,9 @@
 #'                            response_status = c(1, 1, 0, 0, 1, 1),
 #'                            stratum = c('A', 'B', 'A', 'A', 'B', 'B'))
 #'
-#' shift_weight(wt_set = example_data$weight,
-#'              is_upweight_case = example_data$response_status == 1,
-#'              is_downweight_case = example_data$response_status == 0)
+#' svrep:::shift_weight(wt_set = example_data$weight,
+#'                      is_upweight_case = example_data$response_status == 1,
+#'                      is_downweight_case = example_data$response_status == 0)
 
 shift_weight <- function(wt_set, is_upweight_case, is_downweight_case) {
 
@@ -76,6 +76,7 @@ shift_weight <- function(wt_set, is_upweight_case, is_downweight_case) {
 #'                                            increase_if = response_status == "Respondent",
 #'                                            by = c("stype", "cname"))
 #
+
 redistribute_weights <- function(design,
                                  reduce_if, increase_if,
                                  by) {
@@ -85,6 +86,7 @@ redistribute_weights <- function(design,
   UseMethod("redistribute_weights", design)
 }
 
+#' @export
 redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, by) {
 
   # Check validity of inputs
@@ -129,7 +131,7 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
 
   if (!is.null(by)) {
     grouping_df <- dplyr::group_by(design[['variables']],
-                                   across(one_of({{by}})))
+                                   dplyr::across(dplyr::one_of({{by}})))
     grouping_df <- attributes(grouping_df)[['groups']]
     group_row_indices <- grouping_df[['.rows']]
   } else {
@@ -145,7 +147,7 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
   adjusted_full_sample_weights <- full_sample_wts
 
   for (set_of_indices in group_row_indices) {
-    adjusted_full_sample_weights[set_of_indices] <- shift_weight(
+    adjusted_full_sample_weights[set_of_indices] <- svrep:::shift_weight(
       wt_set = adjusted_full_sample_weights[set_of_indices],
       is_upweight_case = case_groupings[['_IS_UPWT_CASE_']][set_of_indices],
       is_downweight_case = case_groupings[['_IS_DOWNWT_CASE_']][set_of_indices]
@@ -159,7 +161,7 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
     adjusted_wt_set <- rep_wt_set
 
     for (set_of_indices in group_row_indices) {
-      adjusted_wt_set[set_of_indices] <- shift_weight(
+      adjusted_wt_set[set_of_indices] <- svrep:::shift_weight(
         wt_set = rep_wt_set[set_of_indices],
         is_upweight_case = case_groupings[['_IS_UPWT_CASE_']][set_of_indices],
         is_downweight_case = case_groupings[['_IS_DOWNWT_CASE_']][set_of_indices]
