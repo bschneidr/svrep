@@ -3,7 +3,6 @@
 #' @param wt_set A numeric vector of weights
 #' @param is_upweight_case A logical vector indicating cases whose weight should be increased
 #' @param is_downweight_case A logical vector indicating cases whose weight should be decreased
-#' @param by_values A vector of values for which adjustments should be conducted separately
 #'
 #' @return A numeric vector of adjusted weights, of the same length as \code{wt_set}.
 #'
@@ -13,25 +12,15 @@
 #'                            response_status = c(1, 1, 0, 0, 1, 1),
 #'                            stratum = c('A', 'B', 'A', 'A', 'B', 'B'))
 #'
-#' shift_weight_by_group(wt_set = example_data$weight,
-#'                       is_upweight_case = example_data$response_status == 1,
-#'                       is_downweight_case = example_data$response_status == 0,
-#'                       by_values = example_data$stratum)
+#' shift_weight(wt_set = example_data$weight,
+#'              is_upweight_case = example_data$response_status == 1,
+#'              is_downweight_case = example_data$response_status == 0)
 
-shift_weight_by_group <- function(wt_set, is_upweight_case, is_downweight_case, by_values) {
-  if (is.null(by_values)) {
-    by_values <- rep(1, length(wt_set))
-  }
-  adjusted_wts_by_group <- by(data = data.frame(ordering = 1:length(wt_set),
-                                                wts = wt_set,
-                                                cases_to_upweight = is_upweight_case,
-                                                cases_to_downweight = is_downweight_case),
-                              INDICES = by_values,
-                              simplify = FALSE, FUN = function(df) {
+shift_weight <- function(wt_set, is_upweight_case, is_downweight_case) {
 
-                                adj_factors <- rep(1, length(df$wts))
-                                upweight_sum <- sum(df$wts[df$cases_to_upweight])
-                                downweight_sum <- sum(df$wts[df$cases_to_downweight])
+                                adj_factors <- rep(1, length(wt_set))
+                                upweight_sum <- sum(wt_set[is_upweight_case])
+                                downweight_sum <- sum(wt_set[is_downweight_case])
 
                                 if (upweight_sum != 0) {
                                   upweight_factor <- 1 + (downweight_sum/upweight_sum)
@@ -40,30 +29,25 @@ shift_weight_by_group <- function(wt_set, is_upweight_case, is_downweight_case, 
                                 }
                                 downweight_factor <- 0
 
-                                adj_factors[df$cases_to_upweight] <- upweight_factor
-                                adj_factors[df$cases_to_downweight] <- downweight_factor
+                                adj_factors[is_upweight_case] <- upweight_factor
+                                adj_factors[is_downweight_case] <- downweight_factor
 
-                                return(data.frame(ordering = df$ordering,
-                                                  wts = df$wts * adj_factors))
-                              })
-  adjusted_wt_set <- do.call(rbind, adjusted_wts_by_group)
-  adjusted_wt_set <- adjusted_wt_set[['wts']][order(adjusted_wt_set[['ordering']])]
-  return(adjusted_wt_set)
+  return(wt_set * adj_factors)
 }
 
 #' Redistribute weight from one group to another
 #'
 #' @description Redistributes weight from one group to another: for example, from non-respondents to respondents.
-#' Redistribution can be done separately by values of a categorical variable, for example to implement a nonresponse weighting class adjustment.
 #' Redistribution is conducted for the full-sample weights as well as each set of replicate weights.
+#' This can be done separately for each combination of a set of grouping variables, for example to implement a nonresponse weighting class adjustment.
 #'
 #' @param design A survey design object, created with either the \code{survey} or \code{srvyr} packages.
-#' @param cat_var A string (e.g. \code{"response_status"}) giving the name of a variable dividing the data
-#'                into groups which should be upweighted or downweighted.
-#' @param from_values The values of \code{cat_var} for cases which should have their weights increased.
-#' @param to_values The values of \code{cat_var} for cases which should have their weights decreased.
-#' @param by_var (Optional) The name of a variable used to group the redistribution of weights.
-#'               For example, if the data include a variable named \code{"wt_class"}, one could specify \code{by_var = "wt_class"}.
+#' @param reduce_if An expression indicating which cases should have their weights set to zero.
+#' Must evaluate to a logical vector with only values of TRUE or FALSE.
+#' @param increase_if An expression indicating which cases should have their weights increased.
+#' Must evaluate to a logical vector with only values of TRUE or FALSE.
+#' @param by (Optional) A character vector with the names of variables used to group the redistribution of weights.
+#' For example, if the data include variables named \code{"stratum"} and \code{"wt_class"}, one could specify \code{by_var = c("stratum", "wt_class")}.
 #'
 #' @return The survey design object, but with updated full-sample weights and updated replicate weights.
 #' @export
@@ -82,37 +66,56 @@ shift_weight_by_group <- function(wt_set, is_upweight_case, is_downweight_case, 
 #'
 #' # Adjust weights for cases with unknown eligibility
 #' ue_adjusted_design <- redistribute_weights(design = rep_design,
-#'                                            cat_var = "response_status",
-#'                                            from_values = c("Unknown eligibility"),
-#'                                            to_values = c("Respondent", "Nonrespondent", "Ineligible"),
-#'                                            by_var = "stype")
+#'                                            reduce_if = response_status %in% c("Unknown eligibility"),
+#'                                            increase_if = !response_status %in% c("Unknown eligibility"),
+#'                                            by = c("stype", "cname"))
 #'
 #' # Adjust weights for nonresponse
 #' nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
-#'                                            cat_var = "response_status",
-#'                                            from_values = "Nonrespondent",
-#'                                            to_values = "Respondent",
-#'                                            by_var = "stype")
+#'                                            reduce_if = response_status %in% c("Nonrespondent"),
+#'                                            increase_if = response_status == "Respondent",
+#'                                            by = c("stype", "cname"))
 #
-redistribute_weights <- function(design, cat_var,
-                                 from_values = c("EN"), to_values = c("ER"),
-                                 by_var = NULL) {
+redistribute_weights <- function(design,
+                                 reduce_if, increase_if,
+                                 by) {
+  if (!'svyrep.design' %in% class(design)) {
+    stop("`design` must be a replicate design object.")
+  }
   UseMethod("redistribute_weights", design)
 }
 
-redistribute_weights.svyrep.design <- function(design, cat_var,
-                                               from_values = c("EN"), to_values = c("ER"),
-                                               by_var = NULL) {
+redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, by) {
 
   # Check validity of inputs
-  if (is.null(from_values) || is.null(to_values)) {
-    stop("Must supply values to the arguments `from_values` and `to_values`.")
+
+  if (missing(by) || is.null(by)) {
+    by <- NULL
+  } else {
+    if (!is.character(by)) {
+      stop("`by` must be a character vector with at least one column name from `design`.")
+    }
+    if (!all(by %in% colnames(design[['variables']]))) {
+      missing_variables <- setdiff(by, colnames(design[['variables']]))
+      error_msg <- sprintf("The following `by` variables are missing from the data: %s",
+                           paste(missing_variables, collapse = ", "))
+      stop(error_msg)
+    }
   }
 
-  cat_var_type <- typeof(design[[cat_var]])
-  if (! typeof(from_values) %in% c("character", cat_var_type) | !typeof(to_values) %in% c("character", cat_var_type)) {
-    stop(sprintf("The values supplied to `from_values` and `to_values` must be either character or the same type as `%s`.",
-                 cat_var))
+  if (missing(reduce_if) || missing(increase_if)) {
+    stop("Must supply expressions to the arguments `reduce_if` and `increase_if`.")
+  }
+
+  case_groupings <- dplyr::transmute(design[['variables']],
+                                     `_IS_DOWNWT_CASE_` = {{ reduce_if }},
+                                     `_IS_UPWT_CASE_` = {{ increase_if }})
+
+  if (!is.logical(case_groupings[["_IS_DOWNWT_CASE_"]]) || !is.logical(case_groupings[['_IS_UPWT_CASE_']])) {
+    stop("The expressions supplied to `reduce_if` and `increase_if` must result in logical values of TRUE or FALSE.")
+  }
+  if (any(is.na(case_groupings[["_IS_DOWNWT_CASE_"]])) || any(is.na(case_groupings[["_IS_UPWT_CASE_"]]))) {
+    stop("The result of the expressions supplied to `reduce_if` and `increase_if` must be TRUE or FALSE, not NA.")
   }
 
   # Determine whether replicate weights in input are compressed for storage
@@ -121,38 +124,50 @@ redistribute_weights.svyrep.design <- function(design, cat_var,
   # Extract the matrix of replicate weights
   rep_wts <- as.matrix(design[['repweights']])
 
+
+  # Divide data into groups, and obtain list of row indices for each group
+
+  if (!is.null(by)) {
+    grouping_df <- dplyr::group_by(design[['variables']],
+                                   across(one_of({{by}})))
+    grouping_df <- attributes(grouping_df)[['groups']]
+    group_row_indices <- grouping_df[['.rows']]
+  } else {
+    group_row_indices <- list(seq_len(nrow(design)))
+  }
+
+
   # Extract the full-sample weights
   full_sample_wts <- design[['pweights']]
 
-  # Determine row indices of cases to upweight or downweight
-  cases_to_upweight <- design[['variables']][[cat_var]] %in% from_values
-  cases_to_downweight <- design[['variables']][[cat_var]] %in% to_values
-
-  # Group data according to the by variable
-
-  if (is.null(by_var)) {
-    by_values <- rep(1, nrow(design))
-  } else {
-    by_values <- design[['variables']][[by_var]]
-  }
-
   # Adjust the full-sample weights
 
-  adjusted_full_sample_weights <- shift_weight_by_group(
-    wt_set = full_sample_wts,
-    is_upweight_case = cases_to_upweight,
-    is_downweight_case = cases_to_downweight,
-    by_values = by_values
-  )
+  adjusted_full_sample_weights <- full_sample_wts
+
+  for (set_of_indices in group_row_indices) {
+    adjusted_full_sample_weights[set_of_indices] <- shift_weight(
+      wt_set = adjusted_full_sample_weights[set_of_indices],
+      is_upweight_case = case_groupings[['_IS_UPWT_CASE_']][set_of_indices],
+      is_downweight_case = case_groupings[['_IS_DOWNWT_CASE_']][set_of_indices]
+    )
+  }
 
 
   # Adjust the replicate weights
   adjusted_rep_wts <- apply(X = rep_wts, MARGIN = 2, FUN = function(rep_wt_set) {
-    shift_weight_by_group(wt_set = rep_wt_set,
-                          is_upweight_case =  cases_to_upweight,
-                          is_downweight_case = cases_to_downweight,
-                          by_values = by_values)
+
+    adjusted_wt_set <- rep_wt_set
+
+    for (set_of_indices in group_row_indices) {
+      adjusted_wt_set[set_of_indices] <- shift_weight(
+        wt_set = rep_wt_set[set_of_indices],
+        is_upweight_case = case_groupings[['_IS_UPWT_CASE_']][set_of_indices],
+        is_downweight_case = case_groupings[['_IS_DOWNWT_CASE_']][set_of_indices]
+      )
+    }
+    return(adjusted_wt_set)
   })
+
 
 
   # Update the survey design object to use the adjusted weights

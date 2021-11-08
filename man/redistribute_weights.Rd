@@ -4,34 +4,27 @@
 \alias{redistribute_weights}
 \title{Redistribute weight from one group to another}
 \usage{
-redistribute_weights(
-  design,
-  cat_var,
-  from_values = c("EN"),
-  to_values = c("ER"),
-  by_var = NULL
-)
+redistribute_weights(design, reduce_if, increase_if, by)
 }
 \arguments{
 \item{design}{A survey design object, created with either the \code{survey} or \code{srvyr} packages.}
 
-\item{cat_var}{A string (e.g. \code{"response_status"}) giving the name of a variable dividing the data
-into groups which should be upweighted or downweighted.}
+\item{reduce_if}{An expression indicating which cases should have their weights set to zero.
+Must evaluate to a logical vector with only values of TRUE or FALSE.}
 
-\item{from_values}{The values of \code{cat_var} for cases which should have their weights increased.}
+\item{increase_if}{An expression indicating which cases should have their weights increased.
+Must evaluate to a logical vector with only values of TRUE or FALSE.}
 
-\item{to_values}{The values of \code{cat_var} for cases which should have their weights decreased.}
-
-\item{by_var}{(Optional) The name of a variable used to group the redistribution of weights.
-For example, if the data include a variable named \code{"wt_class"}, one could specify \code{by_var = "wt_class"}.}
+\item{by}{(Optional) A character vector with the names of variables used to group the redistribution of weights.
+For example, if the data include variables named \code{"stratum"} and \code{"wt_class"}, one could specify \code{by_var = c("stratum", "wt_class")}.}
 }
 \value{
 The survey design object, but with updated full-sample weights and updated replicate weights.
 }
 \description{
 Redistributes weight from one group to another: for example, from non-respondents to respondents.
-Redistribution can be done separately by values of a categorical variable, for example to implement a nonresponse weighting class adjustment.
 Redistribution is conducted for the full-sample weights as well as each set of replicate weights.
+This can be done separately for each combination of a set of grouping variables, for example to implement a nonresponse weighting class adjustment.
 }
 \examples{
 
@@ -47,15 +40,13 @@ rep_design <- as.svrepdesign(dclus1)
 
 # Adjust weights for cases with unknown eligibility
 ue_adjusted_design <- redistribute_weights(design = rep_design,
-                                           cat_var = "response_status",
-                                           from_values = c("Unknown eligibility"),
-                                           to_values = c("Respondent", "Nonrespondent", "Ineligible"),
-                                           by_var = "stype")
+                                           reduce_if = response_status \%in\% c("Unknown eligibility"),
+                                           increase_if = !response_status \%in\% c("Unknown eligibility"),
+                                           by = c("stype", "cname"))
 
 # Adjust weights for nonresponse
 nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
-                                           cat_var = "response_status",
-                                           from_values = "Nonrespondent",
-                                           to_values = "Respondent",
-                                           by_var = "stype")
+                                           reduce_if = response_status \%in\% c("Nonrespondent"),
+                                           increase_if = response_status == "Respondent",
+                                           by = c("stype", "cname"))
 }
