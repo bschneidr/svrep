@@ -109,9 +109,9 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
     stop("Must supply expressions to the arguments `reduce_if` and `increase_if`.")
   }
 
-  case_groupings <- dplyr::transmute(design[['variables']],
-                                     `_IS_DOWNWT_CASE_` = {{ reduce_if }},
-                                     `_IS_UPWT_CASE_` = {{ increase_if }})
+  case_groupings <- design$variables[,NULL]
+  case_groupings[['_IS_DOWNWT_CASE_']] <- eval(substitute(reduce_if), design$variables, parent.frame())
+  case_groupings[['_IS_UPWT_CASE_']] <- eval(substitute(increase_if), design$variables, parent.frame())
 
   if (!is.logical(case_groupings[["_IS_DOWNWT_CASE_"]]) || !is.logical(case_groupings[['_IS_UPWT_CASE_']])) {
     stop("The expressions supplied to `reduce_if` and `increase_if` must result in logical values of TRUE or FALSE.")
@@ -130,10 +130,10 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
   # Divide data into groups, and obtain list of row indices for each group
 
   if (!is.null(by)) {
-    grouping_df <- dplyr::group_by(design[['variables']],
-                                   dplyr::across(dplyr::one_of({{by}})))
-    grouping_df <- attributes(grouping_df)[['groups']]
-    group_row_indices <- grouping_df[['.rows']]
+    unique_values_factor <- interaction(design$variables[,by],
+                                        sep = "_<>_", drop = TRUE)
+    group_row_indices <- lapply(levels(unique_values_factor),
+                                function(factor_level) which(unique_values_factor == factor_level))
   } else {
     group_row_indices <- list(seq_len(nrow(design)))
   }
