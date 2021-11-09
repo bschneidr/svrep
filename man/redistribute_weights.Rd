@@ -16,7 +16,7 @@ Must evaluate to a logical vector with only values of TRUE or FALSE.}
 Must evaluate to a logical vector with only values of TRUE or FALSE.}
 
 \item{by}{(Optional) A character vector with the names of variables used to group the redistribution of weights.
-For example, if the data include variables named \code{"stratum"} and \code{"wt_class"}, one could specify \code{by_var = c("stratum", "wt_class")}.}
+For example, if the data include variables named \code{"stratum"} and \code{"wt_class"}, one could specify \code{by = c("stratum", "wt_class")}.}
 }
 \value{
 The survey design object, but with updated full-sample weights and updated replicate weights.
