@@ -2,3 +2,4 @@
 
 S3method(redistribute_weights,svyrep.design)
 export(redistribute_weights)
+export(stack_replicate_designs)
