@@ -1,5 +1,8 @@
 #' Stack replicate designs, combining data and weights into a single object
 #'
+#' @description Stack replicate designs: combine rows of data, rows of replicate weights, and the respective full-sample weights.
+#' This can be useful when comparing estimates before and after a set of adjustments made to the weights.
+#' Another more delicate application is when combining sets of replicate weights from multiple years of data for a survey, although this must be done carefully based on guidance from a data provider.
 #' @param ... Replicate-weights survey design objects to combine. These can be supplied in one of two ways. \cr
 #' \itemize{
 #'   \item Option 1 - A series of design objects, for example \code{'adjusted' = adjusted_design, 'orig' = orig_design}.
@@ -63,6 +66,10 @@ stack_replicate_designs <- function(..., .id = "WHICH_REP_DESIGN") {
 
   # If the input is a series of arguments, ensure it's handled appropriately
   design_list <- list(...)
+
+  if (length(design_list) == 0) {
+    stop("No design objects were supplied.")
+  }
 
   # If the input is a single list, ensure it's handled as such
   if (length(design_list) == 1 && is.list(design_list[[1]]) && !"svyrep.design" %in% class(design_list)) {

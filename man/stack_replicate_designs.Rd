@@ -24,7 +24,9 @@ The labels are taken from named arguments}
 A replicate-weights survey design object, with class \code{svyrep.design}.
 }
 \description{
-Stack replicate designs, combining data and weights into a single object
+Stack replicate designs: combine rows of data, rows of replicate weights, and the respective full-sample weights.
+This can be useful when comparing estimates before and after a set of adjustments made to the weights.
+Another more delicate application is when combining sets of replicate weights from multiple years of data for a survey, although this must be done carefully based on guidance from a data provider.
 }
 \examples{
 suppressPackageStartupMessages(library(survey))
