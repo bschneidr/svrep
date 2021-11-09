@@ -109,7 +109,9 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
     stop("Must supply expressions to the arguments `reduce_if` and `increase_if`.")
   }
 
-  case_groupings <- design$variables[,NULL]
+  case_groupings <- data.frame(`_IS_DOWNWT_CASE` = logical(nrow(design)),
+                               `_IS_UPWT_CASE` = logical(nrow(design)),
+                               check.names = FALSE)
   case_groupings[['_IS_DOWNWT_CASE_']] <- eval(substitute(reduce_if), design$variables, parent.frame())
   case_groupings[['_IS_UPWT_CASE_']] <- eval(substitute(increase_if), design$variables, parent.frame())
 
@@ -118,6 +120,10 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
   }
   if (any(is.na(case_groupings[["_IS_DOWNWT_CASE_"]])) || any(is.na(case_groupings[["_IS_UPWT_CASE_"]]))) {
     stop("The result of the expressions supplied to `reduce_if` and `increase_if` must be TRUE or FALSE, not NA.")
+  }
+
+  if (any(case_groupings[['_IS_DOWNWT_CASE_']] & case_groupings[['_IS_UPWT_CASE_']])) {
+    stop("`reduce_if` and `increase_if` conflict: they imply that some cases should have weights simultaneously reduced and increased.")
   }
 
   # Determine whether replicate weights in input are compressed for storage

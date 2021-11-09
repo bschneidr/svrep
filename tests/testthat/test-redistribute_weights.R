@@ -137,7 +137,7 @@ test_that("Throws informative error for non-logical results from `reduce_if`/`in
   fixed = TRUE
   )
 })
-test_that("Throws informative error for mising values in `reduce_if`/`increase_if`", {
+test_that("Throws informative error for missing values in `reduce_if`/`increase_if`", {
   expect_error(redistribute_weights(
     design = cluster_rep_design,
     reduce_if = sample(c(TRUE, FALSE, NA),
@@ -145,6 +145,15 @@ test_that("Throws informative error for mising values in `reduce_if`/`increase_i
                        replace = TRUE),
     increase_if = response_status %in% c("R", "NR", "IE")
   ), regexp = "The result of the expressions supplied to `reduce_if` and `increase_if` must be TRUE or FALSE, not NA.",
+  fixed = TRUE
+  )
+})
+test_that("Throws informative error for conflicting results from `reduce_if`/`increase_if`", {
+  expect_error(redistribute_weights(
+    design = cluster_rep_design,
+    reduce_if = response_status %in% c("NR", "IE"),
+    increase_if = response_status %in% c("R", "NR", "IE")
+  ), regexp = "`reduce_if` and `increase_if` conflict: they imply that some cases should have weights simultaneously reduced and increased.",
   fixed = TRUE
   )
 })
