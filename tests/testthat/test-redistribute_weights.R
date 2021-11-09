@@ -65,11 +65,15 @@ test_that("Replicate weights updated correctly", {
 
 # Test of example with grouping variables ----
 
+cluster_rep_design[['variables']][['stype_E_or_M']] <- ifelse(
+  cluster_rep_design[['variables']][['stype']] %in% c("E", "M"), 1, 0
+)
+
 grouped_example_output <- redistribute_weights(
   design = cluster_rep_design,
   reduce_if = response_status %in% c("NR"),
   increase_if = response_status %in% c("R"),
-  by = c("stype")
+  by = c("stype_E_or_M", "stype")
 )
 
 reduced_cases <- cluster_rep_design$variables[['response_status']] %in% "NR"
