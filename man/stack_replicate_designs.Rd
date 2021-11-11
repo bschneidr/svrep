@@ -4,7 +4,7 @@
 \alias{stack_replicate_designs}
 \title{Stack replicate designs, combining data and weights into a single object}
 \usage{
-stack_replicate_designs(..., .id = "WHICH_REP_DESIGN")
+stack_replicate_designs(..., .id = "Design_Name")
 }
 \arguments{
 \item{...}{Replicate-weights survey design objects to combine. These can be supplied in one of two ways. \cr
@@ -15,13 +15,12 @@ stack_replicate_designs(..., .id = "WHICH_REP_DESIGN")
 All objects must have the same specifications for \code{type}, \code{rho},
 \code{mse}, \code{scales}, and \code{rscales}.}
 
-\item{.id}{Either \code{NULL} or a single character value.
-When \code{.id} is supplied, a new column of identifiers is created in the output data
-to link each row to the design from which it was taken. \cr
-The labels are taken from named arguments}
+\item{.id}{A single character value, which becomes the name of a new column of identifiers
+created in the output data to link each row to the design from which it was taken. \cr
+The labels used for the identifiers are taken from named arguments.}
 }
 \value{
-A replicate-weights survey design object, with class \code{svyrep.design}.
+A replicate-weights survey design object, with class \code{svyrep.design} and \code{svyrep.stacked}.
 }
 \description{
 Stack replicate designs: combine rows of data, rows of replicate weights, and the respective full-sample weights.

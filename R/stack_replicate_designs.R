@@ -10,12 +10,11 @@
 #' }
 #' All objects must have the same specifications for \code{type}, \code{rho},
 #' \code{mse}, \code{scales}, and \code{rscales}.
-#' @param .id Either \code{NULL} or a single character value.
-#' When \code{.id} is supplied, a new column of identifiers is created in the output data
-#' to link each row to the design from which it was taken. \cr
-#' The labels are taken from named arguments
+#' @param .id A single character value, which becomes the name of a new column of identifiers
+#' created in the output data to link each row to the design from which it was taken. \cr
+#' The labels used for the identifiers are taken from named arguments.
 #'
-#' @return A replicate-weights survey design object, with class \code{svyrep.design}.
+#' @return A replicate-weights survey design object, with class \code{svyrep.design} and \code{svyrep.stacked}.
 #' @export
 #'
 #' @examples
@@ -54,13 +53,13 @@
 #'                         'nonresponse adjusted' = nr_adjusted_design)
 #' stacked_design <- stack_replicate_designs(list_of_designs, .id = "which_design")
 
-stack_replicate_designs <- function(..., .id = "WHICH_REP_DESIGN") {
+stack_replicate_designs <- function(..., .id = "Design_Name") {
 
-  if (missing(.id) || is.null(.id)) {
-    .id <- NULL
+  if (is.null(.id)) {
+    stop("`.id` argument must be a single character value.")
   } else {
     if (!is.character(.id) || is.na(.id) || length(.id) != 1) {
-      stop("`.id` argument must be NULL or a single character value.")
+      stop("`.id` argument must be a single character value.")
     }
   }
 
@@ -125,14 +124,24 @@ stack_replicate_designs <- function(..., .id = "WHICH_REP_DESIGN") {
   })
 
   design_specs_match <- sapply(design_specs, function(x) length(unique(x)) == 1)
+  rscales_lengths <- sapply(design_list, function(x) length(x$rscales))
+  diff_ncols <- length(unique(rscales_lengths)) > 1
 
+  if (diff_ncols) {
+    stop("The designs must all have the same number of columns of replicate weights.")
+  }
   if (!all(design_specs_match)) {
+
     stop(sprintf("The following specifications differ across designs: %s",
                  paste(names(design_specs_match)[!design_specs_match],
                        collapse = ", ")))
   }
 
   design_specs <- lapply(design_specs, function(x) x[[1]])
+
+  if (design_specs[['type']] %in% c("JK1", "JKn", "ACS", "successive-difference", "JK2")) {
+    design_specs[['rho']] <- NULL
+  }
 
   # Extract the matrices of replicate weights
   # and determine which were compressed and which are combined with full-sample weights
@@ -150,6 +159,8 @@ stack_replicate_designs <- function(..., .id = "WHICH_REP_DESIGN") {
       as.matrix(design_obj$repweights) * design_obj$pweights
     }
   })
+
+
   rep_wts_datasets <- lapply(seq_along(design_list), function(design_index) {
     df <- design_list[[design_index]][['variables']]
     if (!is.null(.id)) {
@@ -168,8 +179,6 @@ stack_replicate_designs <- function(..., .id = "WHICH_REP_DESIGN") {
   if (any(rep_wts_nrows) == 0) {
     stop("One of the designs lacks any rows of replicate weights.")
   }
-
-  # Check whether data frames from the designs can be combined
 
   # Stack the matrices of replicate weights
   stacked_rep_wts_matrix <- Reduce(x = rep_wts_matrices, f = rbind)
@@ -191,5 +200,9 @@ stack_replicate_designs <- function(..., .id = "WHICH_REP_DESIGN") {
                                               scale = design_specs$scale,
                                               rscales = design_specs$rscales,
                                               fpc = design_specs$fpc, fpctype = design_specs$fpctype)
+
+  class(combined_svrepdesign) <- append(x = class(combined_svrepdesign), "svyrep.stacked")
+
+  combined_svrepdesign <- `attr<-`(combined_svrepdesign, 'variable_for_source_design', .id)
   return(combined_svrepdesign)
 }
