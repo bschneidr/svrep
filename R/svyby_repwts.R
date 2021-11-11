@@ -1,0 +1,140 @@
+#' Compare survey statistics calculated separately from different sets of replicate weights
+#'
+#' @description A modified version of the \code{svyby()} function from the \code{survey} package.
+#' Whereas \code{svyby()} calculates statistics separately for each subset specified by a specified grouping variable,
+#' \code{svyby_repwts()} calculates statistics separately for each replicate design, in addition to any additional user-specified grouping variables.
+#'
+#' @param rep_designs The replicate-weights survey designs to be compared. Supplied either as:
+#' \itemize{
+#'   \item A named list of replicate-weights survey design objects, for example \code{list('nr' = nr_adjusted_design, 'ue' = ue_adjusted_design)}.
+#'   \item A 'stacked' replicate-weights survey design object created by \code{stack_replicate_designs()}.
+#' }
+#' The designs must all have the same number of columns of replicate weights, of the same type (bootstrap, JKn, etc.)
+#' @param formula A formula specifying the variables to pass to \code{FUN}
+#' @param by A formula specifying factors that define subsets
+#' @param FUN A function taking a formula and survey design object as its first two arguments.
+#' Usually a function from the \code{survey} package, such as \code{svytotal} or \code{svymean}.
+#' @param ... Other arguments to \code{FUN}
+#' @param deff A value of \code{TRUE} or \code{FALSE}, indicating whether design effects should be estimated if possible.
+#' @param keep.var A value of \code{TRUE} or \code{FALSE}. If \code{FUN} returns a \code{svystat} object, indicates whether to extract standard errors from it.
+#' @param keep.names Define row names based on the subsets
+#' @param verbose If \code{TRUE}, print a label for each subset as it is processed.
+#' @param vartype Report variability as one or more of standard error, confidence interval, coefficient of variation,  percent coefficient of variation, or variance
+#' @param drop.empty.groups If \code{FALSE}, report \code{NA} for empty groups, if \code{TRUE} drop them from the output
+#' @param covmat If \code{TRUE}, compute covariances between estimates for different subsets.
+#' Allows \code{\link{svycontrast}} to be used on output. Requires that \code{FUN} supports either
+#' \code{return.replicates=TRUE} or \code{influence=TRUE}
+#' @param return.replicates If \code{TRUE}, return all the replicates as the "replicates" attribute of the result.
+#' This can be useful if you want to produce custom summaries of the estimates from each replicate.
+#' @param na.rm.by If true, omit groups defined by \code{NA} values of the \code{by} variables
+#' @param na.rm.all If true, check for groups with no non-missing observations for variables defined by \code{formula} and treat these groups as empty
+#' @param multicore Use \code{multicore} package to distribute subsets over multiple processors?
+#' By default, uses \code{degf(stack_replicate_designs(rep_designs))} to estimate degrees of freedom as determined by the \code{survey} package.
+#' @return
+#' @export
+#'
+#' @examples
+#' suppressPackageStartupMessages(library(survey))
+#' data(api)
+#'
+#' dclus1 <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc)
+#' dclus1$variables$response_status <- sample(x = c("Respondent", "Nonrespondent",
+#'                                                  "Ineligible", "Unknown eligibility"),
+#'                                            size = nrow(dclus1),
+#'                                            replace = TRUE)
+#' orig_rep_design <- as.svrepdesign(dclus1)
+#'
+#' # Adjust weights for cases with unknown eligibility
+#' ue_adjusted_design <- redistribute_weights(design = orig_rep_design,
+#'                                            reduce_if = response_status %in% c("Unknown eligibility"),
+#'                                            increase_if = !response_status %in% c("Unknown eligibility"),
+#'                                            by = c("stype", "cname"))
+#'
+#' # Adjust weights for nonresponse
+#' nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
+#'                                            reduce_if = response_status %in% c("Nonrespondent"),
+#'                                            increase_if = response_status == "Respondent",
+#'                                            by = c("stype", "cname"))
+#'
+#' # Compare estimates from the three sets of replicate weights
+#'
+#'   list_of_designs <- list('original' = orig_rep_design,
+#'                           'unknown eligibility adjusted' = ue_adjusted_design,
+#'                           'nonresponse adjusted' = nr_adjusted_design)
+#'
+#'   ##_ First compare overall means for two variables
+#'   means_by_design <- svyby_repwts(formula = ~ api00 + api99,
+#'                                   FUN = svymean,
+#'                                   rep_design = list_of_designs)
+#'
+#'   print(means_by_design)
+#'
+#'   ##_ Next compare domain means for two variables
+#'   domain_means_by_design <- svyby_repwts(formula = ~ api00 + api99,
+#'                                          by = ~ stype,
+#'                                          FUN = svymean,
+#'                                          rep_design = list_of_designs)
+#'
+#'   print(domain_means_by_design)
+#'
+svyby_repwts <- function(rep_designs,
+                         formula, by, FUN, ...,
+                         deff = FALSE,
+                         keep.var = TRUE,
+                         keep.names = TRUE,
+                         verbose = FALSE,
+                         vartype = c("se","ci","ci","cv","cvpct","var"),
+                         level = 0.95, df = NULL,
+                         drop.empty.groups = TRUE, covmat = TRUE,
+                         return.replicates = FALSE, na.rm.by=FALSE, na.rm.all=FALSE,
+                         multicore = getOption("survey.multicore")) {
+
+
+  if (!'svyrep.stacked' %in% class(rep_designs) & !is.list(rep_designs)) {
+    stop("`design_list` must be either a list of replicate-weights survey designs, or the output of `stack_replicate_designs()`.")
+  }
+
+  if ('svyrep.stacked' %in% class(rep_designs)) {
+    variable_for_source_design <- attributes(rep_designs)['variable_for_source_design']
+    stacked_design <- rep_designs
+  }
+  if (!'svyrep.stacked' %in% class(rep_designs)) {
+    stacked_design <- stack_replicate_designs(rep_designs, .id = "Design_Name")
+    variable_for_source_design <- "Design_Name"
+  }
+
+  if (missing(by) || is.null(by)) {
+    by_input <- as.formula(sprintf("~ %s", variable_for_source_design))
+  } else if ('formula' %in% class(by)) {
+    by_input <- stats::update(by, as.formula(sprintf("~ %s + .", variable_for_source_design)))
+  } else if (is.list(by)) {
+    by_input <- append(x = by, values = list(stacked_design[['variables']][[variable_for_source_design]]),
+                       after = 0)
+  }
+
+  if (missing(vartype)) {
+    vartype <- "se"
+  }
+
+  if (missing(df) || is.null(df)) {
+    df <- survey::degf(stacked_design)
+  }
+
+  svyby_result <- survey::svyby(design = stacked_design,
+                                formula = formula, by = by_input, FUN = FUN,
+                                level = level, df = df, ...,
+                                deff = FALSE,
+                                keep.var = TRUE,
+                                keep.names = TRUE,
+                                verbose = FALSE,
+                                vartype = vartype,
+                                drop.empty.groups = TRUE, covmat = TRUE,
+                                return.replicates = FALSE, na.rm.by=FALSE, na.rm.all=FALSE,
+                                multicore = getOption("survey.multicore"))
+
+  if (packageVersion('survey') >= '4.1' && is.data.frame(svyby_result)) {
+    #rownames(svyby_result) <- NULL
+  }
+  return(svyby_result)
+}
+
