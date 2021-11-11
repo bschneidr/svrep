@@ -1,4 +1,7 @@
-#' Shift weight from one set of cases to another
+#' (Internal function) Shift weight from one set of cases to another
+#'
+#' @description You likely want to use \code{redistribute_weights} instead.
+#' The function \code{shift_weight} is internal to this package and is used only "under-the-hood."
 #'
 #' @param wt_set A numeric vector of weights
 #' @param is_upweight_case A logical vector indicating cases whose weight should be increased

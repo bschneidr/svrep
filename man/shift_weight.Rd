@@ -2,7 +2,7 @@
 % Please edit documentation in R/redistribute_weights.R
 \name{shift_weight}
 \alias{shift_weight}
-\title{Shift weight from one set of cases to another}
+\title{(Internal function) Shift weight from one set of cases to another}
 \usage{
 shift_weight(wt_set, is_upweight_case, is_downweight_case)
 }
@@ -17,7 +17,8 @@ shift_weight(wt_set, is_upweight_case, is_downweight_case)
 A numeric vector of adjusted weights, of the same length as \code{wt_set}.
 }
 \description{
-Shift weight from one set of cases to another
+You likely want to use \code{redistribute_weights} instead.
+The function \code{shift_weight} is internal to this package and is used only "under-the-hood."
 }
 \examples{
 
