@@ -8,7 +8,7 @@
 #' @param is_downweight_case A logical vector indicating cases whose weight should be decreased
 #'
 #' @return A numeric vector of adjusted weights, of the same length as \code{wt_set}.
-#'
+#' @keywords internal
 #' @examples
 #'
 #' example_data <- data.frame(weight = c(1.5, 1.25, 1.25, 2, 0.5, 1.5),
@@ -156,7 +156,7 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
   adjusted_full_sample_weights <- full_sample_wts
 
   for (set_of_indices in group_row_indices) {
-    adjusted_full_sample_weights[set_of_indices] <- svrep:::shift_weight(
+    adjusted_full_sample_weights[set_of_indices] <- shift_weight(
       wt_set = adjusted_full_sample_weights[set_of_indices],
       is_upweight_case = case_groupings[['_IS_UPWT_CASE_']][set_of_indices],
       is_downweight_case = case_groupings[['_IS_DOWNWT_CASE_']][set_of_indices]
@@ -170,7 +170,7 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
     adjusted_wt_set <- rep_wt_set
 
     for (set_of_indices in group_row_indices) {
-      adjusted_wt_set[set_of_indices] <- svrep:::shift_weight(
+      adjusted_wt_set[set_of_indices] <- shift_weight(
         wt_set = rep_wt_set[set_of_indices],
         is_upweight_case = case_groupings[['_IS_UPWT_CASE_']][set_of_indices],
         is_downweight_case = case_groupings[['_IS_DOWNWT_CASE_']][set_of_indices]

@@ -118,10 +118,10 @@ stack_replicate_designs <- function(..., .id = "Design_Name") {
   design_specs <- lapply(setNames(c("type", "combined.weights", "rho", "mse", "scale", "rscales", "fpc", "fpctype"),
                                   c("type", "combined.weights", "rho", "mse", "scale", "rscales", "fpc", "fpctype")),
                          function(spec_element) {
-    lapply(design_list, function(design_obj) {
-      design_obj[[spec_element]]
-    })
-  })
+                           lapply(design_list, function(design_obj) {
+                             design_obj[[spec_element]]
+                           })
+                         })
 
   design_specs_match <- sapply(design_specs, function(x) length(unique(x)) == 1)
   rscales_lengths <- sapply(design_list, function(x) length(x$rscales))

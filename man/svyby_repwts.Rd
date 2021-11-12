@@ -15,8 +15,6 @@ svyby_repwts(
   keep.names = TRUE,
   verbose = FALSE,
   vartype = c("se", "ci", "ci", "cv", "cvpct", "var"),
-  level = 0.95,
-  df = NULL,
   drop.empty.groups = TRUE,
   covmat = TRUE,
   return.replicates = FALSE,
@@ -69,7 +67,8 @@ This can be useful if you want to produce custom summaries of the estimates from
 By default, uses \code{degf(stack_replicate_designs(rep_designs))} to estimate degrees of freedom as determined by the \code{survey} package.}
 }
 \value{
-
+An object of class \code{"svyby"}: a data frame showing the grouping factors and results of \code{FUN} for each combination of the grouping factors.
+The replicate designs always represent the first grouping factor.
 }
 \description{
 A modified version of the \code{svyby()} function from the \code{survey} package.

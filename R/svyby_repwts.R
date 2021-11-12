@@ -30,7 +30,8 @@
 #' @param na.rm.all If true, check for groups with no non-missing observations for variables defined by \code{formula} and treat these groups as empty
 #' @param multicore Use \code{multicore} package to distribute subsets over multiple processors?
 #' By default, uses \code{degf(stack_replicate_designs(rep_designs))} to estimate degrees of freedom as determined by the \code{survey} package.
-#' @return
+#' @return An object of class \code{"svyby"}: a data frame showing the grouping factors and results of \code{FUN} for each combination of the grouping factors.
+#' The replicate designs always represent the first grouping factor.
 #' @export
 #'
 #' @examples
@@ -84,7 +85,6 @@ svyby_repwts <- function(rep_designs,
                          keep.names = TRUE,
                          verbose = FALSE,
                          vartype = c("se","ci","ci","cv","cvpct","var"),
-                         level = 0.95, df = NULL,
                          drop.empty.groups = TRUE, covmat = TRUE,
                          return.replicates = FALSE, na.rm.by=FALSE, na.rm.all=FALSE,
                          multicore = getOption("survey.multicore")) {
@@ -116,13 +116,10 @@ svyby_repwts <- function(rep_designs,
     vartype <- "se"
   }
 
-  if (missing(df) || is.null(df)) {
-    df <- survey::degf(stacked_design)
-  }
-
-  svyby_result <- survey::svyby(design = stacked_design,
-                                formula = formula, by = by_input, FUN = FUN,
-                                level = level, df = df, ...,
+  svyby_result <- survey::svyby(formula = formula, by = by_input,
+                                design = stacked_design,
+                                FUN = FUN,
+                                ... = ...,
                                 deff = FALSE,
                                 keep.var = TRUE,
                                 keep.names = TRUE,

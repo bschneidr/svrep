@@ -30,3 +30,4 @@ svrep:::shift_weight(wt_set = example_data$weight,
                      is_upweight_case = example_data$response_status == 1,
                      is_downweight_case = example_data$response_status == 0)
 }
+\keyword{internal}
