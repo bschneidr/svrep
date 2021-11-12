@@ -45,6 +45,7 @@ Suppose we have a replicate-weights survey design object created with the survey
 library(survey)
 library(svrep)
 data(api, package = "survey")
+set.seed(2021)
 
 # Create variable giving response status
 apiclus1$response_status <- sample(x = c("Respondent", "Nonrespondent",
@@ -63,7 +64,7 @@ print(orig_rep_design)
 
 ### Adjusting for non-response or unknown eligibility
 
-It is common practice to adjust weights to adjust for unknown eligibility and non-response of sample cases. These adjustments largely consist of "weight redistribution": for example, weights from non-respondents are reduced to zero, and weights from respondents are correspondingly increased so that the total weight in the sample is unchanged. In order to account for these adjustments when estimating variances for survey statistics, the adjustments are repeated separately for each set of replicate weights. This process can be easily implemented using the `redistribute_weights()` function.
+It is common practice to adjust weights when there is non-response or there are sampled cases whose eligibility for the survey is unknown. The most common form of adjustment is "weight redistribution": for example, weights from non-respondents are reduced to zero, and weights from respondents are correspondingly increased so that the total weight in the sample is unchanged. In order to account for these adjustments when estimating variances for survey statistics, the adjustments are repeated separately for each set of replicate weights. This process can be easily implemented using the `redistribute_weights()` function.
 
 ```{r}
 # Adjust weights for unknown eligibility

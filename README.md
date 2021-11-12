@@ -43,6 +43,7 @@ non-respondents, and cases with unknown eligibility.
 library(survey)
 library(svrep)
 data(api, package = "survey")
+set.seed(2021)
 
 # Create variable giving response status
 apiclus1$response_status <- sample(x = c("Respondent", "Nonrespondent",
@@ -63,14 +64,14 @@ print(orig_rep_design)
 
 ### Adjusting for non-response or unknown eligibility
 
-It is common practice to adjust weights to adjust for unknown
-eligibility and non-response of sample cases. These adjustments largely
-consist of “weight redistribution”: for example, weights from
-non-respondents are reduced to zero, and weights from respondents are
-correspondingly increased so that the total weight in the sample is
-unchanged. In order to account for these adjustments when estimating
-variances for survey statistics, the adjustments are repeated separately
-for each set of replicate weights. This process can be easily
+It is common practice to adjust weights when there is non-response or
+there are sampled cases whose eligibility for the survey is unknown. The
+most common form of adjustment is “weight redistribution”: for example,
+weights from non-respondents are reduced to zero, and weights from
+respondents are correspondingly increased so that the total weight in
+the sample is unchanged. In order to account for these adjustments when
+estimating variances for survey statistics, the adjustments are repeated
+separately for each set of replicate weights. This process can be easily
 implemented using the `redistribute_weights()` function.
 
 ``` r
@@ -107,7 +108,7 @@ svyby_repwts(
   formula = ~ api00, FUN = svymean
 )
 #>                               Design_Name    api00       se
-#> nonresponse-adjusted nonresponse-adjusted 635.6862 24.33299
+#> nonresponse-adjusted nonresponse-adjusted 646.4465 29.26831
 #> original                         original 644.1694 26.32936
 
 # Estimate domain means (and their standard errors) from each design
@@ -117,11 +118,11 @@ svyby_repwts(
   formula = ~ api00, by = ~ stype, FUN = svymean
 )
 #>                                 Design_Name stype    api00       se
-#> nonresponse-adjusted.E nonresponse-adjusted     E 639.1922 24.69455
+#> nonresponse-adjusted.E nonresponse-adjusted     E 641.9463 35.35273
 #> original.E                         original     E 648.8681 25.37430
-#> nonresponse-adjusted.H nonresponse-adjusted     H 611.7750 34.45788
+#> nonresponse-adjusted.H nonresponse-adjusted     H 699.5455 12.77214
 #> original.H                         original     H 618.5714 46.34412
-#> nonresponse-adjusted.M nonresponse-adjusted     M 627.8333 33.36540
+#> nonresponse-adjusted.M nonresponse-adjusted     M 643.3429 42.88753
 #> original.M                         original     M 631.4400 33.68762
 ```
 
@@ -141,8 +142,8 @@ diff_between_ests <- svycontrast(stat = estimates,
                                  ))
 print(diff_between_ests)
 #>                       contrast     SE
-#> Original vs. Adjusted   8.4832 10.441
+#> Original vs. Adjusted  -2.2771 8.7637
 confint(diff_between_ests)
 #>                           2.5 %   97.5 %
-#> Original vs. Adjusted -11.98029 28.94662
+#> Original vs. Adjusted -19.45367 14.89952
 ```
