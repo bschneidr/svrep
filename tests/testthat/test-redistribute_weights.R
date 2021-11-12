@@ -167,3 +167,12 @@ test_that("Throws informative error for missing `by` variables", {
   fixed = FALSE
   )
 })
+test_that("Throws informative error for missing `reduce_if`/`increase_if` arguments", {
+  expect_error(redistribute_weights(
+    design = cluster_rep_design,
+    increase_if = response_status %in% c("R", "NR", "IE"),
+    by = "stype"
+  ), regexp = "Must supply expressions",
+  fixed = FALSE
+  )
+})
