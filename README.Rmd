@@ -84,7 +84,7 @@ nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
 
 ### Compare estimates from different sets of weights
 
-In order to assess whether weighting adjustments have an impact on the estimates we care about, we want to compare the estimates from the different sets of weights. The `svyby_repwts()` makes it easy to compare estimates from different sets of weights.
+In order to assess whether weighting adjustments have an impact on the estimates we care about, we want to compare the estimates from the different sets of weights. The function `svyby_repwts()` makes it easy to compare estimates from different sets of weights.
 
 ```{r}
 # Estimate overall means (and their standard errors) from each design
