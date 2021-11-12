@@ -1,7 +1,7 @@
 #' Compare survey statistics calculated separately from different sets of replicate weights
 #'
 #' @description A modified version of the \code{svyby()} function from the \code{survey} package.
-#' Whereas \code{svyby()} calculates statistics separately for each subset specified by a specified grouping variable,
+#' Whereas \code{svyby()} calculates statistics separately for each subset formed by a specified grouping variable,
 #' \code{svyby_repwts()} calculates statistics separately for each replicate design, in addition to any additional user-specified grouping variables.
 #'
 #' @param rep_designs The replicate-weights survey designs to be compared. Supplied either as:
@@ -31,7 +31,7 @@
 #' @param multicore Use \code{multicore} package to distribute subsets over multiple processors?
 #' By default, uses \code{degf(stack_replicate_designs(rep_designs))} to estimate degrees of freedom as determined by the \code{survey} package.
 #' @return An object of class \code{"svyby"}: a data frame showing the grouping factors and results of \code{FUN} for each combination of the grouping factors.
-#' The replicate designs always represent the first grouping factor.
+#' The first grouping factor always consists of indicators for which replicate design was used for an estimate.
 #' @export
 #'
 #' @examples
@@ -78,6 +78,20 @@
 #'
 #'   print(domain_means_by_design)
 #'
+#' # Calculate confidence interval for difference between estimates
+#'
+#' ests_by_design <- svyby_repwts(rep_designs = list('NR-adjusted' = nr_adjusted_design,
+#'                                                   'Original' = orig_rep_design),
+#'                                FUN = svymean, formula = ~ api00 + api99)
+#'
+#' differences_in_estimates <- svycontrast(stat = ests_by_design, contrasts = list(
+#'   'Mean of api00: NR-adjusted vs. Original' = c(1,-1,0,0),
+#'   'Mean of api99: NR-adjusted vs. Original' = c(0,0,1,-1)
+#' ))
+#'
+#' print(differences_in_estimates)
+#'
+#' confint(differences_in_estimates, level = 0.95)
 svyby_repwts <- function(rep_designs,
                          formula, by, FUN, ...,
                          deff = FALSE,
