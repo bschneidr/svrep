@@ -101,12 +101,14 @@ svyby_repwts <- function(rep_designs,
                          multicore = getOption("survey.multicore")) {
 
 
-  if (!'svyrep.stacked' %in% class(rep_designs) & !is.list(rep_designs)) {
-    stop("`design_list` must be either a list of replicate-weights survey designs, or the output of `stack_replicate_designs()`.")
+  if (!'svyrep.stacked' %in% class(rep_designs)) {
+    if (!is.list(rep_designs) || !all(sapply(rep_designs, function(x) 'svyrep.design' %in% class(x)))) {
+      stop("`design_list` must be either a list of replicate-weights survey designs, or the output of `stack_replicate_designs()`.")
+    }
   }
 
   if ('svyrep.stacked' %in% class(rep_designs)) {
-    variable_for_source_design <- attributes(rep_designs)['variable_for_source_design']
+    variable_for_source_design <- attributes(rep_designs)[['variable_for_source_design']]
     stacked_design <- rep_designs
   }
   if (!'svyrep.stacked' %in% class(rep_designs)) {
@@ -119,7 +121,9 @@ svyby_repwts <- function(rep_designs,
   } else if ('formula' %in% class(by)) {
     by_input <- stats::update(by, as.formula(sprintf("~ %s + .", variable_for_source_design)))
   } else if (is.list(by)) {
-    by_input <- append(x = by, values = list(stacked_design[['variables']][[variable_for_source_design]]),
+    by_input <- append(x = by,
+                       values = setNames(list(stacked_design[['variables']][[variable_for_source_design]]),
+                                         variable_for_source_design),
                        after = 0)
   }
 

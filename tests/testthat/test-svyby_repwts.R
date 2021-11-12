@@ -91,6 +91,18 @@ test_that("Matches results from svyby()", code = {
   )
 })
 
+test_that("Matches results from svyby()", code = {
+  expect_equal(
+    expected = vcov(svyby(formula = ~ api00, FUN = svymean,
+                          design = stacked_design, by = list('Design_Name'= stacked_design$variables$Design_Name,
+                                                             'stype' = stacked_design$variables$stype),
+                          covmat = TRUE)),
+    object = vcov(svyby_repwts(formula = ~ api00, FUN = svymean,
+                               rep_designs = stacked_design,
+                               by = list('stype' = stacked_design$variables$stype)))
+  )
+})
+
 # Test that svyby() arguments are passed correctly ----
 
 test_that("Arguments are correctly passed to svyby()", code = {
@@ -108,3 +120,13 @@ test_that("Arguments are correctly passed to svyby()", code = {
   )
 })
 
+# Check for error messages ----
+
+test_that("Error message for invalid inputs", code = {
+  expect_error(
+    object = {
+      svyby_repwts(rep_designs = orig_rep_design,
+                   formula = ~ api00, FUN = svymean)
+    }, regexp = "must be.+list of.+or.+stack"
+  )
+})
