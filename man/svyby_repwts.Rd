@@ -16,7 +16,6 @@ svyby_repwts(
   verbose = FALSE,
   vartype = c("se", "ci", "ci", "cv", "cvpct", "var"),
   drop.empty.groups = TRUE,
-  covmat = TRUE,
   return.replicates = FALSE,
   na.rm.by = FALSE,
   na.rm.all = FALSE,
@@ -51,10 +50,6 @@ Usually a function from the \code{survey} package, such as \code{svytotal} or \c
 \item{vartype}{Report variability as one or more of standard error, confidence interval, coefficient of variation,  percent coefficient of variation, or variance}
 
 \item{drop.empty.groups}{If \code{FALSE}, report \code{NA} for empty groups, if \code{TRUE} drop them from the output}
-
-\item{covmat}{If \code{TRUE}, compute covariances between estimates for different subsets.
-Allows \code{\link{svycontrast}} to be used on output. Requires that \code{FUN} supports either
-\code{return.replicates=TRUE} or \code{influence=TRUE}}
 
 \item{return.replicates}{If \code{TRUE}, return all the replicates as the "replicates" attribute of the result.
 This can be useful if you want to produce custom summaries of the estimates from each replicate.}

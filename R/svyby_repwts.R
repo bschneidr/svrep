@@ -21,9 +21,6 @@
 #' @param verbose If \code{TRUE}, print a label for each subset as it is processed.
 #' @param vartype Report variability as one or more of standard error, confidence interval, coefficient of variation,  percent coefficient of variation, or variance
 #' @param drop.empty.groups If \code{FALSE}, report \code{NA} for empty groups, if \code{TRUE} drop them from the output
-#' @param covmat If \code{TRUE}, compute covariances between estimates for different subsets.
-#' Allows \code{\link{svycontrast}} to be used on output. Requires that \code{FUN} supports either
-#' \code{return.replicates=TRUE} or \code{influence=TRUE}
 #' @param return.replicates If \code{TRUE}, return all the replicates as the "replicates" attribute of the result.
 #' This can be useful if you want to produce custom summaries of the estimates from each replicate.
 #' @param na.rm.by If true, omit groups defined by \code{NA} values of the \code{by} variables
@@ -99,7 +96,7 @@ svyby_repwts <- function(rep_designs,
                          keep.names = TRUE,
                          verbose = FALSE,
                          vartype = c("se","ci","ci","cv","cvpct","var"),
-                         drop.empty.groups = TRUE, covmat = TRUE,
+                         drop.empty.groups = TRUE,
                          return.replicates = FALSE, na.rm.by=FALSE, na.rm.all=FALSE,
                          multicore = getOption("survey.multicore")) {
 
@@ -134,18 +131,18 @@ svyby_repwts <- function(rep_designs,
                                 design = stacked_design,
                                 FUN = FUN,
                                 ... = ...,
-                                deff = FALSE,
-                                keep.var = TRUE,
-                                keep.names = TRUE,
-                                verbose = FALSE,
+                                deff = deff,
+                                keep.var = keep.var,
+                                keep.names = keep.names,
+                                verbose = verbose,
                                 vartype = vartype,
-                                drop.empty.groups = TRUE, covmat = TRUE,
-                                return.replicates = FALSE, na.rm.by=FALSE, na.rm.all=FALSE,
+                                drop.empty.groups = drop.empty.groups, covmat = TRUE,
+                                return.replicates = return.replicates, na.rm.by=na.rm.by, na.rm.all=na.rm.all,
                                 multicore = getOption("survey.multicore"))
 
-  if (packageVersion('survey') >= '4.1' && is.data.frame(svyby_result)) {
-    #rownames(svyby_result) <- NULL
-  }
+  value_for_statistic_attribute <- deparse(substitute(FUN))
+  attr(svyby_result, 'svyby')$statistic <- value_for_statistic_attribute
+
   return(svyby_result)
 }
 
