@@ -27,6 +27,29 @@ nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
                                            increase_if = response_status == "Respondent",
                                            by = c("stype", "cname"))
 
+# Test that estimates from svyby() match the separate estimates ----
+
+sep_estimates <- list(
+  'orig' = svymean(x = ~ api00, design = orig_rep_design),
+  'nr-adjusted' = svymean(x = ~ api00, design = nr_adjusted_design)
+)
+
+stacked_design <- stack_replicate_designs('orig' = orig_rep_design,
+                                          'nr-adjusted' = nr_adjusted_design,
+                                          .id = "Design_Name")
+combined_estimates <- svyby(formula = ~ api00, by = ~ Design_Name,
+                            FUN = svymean,
+                            design = stacked_design)
+
+test_that("Estimates from separate and stacked designs match", code = {
+  expect_equal(expected = coef(combined_estimates)[c("nr-adjusted", "orig")],
+               object = c('nr-adjusted' = unname(coef(sep_estimates[['nr-adjusted']])),
+                          'orig' = unname(coef(sep_estimates[['orig']]))))
+  expect_equal(expected = SE(combined_estimates),
+               object = c(unname(SE(sep_estimates[['nr-adjusted']])),
+                          unname(SE(sep_estimates[['orig']]))))
+})
+
 # Test for informative error that designs are conformable ----
 
 test_that("Informative error message for different types of designs", code = {
