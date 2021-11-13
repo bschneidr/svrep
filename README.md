@@ -93,7 +93,7 @@ nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
                                            by = c("stype"))
 ```
 
-### Compare estimates from different sets of weights
+### Comparing estimates from different sets of weights
 
 In order to assess whether weighting adjustments have an impact on the
 estimates we care about, we want to compare the estimates from the

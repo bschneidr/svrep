@@ -43,16 +43,20 @@
 #' orig_rep_design <- as.svrepdesign(dclus1)
 #'
 #' # Adjust weights for cases with unknown eligibility
-#' ue_adjusted_design <- redistribute_weights(design = orig_rep_design,
-#'                                            reduce_if = response_status %in% c("Unknown eligibility"),
-#'                                            increase_if = !response_status %in% c("Unknown eligibility"),
-#'                                            by = c("stype", "cname"))
+#' ue_adjusted_design <- redistribute_weights(
+#'     design = orig_rep_design,
+#'     reduce_if = response_status %in% c("Unknown eligibility"),
+#'     increase_if = !response_status %in% c("Unknown eligibility"),
+#'     by = c("stype")
+#' )
 #'
 #' # Adjust weights for nonresponse
-#' nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
-#'                                            reduce_if = response_status %in% c("Nonrespondent"),
-#'                                            increase_if = response_status == "Respondent",
-#'                                            by = c("stype", "cname"))
+#' nr_adjusted_design <- redistribute_weights(
+#'     design = ue_adjusted_design,
+#'     reduce_if = response_status %in% c("Nonrespondent"),
+#'     increase_if = response_status == "Respondent",
+#'     by = c("stype")
+#' )
 #'
 #' # Compare estimates from the three sets of replicate weights
 #'

@@ -28,6 +28,7 @@ This can be useful when comparing estimates before and after a set of adjustment
 Another more delicate application is when combining sets of replicate weights from multiple years of data for a survey, although this must be done carefully based on guidance from a data provider.
 }
 \examples{
+# Load example data, creating a replicate design object
 suppressPackageStartupMessages(library(survey))
 data(api)
 
@@ -39,16 +40,20 @@ dclus1$variables$response_status <- sample(x = c("Respondent", "Nonrespondent",
 orig_rep_design <- as.svrepdesign(dclus1)
 
 # Adjust weights for cases with unknown eligibility
-ue_adjusted_design <- redistribute_weights(design = orig_rep_design,
-                                           reduce_if = response_status \%in\% c("Unknown eligibility"),
-                                           increase_if = !response_status \%in\% c("Unknown eligibility"),
-                                           by = c("stype", "cname"))
+ue_adjusted_design <- redistribute_weights(
+    design = orig_rep_design,
+    reduce_if = response_status \%in\% c("Unknown eligibility"),
+    increase_if = !response_status \%in\% c("Unknown eligibility"),
+    by = c("stype")
+)
 
 # Adjust weights for nonresponse
-nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
-                                           reduce_if = response_status \%in\% c("Nonrespondent"),
-                                           increase_if = response_status == "Respondent",
-                                           by = c("stype", "cname"))
+nr_adjusted_design <- redistribute_weights(
+    design = ue_adjusted_design,
+    reduce_if = response_status \%in\% c("Nonrespondent"),
+    increase_if = response_status == "Respondent",
+    by = c("stype")
+)
 
 # Stack the three designs, using any of the following syntax options
 stacked_design <- stack_replicate_designs(orig_rep_design, ue_adjusted_design, nr_adjusted_design,

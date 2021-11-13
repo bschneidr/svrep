@@ -33,20 +33,25 @@ suppressPackageStartupMessages(library(survey))
 data(api)
 
 dclus1 <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc)
-dclus1$variables$response_status <- sample(x = c("Respondent", "Nonrespondent", "Ineligible", "Unknown eligibility"),
+dclus1$variables$response_status <- sample(x = c("Respondent", "Nonrespondent",
+                                                 "Ineligible", "Unknown eligibility"),
                                            size = nrow(dclus1),
                                            replace = TRUE)
 rep_design <- as.svrepdesign(dclus1)
 
 # Adjust weights for cases with unknown eligibility
-ue_adjusted_design <- redistribute_weights(design = rep_design,
-                                           reduce_if = response_status \%in\% c("Unknown eligibility"),
-                                           increase_if = !response_status \%in\% c("Unknown eligibility"),
-                                           by = c("stype", "cname"))
+ue_adjusted_design <- redistribute_weights(
+    design = rep_design,
+    reduce_if = response_status \%in\% c("Unknown eligibility"),
+    increase_if = !response_status \%in\% c("Unknown eligibility"),
+    by = c("stype")
+)
 
 # Adjust weights for nonresponse
-nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
-                                           reduce_if = response_status \%in\% c("Nonrespondent"),
-                                           increase_if = response_status == "Respondent",
-                                           by = c("stype", "cname"))
+nr_adjusted_design <- redistribute_weights(
+    design = ue_adjusted_design,
+    reduce_if = response_status \%in\% c("Nonrespondent"),
+    increase_if = response_status == "Respondent",
+    by = c("stype")
+)
 }
