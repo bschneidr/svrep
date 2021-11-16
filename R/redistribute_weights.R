@@ -53,6 +53,7 @@ shift_weight <- function(wt_set, is_upweight_case, is_downweight_case) {
 #' For example, if the data include variables named \code{"stratum"} and \code{"wt_class"}, one could specify \code{by = c("stratum", "wt_class")}.
 #'
 #' @return The survey design object, but with updated full-sample weights and updated replicate weights.
+#' The resulting survey design object always has its value of \code{combined.weights} set to \code{TRUE}.
 #' @export
 #'
 #' @examples
@@ -134,11 +135,19 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
     stop("`reduce_if` and `increase_if` conflict: they imply that some cases should have weights simultaneously reduced and increased.")
   }
 
+  # Determine whether replicate weights have been combined with full-sample weights
+  weights_are_combined <- design$combined.weights
+
   # Determine whether replicate weights in input are compressed for storage
   is_compressed <- "repweights_compressed" %in% class(design$repweights)
 
   # Extract the matrix of replicate weights
   rep_wts <- as.matrix(design[['repweights']])
+
+  if (!weights_are_combined) {
+    rep_wts <- `colnames<-`(apply(X = rep_wts, MARGIN = 2, function(x) x*design$pweights),
+                            colnames(rep_wts))
+  }
 
 
   # Divide data into groups, and obtain list of row indices for each group
@@ -170,20 +179,22 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
 
 
   # Adjust the replicate weights
-  adjusted_rep_wts <- apply(X = rep_wts, MARGIN = 2, FUN = function(rep_wt_set) {
 
-    adjusted_wt_set <- rep_wt_set
+    adjusted_rep_wts <- apply(X = rep_wts, MARGIN = 2, FUN = function(rep_wt_set) {
 
-    for (set_of_indices in group_row_indices) {
-      adjusted_wt_set[set_of_indices] <- shift_weight(
-        wt_set = rep_wt_set[set_of_indices],
-        is_upweight_case = case_groupings[['_IS_UPWT_CASE_']][set_of_indices],
-        is_downweight_case = case_groupings[['_IS_DOWNWT_CASE_']][set_of_indices]
-      )
-    }
-    return(adjusted_wt_set)
-  })
+        adjusted_wt_set <- rep_wt_set
 
+      for (set_of_indices in group_row_indices) {
+        adjusted_wt_set[set_of_indices] <- shift_weight(
+          wt_set = rep_wt_set[set_of_indices],
+          is_upweight_case = case_groupings[['_IS_UPWT_CASE_']][set_of_indices],
+          is_downweight_case = case_groupings[['_IS_DOWNWT_CASE_']][set_of_indices]
+        )
+      }
+      return(adjusted_wt_set)
+    })
+
+    colnames(adjusted_rep_wts) <- colnames(rep_wts)
 
 
   # Update the survey design object to use the adjusted weights
@@ -192,7 +203,27 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
   if (is_compressed) {
     result[['repweights']] <- survey::compressWeights(adjusted_rep_wts)
   } else {
-    result[['repweights']][['weights']] <- adjusted_rep_wts
+    if (is.data.frame(design[['repweights']])) {
+      result[['repweights']] <- as.data.frame(adjusted_rep_wts)
+    }
+    if (is.null(design[['repweights']][['weights']])) {
+      if (is.data.frame(design[['repweights']])) {
+        result[['repweights']] <- as.data.frame(adjusted_rep_wts)
+      } else {
+        result[['repweights']] <- adjusted_rep_wts
+      }
+    } else {
+      if (is.data.frame(design[['repweights']][['weights']])) {
+        result[['repweights']][['weights']] <- as.data.frame(adjusted_rep_wts)
+      } else {
+        result[['repweights']][['weights']] <- adjusted_rep_wts
+      }
+    }
   }
+
+  if (!weights_are_combined) {
+    result$combined.weights <- TRUE
+  }
+
   return(result)
 }

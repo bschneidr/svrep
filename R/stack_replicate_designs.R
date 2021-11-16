@@ -15,6 +15,7 @@
 #' The labels used for the identifiers are taken from named arguments.
 #'
 #' @return A replicate-weights survey design object, with class \code{svyrep.design} and \code{svyrep.stacked}.
+#' The resulting survey design object always has its value of \code{combined.weights} set to \code{TRUE}.
 #' @export
 #'
 #' @examples
@@ -112,15 +113,14 @@ stack_replicate_designs <- function(..., .id = "Design_Name") {
   # Determine the replicate specifications for each design
   design_specs <- lapply(design_list, function(design_obj) {
     list(type = design_obj$type,
-         combined.weights = design_obj$combined.weights,
          rho = design_obj$rho,
          mse = design_obj$mse,
          scale = design_obj$scale,
          rscales = design_obj$rscales)
   })
 
-  design_specs <- lapply(setNames(c("type", "combined.weights", "rho", "mse", "scale", "rscales", "fpc", "fpctype"),
-                                  c("type", "combined.weights", "rho", "mse", "scale", "rscales", "fpc", "fpctype")),
+  design_specs <- lapply(setNames(c("type", "rho", "mse", "scale", "rscales", "fpc", "fpctype"),
+                                  c("type", "rho", "mse", "scale", "rscales", "fpc", "fpctype")),
                          function(spec_element) {
                            lapply(design_list, function(design_obj) {
                              design_obj[[spec_element]]

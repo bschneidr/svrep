@@ -23,8 +23,8 @@ unchanged_cases <- !reduced_cases & !increased_cases
 
 orig_fullsample_wt_sum <- sum(cluster_rep_design$pweights)
 updated_fullsample_wt_sum <- sum(basic_example_output$pweights)
-orig_repwt_sums <- apply(cluster_rep_design$repweights, MARGIN = 2, sum)
-updated_repwt_sums <- apply(basic_example_output$repweights, MARGIN = 2, sum)
+orig_repwt_sums <- apply(weights(cluster_rep_design, 'analysis'), MARGIN = 2, sum)
+updated_repwt_sums <- apply(weights(basic_example_output, 'analysis'), MARGIN = 2, sum)
 
 # Test of expected results from basic example ----
 
@@ -46,8 +46,10 @@ test_that("Full sample weights updated correctly", {
 
 test_that("Replicate weights updated correctly", {
 
-  uncompressed_input_wts <- as.matrix(cluster_rep_design$repweights)
-  uncompressed_result_wts <- as.matrix(basic_example_output$repweights)
+  uncompressed_input_wts <- weights(cluster_rep_design, 'analysis')
+  uncompressed_result_wts <- weights(basic_example_output, 'analysis')
+  dimnames(uncompressed_input_wts) <- NULL
+  dimnames(uncompressed_result_wts) <- NULL
 
   expect_equal(
     object = unique(as.vector(uncompressed_result_wts[reduced_cases,])),
@@ -82,8 +84,8 @@ unchanged_cases <- !reduced_cases & !increased_cases
 
 orig_fullsample_wt_sum <- sum(cluster_rep_design$pweights)
 updated_fullsample_wt_sum <- sum(grouped_example_output$pweights)
-orig_repwt_sums <- apply(cluster_rep_design$repweights, MARGIN = 2, sum)
-updated_repwt_sums <- apply(grouped_example_output$repweights, MARGIN = 2, sum)
+orig_repwt_sums <- apply(weights(cluster_rep_design, 'analysis'), MARGIN = 2, sum)
+updated_repwt_sums <- apply(weights(grouped_example_output, 'analysis'), MARGIN = 2, sum)
 
 test_that("With grouping variables, full sample weights updated correctly", {
 
@@ -103,8 +105,10 @@ test_that("With grouping variables, full sample weights updated correctly", {
 
 test_that("With grouping variables, replicate weights updated correctly", {
 
-  uncompressed_input_wts <- as.matrix(cluster_rep_design$repweights)
-  uncompressed_result_wts <- as.matrix(grouped_example_output$repweights)
+  uncompressed_input_wts <- weights(cluster_rep_design, 'analysis')
+  uncompressed_result_wts <- weights(grouped_example_output, 'analysis')
+  dimnames(uncompressed_input_wts) <- NULL
+  dimnames(uncompressed_result_wts) <- NULL
 
   expect_equal(
     object = unique(as.vector(uncompressed_result_wts[reduced_cases,])),
@@ -118,6 +122,41 @@ test_that("With grouping variables, replicate weights updated correctly", {
 
   expect_equal(object = updated_repwt_sums,
                expected = orig_repwt_sums)
+})
+
+# Test that works with replicate design created with provided replicate weights ----
+
+standalone_wts <- `colnames<-`(weights(cluster_rep_design, 'analysis'),
+                               paste0("Rep_Set_", 1:ncol(cluster_rep_design$repweights$weights)))
+
+data_w_repweights <- cbind(cluster_rep_design$variables,
+                           as.data.frame(standalone_wts))
+
+hand_created_rep_design <- svrepdesign(
+  data = data_w_repweights,
+  weights = ~ pw,
+  repweights = "Rep_Set_", type = "JK1",
+  scale = (ncol(standalone_wts) - 1)/ncol(standalone_wts),
+  combined = TRUE
+)
+
+test_that("Works with replicate design created using provided weights in data", {
+
+  result_autocreated_wts <- weights(redistribute_weights(cluster_rep_design,
+                                                         increase_if = response_status == "R",
+                                                         reduce_if = response_status == "NR"),
+                                    'analysis')
+  result_handcreated_wts <- weights(redistribute_weights(hand_created_rep_design,
+                                                         increase_if = response_status == "R",
+                                                         reduce_if = response_status == "NR"),
+                                    'analysis')
+  dimnames(result_autocreated_wts) <- NULL
+  dimnames(result_handcreated_wts) <- NULL
+
+  expect_equal(
+    expected = result_autocreated_wts,
+    object = result_handcreated_wts
+  )
 })
 
 # Tests of expected error messages ----

@@ -21,6 +21,7 @@ The labels used for the identifiers are taken from named arguments.}
 }
 \value{
 A replicate-weights survey design object, with class \code{svyrep.design} and \code{svyrep.stacked}.
+The resulting survey design object always has its value of \code{combined.weights} set to \code{TRUE}.
 }
 \description{
 Stack replicate designs: combine rows of data, rows of replicate weights, and the respective full-sample weights.

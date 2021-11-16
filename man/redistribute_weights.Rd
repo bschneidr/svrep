@@ -20,6 +20,7 @@ For example, if the data include variables named \code{"stratum"} and \code{"wt_
 }
 \value{
 The survey design object, but with updated full-sample weights and updated replicate weights.
+The resulting survey design object always has its value of \code{combined.weights} set to \code{TRUE}.
 }
 \description{
 Redistributes weight from one group to another: for example, from non-respondents to respondents.
