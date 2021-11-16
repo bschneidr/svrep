@@ -206,7 +206,7 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
     if (is.data.frame(design[['repweights']])) {
       result[['repweights']] <- as.data.frame(adjusted_rep_wts)
     }
-    if (is.null(design[['repweights']][['weights']])) {
+    if (!'weights' %in% names(design[['repweights']])) {
       if (is.data.frame(design[['repweights']])) {
         result[['repweights']] <- as.data.frame(adjusted_rep_wts)
       } else {
