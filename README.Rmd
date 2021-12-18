@@ -88,18 +88,20 @@ In order to assess whether weighting adjustments have an impact on the estimates
 
 ```{r}
 # Estimate overall means (and their standard errors) from each design
-svyby_repwts(
+overall_estimates <- svyby_repwts(
   rep_designs = list('original' = orig_rep_design,
                      'nonresponse-adjusted' = nr_adjusted_design),
   formula = ~ api00, FUN = svymean
 )
+print(overall_estimates, row.names = FALSE)
 
 # Estimate domain means (and their standard errors) from each design
-svyby_repwts(
+domain_estimates <- svyby_repwts(
   rep_designs = list('original' = orig_rep_design,
                      'nonresponse-adjusted' = nr_adjusted_design),
   formula = ~ api00, by = ~ stype, FUN = svymean
 )
+print(domain_estimates, row.names = FALSE)
 ```
 
 We can even test for differences in estimates from the two sets of weights and calculate confidence intervals for their difference.
@@ -111,6 +113,8 @@ estimates <- svyby_repwts(
   formula = ~ api00, FUN = svymean
 )
 
+vcov(estimates)
+
 diff_between_ests <- svycontrast(stat = estimates,
                                  contrasts = list(
                                    "Original vs. Adjusted" = c(-1,1)
@@ -118,3 +122,48 @@ diff_between_ests <- svycontrast(stat = estimates,
 print(diff_between_ests)
 confint(diff_between_ests)
 ```
+
+### Diagnosing potential issues with weights
+
+When adjusting replicate weights, there are several diagnostics which can be used to ensure that the adjustments were carried out correctly and that they do more good than harm. The function `summarize_rep_weights()` helps by allowing you to quickly summarize the replicate weights. 
+
+For example, we can check to see that post-stratification correctly removes variation in the column sums of the replicate weights.
+
+```{r}
+# Post-stratify the design
+post_stratified_design <- postStratify(design = orig_rep_design,
+                                       strata = ~ stype + awards,
+                                       population = xtabs(~stype + awards,
+                                                          data = apipop))
+# Compare overall summaries of the weights
+list(
+  'original' = summarize_rep_weights(orig_rep_design,
+                                     type = 'overall'),
+  'post-stratified' = summarize_rep_weights(post_stratified_design,
+                                            type = 'overall')
+)
+```
+
+When carrying out nonresponse adjustments, we might want to make sure that column sums are the same before and after the adjustments.
+
+```{r}
+# Summarize each column of replicate weights,
+# before and after non-response adjustments
+orig_rep_col_summaries <- summarize_rep_weights(orig_rep_design, type = 'specific')
+adj_rep_col_summaries <- summarize_rep_weights(nr_adjusted_design, type = 'specific')
+
+head(adj_rep_col_summaries)
+
+# Compare the sums and number of nonzero entries
+# before and after adjustment
+weight_summaries  <- rbind(cbind(orig_rep_col_summaries, Design = 'Original'),
+                           cbind(adj_rep_col_summaries, Design = 'NR-adjusted'))
+
+weight_summaries <- weight_summaries[,c("Rep_Column", "Design", "N_NONZERO", "SUM")]
+weight_summaries <- weight_summaries[order(weight_summaries$Design, decreasing = TRUE),]
+weight_summaries <- weight_summaries[order(weight_summaries$Rep_Column),]
+rownames(weight_summaries) <- NULL
+
+head(weight_summaries)
+```
+
