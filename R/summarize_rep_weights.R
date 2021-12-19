@@ -111,7 +111,7 @@ summarize_rep_weights <- function(rep_design, type = 'both') {
                             simplify = FALSE, MARGIN = 2,
                             FUN = function(wt_set) {
 
-                              SD <- sd(wt_set)
+                              SD <- stats::sd(wt_set)
                               MEAN <- mean(wt_set)
                               CV <- SD/MEAN
 
@@ -143,7 +143,7 @@ summarize_rep_weights <- function(rep_design, type = 'both') {
   min_rep_wgt <- min(wt_set_summaries$MIN)
   max_stdized_wgt <- max(wt_set_summaries$MAX / (wt_set_summaries$SUM / wt_set_summaries$N_NONZERO))
   max_cv <- max(wt_set_summaries$CV)
-  sd_wgt_sums <- sd(wt_set_summaries$SUM)
+  sd_wgt_sums <- stats::sd(wt_set_summaries$SUM)
 
   matrix_rank <- qr(x = rep_wts_matrix, tol = 1e-05)[['rank']]
 
