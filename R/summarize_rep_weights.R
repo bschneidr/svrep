@@ -20,10 +20,10 @@
 #'  \item{"ncols"}{: Number of columns of replicate weights}
 #'  \item{"degf_svy_pkg"}{: The degrees of freedom according to the survey package in R}
 #'  \item{"rank"}{: The matrix rank as determined by a QR decomposition}
+#'  \item{"avg_wgt_sum"}{: The average column sum}
+#'  \item{"sd_wgt_sums"}{: The standard deviation of the column sums}
 #'  \item{"min_rep_wgt"}{: The minimum value of any replicate weight}
 #'  \item{"max_rep_wgt"}{: The maximum value of any replicate weight}
-#'  \item{"max_CV"}{: The maximum coefficient of variation of any column of replicate weights}
-#'  \item{"SD_wgt_sums"}{: The standard deviation of the column sums}
 #' }
 #'
 #' If \code{type = "specific"}, the result is a data frame providing a
@@ -38,7 +38,6 @@
 #'  \item{"SUM"}{: The sum of the weights}
 #'  \item{"MEAN"}{: The average of the weights}
 #'  \item{"CV"}{: The coefficient of variation of the weights (standard deviation divided by mean)}
-#'  \item{"L"}{: The square of the coefficient of variation of the weights.}
 #'  \item{"MIN"}{: The minimum weight}
 #'  \item{"MAX"}{: The maximum weight}
 #' }
@@ -116,11 +115,10 @@ summarize_rep_weights <- function(rep_design, type = 'both') {
                               CV <- SD/MEAN
 
                               c(N = nrow(rep_wts_matrix),
-                                N_NONZERO = sum(wt_set > 0),
+                                N_NONZERO = sum(wt_set != 0),
                                 SUM = sum(wt_set),
                                 MEAN = MEAN,
                                 CV = CV,
-                                L = (CV^2),
                                 MIN = min(wt_set),
                                 MAX = max(wt_set))
                             })
@@ -141,9 +139,8 @@ summarize_rep_weights <- function(rep_design, type = 'both') {
   # Produce an overall summary
   max_rep_wgt <- max(wt_set_summaries$MAX)
   min_rep_wgt <- min(wt_set_summaries$MIN)
-  max_stdized_wgt <- max(wt_set_summaries$MAX / (wt_set_summaries$SUM / wt_set_summaries$N_NONZERO))
-  max_cv <- max(wt_set_summaries$CV)
   sd_wgt_sums <- stats::sd(wt_set_summaries$SUM)
+  avg_wgt_sum <- mean(wt_set_summaries$SUM)
 
   matrix_rank <- qr(x = rep_wts_matrix, tol = 1e-05)[['rank']]
 
@@ -157,10 +154,10 @@ summarize_rep_weights <- function(rep_design, type = 'both') {
     'ncols' = rep_wt_dims['cols'],
     'degf_svy_pkg' = degf_svy_pkg,
     'rank' = matrix_rank,
+    'avg_wgt_sum' = avg_wgt_sum,
+    'sd_wgt_sums' = sd_wgt_sums,
     'min_rep_wgt' = min_rep_wgt,
     'max_rep_wgt' = max_rep_wgt,
-    'max_CV'= max_cv,
-    'SD_wgt_sums' = sd_wgt_sums,
     row.names = NULL
   )
 

@@ -41,12 +41,13 @@ test_that("`type` argument works", {
   expect_equal(
     object = names(summarize_rep_weights(cluster_rep_design, type = 'overall')),
     expected = c("nrows", "ncols", "degf_svy_pkg", "rank",
-                 "min_rep_wgt", "max_rep_wgt", "max_CV", "SD_wgt_sums")
+                 "avg_wgt_sum", "sd_wgt_sums",
+                 "min_rep_wgt", "max_rep_wgt")
   )
 
   expect_equal(
     object = names(summarize_rep_weights(cluster_rep_design, type = 'specific')),
     expected = c("Rep_Column", "N", "N_NONZERO", "SUM",
-                 "MEAN", "CV", "L", "MIN", "MAX")
+                 "MEAN", "CV", "MIN", "MAX")
   )
 })

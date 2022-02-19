@@ -180,12 +180,14 @@ list(
                                             type = 'overall')
 )
 #> $original
-#>   nrows ncols degf_svy_pkg rank min_rep_wgt max_rep_wgt    max_CV SD_wgt_sums
-#> 1   183    15           14   15           0    36.26464 0.5047941    403.1741
+#>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
+#> 1   183    15           14   15        6194    403.1741           0    36.26464
 #> 
 #> $`post-stratified`
-#>   nrows ncols degf_svy_pkg rank min_rep_wgt max_rep_wgt    max_CV  SD_wgt_sums
-#> 1   183    15           14   15           0        93.4 0.5862556 6.431099e-13
+#>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt
+#> 1   183    15           14   15        6194 6.431099e-13           0
+#>   max_rep_wgt
+#> 1        93.4
 ```
 
 When carrying out nonresponse adjustments, we might want to make sure
@@ -198,13 +200,13 @@ orig_rep_col_summaries <- summarize_rep_weights(orig_rep_design, type = 'specifi
 adj_rep_col_summaries <- summarize_rep_weights(nr_adjusted_design, type = 'specific')
 
 head(adj_rep_col_summaries)
-#>   Rep_Column   N N_NONZERO      SUM     MEAN       CV        L MIN      MAX
-#> 1          1 183        96 6237.518 34.08480 1.086404 1.180274   0 179.4969
-#> 2          2 183        97 6491.370 35.47197 1.066158 1.136692   0 158.8797
-#> 3          3 183        97 6563.900 35.86830 1.086089 1.179589   0 181.0731
-#> 4          4 183        94 6164.989 33.68846 1.113185 1.239180   0 177.4097
-#> 5          5 183        98 6563.900 35.86830 1.074456 1.154456   0 181.0731
-#> 6          6 183        97 6491.370 35.47197 1.080886 1.168314   0 180.3158
+#>   Rep_Column   N N_NONZERO      SUM     MEAN       CV MIN      MAX
+#> 1          1 183        96 6237.518 34.08480 1.086404   0 179.4969
+#> 2          2 183        97 6491.370 35.47197 1.066158   0 158.8797
+#> 3          3 183        97 6563.900 35.86830 1.086089   0 181.0731
+#> 4          4 183        94 6164.989 33.68846 1.113185   0 177.4097
+#> 5          5 183        98 6563.900 35.86830 1.074456   0 181.0731
+#> 6          6 183        97 6491.370 35.47197 1.080886   0 180.3158
 
 # Compare the sums and number of nonzero entries
 # before and after adjustment

@@ -27,10 +27,10 @@ The contents of the \code{"overall"} summary are the following:
  \item{"ncols"}{: Number of columns of replicate weights}
  \item{"degf_svy_pkg"}{: The degrees of freedom according to the survey package in R}
  \item{"rank"}{: The matrix rank as determined by a QR decomposition}
+ \item{"avg_wgt_sum"}{: The average column sum}
+ \item{"sd_wgt_sums"}{: The standard deviation of the column sums}
  \item{"min_rep_wgt"}{: The minimum value of any replicate weight}
  \item{"max_rep_wgt"}{: The maximum value of any replicate weight}
- \item{"max_CV"}{: The maximum coefficient of variation of any column of replicate weights}
- \item{"SD_wgt_sums"}{: The standard deviation of the column sums}
 }
 
 If \code{type = "specific"}, the result is a data frame providing a
@@ -45,7 +45,6 @@ The contents of the \code{"specific"} summary are the following:
  \item{"SUM"}{: The sum of the weights}
  \item{"MEAN"}{: The average of the weights}
  \item{"CV"}{: The coefficient of variation of the weights (standard deviation divided by mean)}
- \item{"L"}{: The square of the coefficient of variation of the weights.}
  \item{"MIN"}{: The minimum weight}
  \item{"MAX"}{: The maximum weight}
 }
