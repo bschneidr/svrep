@@ -26,7 +26,6 @@
 #' @param na.rm.by If true, omit groups defined by \code{NA} values of the \code{by} variables
 #' @param na.rm.all If true, check for groups with no non-missing observations for variables defined by \code{formula} and treat these groups as empty
 #' @param multicore Use \code{multicore} package to distribute subsets over multiple processors?
-#' By default, uses \code{degf(stack_replicate_designs(rep_designs))} to estimate degrees of freedom as determined by the \code{survey} package.
 #' @return An object of class \code{"svyby"}: a data frame showing the grouping factors and results of \code{FUN} for each combination of the grouping factors.
 #' The first grouping factor always consists of indicators for which replicate design was used for an estimate.
 #' @export

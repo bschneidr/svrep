@@ -58,8 +58,7 @@ This can be useful if you want to produce custom summaries of the estimates from
 
 \item{na.rm.all}{If true, check for groups with no non-missing observations for variables defined by \code{formula} and treat these groups as empty}
 
-\item{multicore}{Use \code{multicore} package to distribute subsets over multiple processors?
-By default, uses \code{degf(stack_replicate_designs(rep_designs))} to estimate degrees of freedom as determined by the \code{survey} package.}
+\item{multicore}{Use \code{multicore} package to distribute subsets over multiple processors?}
 }
 \value{
 An object of class \code{"svyby"}: a data frame showing the grouping factors and results of \code{FUN} for each combination of the grouping factors.
