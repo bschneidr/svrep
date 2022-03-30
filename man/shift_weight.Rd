@@ -20,14 +20,4 @@ A numeric vector of adjusted weights, of the same length as \code{wt_set}.
 You likely want to use \code{redistribute_weights} instead.
 The function \code{shift_weight} is internal to this package and is used only "under-the-hood."
 }
-\examples{
-
-example_data <- data.frame(weight = c(1.5, 1.25, 1.25, 2, 0.5, 1.5),
-                           response_status = c(1, 1, 0, 0, 1, 1),
-                           stratum = c('A', 'B', 'A', 'A', 'B', 'B'))
-
-svrep:::shift_weight(wt_set = example_data$weight,
-                     is_upweight_case = example_data$response_status == 1,
-                     is_downweight_case = example_data$response_status == 0)
-}
 \keyword{internal}
