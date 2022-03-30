@@ -6,6 +6,6 @@
 \alias{svrep-package}
 \title{svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights}
 \description{
-Provides tools for creating and working with survey replicate weights.
+Provides tools for creating and working with survey replicate weights, extending functionality of the 'survey' package from Lumley (2004) <doi:10.18637/jss.v009.i08>. Methods are provided for applying nonresponse adjustments to both full-sample and replicate weights as suggested by Rust and Rao (1996) <doi:10.1177/096228029600500305> in order to account for the impact of these adjustments on sampling variances. Diagnostic functions are included to compare weights and weighted estimates from different sets of replicate weights.
 }
 \keyword{internal}
