@@ -21,8 +21,11 @@ Imports:
     survey (>= 4.1),
     utils
 Suggests: 
+    knitr,
     covr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    rmarkdown
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
+VignetteBuilder: knitr

@@ -1,0 +1,157 @@
+---
+title: "Calibrating to Estimated Control Totals"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Calibrating to Estimated Control Totals}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Sample-based Calibration: An Introduction
+Calibration weighting adjustments such as post-stratification or raking
+are often helpful for reducing sampling variance or non-sampling errors such as
+nonresponse bias. Typically, the benchmark data used for these calibration
+adjustments are estimates published by agencies such as the United States Census Bureau.
+For example, pollsters in the United States frequently rake polling data so that
+estimates for variables such as age or educational attainment
+match benchmark estimates from the American Community Survey (ACS). 
+
+While benchmark data (also known as control totals) for raking and calibration are often treated as the "true" population values,
+they are usually themselves estimates with their own sampling variance or margin of error.
+When we calibrate to estimated control totals rather than to "true" population values,
+we may need to account for the variance of the estimated control totals to ensure
+that calibrated estimates appropriately reflect sampling error of both the primary survey of interest and the survey from which the control totals were estimated.
+
+A handful of statistical methods have been developed for the problem of conducting replication variance estimation after sample-based calibration (see Opsomer and Erciulescu (2021) for a clear overview of the literature on this topic). All of these methods apply calibration weighting adjustment to full-sample weights and to each column of replicate weights. The key "trick" of these methods is to adjust each column of replicate weights to a slightly different set of control totals, varying the control totals used across all of the columns in such a way that the variation across the columns is in a sense proportionate to the sampling variance of the control totals. 
+
+These statistical methods differ in the way that they generate different control totals for each column of replicate weights and in the type of data they require the analyst to use. The method of Fuller (1998) requires the analyst to have a variance-covariance matrix for the estimated control totals, while the method of Opsomer and Erciulescu (2021) requires the analyst
+to use the full dataset for the control survey and to use replicate weights from the control survey.
+
+## Functions for Implementing Sample-Based Calibration
+The 'svrep' package provides two functions to implement these respective methods:
+
+- `calibrate_to_estimate()`: Adjustments to replicate weights are conducted using the method of Fuller (1998), requiring a variance-covariance matrix for the estimated control totals.
+
+- `calibrate_to_sample()`: Adjustments to replicate weights are conducted using the method proposed by Opsomer and Erciulescu (2021), requiring a dataset with replicate weights to use for estimating control totals.
+
+### An Example Using a Vaccination Survey
+
+To illustrate the different methods for conducting sample-based calibration, we'll use an example survey measuring Covid-19 vaccination status and a handful of demographic variables, based on a simple random sample of 1,000 residents of Louisville, Kentucky.
+
+```{r setup}
+# Load the data
+library(svrep)
+data("lou_vax_survey")
+
+# Inspect the first few rows
+head(lou_vax_survey)
+```
+
+For the purpose of variance estimation, we'll create jackknife replicate weights.
+
+```{r}
+suppressPackageStartupMessages(
+  library(survey)
+)
+
+lou_vax_survey_rep <- svydesign(
+  data = lou_vax_survey,
+  ids = ~ 1, weights = ~ SAMPLING_WEIGHT
+) |> 
+  as.svrepdesign(type = "JK1", mse = TRUE)
+```
+
+```{r, echo=FALSE}
+lou_vax_survey_rep
+```
+
+Because the survey's key outcome, vaccination status, is only measured for respondents, we'll do a quick nonresponse weighting adjustment to help make reasonable estimates for this outcome.
+
+```{r}
+# Conduct nonresponse weighting adjustment
+
+nr_adjusted_design <- lou_vax_survey_rep |>
+  redistribute_weights(
+    reduce_if = RESPONSE_STATUS == "Nonrespondent",
+    increase_if = RESPONSE_STATUS == "Respondent"
+  ) |>
+  subset(RESPONSE_STATUS == "Respondent")
+
+# Inspect the result of the adjustment
+rbind(
+  'Original' = summarize_rep_weights(lou_vax_survey_rep, type = 'overall'),
+  'NR-adjusted' = summarize_rep_weights(nr_adjusted_design, type = 'overall')
+)[,c("nrows", "rank", "avg_wgt_sum", "sd_wgt_sums")]
+```
+
+We'll start by calibrating to estimates from the ACS for race/ethnicity, sex, and educational attainment. The object `lou_vax_survey_control_totals` included in the 'svrep' package provides control totals for this purpose.
+
+```{r}
+data("lou_vax_survey_control_totals")
+control_totals_for_raking <- lou_vax_survey_control_totals$raking
+
+# Inspect point estimates
+control_totals_for_raking$estimates
+
+# Inspect a few rows of the control totals' variance-covariance matrix
+control_totals_for_raking$`variance-covariance`[5:8,5:8]
+```
+
+```{r}
+names(control_totals_for_raking$estimates) <- paste0(
+  c(rep("RACE_ETHNICITY", 4),
+    rep("SEX", 2),
+    rep("EDUC_ATTAINMENT", 2)),
+  names(control_totals_for_raking$estimates)
+)
+
+rownames(control_totals_for_raking$`variance-covariance`) <- names(
+  control_totals_for_raking$estimates
+)
+colnames(control_totals_for_raking$`variance-covariance`) <- names(
+  control_totals_for_raking$estimates
+)
+```
+
+
+```{r}
+calibrated_design <- calibrate_to_estimate(
+  rep_design = nr_adjusted_design,
+  estimate = control_totals_for_raking$estimates,
+  vcov_estimate = control_totals_for_raking$`variance-covariance`,
+  cal_formula = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
+  calfun = survey::cal.raking
+)
+```
+
+```{r}
+estimates_by_design <- svyby_repwts(
+  rep_designs = list(
+    "NR-adjusted" = nr_adjusted_design,
+    "Calibrated" = calibrated_design
+  ),
+  FUN = svytotal,
+  formula = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT
+)
+
+t(estimates_by_design[,-1])
+```
+
+```{r}
+estimates_by_design <- svyby_repwts(
+  rep_designs = list(
+    "NR-adjusted" = nr_adjusted_design,
+    "Calibrated" = calibrated_design
+  ),
+  FUN = svymean,
+  formula = ~ VAX_STATUS
+)
+```
+
