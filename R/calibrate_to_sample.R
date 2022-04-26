@@ -121,6 +121,13 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
                                 epsilon = 1e-7, variance = NULL,
                                 control_col_matches = NULL) {
 
+  if (!inherits(primary_rep_design, "svyrep.design")) {
+    stop("`primary_rep_design` must be a replicate survey design object, with class `svyrep.design`")
+  }
+  if (!inherits(control_rep_design, "svyrep.design")) {
+    stop("`control_rep_design` must be a replicate survey design object, with class `svyrep.design`")
+  }
+
   # Determine parameters describing replicate designs ----
   R_control <- ncol(control_rep_design$repweights)
   R_primary <- ncol(primary_rep_design$repweights)

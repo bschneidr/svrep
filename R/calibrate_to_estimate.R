@@ -118,6 +118,10 @@ calibrate_to_estimate <- function(rep_design,
                                   epsilon = 1e-7, variance = NULL,
                                   col_selection = NULL) {
 
+  if (!inherits(rep_design, "svyrep.design")) {
+    stop("`rep_design` must be a replicate survey design object, with class `svyrep.design`")
+  }
+
   # Get description of estimate ----
 
   k <- length(estimate)
