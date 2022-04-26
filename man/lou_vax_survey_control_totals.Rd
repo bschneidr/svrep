@@ -3,7 +3,6 @@
 \docType{data}
 \name{lou_vax_survey_control_totals}
 \alias{lou_vax_survey_control_totals}
-\alias{lou_vax_survey}
 \title{Control totals for the Louisville Vaccination Survey}
 \format{
 A nested list object with two lists, \code{poststratification} and \code{raking},
