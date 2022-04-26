@@ -271,7 +271,7 @@ calibrate_to_estimate <- function(rep_design,
   calibrated_rep_design$combined.weights <- TRUE
 
   if (rep_design$type %in% c("JK1", "JKn", "JK2", "ACS", "successive-difference")) {
-    rep_design_rho <- NULL
+    rep_design_rho <- 0
   } else {
     rep_design_rho <- rep_design$rho
   }
@@ -294,6 +294,8 @@ calibrate_to_estimate <- function(rep_design,
     fpctype = rep_design$fpctype,
     mse = TRUE
   )
+
+  calibrated_rep_design$rho <- rep_design$rho
 
   if (!rep_design$mse) {
     warning("Setting `mse` to TRUE; variance estimates will be centered around full-sample estimate, not mean of replicates.")

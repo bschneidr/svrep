@@ -341,6 +341,8 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
     fpctype = primary_rep_design$fpctype
   )
 
+  calibrated_rep_design$rho <- primary_rep_design$rho
+
   # Indicate which replicate columns correspond ----
   # to which replicate columns of the control survey ----
   calibrated_rep_design$control_column_matches <- matched_control_cols
