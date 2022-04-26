@@ -266,17 +266,24 @@ calibrate_to_estimate <- function(rep_design,
   class(calibrated_rep_design$repweights) <- 'repweights'
   calibrated_rep_design$combined.weights <- TRUE
 
+  if (rep_design$type %in% c("JK1", "JKn", "JK2", "ACS", "successive-difference")) {
+    rep_design_rho <- NULL
+  } else {
+    rep_design_rho <- rep_design$rho
+  }
+
+  rep_design_type <- ifelse(
+    rep_design$type %in% c("bootstrap", "subbootstrap", "mrbbootstrap"),
+    "bootstrap", rep_design$type
+  )
+
   calibrated_rep_design <- survey::svrepdesign(
     data = rep_design$variables,
     repweights = adjusted_replicate_weights,
     weights = adjusted_fullsample_weights,
-    type = rep_design$type,
+    type = rep_design_type,
     combined.weights = TRUE,
-    rho = if (rep_design$type %in% c("JK1", "JKn", "JK2", "ACS", "successive-difference")) {
-      NULL
-    } else {
-      rep_design$rho
-    },
+    rho = rep_design_rho,
     scale = rep_design$scale,
     rscales = rep_design$rscales,
     fpc = rep_design$fpc,

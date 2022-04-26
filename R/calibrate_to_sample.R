@@ -310,17 +310,24 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
   class(calibrated_rep_design$repweights) <- 'repweights'
   calibrated_rep_design$combined.weights <- TRUE
 
+  if (primary_rep_design$type %in% c("JK1", "JKn", "JK2", "ACS", "successive-difference")) {
+    primary_rep_design_rho <- NULL
+  } else {
+    primary_rep_design_rho <- primary_rep_design$rho
+  }
+
+  primary_rep_design_type <- ifelse(
+    primary_rep_design$type %in% c("bootstrap", "subbootstrap", "mrbbootstrap"),
+    "bootstrap", primary_rep_design$type
+  )
+
   calibrated_rep_design <- survey::svrepdesign(
     data = primary_rep_design$variables,
     repweights = adjusted_replicate_weights,
     weights = adjusted_fullsample_weights,
-    type = primary_rep_design$type,
+    type = primary_rep_design_type,
     combined.weights = TRUE,
-    rho = if (primary_rep_design$type %in% c("JK1", "JKn", "JK2", "ACS", "successive-difference")) {
-      NULL
-    } else {
-      primary_rep_design$rho
-    },
+    rho = primary_rep_design_rho,
     scale = primary_rep_design$scale,
     rscales = primary_rep_design$rscales,
     fpc = primary_rep_design$fpc,
@@ -332,7 +339,7 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
   calibrated_rep_design$control_column_matches <- matched_control_cols
 
   # Set degrees of freedom to match that of the primary survey ----
-  calibrated_rep_design$degf <- degf(primary_survey)
+  calibrated_rep_design$degf <- degf(primary_rep_design)
 
   # Return the result ----
   return(calibrated_rep_design)
