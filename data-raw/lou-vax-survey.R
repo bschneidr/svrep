@@ -147,6 +147,63 @@ set.seed(2014)
                                               "SAMPLING_WEIGHT"),
                                       "SAMPLING_WEIGHT")]
 
+# Estimate control totals ----
+
+  ##_ For post-stratification
+
+  poststratification_totals <- lou_rep_design |>
+    filter(AGEP >= 18) |>
+    svytotal(x = ~ CONTROL_CATEGORY)
+
+  vcov_poststratification_totals <- vcov(poststratification_totals) |> as.matrix()
+
+  poststratification_totals <- coef(poststratification_totals)
+  names(poststratification_totals) <- gsub(
+    x = names(poststratification_totals),
+    pattern = "CONTROL_CATEGORY", replacement = ""
+  )
+  colnames(vcov_poststratification_totals) <- rownames(vcov_poststratification_totals) <- names(
+    poststratification_totals
+  )
+
+  attributes(vcov_poststratification_totals)$means <- NULL
+
+  lou_vax_survey_poststrat_totals <- list(
+    'estimates' = poststratification_totals,
+    'variance-covariance' = vcov_poststratification_totals
+  )
+
+  ##_ For raking
+
+  raking_totals <- lou_rep_design |>
+    filter(AGEP >= 18) |>
+    svytotal(x = ~ RACE_ETHNICITY + SEX_label + EDUC_ATTAINMENT)
+
+  vcov_raking_totals <- vcov(raking_totals) |> as.matrix()
+
+  raking_totals <- coef(raking_totals)
+  names(raking_totals) <- gsub(
+    x = names(raking_totals),
+    pattern = "(RACE_ETHNICITY|SEX_label|EDUC_ATTAINMENT)", replacement = ""
+  )
+  colnames(vcov_raking_totals) <- rownames(vcov_raking_totals) <- names(
+    raking_totals
+  )
+
+  attributes(vcov_raking_totals)$means <- NULL
+
+  lou_vax_survey_raking_totals <- list(
+    'estimates' = raking_totals,
+    'variance-covariance' = vcov_raking_totals
+  )
+
+  lou_vax_survey_control_totals <- list(
+    'poststratification' = lou_vax_survey_poststrat_totals,
+    'raking' = lou_vax_survey_raking_totals
+  )
+
 # Save the dataset(s) of interest ----
 
-  usethis::use_data(lou_vax_survey, overwrite = TRUE)
+  usethis::use_data(lou_vax_survey,
+                    lou_vax_survey_control_totals,
+                    overwrite = TRUE)
