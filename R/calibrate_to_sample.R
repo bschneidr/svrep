@@ -280,6 +280,10 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
       a_r[i_star] * (unadjusted_control_totals[['replicate-specific']][i,] - unadjusted_control_totals[['full-sample']])
   }
 
+  # Ensure that order of control totals matches order of data variables ----
+
+  x <- x[,names(unadjusted_control_totals[['full-sample']]), drop = FALSE]
+
   # Calibrate the replicate weights ----
 
   adjusted_replicate_weights <- matrix(nrow = nrow(primary_replicate_weights),
