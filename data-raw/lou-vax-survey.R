@@ -160,7 +160,7 @@ set.seed(2014)
   poststratification_totals <- coef(poststratification_totals)
   names(poststratification_totals) <- gsub(
     x = names(poststratification_totals),
-    pattern = "CONTROL_CATEGORY", replacement = ""
+    pattern = "SEX_label", replacement = "SEX"
   )
   colnames(vcov_poststratification_totals) <- rownames(vcov_poststratification_totals) <- names(
     poststratification_totals
@@ -182,9 +182,10 @@ set.seed(2014)
   vcov_raking_totals <- vcov(raking_totals) |> as.matrix()
 
   raking_totals <- coef(raking_totals)
+
   names(raking_totals) <- gsub(
     x = names(raking_totals),
-    pattern = "(RACE_ETHNICITY|SEX_label|EDUC_ATTAINMENT)", replacement = ""
+    pattern = "SEX_label", replacement = "SEX"
   )
   colnames(vcov_raking_totals) <- rownames(vcov_raking_totals) <- names(
     raking_totals
