@@ -338,10 +338,15 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
     scale = primary_rep_design$scale,
     rscales = primary_rep_design$rscales,
     fpc = primary_rep_design$fpc,
-    fpctype = primary_rep_design$fpctype
+    fpctype = primary_rep_design$fpctype,
+    mse = TRUE
   )
 
   calibrated_rep_design$rho <- primary_rep_design$rho
+
+  if (!primary_rep_design$mse) {
+    warning("Setting `mse` to TRUE; variance estimates will be centered around full-sample estimate, not mean of replicates.")
+  }
 
   # Indicate which replicate columns correspond ----
   # to which replicate columns of the control survey ----
