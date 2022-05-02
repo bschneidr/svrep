@@ -282,6 +282,18 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
 
   # Ensure that order of control totals matches order of data variables ----
 
+  primary_calib_variables <- colnames(x)
+  control_calib_variables <- names(unadjusted_control_totals[['full-sample']])
+
+  differing_variables <- union(setdiff(primary_calib_variables, control_calib_variables),
+                               setdiff(control_calib_variables, primary_calib_variables))
+  if (length(differing_variables) > 0) {
+    error_msg <- paste(
+      "There are differences between `primary_rep_design` and `control_rep_design`",
+      "in the type or categories for the calibration variables."
+    )
+    stop(error_msg)
+  }
   x <- x[,names(unadjusted_control_totals[['full-sample']]), drop = FALSE]
 
   # Calibrate the replicate weights ----

@@ -32,12 +32,12 @@
 #' @param maxit Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
 #' @param epsilon Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
 #' @param variance Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
-#' @param perturbed_control_cols Optional parameter to determine which replicate columns
+#' @param col_selection Optional parameter to determine which replicate columns
 #' will have their control totals perturbed. If supplied, \code{col_selection} must be an integer vector
 #' with length equal to the length of \code{estimate}.
 #' @return A replicate design object, with full-sample weights calibrated to totals from \code{estimate},
 #' and replicate weights adjusted to account for variance of the control totals.
-#' The element \code{perturbed_control_cols} indicates, for each replicate column of the calibrated primary survey,
+#' The element \code{col_selection} indicates, for each replicate column of the calibrated primary survey,
 #' which column of replicate weights it was matched to from the control survey.
 #' @references
 #' Fuller, W.A. (1998).
@@ -161,11 +161,11 @@ calibrate_to_estimate <- function(rep_design,
     if (length(col_selection) != k) {
       stop("`col_selection` must have the same length as `estimate`, with no duplicate entries.")
     }
-    if (any(col_selection) != as.integer(col_selection)) {
+    if (any(col_selection != as.integer(col_selection))) {
       stop("`col_selection` must only contain integer entries.")
     }
-    if (any(col_selection < 1) || any(col_selection > k)) {
-      stop("`col_selection` must be an integer vector with entries whose value is between 1 and k, where k is the length of `estimate`.")
+    if (any(col_selection < 1) || any(col_selection > R_primary)) {
+      stop("`col_selection` must be an integer vector with entries whose value is between 1 and R, where R is the number of columns of replicate weights.")
     }
     if (length(col_selection) != length(unique(col_selection))) {
       stop("`col_selection` must have k distinct entries, where k is the length of `estimate`.")
