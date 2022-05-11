@@ -46,14 +46,14 @@ See \link[survey]{calibrate} for additional details.}
 
 \item{variance}{Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.}
 
-\item{perturbed_control_cols}{Optional parameter to determine which replicate columns
+\item{col_selection}{Optional parameter to determine which replicate columns
 will have their control totals perturbed. If supplied, \code{col_selection} must be an integer vector
 with length equal to the length of \code{estimate}.}
 }
 \value{
 A replicate design object, with full-sample weights calibrated to totals from \code{estimate},
 and replicate weights adjusted to account for variance of the control totals.
-The element \code{perturbed_control_cols} indicates, for each replicate column of the calibrated primary survey,
+The element \code{col_selection} indicates, for each replicate column of the calibrated primary survey,
 which column of replicate weights it was matched to from the control survey.
 }
 \description{
