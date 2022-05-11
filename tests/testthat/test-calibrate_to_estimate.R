@@ -127,6 +127,11 @@ test_that("Throws error if convergence is not achieved", {
   epsilon_to_use <- 1e-30
   max_iterations <- 2
 
+  estimated_controls <- svytotal(x = ~ stype + enroll,
+                                 design = control_survey)
+  control_point_estimates <- coef(estimated_controls)
+  control_vcov_estimate <- vcov(estimated_controls)
+
   expect_error(
     object = {
       suppressMessages({
