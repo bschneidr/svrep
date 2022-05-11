@@ -37,7 +37,10 @@ See \link[survey]{calibrate} for additional details.}
 
 \item{maxit}{Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.}
 
-\item{epsilon}{Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.}
+\item{epsilon}{Parameter passed to \link[survey]{grake} for calibration. \cr
+After calibration, the absolute difference between each calibration target and the calibrated estimate
+will be no larger than \code{epsilon} times (1 plus the absolute value of the target).
+See \link[survey]{calibrate} for details.}
 
 \item{variance}{Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.}
 

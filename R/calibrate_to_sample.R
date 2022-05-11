@@ -35,7 +35,10 @@
 #' @param bounds Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
 #' @param verbose Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
 #' @param maxit Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
-#' @param epsilon Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
+#' @param epsilon Parameter passed to \link[survey]{grake} for calibration. \cr
+#' After calibration, the absolute difference between each calibration target and the calibrated estimate
+#' will be no larger than \code{epsilon} times (1 plus the absolute value of the target).
+#' See \link[survey]{calibrate} for details.
 #' @param variance Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
 #' @param control_col_matches Optional parameter to control which control survey replicate
 #' is matched to each primary survey replicate.
@@ -194,6 +197,7 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
     matched_primary_cols <- sapply(
       seq_len(R_control), function(i) {
       result <- which(matched_control_cols == i)
+      return(result)
     })
 
   } else {
@@ -307,6 +311,15 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
                                bounds = bounds,
                                verbose = verbose, maxit = maxit,
                                epsilon = epsilon, variance = variance)
+    if (is.null(attr(g_weights, 'failed'))) {
+      convergence_achieved <- TRUE
+    } else {
+      convergence_achieved <- FALSE
+    }
+    if (!convergence_achieved) {
+      error_msg <- sprintf("Convergence was not achieved for replicate %s. Consider increasing `maxit` or relaxing `epsilon`.", i)
+      stop(error_msg)
+    }
     adjusted_replicate_weights[,i] <- as.vector(primary_replicate_weights[,i]) * g_weights
   }
 
@@ -318,6 +331,16 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
                      bounds = bounds,
                      verbose = verbose, maxit = maxit,
                      epsilon = epsilon, variance = variance)
+
+  if (is.null(attr(g_weights, 'failed'))) {
+    convergence_achieved <- TRUE
+  } else {
+    convergence_achieved <- FALSE
+  }
+  if (!convergence_achieved) {
+    error_msg <- "Convergence was not achieved for calibration of full-sample weights. Consider increasing `maxit` or relaxing `epsilon`."
+    stop(error_msg)
+  }
 
   adjusted_fullsample_weights <- as.vector(primary_rep_design$pweights) * g_weights
   attr(adjusted_fullsample_weights, 'eta') <- NULL
