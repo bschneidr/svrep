@@ -107,6 +107,24 @@ test_that("Basic example gives correct results", {
     label = "Relative error of estimated calibration totals"
   )
 
+  # Check that variance-covariance matrix of control totals is reproduced
+
+  vcov_calibrated <- svytotal(x = ~ stype + enroll,
+           design = calibrated_rep_design,
+           return.replicates = FALSE) |>
+    vcov() |> as.matrix() |> `attr<-`('means', NULL)
+
+  vcov_control <- svytotal(x = ~ stype + enroll,
+           design = control_survey,
+           return.replicates = FALSE) |>
+    vcov() |> as.matrix() |> `attr<-`('means', NULL)
+
+  expect_equal(
+    object = vcov_calibrated,
+    expected = vcov_control,
+    tolerance = 1e-07
+  )
+
 })
 
 test_that("Able to manually specify column matching when control survey has more replicates", {
