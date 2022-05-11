@@ -3,7 +3,6 @@
 S3method(redistribute_weights,svyrep.design)
 export(calibrate_to_estimate)
 export(calibrate_to_sample)
-export(combine_weights)
 export(redistribute_weights)
 export(stack_replicate_designs)
 export(summarize_rep_weights)
