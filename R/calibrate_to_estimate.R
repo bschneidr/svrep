@@ -267,12 +267,12 @@ calibrate_to_estimate <- function(rep_design,
 
   # Calibrate the full-sample weights ----
 
-  g_weights <- grake(mm = x, ww = as.vector(rep_design$pweights),
-                     population = estimate,
-                     calfun = calfun,
-                     bounds = bounds,
-                     verbose = verbose, maxit = maxit,
-                     epsilon = epsilon, variance = variance)
+    g_weights <- survey::grake(mm = x, ww = as.vector(rep_design$pweights),
+                               population = estimate,
+                               calfun = calfun,
+                               bounds = bounds,
+                               verbose = verbose, maxit = maxit,
+                               epsilon = epsilon, variance = variance)
 
     if (is.null(attr(g_weights, 'failed'))) {
       convergence_achieved <- TRUE

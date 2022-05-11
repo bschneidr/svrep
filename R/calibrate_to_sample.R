@@ -325,12 +325,12 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
 
   # Calibrate the full-sample weights ----
 
-  g_weights <- grake(mm = x, ww = as.vector(primary_rep_design$pweights),
-                     population = unadjusted_control_totals[['full-sample']],
-                     calfun = calfun,
-                     bounds = bounds,
-                     verbose = verbose, maxit = maxit,
-                     epsilon = epsilon, variance = variance)
+  g_weights <- survey::grake(mm = x, ww = as.vector(primary_rep_design$pweights),
+                             population = unadjusted_control_totals[['full-sample']],
+                             calfun = calfun,
+                             bounds = bounds,
+                             verbose = verbose, maxit = maxit,
+                             epsilon = epsilon, variance = variance)
 
   if (is.null(attr(g_weights, 'failed'))) {
     convergence_achieved <- TRUE
@@ -392,7 +392,7 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
   calibrated_rep_design$control_column_matches <- matched_control_cols
 
   # Set degrees of freedom to match that of the primary survey ----
-  calibrated_rep_design$degf <- degf(primary_rep_design)
+  calibrated_rep_design$degf <- survey::degf(primary_rep_design)
 
   # Return the result ----
   return(calibrated_rep_design)
