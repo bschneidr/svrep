@@ -203,8 +203,43 @@ set.seed(2014)
     'raking' = lou_vax_survey_raking_totals
   )
 
+# Create minimal dataset with replicate weights to use for examples ----
+
+
+  ##_ Randomly select rows to retain in the dataset,
+  ##_ and upweight to represent dropped rows
+
+  sampled_ids <- lou_rep_design$variables |>
+    filter(AGEP >= 18) |>
+    group_by(SEX_label, RACE_ETHNICITY, EDUC_ATTAINMENT) |>
+    slice(1:5) |>
+    mutate(UNIQUE_ID = paste0(SERIALNO, SPORDER)) |>
+    pull("UNIQUE_ID")
+
+  subsampled_design <- lou_rep_design |>
+    mutate(IS_SUBSAMPLED = paste0(SERIALNO, SPORDER) %in% sampled_ids) |>
+    filter(AGEP >= 18) |>
+    svrep::redistribute_weights(reduce_if = !IS_SUBSAMPLED,
+                                increase_if = IS_SUBSAMPLED,
+                                by = c("SEX_label", "RACE_ETHNICITY", "EDUC_ATTAINMENT")) |>
+    filter(IS_SUBSAMPLED)
+
+  minimal_pums_data <- subsampled_design |>
+    mutate(UNIQUE_ID = 1:nrow(subsampled_design)) |>
+    select(UNIQUE_ID, AGE = AGEP, SEX = SEX_label, RACE_ETHNICITY, EDUC_ATTAINMENT) |>
+    cbind(cbind('PWGTP' = weights(subsampled_design, type = "sampling"),
+                subsampled_design$repweights))
+
+  lou_pums_microdata <- minimal_pums_data[sample(x = seq_len(nrow(minimal_pums_data)),
+                                                 size = nrow(minimal_pums_data),
+                                                 replace = FALSE),] |>
+    dplyr::as_tibble()
+
+
 # Save the dataset(s) of interest ----
 
   usethis::use_data(lou_vax_survey,
                     lou_vax_survey_control_totals,
-                    overwrite = TRUE)
+                    lou_pums_microdata,
+                    overwrite = TRUE,
+                    compress = "xz")
