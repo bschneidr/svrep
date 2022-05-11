@@ -146,4 +146,8 @@ or supply a vector of randomly-selected column indices to the argument \code{per
 Fuller, W.A. (1998).
 "Replication variance estimation for two-phase samples."
 \strong{Statistica Sinica}, \emph{8}: 1153-1164.
+
+Opsomer, J.D. and A. Erciulescu (2021).
+"Replication variance estimation after sample-based calibration."
+\strong{Survey Methodology}, \emph{47}: 265-277.
 }
