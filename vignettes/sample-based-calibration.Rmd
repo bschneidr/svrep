@@ -112,36 +112,16 @@ rbind(
 )[,c("nrows", "rank", "avg_wgt_sum", "sd_wgt_sums")]
 ```
 
-All of the work so far has given us the replicate design for the primary survey, prepared for calibration. Now we need to obtain benchmark data we can use for the calibration. We'll use a Public-Use Microdata Sample (PUMS) dataset from the ACS obtained with the `tidycensus` package, which we'll use to estimate control totals for race/ethnicity, sex, and educational attainment.
-
-First we'll download the data.
+All of the work so far has given us the replicate design for the primary survey, prepared for calibration. Now we need to obtain benchmark data we can use for the calibration. We'll use a Public-Use Microdata Sample (PUMS) dataset from the ACS as our source for benchmark data on race/ethnicity, sex, and educational attainment.
 
 ```{r, results='hide'}
-suppressPackageStartupMessages(
-  library(tidycensus)
-)
-# Load a Census API key ----
-  census_api_key(
-    readLines("census-api-key")
-  )
-
-# Download PUMS data for Louisville ----
-  louisville_pums_data <- get_pums(
-    variables = c("SEX", "RAC1P", "HISP", "AGEP", "SCHL"),
-    survey = "acs5",
-    year = 2019,
-    state = "KY",
-    puma = paste0("0170", 1:6),
-    recode = TRUE,
-    rep_weights = "person" # Also download person-level replicate weights
-  )
+data("lou_pums_microdata")
 ```
  
 ```{r}
 # Inspect some of the rows/columns of data ----
-head(louisville_pums_data) |> 
-  dplyr::select(SEX_label, HISP_label,
-                RAC1P_label, SCHL_label) |>
+tail(lou_pums_microdata, n = 5) |> 
+  dplyr::select(AGE, SEX, RACE_ETHNICITY, EDUC_ATTAINMENT) |>
   knitr::kable()
 ```
 
@@ -150,11 +130,11 @@ Next, we'll prepare the PUMS data to use replication variance estimation using p
 ```{r}
 # Convert to a survey design object ----
   pums_rep_design <- svrepdesign(
-      data = louisville_pums_data,
+      data = lou_pums_microdata,
       weights = ~ PWGTP,
       repweights = "PWGTP\\d{1,2}",
       type = "successive-difference",
-      variables = ~ AGEP + SCHL_label + SEX_label + RAC1P_label + HISP_label,
+      variables = ~ AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
       mse = TRUE
     )
 
@@ -165,7 +145,7 @@ When conduction calibration, we have to make sure that the data from the control
 
 ```{r}
 # Subset to only include adults
-pums_rep_design <- pums_rep_design |> subset(AGEP >= 18)
+pums_rep_design <- pums_rep_design |> subset(AGE >= 18)
 ```
 
 In addition, we need to ensure that the control survey design has calibration variables that align with the variables in the primary survey design of interest. This may require some data manipulation.
@@ -175,29 +155,16 @@ suppressPackageStartupMessages(
   library(dplyr)
 )
 
-# Add derived variables to use for calibration ----
-  pums_rep_design <- pums_rep_design |>
-  transform(
-    ## Renamed sex variable
-    SEX = SEX_label,
-    ## Simplified race/ethnicity variable
-    RACE_ETHNICITY = case_when(
-      HISP_label != "Not Spanish/Hispanic/Latino" ~ "Hispanic or Latino",
-      !as.character(RAC1P_label) %in% c(
-        "White alone",
-        "Black or African American alone",
-        "Hispanic or Latino"
-      ) ~ "Other Race, not Hispanic or Latino",
-      TRUE ~ paste0(as.character(RAC1P_label), ", not Hispanic or Latino")
-    ),
-    ## Binary educational attainment variable
-    EDUC_ATTAINMENT = case_when(
-      SCHL_label %in% c("Associate's degree", "Bachelor's degree", "Master's degree",
-                        "Professional degree beyond a bachelor's degree",
-                        "Doctorate degree") ~ "High school or beyond",
-      TRUE ~ "Less than high school"
-    )
-  )
+# Check that variables match across data sources ----
+  pums_rep_design$variables |>
+    dplyr::distinct(RACE_ETHNICITY)
+
+  setdiff(lou_vax_survey_rep$variables$RACE_ETHNICITY,
+          pums_rep_design$variables$RACE_ETHNICITY)
+  setdiff(lou_vax_survey_rep$variables$SEX,
+          pums_rep_design$variables$SEX)
+  setdiff(lou_vax_survey_rep$variables$EDUC_ATTAINMENT,
+          pums_rep_design$variables$EDUC_ATTAINMENT)
 ```
 
 ```{r}
