@@ -6,7 +6,7 @@
 \title{ACS PUMS Data for Louisville}
 \format{
 A data frame with 80 rows and 85 variables
-\describe{
+\itemize{
   \item{UNIQUE_ID}{Unique identifier for records}
   \item{AGE}{Age in years (copied from the AGEP variable in the ACS microdata)}
   \item{RACE_ETHNICITY}{Race and Hispanic/Latino ethnicity
