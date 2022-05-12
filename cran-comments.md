@@ -1,8 +1,8 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 2 notes
 
-* Checking the package on R-Hub, there was an erroneous note about possibly invalid URLs; the URL is in fact correct.
+* These notes are erroneous and can be ignored. The text strings 'Erciulescu' and 'Opsomer' are authors' names erroneously flagged as possibly misspelled. The flagged DOI is in fact the valid DOI for that paper.
 
 ## Downstream dependencies
 
