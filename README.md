@@ -4,8 +4,8 @@
 # svrep
 
 <!-- badges: start -->
+<!-- [![R-CMD-check](https://github.com/bschneidr/svrep/workflows/R-CMD-check/badge.svg)](https://github.com/bschneidr/svrep/actions) -->
 
-[![R-CMD-check](https://github.com/bschneidr/svrep/workflows/R-CMD-check/badge.svg)](https://github.com/bschneidr/svrep/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/bschneidr/svrep/branch/main/graph/badge.svg)](https://app.codecov.io/gh/bschneidr/svrep?branch=main)
 <!-- badges: end -->
