@@ -65,7 +65,7 @@ set.seed(2014)
   pop_vax_rates <- population_counts |>
     mutate(
       VAX_RATE = case_when(
-        grepl(x = RACE_ETHNICITY, "Black or African American alone") ~ 0.55,
+        grepl(x = RACE_ETHNICITY, "Black or African American alone") ~ 0.53,
         grepl(x = RACE_ETHNICITY, "White alone") ~ 0.58,
         grepl(x = RACE_ETHNICITY, "^Hispanic or Latino") ~ 0.48,
         TRUE ~ 0.50
@@ -92,7 +92,7 @@ set.seed(2014)
       RESP_PROPENSITY = case_when(
         grepl(x = RACE_ETHNICITY, "Black or African American alone") ~ 0.45,
         grepl(x = RACE_ETHNICITY, "White alone") ~ 0.48,
-        grepl(x = RACE_ETHNICITY, "^Hispanic or Latino") ~ 0.4,
+        grepl(x = RACE_ETHNICITY, "^Hispanic or Latino") ~ 0.28,
         TRUE ~ 0.45
       )
     ) |>
