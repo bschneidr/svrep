@@ -287,28 +287,23 @@ individuals who identify as Black or as Hispanic or Latino.
 
 ``` r
 # Compare demographic estimates from the two data sources
-svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey)
-#>                                                                          mean
-#> RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 0.19950
-#> RACE_ETHNICITYHispanic or Latino                                      0.04525
-#> RACE_ETHNICITYOther Race, not Hispanic or Latino                      0.04631
-#> RACE_ETHNICITYWhite alone, not Hispanic or Latino                     0.70894
-#>                                                                          SE
-#> RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 1e-03
-#> RACE_ETHNICITYHispanic or Latino                                      2e-04
-#> RACE_ETHNICITYOther Race, not Hispanic or Latino                      8e-04
-#> RACE_ETHNICITYWhite alone, not Hispanic or Latino                     7e-04
-svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey)
-#>                                                                           mean
-#> RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 0.169323
-#> RACE_ETHNICITYHispanic or Latino                                      0.033865
-#> RACE_ETHNICITYOther Race, not Hispanic or Latino                      0.057769
-#> RACE_ETHNICITYWhite alone, not Hispanic or Latino                     0.739044
-#>                                                                           SE
-#> RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 0.0159
-#> RACE_ETHNICITYHispanic or Latino                                      0.0080
-#> RACE_ETHNICITYOther Race, not Hispanic or Latino                      0.0104
-#> RACE_ETHNICITYWhite alone, not Hispanic or Latino                     0.0206
+estimate_comparisons <- data.frame(
+  'Vax_Survey' = svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey) |> coef(),
+  'ACS_Benchmark' = svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey) |> coef()
+)
+rownames(estimate_comparisons) <- gsub(x = rownames(estimate_comparisons),
+                                       "RACE_ETHNICITY", "")
+print(estimate_comparisons)
+#>                                                         Vax_Survey
+#> Black or African American alone, not Hispanic or Latino 0.19949824
+#> Hispanic or Latino                                      0.04525039
+#> Other Race, not Hispanic or Latino                      0.04630955
+#> White alone, not Hispanic or Latino                     0.70894182
+#>                                                         ACS_Benchmark
+#> Black or African American alone, not Hispanic or Latino    0.16932271
+#> Hispanic or Latino                                         0.03386454
+#> Other Race, not Hispanic or Latino                         0.05776892
+#> White alone, not Hispanic or Latino                        0.73904382
 ```
 
 There are two options for calibrating the sample to the estimate

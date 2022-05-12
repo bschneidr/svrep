@@ -210,8 +210,13 @@ We can see that the vaccination survey seems to underrepresent individuals who i
 
 ```{r}
 # Compare demographic estimates from the two data sources
-svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey)
-svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey)
+estimate_comparisons <- data.frame(
+  'Vax_Survey' = svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey) |> coef(),
+  'ACS_Benchmark' = svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey) |> coef()
+)
+rownames(estimate_comparisons) <- gsub(x = rownames(estimate_comparisons),
+                                       "RACE_ETHNICITY", "")
+print(estimate_comparisons)
 ```
 
 There are two options for calibrating the sample to the estimate controls. With the first approach, we supply point estimates and their variance-covariance matrix to the function `calibrate_to_estimate()`.
