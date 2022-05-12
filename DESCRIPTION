@@ -1,7 +1,7 @@
 Package: svrep
 Type: Package
 Title: Tools for Creating, Updating, and Analyzing Survey Replicate Weights
-Version: 0.2.0
+Version: 0.2.0.9000
 Author: Ben Schneider
 Maintainer: Ben Schneider <benjamin.julius.schneider@gmail.com>
 Description: Provides tools for creating and working with survey replicate weights,
