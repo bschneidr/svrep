@@ -3,3 +3,8 @@
 .RData
 .Ruserdata
 *.Rproj
+inst/doc
+/doc/
+/Meta/
+census-api-key
+successive-differences-replication.R

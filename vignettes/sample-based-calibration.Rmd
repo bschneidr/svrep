@@ -1,0 +1,421 @@
+---
+title: "Calibrating to Estimated Control Totals"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 4
+bibliography: vignette-references.bib  
+vignette: >
+  %\VignetteIndexEntry{Calibrating to Estimated Control Totals}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Sample-based Calibration: An Introduction
+Calibration weighting adjustments such as post-stratification or raking
+are often helpful for reducing sampling variance or non-sampling errors such as
+nonresponse bias. Typically, the benchmark data used for these calibration
+adjustments are estimates published by agencies such as the United States Census Bureau.
+For example, pollsters in the United States frequently rake polling data so that
+estimates for variables such as age or educational attainment
+match benchmark estimates from the American Community Survey (ACS). 
+
+While benchmark data (also known as control totals) for raking and calibration are often treated as the "true" population values, they are usually themselves estimates with their own sampling variance or margin of error. When we calibrate to estimated control totals rather than to "true" population values,
+we may need to account for the variance of the estimated control totals to ensure
+that calibrated estimates appropriately reflect sampling error of both the primary survey of interest and the survey from which the control totals were estimated. This is especially important if the control totals have large margins of error.
+
+A handful of statistical methods have been developed for the problem of conducting replication variance estimation after sample-based calibration; see @opsomerReplicationVarianceEstimation2021 for a clear overview of the literature on this topic. All of these methods apply calibration weighting adjustment to full-sample weights and to each column of replicate weights. The key "trick" of these methods is to adjust each column of replicate weights to a slightly different set of control totals, varying the control totals used across all of the replicates in such a way that the variation across the columns is in a sense proportionate to the sampling variance of the control totals. 
+
+These statistical methods differ in the way that they generate different control totals for each column of replicate weights and in the type of data they require the analyst to use. The method of @10.2307/24306529 requires the analyst to have a variance-covariance matrix for the estimated control totals, while the method of @opsomerReplicationVarianceEstimation2021 requires the analyst to use the full dataset for the control survey along with associated replicate weights.
+
+## Functions for Implementing Sample-Based Calibration
+
+The 'svrep' package provides two functions to implement sample-based calibration.
+
+With the function `calibrate_to_estimate()`, adjustments to replicate weights are conducted using the method of Fuller (1998), requiring a variance-covariance matrix for the estimated control totals.
+
+```{r, eval=FALSE}
+calibrate_to_estimate(
+  rep_design = rep_design,
+  estimate = vector_of_control_totals,
+  vcov_estimate = variance_covariance_matrix_for_controls,
+  cal_formula = ~ CALIBRATION_VARIABLE_1 + CALIBRATION_VARIABLE_2 + ...,
+)
+```
+
+With the function `calibrate_to_sample()`, adjustments to replicate weights are conducted using the method proposed by Opsomer and Erciulescu (2021), requiring a dataset with replicate weights to use for estimating control totals and their sampling variance.
+
+```{r, eval=FALSE}
+calibrate_to_sample(
+  primary_rep_design = primary_rep_design,
+  control_rep_design = control_rep_design
+  cal_formula = ~ CALIBRATION_VARIABLE_1 + CALIBRATION_VARIABLE_2 + ...,
+)
+```
+
+For both functions, it is possible to use a variety of calibration options from the `survey` package's `calibrate()` function. For example, the user can specify a specific calibration function to use, such as `calfun = survey::cal.linear` to implement post-stratification or `calfun = survey::cal.raking` to implement raking. The `bounds` argument can be used to specify bounds for the calibration weights, and the arguments such as `maxit` or `epsilon` allow finer control over the Newton-Raphson algorithm used to implement calibration.
+
+## An Example Using a Vaccination Survey
+
+To illustrate the different methods for conducting sample-based calibration, we'll use an example survey measuring Covid-19 vaccination status and a handful of demographic variables, based on a simple random sample of 1,000 residents of Louisville, Kentucky.
+
+```{r setup}
+# Load the data
+library(svrep)
+data("lou_vax_survey")
+
+# Inspect the first few rows
+head(lou_vax_survey) |> knitr::kable()
+```
+
+For the purpose of variance estimation, we'll create jackknife replicate weights.
+
+```{r}
+suppressPackageStartupMessages(
+  library(survey)
+)
+
+lou_vax_survey_rep <- svydesign(
+  data = lou_vax_survey,
+  ids = ~ 1, weights = ~ SAMPLING_WEIGHT
+) |> 
+  as.svrepdesign(type = "JK1", mse = TRUE)
+```
+
+```{r, echo=FALSE}
+lou_vax_survey_rep
+```
+
+Because the survey's key outcome, vaccination status, is only measured for respondents, we'll do a quick nonresponse weighting adjustment to help make reasonable estimates for this outcome.
+
+```{r}
+# Conduct nonresponse weighting adjustment
+
+nr_adjusted_design <- lou_vax_survey_rep |>
+  redistribute_weights(
+    reduce_if = RESPONSE_STATUS == "Nonrespondent",
+    increase_if = RESPONSE_STATUS == "Respondent"
+  ) |>
+  subset(RESPONSE_STATUS == "Respondent")
+
+# Inspect the result of the adjustment
+rbind(
+  'Original' = summarize_rep_weights(lou_vax_survey_rep, type = 'overall'),
+  'NR-adjusted' = summarize_rep_weights(nr_adjusted_design, type = 'overall')
+)[,c("nrows", "rank", "avg_wgt_sum", "sd_wgt_sums")]
+```
+
+All of the work so far has given us the replicate design for the primary survey, prepared for calibration. Now we need to obtain benchmark data we can use for the calibration. We'll use a Public-Use Microdata Sample (PUMS) dataset from the ACS as our source for benchmark data on race/ethnicity, sex, and educational attainment.
+
+```{r, results='hide'}
+data("lou_pums_microdata")
+```
+ 
+```{r}
+# Inspect some of the rows/columns of data ----
+tail(lou_pums_microdata, n = 5) |> 
+  dplyr::select(AGE, SEX, RACE_ETHNICITY, EDUC_ATTAINMENT) |>
+  knitr::kable()
+```
+
+Next, we'll prepare the PUMS data to use replication variance estimation using provided replicate weights.
+
+```{r}
+# Convert to a survey design object ----
+  pums_rep_design <- svrepdesign(
+      data = lou_pums_microdata,
+      weights = ~ PWGTP,
+      repweights = "PWGTP\\d{1,2}",
+      type = "successive-difference",
+      variables = ~ AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
+      mse = TRUE
+    )
+
+  pums_rep_design
+```
+
+When conduction calibration, we have to make sure that the data from the control survey represent the same population as the primary survey. Since the Louisville vaccination survey only represents adults, we need to subset the control survey design to adults.
+
+```{r}
+# Subset to only include adults
+pums_rep_design <- pums_rep_design |> subset(AGE >= 18)
+```
+
+In addition, we need to ensure that the control survey design has calibration variables that align with the variables in the primary survey design of interest. This may require some data manipulation.
+
+```{r}
+suppressPackageStartupMessages(
+  library(dplyr)
+)
+
+# Check that variables match across data sources ----
+  pums_rep_design$variables |>
+    dplyr::distinct(RACE_ETHNICITY)
+
+  setdiff(lou_vax_survey_rep$variables$RACE_ETHNICITY,
+          pums_rep_design$variables$RACE_ETHNICITY)
+  setdiff(lou_vax_survey_rep$variables$SEX,
+          pums_rep_design$variables$SEX)
+  setdiff(lou_vax_survey_rep$variables$EDUC_ATTAINMENT,
+          pums_rep_design$variables$EDUC_ATTAINMENT)
+```
+
+```{r}
+# Estimates from the control survey (ACS)
+svymean(
+  design = pums_rep_design,
+  x = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT
+)
+
+# Estimates from the primary survey (Louisville vaccination survey)
+svymean(
+  design = nr_adjusted_design,
+  x = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT
+)
+```
+
+### Raking to estimated control totals
+
+We'll start by raking to estimates from the ACS for race/ethnicity, sex, and educational attainment, first using the `calibrate_to_sample()` method and then using the `calibrate_to_estimate()` method. For the `calibrate_to_sample()` method, we need to obtain a vector of point estimates for the control totals, and an accompanying variance-covariance matrix for the estimates.
+
+```{r}
+acs_control_totals <- svytotal(
+  x = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
+  design = pums_rep_design
+)
+
+control_totals_for_raking <- list(
+  'estimates' = coef(acs_control_totals),
+  'variance-covariance' = vcov(acs_control_totals)
+)
+
+# Inspect point estimates
+control_totals_for_raking$estimates
+
+# Inspect a few rows of the control totals' variance-covariance matrix
+control_totals_for_raking$`variance-covariance`[5:8,5:8] |>
+  `colnames<-`(NULL)
+```
+
+Crucially, we note that the vector of control totals has the same names as the estimates produced by using `svytotal()` with the primary survey design object whose weights we plan to adjust.
+
+```{r}
+svytotal(x = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
+         design = nr_adjusted_design)
+```
+
+To calibrate the design to the estimates, we supply the estimates and the variance-covariance matrix to `calibrate_to_estimate()`, and we supply the `cal_formula` argument with the same formula we would use for `svytotal()`. To use a raking adjustment, we specify `calfun = survey::cal.raking`.
+
+```{r}
+raked_design <- calibrate_to_estimate(
+  rep_design = nr_adjusted_design,
+  estimate = control_totals_for_raking$estimates,
+  vcov_estimate = control_totals_for_raking$`variance-covariance`,
+  cal_formula = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
+  calfun = survey::cal.raking, # Required for raking
+  epsilon = 1e-9
+)
+```
+
+Now we can compare the estimated totals for the calibration variables to the actual control totals. As we might intuitively expect, the estimated totals from the survey now match the control totals, and the standard errors for the estimated totals match the standard errors of the control totals.
+
+```{r}
+# Estimated totals after calibration
+svytotal(x = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
+         design = raked_design)
+
+# Matches the control totals!
+cbind(
+  'total' = control_totals_for_raking$estimates,
+  'SE' = control_totals_for_raking$`variance-covariance` |>
+    diag() |> sqrt()
+)
+```
+
+We can now see what effect the raking adjustment has had on our primary estimate of interest, which is the overall Covid-19 vaccination rate. The raking adjustment has reduced our estimate of the vaccination rate by about one percentage point and results in a similar standard error estimate.
+
+```{r}
+estimates_by_design <- svyby_repwts(
+  rep_designs = list(
+    "NR-adjusted" = nr_adjusted_design,
+    "Raked" = raked_design
+  ),
+  FUN = svytotal,
+  formula = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT
+)
+
+t(estimates_by_design[,-1]) |>
+  knitr::kable()
+```
+
+Instead of doing the raking using a vector of control totals and their variance-covariance matrix, we could have instead done the raking by simply supplying the two replicate design objects to the function `calibrate_to_sample()`. This uses the Opsomer-Erciulescu method of adjusting replicate weights, in contrast to `calibrate_to_estimate()`, which uses Fuller's method of adjusting replicate weights.
+
+```{r}
+raked_design_opsomer_erciulescu <- calibrate_to_sample(
+  primary_rep_design = nr_adjusted_design,
+  control_rep_design = pums_rep_design,
+  cal_formula = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
+  calfun = survey::cal.raking,
+  epsilon = 1e-9
+)
+```
+
+We can see that the two methods yield identical point estimates from the full-sample weights, and the standard errors match nearly exactly for the calibration variables (race/ethnicity, sex, and educational attainment). However, there are small but slightly more noticeable differences in the standard errors for other variables, such as `VAX_STATUS`, resulting from the fact that the two methods have different methods of adjusting the replicate weights. @opsomerReplicationVarianceEstimation2021 explain the differences between the two methods and discuss why the the Opsomer-Erciulescu method used in `calibrate_to_sample()` may have better statistical properties than the Fuller method used in `calibrate_to_estimate()`.
+
+```{r}
+estimates_by_design <- svyby_repwts(
+  rep_designs = list(
+    "calibrate_to_estimate()" = raked_design,
+    "calibrate_to_sample()" = raked_design_opsomer_erciulescu
+  ),
+  FUN = svytotal,
+  formula = ~ VAX_STATUS + RACE_ETHNICITY + SEX + EDUC_ATTAINMENT
+)
+
+t(estimates_by_design[,-1]) |>
+  knitr::kable()
+```
+
+
+### Post-stratification 
+
+The primary difference between post-stratification and raking is that post-stratification essentially involves only a single calibration variable, with population benchmarks provided for each value of that variable. In the Louisville vaccination survey, that variable is called `POSTSTRATUM` and is based on combinations of race/ethnicity, sex, and educational attainment.
+
+```{r}
+# Create matching post-stratification variable in both datasets
+  nr_adjusted_design <- nr_adjusted_design |>
+    transform(POSTSTRATUM = interaction(RACE_ETHNICITY, SEX, EDUC_ATTAINMENT,
+                                        sep = "|"))
+
+  pums_rep_design <- pums_rep_design |>
+    transform(POSTSTRATUM = interaction(RACE_ETHNICITY, SEX, EDUC_ATTAINMENT,
+                                        sep = "|"))
+  
+  levels(pums_rep_design$variables$POSTSTRATUM) <- levels(
+    nr_adjusted_design$variables$POSTSTRATUM
+  )
+
+# Estimate control totals
+  acs_control_totals <- svytotal(
+    x = ~ POSTSTRATUM,
+    design = pums_rep_design
+  )
+  
+  poststratification_totals <- list(
+    'estimate' = coef(acs_control_totals),
+    'variance-covariance' = vcov(acs_control_totals)
+  )
+
+# Inspect the control totals
+  poststratification_totals$estimate |>
+    as.data.frame() |>
+    `colnames<-`('estimate') |>
+    knitr::kable()
+```
+
+To post-stratify the design, we can either supply the estimates and their variance-covariance matrix to `calibrate_to_estimate()`, or we can supply the two replicate design objects to `calibrate_to_sample()`. With either method, we need to supply the `cal_formula` argument with the same formula we would use for `svytotal()`. To use a post-stratification adjustment (rather than raking), we specify `calfun = survey::cal.linear`.
+
+
+```{r}
+# Post-stratify the design using the estimates
+poststrat_design_fuller <- calibrate_to_estimate(
+  rep_design = nr_adjusted_design,
+  estimate = poststratification_totals$estimate,
+  vcov_estimate = poststratification_totals$`variance-covariance`,
+  cal_formula = ~ POSTSTRATUM, # Specify the post-stratification variable
+  calfun = survey::cal.linear # This option is required for post-stratification
+)
+```
+
+```{r}
+# Post-stratify the design using the two samples
+poststrat_design_opsomer_erciulescu <- calibrate_to_sample(
+  primary_rep_design = nr_adjusted_design,
+  control_rep_design = pums_rep_design,
+  cal_formula = ~ POSTSTRATUM, # Specify the post-stratification variable
+  calfun = survey::cal.linear # This option is required for post-stratification
+)
+```
+
+As with the raking example, we can see that the full-sample post-stratified estimates are exactly the same for the two methods. The standard errors for post-stratification variables are essentially identical, while the standard errors for other variables differ slightly.
+
+```{r}
+estimates_by_design <- svyby_repwts(
+  rep_designs = list(
+    "calibrate_to_estimate()" = poststrat_design_fuller,
+    "calibrate_to_sample()" = poststrat_design_opsomer_erciulescu
+  ),
+  FUN = svymean,
+  formula = ~ VAX_STATUS + RACE_ETHNICITY + SEX + EDUC_ATTAINMENT
+)
+
+t(estimates_by_design[,-1]) |>
+  knitr::kable()
+```
+
+## Reproducibility
+
+The calibration methods for `calibrate_to_estimate()` and `calibrate_to_sample()` involve one element of randomization: determining which columns of replicate weights are assigned to a given perturbation of the control totals. In the `calibrate_to_sample()` method of @10.2307/24306529, if the control totals are a vector of dimension $p$, then $p$ columns of replicate weights will be calibrated to $p$ different vectors of perturbed control totals, formed using the $p$ scaled eigenvectors from a spectral decomposition of the control totals' variance-covariance matrix (sorted in order by the largest to smallest eigenvalues). To control which columns of replicate weights will be calibrated to each set of perturbed control totals, we can use the function argument `col_selection`.
+
+```{r}
+# Randomly select which columns will be assigned to each set of perturbed control totals
+dimension_of_control_totals <- length(poststratification_totals$estimate)
+
+columns_to_perturb <- sample(x = 1:ncol(nr_adjusted_design$repweights),
+                             size = dimension_of_control_totals)
+
+print(columns_to_perturb)
+
+# Perform the calibration
+poststratified_design <- calibrate_to_estimate(
+  rep_design = nr_adjusted_design,
+  estimate = poststratification_totals$estimate,
+  vcov_estimate = poststratification_totals$`variance-covariance`,
+  cal_formula = ~ POSTSTRATUM,
+  calfun = survey::cal.linear,
+  col_selection = columns_to_perturb # Specified for reproducibility
+)
+```
+
+The calibrated survey design object contains an element `perturbed_control_cols` which indicates which columns were calibrated to the perturbed control totals; this can be useful to save and use as an input to `col_selection` to ensure reproducibility.
+
+```{r}
+poststratified_design$perturbed_control_cols
+```
+
+For `calibrate_to_sample()`, matching is done between columns of replicate weights in the primary survey and columns of replicate weights in the control survey. The matching is done at random unless the user specifies otherwise using the argument `control_col_matches`. In the Louisville Vaccination Survey, the primary survey has 1,000 replicates while the control survey has 80 columns. So we can match these 80 columns to the 1,000 replicates by specifying 1,000 values consisting of `NA` or integers between 1 and 80.
+
+```{r}
+# Randomly match the primary replicates to control replicates
+set.seed(1999)
+
+column_matching <- rep(NA, times = ncol(nr_adjusted_design$repweights))
+column_matching[sample(x = 1:1000, size = 80)] <- 1:80
+
+str(column_matching)
+
+# Perform the calibration
+poststratified_design <- calibrate_to_sample(
+  primary_rep_design = nr_adjusted_design,
+  control_rep_design = pums_rep_design,
+  cal_formula = ~ POSTSTRATUM,
+  calfun = survey::cal.linear,
+  control_col_matches = column_matching
+)
+```
+
+The calibrated survey design object contains an element `control_column_matches` which control survey replicate each primary survey replicate column was matched to.
+
+```{r}
+str(poststratified_design$control_column_matches)
+```
+
+
+# References

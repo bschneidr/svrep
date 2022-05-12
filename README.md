@@ -227,3 +227,139 @@ head(weight_summaries)
 #> 5          3    Original       181 6563.900
 #> 6          3 NR-adjusted        97 6563.900
 ```
+
+### Sample-based calibration
+
+When we rake or poststratify to estimated control totals rather than to
+“true” population values, we may need to account for the variance of the
+estimated control totals to ensure that calibrated estimates
+appropriately reflect sampling error of both the primary survey of
+interest and the survey from which the control totals were estimated.
+The ‘svrep’ package provides two functions which accomplish this. The
+function `calibrate_to_estimate()` requires the user to supply a vector
+of control totals and its variance-covariance matrix, while the function
+`calibrate_to_sample()` requires the user to supply a dataset with
+replicate weights to use for estimating control totals and their
+sampling variance.
+
+As an example, suppose we have a survey measuring vaccination status of
+adults in Louisville, Kentucky. For variance estimation, we use 100
+bootstrap replicates.
+
+``` r
+data("lou_vax_survey")
+
+# Load example data
+lou_vax_survey <- svydesign(ids = ~ 1, weights = ~ SAMPLING_WEIGHT,
+                            data = lou_vax_survey) |>
+  as.svrepdesign(type = "boot", replicates = 100, mse = TRUE)
+
+# Adjust for nonresponse
+lou_vax_survey <- lou_vax_survey |>
+  redistribute_weights(
+    reduce_if = RESPONSE_STATUS == "Nonrespondent",
+    increase_if = RESPONSE_STATUS == "Respondent"
+  ) |>
+  subset(RESPONSE_STATUS == "Respondent")
+```
+
+To reduce nonresponse bias or coverage error for the survey, we can rake
+the survey to population totals for demographic groups estimated by the
+Census Bureau in the American Community Survey (ACS). To estimate the
+population totals for raking purposes, we can use microdata with
+replicate weights.
+
+``` r
+# Load microdata to use for estimating control totals
+data("lou_pums_microdata")
+
+acs_benchmark_survey <- survey::svrepdesign(
+  data = lou_pums_microdata,
+  variables = ~ UNIQUE_ID + AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
+  weights = ~ PWGTP, repweights = "PWGTP\\d{1,2}",
+  type = "successive-difference",
+  mse = TRUE
+)
+```
+
+We can see that the vaccination survey seems to underrepresent
+individuals who identify as Black or as Hispanic or Latino.
+
+``` r
+# Compare demographic estimates from the two data sources
+estimate_comparisons <- data.frame(
+  'Vax_Survey' = svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey) |> coef(),
+  'ACS_Benchmark' = svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey) |> coef()
+)
+rownames(estimate_comparisons) <- gsub(x = rownames(estimate_comparisons),
+                                       "RACE_ETHNICITY", "")
+print(estimate_comparisons)
+#>                                                         Vax_Survey
+#> Black or African American alone, not Hispanic or Latino 0.19949824
+#> Hispanic or Latino                                      0.04525039
+#> Other Race, not Hispanic or Latino                      0.04630955
+#> White alone, not Hispanic or Latino                     0.70894182
+#>                                                         ACS_Benchmark
+#> Black or African American alone, not Hispanic or Latino    0.16932271
+#> Hispanic or Latino                                         0.03386454
+#> Other Race, not Hispanic or Latino                         0.05776892
+#> White alone, not Hispanic or Latino                        0.73904382
+```
+
+There are two options for calibrating the sample to the estimate
+controls. With the first approach, we supply point estimates and their
+variance-covariance matrix to the function `calibrate_to_estimate()`.
+
+``` r
+# Estimate control totals and their variance-covariance matrix
+control_totals <- svymean(x = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
+                          design = acs_benchmark_survey)
+point_estimates <- coef(control_totals)
+vcov_estimates <- vcov(control_totals)
+
+# Calibrate the vaccination survey to the estimated control totals
+vax_survey_raked_to_estimates <- calibrate_to_estimate(
+  rep_design = lou_vax_survey,
+  estimate = point_estimates,
+  vcov_estimate = vcov_estimates,
+  cal_formula = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
+  calfun = survey::cal.raking
+)
+```
+
+With the second approach, we supply the control survey’s replicate
+design to `calibrate_to_sample()`.
+
+``` r
+vax_survey_raked_to_acs_sample <- calibrate_to_sample(
+  primary_rep_design = lou_vax_survey,
+  control_rep_design = acs_benchmark_survey,
+  cal_formula = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
+  calfun = survey::cal.raking
+)
+```
+
+After calibration, we can see that the estimated vaccination rate has
+decreased, and the estimated standard error of the estimated vaccination
+rate has increased.
+
+``` r
+# Compare the two sets of estimates
+svyby_repwts(
+  rep_design = list(
+    'NR-adjusted' = lou_vax_survey,
+    'Raked to estimate' = vax_survey_raked_to_estimates,
+    'Raked to sample' = vax_survey_raked_to_acs_sample
+  ),
+  formula = ~ VAX_STATUS,
+  FUN = svymean
+)
+#>                         Design_Name VAX_STATUSUnvaccinated VAX_STATUSVaccinated
+#> NR-adjusted             NR-adjusted              0.4621514            0.5378486
+#> Raked to estimate Raked to estimate              0.4732623            0.5267377
+#> Raked to sample     Raked to sample              0.4732623            0.5267377
+#>                          se1        se2
+#> NR-adjusted       0.02430176 0.02430176
+#> Raked to estimate 0.02448676 0.02448676
+#> Raked to sample   0.02446881 0.02446881
+```
