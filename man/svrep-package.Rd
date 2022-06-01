@@ -6,6 +6,14 @@
 \alias{svrep-package}
 \title{svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights}
 \description{
-Provides tools for creating and working with survey replicate weights, extending functionality of the 'survey' package from Lumley (2004) <doi:10.18637/jss.v009.i08>. Methods are provided for applying nonresponse adjustments to both full-sample and replicate weights as suggested by Rust and Rao (1996) <doi:10.1177/096228029600500305> in order to account for the impact of these adjustments on sampling variances. Diagnostic functions are included to compare weights and weighted estimates from different sets of replicate weights.
+Provides tools for creating and working with survey replicate weights, extending functionality of the 'survey' package from Lumley (2004) \doi{10.18637/jss.v009.i08}. Methods are provided for applying nonresponse adjustments to both full-sample and replicate weights as suggested by Rust and Rao (1996) \doi{10.1177/096228029600500305}. Implements methods for sample-based calibration described by Opsomer and Erciulescu (2021) \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/2021002/article/00006-eng.htm}. Diagnostic functions are included to compare weights and weighted estimates from different sets of replicate weights.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/bschneidr/svrep}
+  \item Report bugs at \url{https://github.com/bschneidr/svrep/issues}
+}
+
 }
 \keyword{internal}
