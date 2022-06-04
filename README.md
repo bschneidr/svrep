@@ -4,10 +4,10 @@
 # svrep
 
 <!-- badges: start -->
-<!-- [![R-CMD-check](https://github.com/bschneidr/svrep/workflows/R-CMD-check/badge.svg)](https://github.com/bschneidr/svrep/actions) -->
 
 [![Codecov test
 coverage](https://codecov.io/gh/bschneidr/svrep/branch/main/graph/badge.svg)](https://app.codecov.io/gh/bschneidr/svrep?branch=main)
+<!-- [![R-CMD-check](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml) -->
 <!-- badges: end -->
 
 svrep provides methods for creating, updating, and analyzing replicate
