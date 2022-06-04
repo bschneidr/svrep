@@ -299,7 +299,7 @@ calibrate_to_estimate <- function(rep_design,
   calibrated_rep_design$combined.weights <- TRUE
 
   if (rep_design$type %in% c("JK1", "JKn", "JK2", "ACS", "successive-difference")) {
-    rep_design_rho <- 0
+    rep_design_rho <- NULL
   } else {
     rep_design_rho <- rep_design$rho
   }
