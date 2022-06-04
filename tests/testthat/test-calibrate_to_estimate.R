@@ -33,12 +33,14 @@ test_that("Basic example gives correct results", {
     label = "Informative message on random selection of columns is displayed"
   )
   expect_warning({
+    suppressMessages(
       calibrated_rep_design <- calibrate_to_estimate(
         rep_design = primary_survey,
         estimate = control_point_estimates,
         vcov_estimate = control_vcov_estimate,
         cal_formula = ~ stype + enroll
       )
+    )
     },
     regexp = "centered around full-sample",
     label = "Informative message on setting `mse` to TRUE"

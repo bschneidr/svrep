@@ -14,13 +14,33 @@
 
 test_that("Duplicates primary replicates when control survey has more replicates", {
 
+  col_matching <- c(25L, 55L, 98L, 160L, 199L, 2L, 122L, 27L, 72L, 74L, 111L, 152L,
+                    10L, 38L, 126L, 63L, 41L, 68L, 65L, 28L, 83L, NA, 175L, 80L,
+                    106L, 43L, 97L, 150L, 61L, 139L, 90L, 129L, 168L, 173L, 67L,
+                    42L, 105L, 84L, NA, 51L, 180L, 182L, 66L, 200L, 88L, 110L, 196L,
+                    5L, NA, 189L, 136L, 174L, 102L, NA, 85L, 195L, 193L, 142L, 33L,
+                    162L, 154L, 147L, 12L, 128L, 19L, 130L, 59L, 104L, 187L, 48L,
+                    179L, 114L, 81L, 69L, 158L, 113L, 135L, 23L, 165L, 22L, 125L,
+                    118L, 159L, 197L, 149L, NA, 8L, 7L, 34L, 186L, 191L, 123L, NA,
+                    192L, 120L, 185L, 121L, 71L, 45L, 49L, 183L, 86L, 116L, 92L,
+                    29L, 64L, 198L, 79L, 44L, 6L, 167L, 24L, 26L, 31L, 157L, 144L,
+                    188L, 134L, 103L, 32L, 58L, 89L, 14L, 39L, 95L, NA, 91L, 93L,
+                    21L, 146L, NA, 99L, 137L, 100L, 166L, 50L, 156L, 117L, 46L, 190L,
+                    17L, 109L, 62L, 194L, 171L, 76L, 151L, 54L, 172L, 47L, 13L, 53L,
+                    107L, 20L, 115L, 60L, 82L, 161L, 177L, 36L, 15L, 18L, 141L, 170L,
+                    52L, 11L, 40L, 169L, 133L, 163L, 131L, 181L, 56L, 57L, 184L,
+                    145L, 77L, 124L, 153L, 73L, 127L, 16L, 112L, 178L, 108L, 101L,
+                    70L, NA, 148L, 1L, 140L, 138L, 143L, 9L, 75L, 176L, 164L, 87L,
+                    3L, 78L, 132L, 119L, 96L, 4L, 94L, 35L, 37L, NA, 30L, 155L)
+
   # Check for informative message
   expect_message(
     suppressWarnings({
       calibrated_rep_design <- calibrate_to_sample(
         primary_rep_design = primary_survey,
         control_rep_design = control_survey,
-        cal_formula = ~ stype + enroll
+        cal_formula = ~ stype + enroll,
+        control_col_matches = col_matching
       )
     }),
     regexp = "primary survey has fewer replicates than the control survey",
@@ -45,7 +65,7 @@ test_that("Basic example gives correct results", {
     suppressWarnings({
       calibrated_rep_design <- calibrate_to_sample(
         primary_rep_design = primary_survey,
-        control_rep_design = control_survey,
+        control_rep_design = primary_survey,
         cal_formula = ~ stype + enroll,
         control_col_matches = NULL
       )
