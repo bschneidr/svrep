@@ -68,7 +68,7 @@ as_data_frame_with_weights <- function(design, full_wgt_name = "FULL_SAMPLE_WGT"
     stop(error_msg)
   }
   if (full_wgt_name %in% colnames(survey_data)) {
-    warning_message <- sprintf("There is already a column named `%s` in the survey data.",
+    warning_message <- sprintf("There is already a column named `%s` in the survey data. It will be replaced.",
                                full_wgt_name)
     warning(warning_message)
   }
