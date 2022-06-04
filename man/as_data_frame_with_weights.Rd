@@ -37,7 +37,7 @@ survey_design <- svydesign(data = lou_vax_survey,
 
 rep_survey_design <- as.svrepdesign(survey_design,
                                     type = "boot",
-                                    replicates = 50)
+                                    replicates = 10)
 
 # Adjust the weights for nonresponse
 nr_adjusted_design <- redistribute_weights(
