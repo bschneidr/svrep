@@ -1,5 +1,13 @@
 # svrep (development version)
 
+* Added helper function `as_data_frame_with_weights()` to convert
+a survey design object into a data frame with columns of 
+weights (full-sample weights and, if applicable, replicate weights).
+This is useful for saving data and weights to a data file.
+
+* Internal code update to avoid annoying but harmless warning message
+about `rho` in `calibrate_to_estimate()`.
+
 # svrep 0.2.0
 
 * Added functions `calibrate_to_estimate()` and `calibrate_to_sample()`
