@@ -1,4 +1,4 @@
-#' Create a row-assignment matrix for Successive-Difference-Replication-Method
+#' Create a row-assignment matrix for Successive Difference Replication-Method
 #'
 #' @param n The sample size of the data.
 #' @param hadamard_order The order of the Hadamard matrix
@@ -35,6 +35,7 @@ assign_hadamard_rows <- function(n, hadamard_order, use_first_row = TRUE) {
     if (max_step_size >= (k_A - 1)) {
       max_step_size <- n_cycles - 1L
     }
+    max_step_size <- pmin(max_step_size, k_A - 1)
   } else {
     max_step_size <- pmin(n_cycles, k_A - 1)
   }
@@ -97,4 +98,62 @@ assign_hadamard_rows <- function(n, hadamard_order, use_first_row = TRUE) {
   }
 
   return(row_assignment_matrix)
+}
+
+#' Create matrix of replicate factors to use for Successive Difference Replication Method
+#'
+#' @param n The sample size of the data.
+#' @param target_number_of_replicates The target number of replicates to create.
+#' This will determine the order of the Hadamard matrix to use when
+#' creating replicate factors. The actual number of replicates will
+#' be a power of four.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+create_sdr_replicate_factors <- function(n, target_number_of_replicates, use_normal_hadamard = FALSE) {
+
+  # Create Hadamard matrix to use for replicate factors
+  if (!use_normal_hadamard) {
+    H_4 <- matrix(
+      c(1,-1,1,1,
+        -1,-1,-1,1,
+        1,-1,-1,-1,
+        1,1,-1,1),
+      nrow = 4, ncol = 4,
+      byrow = TRUE
+    )
+
+    H_A <- H_4
+    while (ncol(H_A) < target_number_of_replicates) {
+      H_A <- rbind(cbind(H_A, H_A),
+                   cbind(H_A, -H_A))
+    }
+  }
+  if (use_normal_hadamard) {
+    H_A <- survey::hadamard(target_number_of_replicates)
+    H_A <- H_A <- 2*H_A - 1 # Convert from 1/0 format to 1/-1 format
+  }
+  hadamard_order <- ncol(H_A)
+  sprintf("Using Hadamard matrix of order %s", hadamard_order) |>
+    message()
+
+  # Assign rows of the Hadamard matrix to each observation
+
+  row_assignment_matrix <- assign_hadamard_rows(
+    n = n,
+    hadamard_order = hadamard_order,
+    use_first_row = TRUE
+  )
+
+  # Create replicate factors based on the Hadamard matrix and the row assignments
+  replicate_factors <- sapply(X = 1L:hadamard_order, FUN = function(r) {
+    hadamard_entries <- cbind('h_1r' = H_A[row_assignment_matrix[,'row_1'], r],
+                              'h_2r' = H_A[row_assignment_matrix[,'row_2'], r])
+
+    1 + (hadamard_entries %*% c(1,-1) * (2^(-3/2)))
+  }, simplify = TRUE)
+
+  return(replicate_factors)
 }
