@@ -12,6 +12,8 @@ dclus1$variables$response_status <- sample(x = c("Respondent", "Nonrespondent",
 orig_rep_design <- as.svrepdesign(dclus1)
 
 boot_design <- as.svrepdesign(dclus1, 'bootstrap', replicates = ncol(orig_rep_design$repweights$weights))
+mrbboot_design <- as.svrepdesign(dclus1, 'mrbbootstrap', replicates = ncol(orig_rep_design$repweights$weights))
+subboot_design <- as.svrepdesign(dclus1, 'subbootstrap', replicates = ncol(orig_rep_design$repweights$weights))
 boot_design_more_cols <- as.svrepdesign(dclus1, "bootstrap",
                                         replicates = ncol(boot_design$repweights$weights) + 1)
 
@@ -70,4 +72,13 @@ test_that("Can supply list of designs in multiple formats", code = {
   expect_equal(stack_replicate_designs(orig = orig_rep_design, adjusted = ue_adjusted_design),
                stack_replicate_designs(list('orig' = orig_rep_design,
                                             'adjusted' = ue_adjusted_design)))
+})
+
+# Check that bootstrap designs are handled appropriately ----
+
+test_that("Able to supply `mrbbootstrap` or `subbootstrap` designs", code = {
+  expect_equal(object = stack_replicate_designs(mrbboot_design, mrbboot_design)$type,
+               expected = 'bootstrap')
+  expect_equal(object = stack_replicate_designs(subboot_design, subboot_design)$type,
+               expected = 'bootstrap')
 })
