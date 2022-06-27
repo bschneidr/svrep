@@ -29,7 +29,8 @@ Suggests:
     testthat (>= 3.0.0),
     rmarkdown,
     tidycensus,
-    dplyr
+    dplyr,
+    srvyr
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)

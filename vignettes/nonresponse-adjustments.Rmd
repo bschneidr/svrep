@@ -1,0 +1,176 @@
+---
+title: "Nonresponse Adjustments"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{Nonresponse adjustments}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(dplyr) # For data manipulation
+library(survey) # For complex survey analysis
+library(srvyr) # For complex survey analysis with dplyr syntax
+library(svrep)
+```
+
+In this short vignette, we'll demonstrate how the svrep package can be used to implement weighting adjustments for nonresponse in survey samples. For illustration, we'll use an example survey measuring Covid-19 vaccination status and a handful of demographic variables, based on a simple random sample of 1,000 residents of Louisville, Kentucky.
+
+```{r}
+# Load and inspect the data
+data("lou_vax_survey", package = 'svrep')
+head(lou_vax_survey)
+colnames(lou_vax_survey)
+```
+
+This vaccination survey has an overall response rate of 50.2%, which means that estimated vaccination rates may be significantly biased by nonresponse. We'll use nonresponse weighting adjustments to try and reduce potential nonresponse bias.
+
+```{r}
+lou_vax_survey |> count(RESPONSE_STATUS) |> mutate(pct = n/sum(n))
+```
+
+## Creating initial replicate weights
+
+To begin with, we'll create bootstrap replicate weights using the `as.svrepdesign()` function from the survey package. The initial step is to describe the survey design using the `svydesign()` function and then create appropriate replicate weights using `as.svrepdesign()` and additional arguments such as `type` (with options `'JK1'`, `'JKn'`, `'bootstrap'`, `'BRR'`, `'Fay'`, etc.) At the beginning, the replicate weights allow us to estimate variance in unadjusted estimates caused by random sampling. Note that when creating the initial replicate weights, it is almost always necessary to use data for the entire selected sample (i.e. respondents as well as nonrespondents).
+
+```{r}
+# Describe the survey design
+lou_vax_survey <- svydesign(ids = ~ 1, weights = ~ SAMPLING_WEIGHT,
+                            data = lou_vax_survey)
+
+print(lou_vax_survey)
+
+# Create appropriate replicate weights
+lou_vax_survey <- lou_vax_survey |>
+  as.svrepdesign(type = "boot", replicates = 100, mse = TRUE)
+
+print(lou_vax_survey)
+```
+
+For convenience, we'll convert this survey design object into an object with class `tbl_svy`, which allows us to use tidyverse/dplyr syntax with it.
+
+```{r}
+lou_vax_survey <- lou_vax_survey |> as_survey()
+
+print(lou_vax_survey)
+```
+
+## Upweighting respondents and downweighting nonrespondents
+
+A common form of nonresponse adjustment is to simply 'redistribute' weight from the nonrespondents to the nonrespondents. For example, if the sum of weights among respondents is $\sum_{i \in s_{resp}}w_i = 299,544.4$ and the sum of weights among nonrespondents is $\sum_{i \in s_{nonresp}}w_i = 297,157.6$, then a basic nonresponse adjustment would set the weights among nonrespondents to $0$ and multiply the weight for each respondent by the adjustment factor $1 + \frac{297,157.6}{299,544.4}$. The total weight of the sample is thus unchanged (it's still $596,702=299,544.4 + 297,157.6$), but all of the weight has been redistributed from nonrespondents to respondents.
+
+The `redistribute_weights()` function can be used to implement this form of nonresponse adjustment using straightforward syntax. To specify which subset of data should have its weights reduced, we supply a logical expression to the argument `reduce_if`. To specify which subset of data should have its weights increased, we supply a logical expression to the argument `increase_if`.
+
+```{r}
+# Weights before adjustment
+lou_vax_survey |>
+  group_by(RESPONSE_STATUS) |>
+  summarize(
+    `Sum of Weights` = sum(cur_svy_wts())
+  )
+```
+
+```{r}
+# Conduct a basic nonresponse adjustment
+nr_adjusted_survey <- lou_vax_survey |>
+  redistribute_weights(
+    reduce_if = RESPONSE_STATUS == "Nonrespondent",
+    increase_if = RESPONSE_STATUS == "Respondent"
+  )
+
+# Check the sum of weights by response status
+nr_adjusted_survey |>
+  group_by(RESPONSE_STATUS) |>
+  summarize(
+    `Sum of Weights` = sum(cur_svy_wts())
+  )
+```
+
+When we use the nonresponse-adjusted weights for analyses, we need to take the adjustment into account during variance estimation. Because of random sampling, the precise adjustment factor used in the nonresponse adjustment will vary from one sample to the next. To account for this variability, we can apply the nonresponse adjustment not only to the full-sample weights, but to each set of replicate weights as well. The `redistribute_weights()` function handles this for us: after nonresponse adjustment, all of the weight in each replicate has been redistributed from nonrespondents to respondents.
+
+```{r}
+# For each replicate, get sum of weights by response status
+replicate_weight_sums_by_response_status <- svytotal(
+  x = ~ RESPONSE_STATUS,
+  design = nr_adjusted_survey,
+  return.replicates = TRUE
+) |> getElement('replicates')
+
+rownames(replicate_weight_sums_by_response_status) <- paste0("Replicate ", 1:100)
+colnames(replicate_weight_sums_by_response_status) <- c("Nonrespondent", "Respondent")
+
+# Preview first few replicates
+writeLines("Sum of weights by response status and bootstrap replicate")
+replicate_weight_sums_by_response_status |> head()
+```
+
+## Conducting weighting class adjustments
+
+Nonresponse bias is liable to occur if different subpopulations systematically differ in terms of their response rates to the survey and also differ in terms of what the survey is trying to measure (in this case, vaccination status). Nonresponse adjustments can reduce nonresponse bias by redistributing more weight to subpopulations with lower response rates in the survey. In this example, we can see that there are large differences in response rates for different subpopulations defined by race/ethnicity, and so it may be helpful to redistribute more weight to respondents from underrepresented race/ethnicity categories.
+
+```{r}
+lou_vax_survey |>
+  group_by(RACE_ETHNICITY) |>
+  summarize(Response_Rate = mean(RESPONSE_STATUS == "Respondent"),
+            Sample_Size = n(),
+            n_Respondents = sum(RESPONSE_STATUS == "Respondent"))
+```
+
+In this case, it can be helpful to redistribute weights from nonrespondents to respondents, *separately by race/ethnicity categories*. We can do this using the `by` argument of `redistribute_weights()`.
+
+```{r}
+nr_adjusted_survey <- lou_vax_survey |>
+  redistribute_weights(
+    reduce_if = RESPONSE_STATUS == "Nonrespondent",
+    increase_if = RESPONSE_STATUS == "Respondent",
+    by = c("RACE_ETHNICITY")
+  )
+```
+
+
+## Saving the final weights to a data file
+
+Once we're satisfied with the weights, we can create a data frame with the analysis variables and columns of replicate weights. This format is easy to export to data files that can be loaded into R or other software later.
+
+```{r}
+data_frame_with_nr_adjusted_weights <- nr_adjusted_survey |>
+  as_data_frame_with_weights(
+    full_wgt_name = "NR_ADJ_WGT",
+    rep_wgt_prefix = "NR_ADJ_REP_WGT_"
+  )
+
+# Preview first 10 column names
+colnames(data_frame_with_nr_adjusted_weights) |> head(10)
+```
+
+
+```{r, eval=FALSE}
+# Write the data to a CSV file
+write.csv(
+  x = data_frame_with_nr_adjusted_weights,
+  file = "survey-data_with-nonresponse-adjusted-weights.csv"
+)
+```
+
+## Recommended Reading
+
+- See Chapter 2, Section 2.7.3 of "Applied Survey Data Analysis" for an overview of nonresponse weight adjustments.
+
+> Heeringa, S., West, B., Berglund, P. (2017). Applied Survey Data Analysis, 2nd edition. Boca Raton, FL: CRC Press.
+
+- Chapter 13 of "Practical Tools for Designing and Weighting Survey Samples" also provides an excellent overview of the nonresponse adjustment process described in this vignette. 
+
+> Valliant, R., Dever, J., Kreuter, F. (2018). Practical Tools for Designing and Weighting Survey Samples, 2nd edition. New York: Springer.
+
+- Rust K, Rao J. (1996). Variance estimation for complex surveys using replication techniques. Statistical Methods in Medical Research. 5(3):283-310. doi:10.1177/096228029600500305.
+
