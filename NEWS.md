@@ -5,8 +5,15 @@ a survey design object into a data frame with columns of
 weights (full-sample weights and, if applicable, replicate weights).
 This is useful for saving data and weights to a data file.
 
-* Internal code update to avoid annoying but harmless warning message
-about `rho` in `calibrate_to_estimate()`.
+* Added a small vignette "Nonresponse Adjustments" to illustrate how to 
+conduct nonresponse adjustments using `redistribute_weights()`.
+
+* Minor Updates and Bug Fixes:
+  * Internal code update to avoid annoying but harmless warning message
+  about `rho` in `calibrate_to_estimate()`.
+  * Bug fix for `stack_replicate_designs()` where designs created with
+  `as.svrepdesign(..., type = 'mrbbootstrap')` 
+  or `as.svrepdesign(..., type = 'subbootstrap')` threw an error.
 
 # svrep 0.2.0
 
