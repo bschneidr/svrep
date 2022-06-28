@@ -116,7 +116,7 @@ replicate_weight_sums_by_response_status |> head()
 
 ## Conducting weighting class adjustments
 
-Nonresponse bias is liable to occur if different subpopulations systematically differ in terms of their response rates to the survey and also differ in terms of what the survey is trying to measure (in this case, vaccination status). Nonresponse adjustments can reduce nonresponse bias by redistributing more weight to subpopulations with lower response rates in the survey. In this example, we can see that there are large differences in response rates for different subpopulations defined by race/ethnicity, and so it may be helpful to redistribute more weight to respondents from underrepresented race/ethnicity categories.
+Nonresponse bias is liable to occur if different subpopulations systematically differ in terms of their response rates to the survey and also differ in terms of what the survey is trying to measure (in this case, vaccination status). Nonresponse adjustments can reduce nonresponse bias by redistributing greater weight to subpopulations with lower response rates in the survey. In this example, we can see that there are large differences in response rates for different subpopulations defined by race/ethnicity, and so it may be helpful to redistribute more weight to respondents from underrepresented race/ethnicity categories.
 
 ```{r}
 lou_vax_survey |>
@@ -137,6 +137,7 @@ nr_adjusted_survey <- lou_vax_survey |>
   )
 ```
 
+Multiple grouping variables may be supplied to the `by` argument. For example, one can specify `by = c("STRATUM", "RACE_ETHNICITY")` to redistribute weights separately by combinations of stratum and race/ethnicity category.
 
 ## Saving the final weights to a data file
 
@@ -164,11 +165,11 @@ write.csv(
 
 ## Recommended Reading
 
-- See Chapter 2, Section 2.7.3 of "Applied Survey Data Analysis" for an overview of nonresponse weight adjustments.
+- See Chapter 2, Section 2.7.3 of "Applied Survey Data Analysis" for a statistical explanation of the weighting adjustments described in this vignette.
 
 > Heeringa, S., West, B., Berglund, P. (2017). Applied Survey Data Analysis, 2nd edition. Boca Raton, FL: CRC Press.
 
-- Chapter 13 of "Practical Tools for Designing and Weighting Survey Samples" also provides an excellent overview of the nonresponse adjustment process described in this vignette. 
+- Chapter 13 of "Practical Tools for Designing and Weighting Survey Samples" also provides an excellent overview of the nonresponse adjustment methods.
 
 > Valliant, R., Dever, J., Kreuter, F. (2018). Practical Tools for Designing and Weighting Survey Samples, 2nd edition. New York: Springer.
 

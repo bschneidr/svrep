@@ -282,8 +282,8 @@ acs_benchmark_survey <- survey::svrepdesign(
 )
 ```
 
-We can see that the vaccination survey seems to underrepresent
-individuals who identify as Black or as Hispanic or Latino.
+We can see that the distribution of race/ethnicity among respondents
+differs from the distribution of race/ethnicity in the ACS benchmarks.
 
 ``` r
 # Compare demographic estimates from the two data sources
@@ -306,9 +306,10 @@ print(estimate_comparisons)
 #> White alone, not Hispanic or Latino                        0.73904382
 ```
 
-There are two options for calibrating the sample to the estimate
-controls. With the first approach, we supply point estimates and their
-variance-covariance matrix to the function `calibrate_to_estimate()`.
+There are two options for calibrating the sample to the control totals
+from the benchmark survey. With the first approach, we supply point
+estimates and their variance-covariance matrix to the function
+`calibrate_to_estimate()`.
 
 ``` r
 # Estimate control totals and their variance-covariance matrix
