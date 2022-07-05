@@ -1,8 +1,9 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 2 notes
+0 errors | 0 warnings | 1 note
 
-* These notes are erroneous and can be ignored. The text strings 'Erciulescu' and 'Opsomer' are authors' names erroneously flagged as possibly misspelled. The flagged DOI is in fact the valid DOI for that paper.
+* As in previous accepted submissions, still seeing a note
+about a DOI link in the DESCRIPTION, despite the link being valid.
 
 ## Downstream dependencies
 
