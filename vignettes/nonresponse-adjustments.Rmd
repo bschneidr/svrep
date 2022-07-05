@@ -57,7 +57,7 @@ lou_vax_survey <- lou_vax_survey |>
 print(lou_vax_survey)
 ```
 
-For convenience, we'll convert this survey design object into an object with class `tbl_svy`, which allows us to use convenient tidyverse/dplyr syntax (`group_by()`, `summarize()`, etc.) as well as other helpful functions from [the srvyr package](https://cran.r-project.org/web/packages/srvyr/vignettes/srvyr-vs-survey.html).
+For convenience, we'll convert this survey design object into an object with class `tbl_svy`, which allows us to use convenient tidyverse/dplyr syntax (`group_by()`, `summarize()`, etc.) as well as other helpful functions from the srvyr package.
 
 ```{r}
 lou_vax_survey <- lou_vax_survey |> as_survey()
@@ -284,8 +284,6 @@ The reason for conducting weighting adjustments not only in the full-sample weig
 
 > Heeringa, S., West, B., Berglund, P. (2017). Applied Survey Data Analysis, 2nd edition. Boca Raton, FL: CRC Press.
 
--   Chapter 13 of "Practical Tools for Designing and Weighting Survey Samples" also provides an excellent overview of the nonresponse adjustment methods.
+-   Chapter 13 of "Practical Tools for Designing and Weighting Survey Samples" also provides an excellent overview of nonresponse adjustment methods.
 
 > Valliant, R., Dever, J., Kreuter, F. (2018). Practical Tools for Designing and Weighting Survey Samples, 2nd edition. New York: Springer.
-
--   Rust K, Rao J. (1996). Variance estimation for complex surveys using replication techniques. Statistical Methods in Medical Research. 5(3):283-310. <doi:10.1177/096228029600500305>.

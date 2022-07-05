@@ -56,3 +56,13 @@ nr_adjusted_design <- redistribute_weights(
     by = c("stype")
 )
 }
+\references{
+See Chapter 2 of Heeringa, West, and Berglund (2017) or Chapter 13 of Valliant, Dever, and Kreuter (2018)
+for an overview of nonresponse adjustment methods based on redistributing weights.
+
+- Heeringa, S., West, B., Berglund, P. (2017). Applied Survey Data Analysis, 2nd edition. Boca Raton, FL: CRC Press.
+"Applied Survey Data Analysis, 2nd edition." Boca Raton, FL: CRC Press.
+
+- Valliant, R., Dever, J., Kreuter, F. (2018).
+ "Practical Tools for Designing and Weighting Survey Samples, 2nd edition." New York: Springer.
+}
