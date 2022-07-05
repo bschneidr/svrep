@@ -123,27 +123,41 @@ nr_adjusted_survey |>
 ```
 
 ```{r}
-# For each replicate, get sum of weights by response status
-replicate_weight_sums_by_response_status <- svytotal(
-  x = ~ RESPONSE_STATUS,
-  design = nr_adjusted_survey,
-  return.replicates = TRUE
-) |> 
-  getElement('replicates') |> # Extract totals from each replicate
-  `rownames<-`(paste0("Replicate ", 1:100)) |> # Add helpful row names
-  `colnames<-`(c("Nonrespondent", "Respondent")) # Add helpful column names
-
-# Preview first few replicates
-writeLines("Sum of weights by response status and bootstrap replicate")
-replicate_weight_sums_by_response_status |> head()
+# Check sums of replicate weights by response status
+nr_adjusted_survey |>
+  summarize_rep_weights(
+    type = "specific",
+    by = "RESPONSE_STATUS"
+  ) |> 
+  arrange(Rep_Column, RESPONSE_STATUS) |>
+  head(10)
 ```
 
-The motivation for making this adjustment is that standard methods of statistical inference assume that every person in the population has a known, nonzero probability of participating in the survey (i.e. has a nonzero chance of being sampled and a nonzero chance of responding if they are sampled), denoted $p_{i,overall}$. Basic results in survey sampling theory guarantee that if this assumption is true, we can produce unbiased estimates of population means and totals by weighting data from each respondent with the weight $1/{p_{i,overall}}$.
+### Statistical background
 
-that this probability can be used to produce unbiased estimates of population totals by weighting data from . In order to use these standard methods of inference then, we must estimate an overall probability of participating in the survey.
+The motivation for making this adjustment is that standard methods of statistical inference assume that every person in the population has a known, nonzero probability of participating in the survey (i.e. has a nonzero chance of being sampled and a nonzero chance of responding if they are sampled), denoted $p_{i,overall}$. Basic results in survey sampling theory guarantee that if this assumption is true, we can produce unbiased estimates of population means and totals by weighting data from each respondent with the weight $1/{p_{i,overall}}$. However, while we control the probability that a person is sampled (denoted $\pi_i$), we do not control or know the probability that person would respond to the survey if they are sampled (denoted $p_i$), and the overall probability of participation is the product of these two components:
 
- For respondent $i$, this probability is defined as $\pi_i \times p_i$, their probability of being randomly sampled multiplied by their probability of responding to the survey if sampled. A simple estimate of $p_i$ is the weighted response rate $\frac{\sum_{i \in s_{resp}}w_i}{\sum_{i \in s}w_i}$. 
+$$
+\begin{aligned}
+w^{*}_i &= 1/p_{i,overall} \text{ (weights needed for unbiased estimation)} \\
+p_{i,overall} &= \pi_i \times p_i \\
+\pi_i &= \textit{Probability case }i\textit{ is randomly sampled} \text{ (}\textit{Known}\text{)} \\
+p_i &= \textit{Probability case }i\textit{ responds, if they are sampled} \text{ (}\textit{Unknown}\text{)}  \\
+\end{aligned}
+$$
 
+The component $p_i$ must be estimated using data (with estimate $\hat{p}_i$) and then nonresponse-adjusted weights can be formed as $w_{NR,i} = 1/(\pi_i \times \hat{p}_i)$ and used to obtain approximately unbiased estimates of population means and totals. To use our earlier notation, the nonresponse adjustment factor $f_{NR,i}$ is actually defined as:
+
+$$
+\begin{aligned}
+f_{NR,i} &= \begin{cases}
+  0 & \text{if case } i \text{ is a nonrespondent} \\
+  \frac{1}{\hat{p_i}} & \text{if case } i \text{ is a respondent} \\
+\end{cases}
+\end{aligned}
+$$
+
+In essence, different methods of nonresponse weighting adjustments vary in terms of how they estimate $\hat{p}_i$. The basic weight redistribution we've seen so far in effect estimates $p_i$ as constant across all $i$, equal to the overall weighted response rate, and uses that to form the weights. In other words, the basic weight redistribution essentially uses $\hat{p}_i = \frac{\sum_{i \in s_{resp}}w_i}{\sum_{i \in s}w_i}$.
 
 When we use the nonresponse-adjusted weights for analyses, we need to take the adjustment into account during variance estimation. Because of random sampling, the precise adjustment factor used in the nonresponse adjustment will vary from one sample to the next. To account for this variability, we can apply the nonresponse adjustment not only to the full-sample weights, but to each set of replicate weights as well. The `redistribute_weights()` function handles this for us: after nonresponse adjustment, all of the weight in each replicate has been redistributed from nonrespondents to respondents.
 
