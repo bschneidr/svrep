@@ -5,7 +5,7 @@ output:
     toc: true
     toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{Nonresponse adjustments}
+  %\VignetteIndexEntry{Nonresponse Adjustments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -133,34 +133,6 @@ nr_adjusted_survey |>
   head(10)
 ```
 
-### Statistical background
-
-The motivation for making this adjustment is that standard methods of statistical inference assume that every person in the population has a known, nonzero probability of participating in the survey (i.e. has a nonzero chance of being sampled and a nonzero chance of responding if they are sampled), denoted $p_{i,overall}$. Basic results in survey sampling theory guarantee that if this assumption is true, we can produce unbiased estimates of population means and totals by weighting data from each respondent with the weight $1/{p_{i,overall}}$. However, while we control the probability that a person is sampled (denoted $\pi_i$), we do not control or know the probability that person would respond to the survey if they are sampled (denoted $p_i$), and the overall probability of participation is the product of these two components:
-
-$$
-\begin{aligned}
-w^{*}_i &= 1/p_{i,overall} \text{ (weights needed for unbiased estimation)} \\
-p_{i,overall} &= \pi_i \times p_i \\
-\pi_i &= \textit{Probability case }i\textit{ is randomly sampled} \text{ (}\textit{Known}\text{)} \\
-p_i &= \textit{Probability case }i\textit{ responds, if they are sampled} \text{ (}\textit{Unknown}\text{)}  \\
-\end{aligned}
-$$
-
-The component $p_i$ must be estimated using data (with estimate $\hat{p}_i$) and then nonresponse-adjusted weights can be formed as $w_{NR,i} = 1/(\pi_i \times \hat{p}_i)$ and used to obtain approximately unbiased estimates of population means and totals. To use our earlier notation, the nonresponse adjustment factor $f_{NR,i}$ is actually defined as:
-
-$$
-\begin{aligned}
-f_{NR,i} &= \begin{cases}
-  0 & \text{if case } i \text{ is a nonrespondent} \\
-  \frac{1}{\hat{p_i}} & \text{if case } i \text{ is a respondent} \\
-\end{cases}
-\end{aligned}
-$$
-
-In essence, different methods of nonresponse weighting adjustments vary in terms of how they estimate $\hat{p}_i$. The basic weight redistribution we've seen so far in effect estimates $p_i$ as constant across all $i$, equal to the overall weighted response rate, and uses that to form the weights. In other words, the basic weight redistribution essentially uses $\hat{p}_i = \frac{\sum_{i \in s_{resp}}w_i}{\sum_{i \in s}w_i}$.
-
-When we use the nonresponse-adjusted weights for analyses, we need to take the adjustment into account during variance estimation. Because of random sampling, the precise adjustment factor used in the nonresponse adjustment will vary from one sample to the next. To account for this variability, we can apply the nonresponse adjustment not only to the full-sample weights, but to each set of replicate weights as well. The `redistribute_weights()` function handles this for us: after nonresponse adjustment, all of the weight in each replicate has been redistributed from nonrespondents to respondents.
-
 
 ## Conducting weighting class adjustments
 
@@ -174,7 +146,7 @@ lou_vax_survey |>
             n_Respondents = sum(RESPONSE_STATUS == "Respondent"))
 ```
 
-Weighting adjustments may be able to help reduce nonresponse bias caused by these differences in response rates. One standard form of adjustment known as **weighting class adjustment** is to redistribute weights from nonrespondents to respondents separately by different categories of auxiliary variables (such as race/ethnicity). Chapter 2 of Heeringa, S., West, B., Berglund, P. (2017) provides an excellent overview of weighting class adjustments. To implement a weighting class adjustment with the svrep package, we can simply use the `by` argument of `redistribute_weights()`.
+Weighting adjustments may be able to help reduce nonresponse bias caused by these differences in response rates. One standard form of adjustment known as **weighting class adjustment** is to redistribute weights from nonrespondents to respondents separately by different categories of auxiliary variables (such as race/ethnicity). The survey textbook Heeringa, West, and Berglund (2017) provides an excellent overview of weighting class adjustments. To implement a weighting class adjustment with the svrep package, we can simply use the `by` argument of `redistribute_weights()`.
 
 ```{r}
 nr_adjusted_survey <- lou_vax_survey |>
@@ -185,7 +157,66 @@ nr_adjusted_survey <- lou_vax_survey |>
   )
 ```
 
-Multiple grouping variables may be supplied to the `by` argument. For example, one can specify `by = c("STRATUM", "RACE_ETHNICITY")` to redistribute weights separately by combinations of stratum and race/ethnicity category.
+Multiple grouping variables may be supplied to the `by` argument. For example, one can specify `by = c("STRATUM", "RACE_ETHNICITY")` to redistribute weights separately by combinations of stratum and race/ethnicity category. 
+
+### Propensity cell adjustment
+
+The popular method of forming weighting classes based on estimated response propensities (known as **propensity cell adjustment**) can also be used, for example by adding a variable `PROPENSITY_CELL` to the data and using `redistribute_weights(..., by = "PROPENSITY_CELL")`.
+
+```{r}
+# Fit a response propensity model
+response_propensity_model <- lou_vax_survey |>
+  mutate(IS_RESPONDENT = ifelse(RESPONSE_STATUS == "Respondent", 1, 0)) |>
+  svyglm(formula = IS_RESPONDENT ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
+         family = quasibinomial(link = 'logit'))
+
+# Predict response propensities for individual cases
+lou_vax_survey <- lou_vax_survey |>
+  mutate(
+    RESPONSE_PROPENSITY = predict(response_propensity_model,
+                                  newdata = cur_svy(),
+                                  type = "response")
+  )
+
+# Divide sample into propensity classes
+lou_vax_survey <- lou_vax_survey |>
+  mutate(PROPENSITY_CELL = ntile(x = RESPONSE_PROPENSITY, n = 5))
+
+lou_vax_survey |>
+    group_by(PROPENSITY_CELL) |>
+    summarize(n = n(),
+              min = min(RESPONSE_PROPENSITY),
+              mean = mean(RESPONSE_PROPENSITY),
+              max = max(RESPONSE_PROPENSITY))
+
+# Redistribute weights by propensity class
+nr_adjusted_survey <- lou_vax_survey |>
+  redistribute_weights(
+    reduce_if = RESPONSE_STATUS == "Nonrespondent",
+    increase_if = RESPONSE_STATUS == "Respondent",
+    by = "PROPENSITY_CELL"
+  )
+
+# Inspect weights before adjustment
+
+lou_vax_survey |>
+  summarize_rep_weights(type = "specific",
+                        by = c("PROPENSITY_CELL")) |>
+  arrange(Rep_Column, PROPENSITY_CELL) |>
+  select(PROPENSITY_CELL, Rep_Column,
+         N_NONZERO, SUM) |>
+  head(10)
+
+# Inspect weights after adjustment
+nr_adjusted_survey |>
+  summarize_rep_weights(type = "specific",
+                        by = c("PROPENSITY_CELL", "RESPONSE_STATUS")) |>
+  arrange(Rep_Column, PROPENSITY_CELL, RESPONSE_STATUS) |>
+  select(PROPENSITY_CELL, RESPONSE_STATUS, Rep_Column,
+         N_NONZERO, SUM) |>
+  head(10)
+```
+
 
 ## Saving the final weights to a data file
 
@@ -198,17 +229,54 @@ data_frame_with_nr_adjusted_weights <- nr_adjusted_survey |>
     rep_wgt_prefix = "NR_ADJ_REP_WGT_"
   )
 
-# Preview first 10 column names
-colnames(data_frame_with_nr_adjusted_weights) |> head(10)
+# Preview first few column names
+colnames(data_frame_with_nr_adjusted_weights) |> head(12)
 ```
 
 ```{r, eval=FALSE}
 # Write the data to a CSV file
 write.csv(
   x = data_frame_with_nr_adjusted_weights,
-  file = "survey-data_with-nonresponse-adjusted-weights.csv"
+  file = "survey-data-with-nonresponse-adjusted-weights.csv"
 )
 ```
+
+## Statistical background
+
+The motivation for making this adjustment is that standard methods of statistical inference assume that every person in the population has a known, nonzero probability of participating in the survey (i.e. has a nonzero chance of being sampled and a nonzero chance of responding if they are sampled), denoted $p_{i,overall}$. Basic results in survey sampling theory guarantee that if this assumption is true, we can produce unbiased estimates of population means and totals by weighting data from each respondent with the weight $1/{p_{i,overall}}$. Crucially, the overall probability of participation $p_{i,overall}$ is the product of two components: the probability that a person is sampled (denoted $\pi_i$), and the probability that a person would respond to the survey if they are sampled (denoted $p_i$ and referred to as the **"response propensity"**). The sampling probability $\pi_i$ is known since we can control the method of sampling, but the response propensity $p_i$ is unknown and can only be estimated.
+
+$$
+\begin{aligned}
+w^{*}_i &= 1/p_{i,overall} \text{ (weights needed for unbiased estimation)} \\
+p_{i,overall} &= \pi_i \times p_i \\
+\pi_i &= \textbf{Sampling probability} \\
+&\textit{i.e. the probability that case }i\textit{ is randomly sampled } \text{ (}\textit{Known}\text{)} \\
+p_i &= \textbf{Response propensity} \\
+&\textit{i.e. the probability that case }i\textit{ responds, if sampled } \text{ (}\textit{Unknown}\text{)}  \\
+\end{aligned}
+$$
+
+The component $p_i$ must be estimated using data (with estimate $\hat{p}_i$) and then nonresponse-adjusted weights for respondents can be formed as $w_{NR,i} = 1/(\pi_i \times \hat{p}_i)$ and used to obtain approximately unbiased estimates of population means and totals. To use our earlier notation, the nonresponse adjustment factor for respondents $f_{NR,i}$ is actually defined using $1/\hat{p}_i$.
+
+$$
+\begin{aligned}
+w_i &= \textit{Original sampling weight for case }i \\
+    &= 1/\pi_i, \textit{ where } \pi_i \textit{ is the probability case i }\textit{had of being sampled}\\
+w_{NR, i} &= w_i \times f_{NR,i} = \textit{Weight for case }i \textit{ after nonresponse adjustment} \\
+\\
+f_{NR,i} &= \begin{cases}
+  0 & \text{if case } i \text{ is a nonrespondent} \\
+  1 / \hat{p}_i & \text{if case } i \text{ is a respondent} \\
+\end{cases} \\
+\hat{p}_i &= \textbf{Estimated response propensity}
+\end{aligned}
+$$
+
+In essence, different methods of nonresponse weighting adjustments vary in terms of how they estimate $\hat{p}_i$. The basic weight redistribution method in effect estimates $p_i$ as constant across all $i$, equal to the overall weighted response rate, and uses that to form the weights. In other words, the basic weight redistribution essentially is a way of forming an adjustment factor $f_{NR,i}$ based on the estimated response propensity $\hat{p}_i = \frac{\sum_{i \in s_{resp}}w_i}{\sum_{i \in s}w_i}$. 
+
+Weighting class adjustments and propensity cell adjustments are essentially more refined ways of forming $f_{NR,i}$ by estimating $p_i$ with a more realistic model, where $p_i$ is not constant across the entire sample but instead varies among weighting classes or propensity cells.
+
+The reason for conducting weighting adjustments not only in the full-sample weights but in the replicate weights is to account for the nonresponse adjustment process when estimating sampling variances and inferential statistics such as confidence intervals. Because of random sampling, the adjustment factors used in the nonresponse adjustment will vary from one sample to the next, and applying weighting adjustments separately for each replicate reflects this variability. As we've seen in this vignette, the `redistribute_weights()` function handles this for us: after nonresponse adjustment, all of the weight in each replicate is redistributed in the same manner that weight was redistributed for the full-sample weights.
 
 ## Recommended Reading
 
