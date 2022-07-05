@@ -163,69 +163,51 @@ and that they do more good than harm. The function
 `summarize_rep_weights()` helps by allowing you to quickly summarize the
 replicate weights.
 
-For example, we can check to see that post-stratification correctly
-removes variation in the column sums of the replicate weights.
+For example, when carrying out nonresponse adjustments, we might want to
+verify that all of the weights for nonrespondents have been set to zero
+in each replicate. We can use the `summarize_rep_weights()` to compare
+summary statistics for each replicate, and we can use its `by` argument
+to group the summaries by one or more variables.
 
 ``` r
-# Post-stratify the design
-post_stratified_design <- postStratify(design = orig_rep_design,
-                                       strata = ~ stype + awards,
-                                       population = xtabs(~stype + awards,
-                                                          data = apipop))
-# Compare overall summaries of the weights
-list(
-  'original' = summarize_rep_weights(orig_rep_design,
-                                     type = 'overall'),
-  'post-stratified' = summarize_rep_weights(post_stratified_design,
-                                            type = 'overall')
-)
-#> $original
-#>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
-#> 1   183    15           14   15        6194    403.1741           0    36.26464
-#> 
-#> $`post-stratified`
-#>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt
-#> 1   183    15           14   15        6194 6.431099e-13           0
-#>   max_rep_wgt
-#> 1        93.4
+summarize_rep_weights(
+  rep_design = nr_adjusted_design,
+  type = 'specific',
+  by = "response_status"
+) |> 
+  subset(Rep_Column %in% 1:2)
+#>        response_status Rep_Column  N N_NONZERO      SUM     MEAN        CV
+#> 1           Ineligible          1 50        47 2109.089 42.18178 0.2552106
+#> 2           Ineligible          2 50        49 2224.316 44.48631 0.1443075
+#> 16       Nonrespondent          1 48         0    0.000  0.00000       NaN
+#> 17       Nonrespondent          2 48         0    0.000  0.00000       NaN
+#> 31          Respondent          1 49        49 4128.429 84.25366 0.2403636
+#> 32          Respondent          2 49        48 4267.055 87.08275 0.2224368
+#> 46 Unknown eligibility          1 36         0    0.000  0.00000       NaN
+#> 47 Unknown eligibility          2 36         0    0.000  0.00000       NaN
+#>         MIN       MAX
+#> 1   0.00000  44.87423
+#> 2   0.00000  45.39420
+#> 16  0.00000   0.00000
+#> 17  0.00000   0.00000
+#> 31 70.51665 179.49692
+#> 32  0.00000 158.87969
+#> 46  0.00000   0.00000
+#> 47  0.00000   0.00000
 ```
 
-When carrying out nonresponse adjustments, we might want to make sure
-that column sums are the same before and after the adjustments.
+At the end of the adjustment process, we can inspect the number of rows
+and columns and examine the variability of the weights across all of the
+replicates.
 
 ``` r
-# Summarize each column of replicate weights,
-# before and after non-response adjustments
-orig_rep_col_summaries <- summarize_rep_weights(orig_rep_design, type = 'specific')
-adj_rep_col_summaries <- summarize_rep_weights(nr_adjusted_design, type = 'specific')
-
-head(adj_rep_col_summaries)
-#>   Rep_Column   N N_NONZERO      SUM     MEAN       CV MIN      MAX
-#> 1          1 183        96 6237.518 34.08480 1.086404   0 179.4969
-#> 2          2 183        97 6491.370 35.47197 1.066158   0 158.8797
-#> 3          3 183        97 6563.900 35.86830 1.086089   0 181.0731
-#> 4          4 183        94 6164.989 33.68846 1.113185   0 177.4097
-#> 5          5 183        98 6563.900 35.86830 1.074456   0 181.0731
-#> 6          6 183        97 6491.370 35.47197 1.080886   0 180.3158
-
-# Compare the sums and number of nonzero entries
-# before and after adjustment
-weight_summaries  <- rbind(cbind(orig_rep_col_summaries, Design = 'Original'),
-                           cbind(adj_rep_col_summaries, Design = 'NR-adjusted'))
-
-weight_summaries <- weight_summaries[,c("Rep_Column", "Design", "N_NONZERO", "SUM")]
-weight_summaries <- weight_summaries[order(weight_summaries$Design, decreasing = TRUE),]
-weight_summaries <- weight_summaries[order(weight_summaries$Rep_Column),]
-rownames(weight_summaries) <- NULL
-
-head(weight_summaries)
-#>   Rep_Column      Design N_NONZERO      SUM
-#> 1          1    Original       172 6237.518
-#> 2          1 NR-adjusted        96 6237.518
-#> 3          2    Original       179 6491.370
-#> 4          2 NR-adjusted        97 6491.370
-#> 5          3    Original       181 6563.900
-#> 6          3 NR-adjusted        97 6563.900
+nr_adjusted_design |>
+  subset(response_status == "Respondent") |>
+  summarize_rep_weights(
+    type = 'overall'
+  )
+#>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
+#> 1    49    15           14   15    4087.158    259.0107           0    316.8524
 ```
 
 ### Sample-based calibration
@@ -282,8 +264,8 @@ acs_benchmark_survey <- survey::svrepdesign(
 )
 ```
 
-We can see that the vaccination survey seems to underrepresent
-individuals who identify as Black or as Hispanic or Latino.
+We can see that the distribution of race/ethnicity among respondents
+differs from the distribution of race/ethnicity in the ACS benchmarks.
 
 ``` r
 # Compare demographic estimates from the two data sources
@@ -306,9 +288,10 @@ print(estimate_comparisons)
 #> White alone, not Hispanic or Latino                        0.73904382
 ```
 
-There are two options for calibrating the sample to the estimate
-controls. With the first approach, we supply point estimates and their
-variance-covariance matrix to the function `calibrate_to_estimate()`.
+There are two options for calibrating the sample to the control totals
+from the benchmark survey. With the first approach, we supply point
+estimates and their variance-covariance matrix to the function
+`calibrate_to_estimate()`.
 
 ``` r
 # Estimate control totals and their variance-covariance matrix
@@ -362,4 +345,33 @@ svyby_repwts(
 #> NR-adjusted       0.02430176 0.02430176
 #> Raked to estimate 0.02448676 0.02448676
 #> Raked to sample   0.02446881 0.02446881
+```
+
+### Saving results to a data file
+
+Once we’re satisfied with the weights, we can create a data frame with
+the analysis variables and columns of final full-sample weights and
+replicate weights. This format is easy to export to data files that can
+be loaded into R or other software later.
+
+``` r
+data_frame_with_final_weights <- vax_survey_raked_to_estimates |>
+  as_data_frame_with_weights(
+    full_wgt_name = "RAKED_WGT",
+    rep_wgt_prefix = "RAKED_REP_WGT_"
+  )
+
+# Preview first 10 column names
+colnames(data_frame_with_final_weights) |> head(10)
+#>  [1] "RESPONSE_STATUS" "RACE_ETHNICITY"  "SEX"             "EDUC_ATTAINMENT"
+#>  [5] "VAX_STATUS"      "SAMPLING_WEIGHT" "RAKED_WGT"       "RAKED_REP_WGT_1"
+#>  [9] "RAKED_REP_WGT_2" "RAKED_REP_WGT_3"
+```
+
+``` r
+# Write the data to a CSV file
+write.csv(
+  x = data_frame_with_final_weights,
+  file = "survey-data_with-updated-weights.csv"
+)
 ```

@@ -4,7 +4,7 @@
 \alias{summarize_rep_weights}
 \title{Summarize the replicate weights}
 \usage{
-summarize_rep_weights(rep_design, type = "both")
+summarize_rep_weights(rep_design, type = "both", by)
 }
 \arguments{
 \item{rep_design}{A replicate design object, created with either the \code{survey} or \code{srvyr} packages.}
@@ -15,6 +15,8 @@ with each column of replicate weights summarized in a given row of the summary. 
 \cr
 Use \code{type = "both"} for a list containing both summaries,
 with the list containing the names \code{"overall"} and \code{"both"}.}
+
+\item{by}{(Optional) A character vector with the names of variables used to group the summaries.}
 }
 \value{
 If \code{type = "both"} (the default), the result is a list of data frames
@@ -76,6 +78,14 @@ ue_adjusted_design <- redistribute_weights(
 # Summarize replicate weights
 
 summarize_rep_weights(rep_design, type = "both")
+
+# Summarize replicate weights by grouping variables
+
+summarize_rep_weights(ue_adjusted_design, type = 'overall',
+                      by = c("response_status"))
+
+summarize_rep_weights(ue_adjusted_design, type = 'overall',
+                      by = c("stype", "response_status"))
 
 # Compare replicate weights
 

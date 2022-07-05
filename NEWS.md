@@ -5,6 +5,11 @@ a survey design object into a data frame with columns of
 weights (full-sample weights and, if applicable, replicate weights).
 This is useful for saving data and weights to a data file.
 
+* Added `by` argument to `summarize_rep_weights()` which allows
+the specification of one or more grouping variables to use for summaries
+(e.g. `by = c('stratum', 'response_status')` can be used to summarize by 
+response status within each stratum).
+
 * Added a small vignette "Nonresponse Adjustments" to illustrate how to 
 conduct nonresponse adjustments using `redistribute_weights()`.
 
