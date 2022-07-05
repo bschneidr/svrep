@@ -241,7 +241,8 @@ svyby_repwts(
     'Raked to sample' = vax_survey_raked_to_acs_sample
   ),
   formula = ~ VAX_STATUS,
-  FUN = svymean
+  FUN = svymean,
+  keep.names = FALSE
 )
 ```
 

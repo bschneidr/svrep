@@ -335,16 +335,17 @@ svyby_repwts(
     'Raked to sample' = vax_survey_raked_to_acs_sample
   ),
   formula = ~ VAX_STATUS,
-  FUN = svymean
+  FUN = svymean,
+  keep.names = FALSE
 )
-#>                         Design_Name VAX_STATUSUnvaccinated VAX_STATUSVaccinated
-#> NR-adjusted             NR-adjusted              0.4621514            0.5378486
-#> Raked to estimate Raked to estimate              0.4732623            0.5267377
-#> Raked to sample     Raked to sample              0.4732623            0.5267377
-#>                          se1        se2
-#> NR-adjusted       0.02430176 0.02430176
-#> Raked to estimate 0.02448676 0.02448676
-#> Raked to sample   0.02446881 0.02446881
+#>         Design_Name VAX_STATUSUnvaccinated VAX_STATUSVaccinated        se1
+#> 1       NR-adjusted              0.4621514            0.5378486 0.02430176
+#> 2 Raked to estimate              0.4732623            0.5267377 0.02448676
+#> 3   Raked to sample              0.4732623            0.5267377 0.02446881
+#>          se2
+#> 1 0.02430176
+#> 2 0.02448676
+#> 3 0.02446881
 ```
 
 ### Saving results to a data file
