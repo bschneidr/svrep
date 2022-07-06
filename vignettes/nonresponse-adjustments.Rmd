@@ -67,7 +67,7 @@ print(lou_vax_survey)
 
 ## Redistributing weight from nonrespondents to respondents
 
-A common form of nonresponse adjustment is to simply 'redistribute' weight from the nonrespondents to the nonrespondents. In other words, the weight for each nonrespondent is set to $0$, and the weight for each respondent is increased by a factor greater than one so that the sum of adjusted weights in the sample of respondents equals the sum of unadjusted weights from the full sample. For example, if the sum of weights among respondents is $299,544.4$ and the sum of weights among nonrespondents is $297,157.6$, then a basic nonresponse adjustment would set the weights among nonrespondents to $0$ and multiply the weight for each respondent by an adjustment factor equal to $1 + (297,157.6/299,544.4)$. This type of adjustment is succinctly described in mathematical notation below.
+A common form of nonresponse adjustment is to simply 'redistribute' weight from the nonrespondents to the respondents. In other words, the weight for each nonrespondent is set to $0$, and the weight for each respondent is increased by a factor greater than one so that the sum of adjusted weights in the sample of respondents equals the sum of unadjusted weights from the full sample. For example, if the sum of weights among respondents is $299,544.4$ and the sum of weights among nonrespondents is $297,157.6$, then a basic nonresponse adjustment would set the weights among nonrespondents to $0$ and multiply the weight for each respondent by an adjustment factor equal to $1 + (297,157.6/299,544.4)$. This type of adjustment is succinctly described in mathematical notation below.
 
 ```{=tex}
 \begin{aligned}
