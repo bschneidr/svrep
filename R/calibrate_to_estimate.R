@@ -14,7 +14,7 @@
 #' Because the set of replicate columns whose control totals are perturbed should be random,
 #' there are multiple ways to ensure that this matching is reproducible.
 #' The user can either call \link[base]{set.seed} before using the function,
-#' or supply a vector of randomly-selected column indices to the argument \code{perturbed_control_cols}.
+#' or supply a vector of randomly-selected column indices to the argument \code{col_selection}.
 #'
 #' @param rep_design A replicate design object for the primary survey, created with either the \code{survey} or \code{srvyr} packages.
 #' @param estimate A vector of estimated control totals.
@@ -105,7 +105,7 @@
 #'
 #' # For reproducibility, specify which columns are randomly selected for Fuller method ----
 #'
-#'   column_selection <- calibrated_rep_design$perturbed_control_cols
+#'   column_selection <- calibrated_rep_design$col_selection
 #'   print(column_selection)
 #'
 #'   calibrated_rep_design <- calibrate_to_estimate(
@@ -330,7 +330,7 @@ calibrate_to_estimate <- function(rep_design,
   }
 
   # Indicate which replicate columns correspond had their control totals perturbed using Fuller's method ----
-  calibrated_rep_design$perturbed_control_cols <- col_selection
+  calibrated_rep_design$col_selection <- col_selection
 
   # Return the result ----
   return(calibrated_rep_design)
