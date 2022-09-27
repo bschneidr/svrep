@@ -35,16 +35,6 @@ Each element should be one of the following: \cr
  \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
  \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
 }}
-
-\item{joint_sel_probs}{(Optional) Either \code{NULL} (the default),
-or a list of matrices of joint selection probabilities,
-with one element in the list for each stage of sampling (the element can either be \code{NULL} or a matrix). \cr \cr
-If a matrix of joint selection probabilities is supplied for a given stage of sampling,
-these will be used to form replicate factors for that stage according to the method of Beaumont and Patak (2012).
-Note that using the method of Beaumont and Patak (2012) can result in negative replicate weights. \cr \cr
-Each matrix should be symmetric, with the number of rows/columns matching the number of sampling units
-from across all strata at the given stage. The row/column names should be formed by
-concatenating previous stages' strata and sampling unit names and then appending the current stage's strata and sampling unit names.}
 }
 \value{
 A matrix of replicate weights, with the same number of rows as \code{samp_unit_ids}
@@ -55,23 +45,27 @@ Creates bootstrap replicate weights for a multistage stratified sample design.
 The design may have different sampling methods used at different stages.
 Each stage of sampling may potentially use unequal probabilities (with or without replacement)
 and may potentially use Poisson sampling. \cr \cr
-The methods of Beaumont and Émond (2022) or Beaumont and Patak (2012)--which are generalizations of the Rao-Wu-Yue bootstrap--are used
+The methods of Beaumont and Émond (2022)--which are generalizations of the Rao-Wu-Yue bootstrap--are used
 to form bootstrap replicate weights.
 }
 \details{
 Beaumont and Émond (2022) describe a general algorithm for forming bootstrap replicate weights
 for multistage stratified samples, based on the method of Rao-Wu-Yue, with extensions
 to sampling without replacement and use of unequal probabilities of selection
-(i.e., sampling with probability proportional to size) as well as Poisson sampling. These methods provide design-unbiased and design-consistent variance estimates for totals, for designs
-where all sampling stages use simple random sampling (with or without replacement) or Poisson sampling,
-within strata. \cr \cr
-For stages where unequal probabilities of selection are used within a stratum,
-these methods provide design-unbiased replicate weights only if joint selection probabilities are provided for that stage.
-If joint selection probabilities are not provided, then the method of Beaumont and Émond (2022) is used to approximate joint selection probabilities
-and form bootstrap replicate weights.
-Even if joint selection probabilities are available,
-it may nonetheless be preferable to use the Beaumont and Émond (2022) approximation (i.e., refrain from using the joint selection probabilities),
-as the use of joint probabilities may result in negative replicate weights. \cr \cr
+(i.e., sampling with probability proportional to size) as well as Poisson sampling. These methods
+are guaranteed to produce nonnegative replicate weights and provide design-unbiased and design-consistent variance estimates for totals, for designs
+where all sampling stages use one of the following methods:
+\itemize{
+ \item{"SRSWOR"}{ - Simple random sampling, without replacement}
+ \item{"SRSWR"}{ - Simple random sampling, with replacement}
+ \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
+ \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
+}
+
+For designs where at least one stage's strata have sampling without replacement with unequal probabilities of selection ("PPSWOR"),
+the bootstrap method of Beaumont and Émond (2022) is not design-unbiased,
+since the method only approximates the joint selection probabilities which would be needed for unbiased estimation.
+\cr \cr
 If there is survey nonresponse, it may be useful to represent the response/nonresponse as an additional
 stage of sampling, where sampling is conducted with Poisson sampling where each unit's "selection probability" at that stage
 is its response propensity (which typically has to be estimated).
@@ -161,10 +155,6 @@ Beaumont, J.-F.; Émond, N. (2022).
 "A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
 \strong{Stats}, \emph{5}: 339–357.
 https://doi.org/10.3390/stats5020019
-
-Beaumont, J.F.; Patak, Z. (2012).
-"On the generalized bootstrap for sample surveys with special attention to Poisson sampling."
-\strong{Int. Stat. Rev.}, \emph{80}: 127–148.
 
 Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 "Some recent work on resampling methods for complex surveys."
