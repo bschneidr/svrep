@@ -59,8 +59,8 @@ as_data_frame_with_weights <- function(design, full_wgt_name = "FULL_SAMPLE_WGT"
   # Add full-sample weights to the data frame
 
   if (missing(full_wgt_name) || is.null(full_wgt_name)) {
-    message("Column name for full-sample weights not supplied. Using default of 'FULL_SAMPLE_WEIGHT'.")
-    full_wgt_name <- 'FULL_SAMPLE_WEIGHT'
+    message("Column name for full-sample weights not supplied. Using default of 'FULL_SAMPLE_WGT'.")
+    full_wgt_name <- 'FULL_SAMPLE_WGT'
   }
   if (length(full_wgt_name) != 1 || !is.character(full_wgt_name) || is.na(full_wgt_name)) {
     error_msg <- sprintf("If supplied, `full_wgt_name` must be a single character string.",
