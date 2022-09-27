@@ -1,5 +1,16 @@
 # svrep (development version)
 
+* Minor Updates and Bug Fixes:
+  * When using `as_data_frame_with_weights()`,
+  ensure that the full-sample weight is named `"FULL_SAMPLE_WGT"`
+  if the user does not specify something different.
+  * For `calibrate_to_estimate()`, ensure that the output
+  names the list of columns with perturbed control columns
+  `col_selection` instead of `perturbed_control_cols`,
+  so that the name matches the corresponding function argument,
+  `col_selection`.
+  * Improvements to documentation (formatting tweaks and typo fixes)
+
 # svrep 0.3.0
 
 * Added helper function `as_data_frame_with_weights()` to convert
