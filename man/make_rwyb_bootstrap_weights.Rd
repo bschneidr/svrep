@@ -41,20 +41,19 @@ A matrix of replicate weights, with the same number of rows as \code{samp_unit_i
 and the number of columns equal to the value of the argument \code{num_replicates}.
 }
 \description{
-Creates bootstrap replicate weights for a multistage stratified sample design.
+Creates bootstrap replicate weights for a multistage stratified sample design
+using the methods of Beaumont and Émond (2022), which are generalizations of the Rao-Wu-Yue bootstrap. \cr \cr
 The design may have different sampling methods used at different stages.
 Each stage of sampling may potentially use unequal probabilities (with or without replacement)
-and may potentially use Poisson sampling. \cr \cr
-The methods of Beaumont and Émond (2022)--which are generalizations of the Rao-Wu-Yue bootstrap--are used
-to form bootstrap replicate weights.
+and may potentially use Poisson sampling.
 }
 \details{
 Beaumont and Émond (2022) describe a general algorithm for forming bootstrap replicate weights
 for multistage stratified samples, based on the method of Rao-Wu-Yue, with extensions
 to sampling without replacement and use of unequal probabilities of selection
 (i.e., sampling with probability proportional to size) as well as Poisson sampling. These methods
-are guaranteed to produce nonnegative replicate weights and provide design-unbiased and design-consistent variance estimates for totals, for designs
-where all sampling stages use one of the following methods:
+are guaranteed to produce nonnegative replicate weights and provide design-unbiased and design-consistent variance estimates for totals,
+for designs where sampling uses one or more of the following methods:
 \itemize{
  \item{"SRSWOR"}{ - Simple random sampling, without replacement}
  \item{"SRSWR"}{ - Simple random sampling, with replacement}

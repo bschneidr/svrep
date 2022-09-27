@@ -1,11 +1,10 @@
 #' Create bootstrap replicate weights for a general survey design,
 #' using the Rao-Wu-Yue-Beaumont bootstrap method
-#' @description Creates bootstrap replicate weights for a multistage stratified sample design.
+#' @description Creates bootstrap replicate weights for a multistage stratified sample design
+#' using the methods of Beaumont and Émond (2022), which are generalizations of the Rao-Wu-Yue bootstrap. \cr \cr
 #' The design may have different sampling methods used at different stages.
 #' Each stage of sampling may potentially use unequal probabilities (with or without replacement)
-#' and may potentially use Poisson sampling. \cr \cr
-#' The methods of Beaumont and Émond (2022)--which are generalizations of the Rao-Wu-Yue bootstrap--are used
-#' to form bootstrap replicate weights.
+#' and may potentially use Poisson sampling.
 #' @param num_replicates Positive integer giving the number of bootstrap replicates to create
 #' @param samp_unit_ids Matrix or data frame of sampling unit IDs for each stage of sampling
 #' @param strata_ids Matrix or data frame of strata IDs for each sampling unit at each stage of sampling
@@ -153,11 +152,24 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
   if ((ncol(strata_ids) != number_of_stages) || (nrow(strata_ids) != number_of_ultimate_units)) {
     stop("`strata_ids` must have the same number of rows and columns as `samp_unit_ids`.")
   }
+  if (any(is.na(strata_ids))) {
+    stop("`strata_ids` should not have any missing values.")
+  }
+  if (any(is.na(samp_unit_ids))) {
+    stop("`strata_ids` should not have any missing values.")
+  }
   if ((ncol(samp_unit_sel_probs) != number_of_stages) || (nrow(samp_unit_sel_probs) != number_of_ultimate_units)) {
     stop("`samp_unit_sel_probs` must have the same number of rows and columns as `samp_unit_ids`.")
   }
   if (length(samp_method_by_stage) != number_of_stages) {
     stop("The length of `samp_method_by_stage` should match the number of columns of `samp_unit_ids`.")
+  }
+  samp_method_by_stage <- toupper(samp_method_by_stage)
+  if (!all(samp_method_by_stage %in% c("SRSWR", "SRSWOR", "PPSWR", "PPSWOR", "POISSON"))) {
+    stop('Each element of `samp_method_by_stage` must be one of the following: "SRSWR", "SRSWOR", "PPSWR", "PPSWOR", or "Poisson"')
+  }
+  if (any(is.na(samp_unit_sel_probs[,samp_method_by_stage != "SRSWR"]))) {
+    stop("For stages where sampling is not 'SRSWR', the corresponding column of `samp_unit_sel_probs` should not have any missing values.")
   }
 
   # Initialize 3-dimensional array: ultimate unit X stage X replicates
@@ -213,7 +225,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
       sel_prob_of_higher_unit_from_previous_stage_by_stratum <- rep(1, times = H)
     }
 
-    if (samp_method_by_stage[stage] != "Poisson") {
+    if (samp_method_by_stage[stage] != "POISSON") {
 
       # Determine 'multiplicities' (number of times each PSU is resampled)
       multiplicities <- lapply(seq_len(H), function(h) {
@@ -243,7 +255,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
       })
     }
 
-    if (samp_method_by_stage[stage] == "Poisson") {
+    if (samp_method_by_stage[stage] == "POISSON") {
       a_beaumont_emond <- lapply(X = seq_len(H), function(h) {
         alpha <- 1 - distinct_sel_probs_by_stratum[[h]]
         a_k <- rgamma(n = n_h[h] * num_replicates,
