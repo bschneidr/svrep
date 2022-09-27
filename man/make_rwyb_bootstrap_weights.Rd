@@ -62,11 +62,16 @@ for designs where sampling uses one or more of the following methods:
 }
 
 For designs where at least one stage's strata have sampling without replacement with unequal probabilities of selection ("PPSWOR"),
-the bootstrap method of Beaumont and Émond (2022) is not design-unbiased,
+the bootstrap method of Beaumont and Émond (2022) is guaranteed to produce nonnegative weights, but is not design-unbiased,
 since the method only approximates the joint selection probabilities which would be needed for unbiased estimation.
 \cr \cr
+Unless any stages use simple random sampling without replacement, the resulting bootstrap replicate weights
+are guaranteed to all be positive. Having strictly positive replicate weights may be useful for calibration adjustments
+such as raking as well as for conducting domain analyses.
+\cr \cr
 If there is survey nonresponse, it may be useful to represent the response/nonresponse as an additional
-stage of sampling, where sampling is conducted with Poisson sampling where each unit's "selection probability" at that stage
+stage of sampling, where sampling is conducted with Poisson samplin
+g where each unit's "selection probability" at that stage
 is its response propensity (which typically has to be estimated).
 }
 \examples{
