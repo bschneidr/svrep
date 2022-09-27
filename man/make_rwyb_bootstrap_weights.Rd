@@ -41,7 +41,10 @@ or a list of matrices of joint selection probabilities,
 with one element in the list for each stage of sampling (the element can either be \code{NULL} or a matrix). \cr \cr
 If a matrix of joint selection probabilities is supplied for a given stage of sampling,
 these will be used to form replicate factors for that stage according to the method of Beaumont and Patak (2012).
-Note that using the method of Beaumont and Patak (2012) can result in negative replicate weights.}
+Note that using the method of Beaumont and Patak (2012) can result in negative replicate weights. \cr \cr
+Each matrix should be symmetric, with the number of rows/columns matching the number of sampling units
+from across all strata at the given stage. The row/column names should be formed by
+concatenating previous stages' strata and sampling unit names and then appending the current stage's strata and sampling unit names.}
 }
 \value{
 A matrix of replicate weights, with the same number of rows as \code{samp_unit_ids}
