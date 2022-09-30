@@ -2,8 +2,12 @@ Package: svrep
 Type: Package
 Title: Tools for Creating, Updating, and Analyzing Survey Replicate Weights
 Version: 0.3.0.9000
-Author: Ben Schneider
-Maintainer: Ben Schneider <benjamin.julius.schneider@gmail.com>
+Authors@R:
+    c(person(given = "Ben",
+             family = "Schneider",
+             role = c("aut", "cre"),
+             email = "benjamin.julius.schneider@gmail.com",
+             comment = c(ORCID = "0000-0002-0406-8470")))
 Description: Provides tools for creating and working with survey replicate weights,
   extending functionality of the 'survey' package from Lumley (2004) <doi:10.18637/jss.v009.i08>.
   Methods are provided for applying nonresponse adjustments to
