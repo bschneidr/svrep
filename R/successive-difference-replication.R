@@ -157,3 +157,61 @@ create_sdr_replicate_factors <- function(n, target_number_of_replicates, use_nor
 
   return(replicate_factors)
 }
+
+sd_circular_estimator <- function(y, N) {
+
+  # Finite population correction
+    n <- length(y)
+    f <- n/N
+
+  # Contrast matrix described by Ash (2011)
+
+    C_matrix <- diag(n) * 2
+    for (i in seq_len(n)) {
+      if (i < n) {
+        C_matrix[i,i+1] <- -1
+        C_matrix[i+1,i] <- -1
+      }
+      if (i > 0) {
+        C_matrix[i,i-1] <- -1
+        C_matrix[i-1,i] <- -1
+      }
+    }
+    C_matrix[1,n] <- -1
+    C_matrix[n,1] <- -1
+
+  # Estimate sampling variance
+    wtd_y <- y * (N/n)
+
+    variance_estimate <- 0.5 * (1-f) * (t(wtd_y) %*% C_matrix %*% wtd_y)
+    return(variance_estimate)
+}
+
+sd_noncircular_estimator <- function(y, N) {
+
+  # Finite population correction
+  n <- length(y)
+  f <- n/N
+
+  # Contrast matrix described by Ash (2011)
+
+  C_matrix <- diag(n) * 2
+  C_matrix[1,1] <- 1
+  C_matrix[n,n] <- 1
+  for (i in seq_len(n)) {
+    if (i < n) {
+      C_matrix[i,i+1] <- -1
+      C_matrix[i+1,i] <- -1
+    }
+    if (i > 0) {
+      C_matrix[i,i-1] <- -1
+      C_matrix[i-1,i] <- -1
+    }
+  }
+
+  # Estimate sampling variance
+  wtd_y <- y * (N/n)
+
+  variance_estimate <- 0.5 * (1-f) * (n/(n-1)) * (t(wtd_y) %*% C_matrix %*% wtd_y)
+  return(variance_estimate)
+}
