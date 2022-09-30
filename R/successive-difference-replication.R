@@ -132,7 +132,7 @@ create_sdr_replicate_factors <- function(n, target_number_of_replicates, use_nor
     }
   }
   if (use_normal_hadamard) {
-    H_A <- survey::hadamard(target_number_of_replicates)
+    H_A <- survey::hadamard(target_number_of_replicates - 1)
     H_A <- H_A <- 2*H_A - 1 # Convert from 1/0 format to 1/-1 format
   }
   hadamard_order <- ncol(H_A)
