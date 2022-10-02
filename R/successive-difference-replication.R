@@ -2,6 +2,8 @@
 #'
 #' @param n The sample size of the data.
 #' @param hadamard_order The order of the Hadamard matrix
+#' @param number_of_cycles The number of cycles to use in the row assignment.
+#' Must be at least as large as \code{n/hadamard_order}.
 #' @param use_first_row Whether to use the first row of the Hadamard matrix.
 #' The first row of a Hadamard matrix is often all 1's, and so using the first
 #' row to create replicate factors leads to the creation of a replicate
@@ -13,7 +15,7 @@
 #' @export
 #'
 #' @examples
-assign_hadamard_rows <- function(n, hadamard_order, use_first_row = TRUE) {
+assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n/hadamard_order), use_first_row = TRUE) {
 
   if ((hadamard_order %% 4) > 0) {
     stop("`hadamard_order` must be a multiple of 4.")
@@ -24,20 +26,21 @@ assign_hadamard_rows <- function(n, hadamard_order, use_first_row = TRUE) {
   if (!use_first_row) {
     k_A <- k_A - 1
   }
-
-  # Determine number of cycles
-  n_cycles <- ceiling(n / k_A)
+  if (number_of_cycles < ceiling(n/k_A)) {
+    error_msg <- sprintf("Given the values of `n`, `hadamard_order`, and `use_first_row`, `number_of_cycles` must be at least %s",
+                         ceiling(n/k_A))
+  }
 
   # Determine range of step sizes to use to form row-assignment matrix.
   # Cannot be larger than (order of Hadamard matrix minus one).
-  if (((k_A - 1) * n_cycles) %% 2) {
-    max_step_size <- n_cycles + 1L
+  if (((k_A - 1) * number_of_cycles) %% 2) {
+    max_step_size <- number_of_cycles + 1L
     if (max_step_size >= (k_A - 1)) {
-      max_step_size <- n_cycles - 1L
+      max_step_size <- number_of_cycles - 1L
     }
     max_step_size <- pmin(max_step_size, k_A - 1)
   } else {
-    max_step_size <- pmin(n_cycles, k_A - 1)
+    max_step_size <- pmin(number_of_cycles, k_A - 1)
   }
 
   # Set initial values before looping
