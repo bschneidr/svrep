@@ -1,5 +1,18 @@
 # svrep (development version)
 
+* Added function `as_bootstrap_design()` to convert a survey design
+object to a replicate design with replicate weights created
+using a bootstrap method. This is essentially a specialized version of 
+`as.svrepdesign()` that supports additional bootstrap methods
+and has detailed documentation about which bootstrap methods can be used
+for different types of sampling designs.
+
+* Added function `make_rwyb_bootstrap_weights()`, which creates
+bootstrap replicate weights for a wide range of survey designs
+using the method of Rao-Wu-Yue-Beaumont (i.e., Beaumont's 
+generalization of the Rao-Wu-Yue bootstrap method). This function
+can be used directly, or users can specify `as_bootstrap_design(type = "Rao-Wu-Yue-Beaumont")`.
+
 * Minor Updates and Bug Fixes:
   * When using `as_data_frame_with_weights()`,
   ensure that the full-sample weight is named `"FULL_SAMPLE_WGT"`
