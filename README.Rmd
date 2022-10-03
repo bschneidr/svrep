@@ -39,7 +39,9 @@ devtools::install_github("bschneidr/svrep")
 
 ## Example usage
 
-Suppose we have a replicate-weights survey design object created with the survey package. This survey design object can include respondents, non-respondents, and cases with unknown eligibility.
+### Creating replicate weights
+
+Suppose we have data from a survey selected using a complex sampling method such as cluster sampling. To represent the complex survey design, we can create a survey design object using the survey package.
 
 ```{r, message=FALSE, warning=FALSE}
 library(survey)
@@ -47,22 +49,38 @@ library(svrep)
 data(api, package = "survey")
 set.seed(2021)
 
-# Create variable giving response status
-apiclus1$response_status <- sample(x = c("Respondent", "Nonrespondent",
-                                         "Ineligible", "Unknown eligibility"),
-                                   size = nrow(apiclus1),
-                                   replace = TRUE)
-
-# Create replicate-weights survey design
+# Create a survey design object for a sample
+# selected using a single-stage cluster sample without replacement
 dclus1 <- svydesign(data = apiclus1,
                     id = ~dnum, weights = ~pw, fpc = ~fpc)
+```
 
-orig_rep_design <- as.svrepdesign(dclus1)
+To help us estimate sampling variances, we can create bootstrap replicate weights. The function `as_bootstrap_design()` creates bootstrap replicate weights appropriate to the complex sampling design, using bootstrapping methods from the 'survey' package as well as additional methods such as the Rao-Wu-Yue-Beaumont method (a generalization of the Rao-Wu bootstrap).
+
+```{r}
+# Create replicate-weights survey design
+orig_rep_design <- as_bootstrap_design(dclus1, replicates = 500,
+                                       type = "Rao-Wu-Yue-Beaumont")
 
 print(orig_rep_design)
 ```
 
 ### Adjusting for non-response or unknown eligibility
+
+In social surveys, unit nonresponse is extremely common. It is also somewhat common for respondent cases to be classified as "ineligible" for the survey based on their response. In general, sampled cases are typically classified as "respondents", "nonrespondents", "ineligible cases", and "unknown eligibility" cases.
+
+```{r}
+# Create variable giving response status
+orig_rep_design$variables[['response_status']] <- sample(
+  x = c("Respondent", "Nonrespondent",
+        "Ineligible", "Unknown eligibility"),
+  prob = c(0.6, 0.2, 0.1, 0.1),
+  size = nrow(orig_rep_design),
+  replace = TRUE
+)
+
+table(orig_rep_design$variables$response_status)
+```
 
 It is common practice to adjust weights when there is non-response or there are sampled cases whose eligibility for the survey is unknown. The most common form of adjustment is "weight redistribution": for example, weights from non-respondents are reduced to zero, and weights from respondents are correspondingly increased so that the total weight in the sample is unchanged. In order to account for these adjustments when estimating variances for survey statistics, the adjustments are repeated separately for each set of replicate weights. This process can be easily implemented using the `redistribute_weights()` function.
 
@@ -160,7 +178,7 @@ data("lou_vax_survey")
 # Load example data
 lou_vax_survey <- svydesign(ids = ~ 1, weights = ~ SAMPLING_WEIGHT,
                             data = lou_vax_survey) |>
-  as.svrepdesign(type = "boot", replicates = 100, mse = TRUE)
+  as_bootstrap_design(replicates = 100, mse = TRUE)
 
 # Adjust for nonresponse
 lou_vax_survey <- lou_vax_survey |>
