@@ -28,7 +28,7 @@
 #'  simple random sampling with or without replacement.}
 #' }
 #' @param replicates Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
-#' Commonly-recommended defaults is 500.
+#' A commonly-recommended default is 500.
 #' @param compress Use a compressed representation of the replicate weights matrix.
 #' This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
@@ -91,7 +91,7 @@
 #'     check.names = FALSE
 #'   )
 
-as_bootstrap_design <- function(design, type = "Rao-Wu-Yue-Beaumont", replicates = 50, compress = TRUE, mse = getOption("survey.replicates.mse")) {
+as_bootstrap_design <- function(design, type = "Rao-Wu-Yue-Beaumont", replicates = 500, compress = TRUE, mse = getOption("survey.replicates.mse")) {
   UseMethod("as_bootstrap_design", design)
 }
 
