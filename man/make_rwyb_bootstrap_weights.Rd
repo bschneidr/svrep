@@ -11,7 +11,8 @@ make_rwyb_bootstrap_weights(
   strata_ids,
   samp_unit_sel_probs,
   samp_method_by_stage = rep("PPSWOR", times = ncol(samp_unit_ids)),
-  joint_sel_probs = NULL
+  allow_singletons_at_final_stage = TRUE,
+  output = "weights"
 )
 }
 \arguments{
@@ -35,10 +36,30 @@ Each element should be one of the following: \cr
  \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
  \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
 }}
+
+\item{allow_singletons_at_final_stage}{Logical value indicating whether to allow
+non-certainty singleton strata at the final sampling stage (rather than throw an error message).
+A "non-certainty singleton stratum" is defined as a final-stage stratum where only
+one unit was sampled, and its selection probability is less than one.
+A common example is in surveys where multiple households are selected in the first stages of sampling,
+but in the final stage of sampling only one person is sampled from each household. \cr
+If \code{TRUE}, the sampling unit in a non-certainty singleton stratum will have its final-stage adjustment factor
+calculated as if it was selected with certainty at the final stage (i.e., its adjustment factor will be 1),
+and then its final bootstrap weight will be calculated by combining this adjustment factor
+with its final-stage selection probability.}
+
+\item{output}{Either \code{"weights"} (the default) or \code{"factors"}.
+Specifying \code{output = "factors"} returns a matrix of replicate adjustment factors which can later be multiplied by
+the full-sample weights to produce a matrix of replicate weights. Specifying \code{output = "weights"}
+returns the matrix of replicate weights, where the full-sample weights are inferred using \code{samp_unit_sel_probs}.}
 }
 \value{
-A matrix of replicate weights, with the same number of rows as \code{samp_unit_ids}
+A matrix of with the same number of rows as \code{samp_unit_ids}
 and the number of columns equal to the value of the argument \code{num_replicates}.
+Specifying \code{output = "factors"} returns a matrix of replicate adjustment factors which can later be multiplied by
+the full-sample weights to produce a matrix of replicate weights.
+Specifying \code{output = "weights"} returns the matrix of replicate weights,
+where the full-sample weights are inferred using \code{samp_unit_sel_probs}.
 }
 \description{
 Creates bootstrap replicate weights for a multistage stratified sample design
@@ -66,13 +87,12 @@ the bootstrap method of Beaumont and Émond (2022) is guaranteed to produce nonn
 since the method only approximates the joint selection probabilities which would be needed for unbiased estimation.
 \cr \cr
 Unless any stages use simple random sampling without replacement, the resulting bootstrap replicate weights
-are guaranteed to all be positive. Having strictly positive replicate weights may be useful for calibration adjustments
-such as raking as well as for conducting domain analyses.
+are guaranteed to all be strictly positive, which may be useful for calibration or analyses of domains with small sample sizes.
+If any stages use simple random sampling without replacement, it is possible for some replicate weights to be zero.
 \cr \cr
 If there is survey nonresponse, it may be useful to represent the response/nonresponse as an additional
-stage of sampling, where sampling is conducted with Poisson samplin
-g where each unit's "selection probability" at that stage
-is its response propensity (which typically has to be estimated).
+stage of sampling, where sampling is conducted with Poisson sampling
+where each unit's "selection probability" at that stage is its response propensity (which typically has to be estimated).
 }
 \examples{
  library(survey)
@@ -144,13 +164,11 @@ is its response propensity (which typically has to be estimated).
 
      ## Compare std. error estimates from bootstrap versus linearization
      data.frame(
-       'Statistic' = c('total', 'mean', 'median'),
+       'Statistic' = c('total', 'mean'),
        'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
-                            SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design)),
-                            SE(svyquantile(x = ~ Bush, quantile = 0.5, design = bootstrap_rep_design))),
+                            SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design))),
        'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush, design = pps_wor_design)),
-                                               SE(svymean(x = ~ I(Bush/votes), design = pps_wor_design)),
-                                               SE(svyquantile(x = ~ Bush, quantile = 0.5, design = pps_wor_design))),
+                                               SE(svymean(x = ~ I(Bush/votes), design = pps_wor_design))),
        check.names = FALSE
      )
 }

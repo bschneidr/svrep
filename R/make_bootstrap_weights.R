@@ -21,7 +21,20 @@
 #'  \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
 #'  \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
 #' }
-#'
+#' @param allow_singletons_at_final_stage Logical value indicating whether to allow
+#' non-certainty singleton strata at the final sampling stage (rather than throw an error message).
+#' A "non-certainty singleton stratum" is defined as a final-stage stratum where only
+#' one unit was sampled, and its selection probability is less than one.
+#' A common example is in surveys where multiple households are selected in the first stages of sampling,
+#' but in the final stage of sampling only one person is sampled from each household. \cr
+#' If \code{TRUE}, the sampling unit in a non-certainty singleton stratum will have its final-stage adjustment factor
+#' calculated as if it was selected with certainty at the final stage (i.e., its adjustment factor will be 1),
+#' and then its final bootstrap weight will be calculated by combining this adjustment factor
+#' with its final-stage selection probability.
+#' @param output Either \code{"weights"} (the default) or \code{"factors"}.
+#' Specifying \code{output = "factors"} returns a matrix of replicate adjustment factors which can later be multiplied by
+#' the full-sample weights to produce a matrix of replicate weights. Specifying \code{output = "weights"}
+#' returns the matrix of replicate weights, where the full-sample weights are inferred using \code{samp_unit_sel_probs}.
 #' @details
 #' Beaumont and Émond (2022) describe a general algorithm for forming bootstrap replicate weights
 #' for multistage stratified samples, based on the method of Rao-Wu-Yue, with extensions
@@ -41,13 +54,12 @@
 #' since the method only approximates the joint selection probabilities which would be needed for unbiased estimation.
 #' \cr \cr
 #' Unless any stages use simple random sampling without replacement, the resulting bootstrap replicate weights
-#' are guaranteed to all be positive. Having strictly positive replicate weights may be useful for calibration adjustments
-#' such as raking as well as for conducting domain analyses.
+#' are guaranteed to all be strictly positive, which may be useful for calibration or analyses of domains with small sample sizes.
+#' If any stages use simple random sampling without replacement, it is possible for some replicate weights to be zero.
 #' \cr \cr
 #' If there is survey nonresponse, it may be useful to represent the response/nonresponse as an additional
-#' stage of sampling, where sampling is conducted with Poisson samplin
-#'g where each unit's "selection probability" at that stage
-#' is its response propensity (which typically has to be estimated).
+#' stage of sampling, where sampling is conducted with Poisson sampling
+#' where each unit's "selection probability" at that stage is its response propensity (which typically has to be estimated).
 #' @references
 #' Beaumont, J.-F.; Émond, N. (2022).
 #' "A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
@@ -58,8 +70,12 @@
 #' "Some recent work on resampling methods for complex surveys."
 #' \strong{Surv. Methodol.}, \emph{18}: 209–217.
 #'
-#' @return A matrix of replicate weights, with the same number of rows as \code{samp_unit_ids}
+#' @return A matrix of with the same number of rows as \code{samp_unit_ids}
 #' and the number of columns equal to the value of the argument \code{num_replicates}.
+#' Specifying \code{output = "factors"} returns a matrix of replicate adjustment factors which can later be multiplied by
+#' the full-sample weights to produce a matrix of replicate weights.
+#' Specifying \code{output = "weights"} returns the matrix of replicate weights,
+#' where the full-sample weights are inferred using \code{samp_unit_sel_probs}.
 #' @export
 #'
 #' @examples
@@ -132,13 +148,11 @@
 #'
 #'      ## Compare std. error estimates from bootstrap versus linearization
 #'      data.frame(
-#'        'Statistic' = c('total', 'mean', 'median'),
+#'        'Statistic' = c('total', 'mean'),
 #'        'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
-#'                             SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design)),
-#'                             SE(svyquantile(x = ~ Bush, quantile = 0.5, design = bootstrap_rep_design))),
+#'                             SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design))),
 #'        'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush, design = pps_wor_design)),
-#'                                                SE(svymean(x = ~ I(Bush/votes), design = pps_wor_design)),
-#'                                                SE(svyquantile(x = ~ Bush, quantile = 0.5, design = pps_wor_design))),
+#'                                                SE(svymean(x = ~ I(Bush/votes), design = pps_wor_design))),
 #'        check.names = FALSE
 #'      )
 
@@ -146,10 +160,13 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                         samp_unit_ids, strata_ids,
                                         samp_unit_sel_probs,
                                         samp_method_by_stage = rep("PPSWOR", times = ncol(samp_unit_ids)),
-                                        joint_sel_probs = NULL) {
+                                        allow_singletons_at_final_stage = TRUE,
+                                        output = "weights") {
 
   number_of_stages <- ncol(samp_unit_ids)
   number_of_ultimate_units <- nrow(samp_unit_ids)
+
+  # Check validity of inputs
   if (!is.matrix(samp_unit_sel_probs)) {
     samp_unit_sel_probs <- as.matrix(samp_unit_sel_probs)
   }
@@ -160,7 +177,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     stop("`strata_ids` should not have any missing values.")
   }
   if (any(is.na(samp_unit_ids))) {
-    stop("`strata_ids` should not have any missing values.")
+    stop("`samp_unit_ids` should not have any missing values.")
   }
   if ((ncol(samp_unit_sel_probs) != number_of_stages) || (nrow(samp_unit_sel_probs) != number_of_ultimate_units)) {
     stop("`samp_unit_sel_probs` must have the same number of rows and columns as `samp_unit_ids`.")
@@ -174,6 +191,9 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
   }
   if (any(is.na(samp_unit_sel_probs[,samp_method_by_stage != "SRSWR"]))) {
     stop("For stages where sampling is not 'SRSWR', the corresponding column of `samp_unit_sel_probs` should not have any missing values.")
+  }
+  if ((length(num_replicates) != 1) || !is.numeric(num_replicates) || (!num_replicates > 0)) {
+    stop("Must specify a single, positive number for the argument `num_replicates`.")
   }
 
   # Initialize 3-dimensional array: ultimate unit X stage X replicates
@@ -201,11 +221,6 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
       samp_units[strata == distinct_strata_ids[h]] |> unique() |> length()
     })
     m_h <- n_h - 1
-    # if (any(m_h == 0)) {
-    #   error_msg <- sprintf("Cannot form bootstrap adjustment factor for a stratum at stage %s, since stratum has only one sampling unit",
-    #                        stage)
-    #   stop(error_msg)
-    # }
 
     # Get each stratum's list of sampling units and their probabilities
     distinct_samp_units_by_stratum <- lapply(X = distinct_strata_ids, function(stratum_id) {
@@ -219,6 +234,31 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     certainty_flags_by_stratum <- lapply(X = distinct_sel_probs_by_stratum, function(pi_k) {
       pi_k >= 1
     })
+
+    noncertainty_singleton_strata <- sapply(X = seq_len(H), function(h) {
+      (n_h[h] == 1) & !all(certainty_flags_by_stratum[[h]])
+    })
+    if (any(noncertainty_singleton_strata)) {
+      if ((stage < number_of_stages) | !allow_singletons_at_final_stage) {
+        error_msg <- sprintf(
+          paste("Cannot form bootstrap adjustment factors for a stratum at stage %s, ",
+                "since the stratum has only one sampling unit, ",
+                "and that single sampling unit was not selected with certainty.",
+                ifelse(
+                  stage == number_of_stages,
+                  paste0(
+                    " Setting `allow_singletons_at_final_stage = TRUE` will avoid this error message",
+                    " by calculating that sampling unit's final-stage adjustment factor as if it was selected with certainty at the final stage,",
+                    " and then calculating the bootstrap weight using this adjustment factor combined with the final-stage selection probability."
+                  ),
+                  ""
+                ),
+                sep = ""),
+          stage
+        )
+        stop(error_msg)
+      }
+    }
 
     # For later stages of sampling, get the previous stage selection probability of the higher-level sampling unit
     if (stage > 1) {
@@ -246,12 +286,15 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
         m <- m_h[h]
         n <- n_h[h]
         mstar_k <- multiplicities[[h]]
+        certainty_flags <- certainty_flags_by_stratum[[h]]
+        is_singleton_stratum <- n == 1
 
-        if (samp_method_by_stage[stage] != "SRSWR") {
+        if (is_singleton_stratum) {
+          a_k <- 1
+        } else if (samp_method_by_stage[stage] != "SRSWR") {
           pi_k <- distinct_sel_probs_by_stratum[[h]]
           a_k <- 1 - sqrt((m*(1-pi_k))/(n - 1)) + sqrt((m*(1-pi_k))/(n - 1)) * (n/m) * mstar_k
-        }
-        if (samp_method_by_stage[stage] == "SRSWR") {
+        } else if (samp_method_by_stage[stage] == "SRSWR") {
           a_k <- 1 - sqrt(m/(n - 1)) + sqrt(m/(n - 1)) * (n/m) * mstar_k
         }
 
@@ -323,17 +366,21 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                         apply(X = adj_factors_matrix_b,
                                               MARGIN = 1, FUN = Reduce, f = `*`)
                                       })
+  result <- overall_adjustment_factors
 
-  # Calculate overall sampling weight for a unit
-  # as the inverse of product of selection probabilities from all stages
-  overall_sampling_weights <- apply(X = samp_unit_sel_probs,
-                                    MARGIN = 1,
-                                    FUN = Reduce, f = `*`) ^ (-1)
-
-  # Create replicate weights by multiply adjustment factors by sampling weights
-  replicate_weights <- apply(X = overall_adjustment_factors,
-                             MARGIN = 2, FUN = function(rep_factor) rep_factor * overall_sampling_weights)
+  if (output == "weights") {
+    # Calculate overall sampling weight for a unit
+    # as the inverse of product of selection probabilities from all stages
+    overall_sampling_weights <- apply(X = samp_unit_sel_probs,
+                                      MARGIN = 1,
+                                      FUN = Reduce, f = `*`) ^ (-1)
 
 
-  return(replicate_weights)
+    # Create replicate weights by multiply adjustment factors by sampling weights
+    replicate_weights <- apply(X = overall_adjustment_factors,
+                               MARGIN = 2, FUN = function(rep_factor) rep_factor * overall_sampling_weights)
+    result <- replicate_weights
+  }
+
+  return(result)
 }
