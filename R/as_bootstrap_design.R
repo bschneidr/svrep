@@ -41,6 +41,12 @@
 #' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
 #' for the full-sample and replicate weights.
 #' @export
+#' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
+#'
+#'          For especially complicated designs, use \code{\link[svrep]{make_rwyb_bootstrap_weights}} to create
+#'          Rao-Wu-Yue-Beaumont bootstrap weights or adjustment factors given information for each stage of sampling
+#'          (the type of sampling, strata IDs, cluster IDs, selection probabilities, etc.).
+#'
 #'
 #' @examples
 #' # Example 1: A multistage sample with two stages of SRSWOR

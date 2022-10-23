@@ -77,7 +77,7 @@
 #' Specifying \code{output = "weights"} returns the matrix of replicate weights,
 #' where the full-sample weights are inferred using \code{samp_unit_sel_probs}.
 #' @export
-#'
+#' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #' @examples
 #'  library(survey)
 #'

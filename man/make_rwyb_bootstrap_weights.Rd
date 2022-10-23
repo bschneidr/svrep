@@ -182,3 +182,6 @@ Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 "Some recent work on resampling methods for complex surveys."
 \strong{Surv. Methodol.}, \emph{18}: 209–217.
 }
+\seealso{
+Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
+}

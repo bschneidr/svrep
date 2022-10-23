@@ -8,7 +8,7 @@ formed using a bootstrap method}
 as_bootstrap_design(
   design,
   type = "Rao-Wu-Yue-Beaumont",
-  replicates = 50,
+  replicates = 500,
   compress = TRUE,
   mse = getOption("survey.replicates.mse")
 )
@@ -43,7 +43,7 @@ The available types are the following: \cr
 }}
 
 \item{replicates}{Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
-Commonly-recommended defaults is 500.}
+A commonly-recommended default is 500.}
 
 \item{compress}{Use a compressed representation of the replicate weights matrix.
 This reduces the computer memory required to represent the replicate weights and has no
@@ -111,4 +111,11 @@ formed using a bootstrap method
                                             SE(svymean(x = ~ I(Bush/votes), design = pps_wor_design))),
     check.names = FALSE
   )
+}
+\seealso{
+Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
+
+         For especially complicated designs, use \code{\link[svrep]{make_rwyb_bootstrap_weights}} to create
+         Rao-Wu-Yue-Beaumont bootstrap weights or adjustment factors given information for each stage of sampling
+         (the type of sampling, strata IDs, cluster IDs, selection probabilities, etc.).
 }
