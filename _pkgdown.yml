@@ -1,4 +1,18 @@
 url: https://bschneidr.github.io/svrep/
 template:
   bootstrap: 5
-
+reference:
+- title: General-purpose Convenience Functions
+- contents:
+  - matches("as_data_frame|stack_replicate_designs|svyby_repwts")
+- title: Diagnostic Functions to Check Replicate Weights
+- contents:
+  - matches("summarize_rep_weights")
+- title: Nonresponse Adjustments
+  - matches("redistribute")
+- title: Calibrating to Estimated Control Totals
+- contents:
+  - starts_with("calibrate_to")
+- title: Example Datasets
+- contents:
+  - starts_with("lou")
