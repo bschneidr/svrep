@@ -60,6 +60,8 @@
 #' If there is survey nonresponse, it may be useful to represent the response/nonresponse as an additional
 #' stage of sampling, where sampling is conducted with Poisson sampling
 #' where each unit's "selection probability" at that stage is its response propensity (which typically has to be estimated).
+#' @seealso If the survey design can be accurately represented using \code{\link[survey]{svydesign}},
+#'  then it is easier to simply use \code{\link[svrep]{as_bootstrap_design}} with argument \code{type = "Rao-Wu-Yue-Beaumont"}.
 #' @references
 #' Beaumont, J.-F.; Émond, N. (2022).
 #' "A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."

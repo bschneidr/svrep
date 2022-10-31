@@ -183,5 +183,8 @@ Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 \strong{Surv. Methodol.}, \emph{18}: 209–217.
 }
 \seealso{
+If the survey design can be accurately represented using \code{\link[survey]{svydesign}},
+ then it is easier to simply use \code{\link[svrep]{as_bootstrap_design}} with argument \code{type = "Rao-Wu-Yue-Beaumont"}.
+
 Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 }
