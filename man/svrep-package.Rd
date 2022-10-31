@@ -12,6 +12,7 @@ Provides tools for creating and working with survey replicate weights, extending
 Useful links:
 \itemize{
   \item \url{https://github.com/bschneidr/svrep}
+  \item \url{https://bschneidr.github.io/svrep/}
   \item Report bugs at \url{https://github.com/bschneidr/svrep/issues}
 }
 
