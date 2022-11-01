@@ -247,8 +247,8 @@ or supply a vector of randomly-selected column indices to the argument <code>col
 <span class="r-out co"><span class="r-pr">#&gt;</span> api99 624.68 9.5003</span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">api00</span> <span class="op">+</span> <span class="va">api99</span>, design <span class="op">=</span> <span class="va">calibrated_rep_design</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         mean     SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api00 642.69 27.344</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api99 606.91 28.270</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> api00 642.69 27.638</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> api99 606.91 28.569</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inspect weights before and after calibration ----</span></span></span>
 <span class="r-in"><span></span></span>
@@ -257,7 +257,7 @@ or supply a vector of randomly-selected column indices to the argument <code>col
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   183    15           14   15        6194    403.1741           0    36.26464</span>
 <span class="r-in"><span>  <span class="fu"><a href="summarize_rep_weights.html">summarize_rep_weights</a></span><span class="op">(</span><span class="va">calibrated_rep_design</span>, type <span class="op">=</span> <span class="st">'overall'</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   183    15           14   15        6194 4.905592e-09           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   183    15           14   15        6194 4.755474e-09           0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   max_rep_wgt</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    119.1069</span>
 <span class="r-in"><span></span></span>
@@ -265,7 +265,7 @@ or supply a vector of randomly-selected column indices to the argument <code>col
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">column_selection</span> <span class="op">&lt;-</span> <span class="va">calibrated_rep_design</span><span class="op">$</span><span class="va">col_selection</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">column_selection</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  4  1 11 12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  2  1 13  4</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">calibrated_rep_design</span> <span class="op">&lt;-</span> <span class="fu">calibrate_to_estimate</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    rep_design <span class="op">=</span> <span class="va">primary_survey</span>,</span></span>

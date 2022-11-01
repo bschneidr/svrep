@@ -253,8 +253,8 @@ or supply a mapping to the argument <code>control_col_matches</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> api99 624.68 9.5003</span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">api00</span> <span class="op">+</span> <span class="va">api99</span>, design <span class="op">=</span> <span class="va">calibrated_rep_design</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         mean     SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api00 642.69 27.334</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api99 606.91 28.279</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> api00 642.69 27.401</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> api99 606.91 28.285</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inspect weights before and after calibration ----</span></span></span>
 <span class="r-in"><span></span></span>
@@ -263,9 +263,9 @@ or supply a mapping to the argument <code>control_col_matches</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   183    15           14   15        6194    403.1741           0    36.26464</span>
 <span class="r-in"><span>  <span class="fu"><a href="summarize_rep_weights.html">summarize_rep_weights</a></span><span class="op">(</span><span class="va">calibrated_rep_design</span>, type <span class="op">=</span> <span class="st">'overall'</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   183   210           47   48        6194 1.382331e-09           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   183   210           47   48        6194 1.406499e-09           0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   max_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    125.7899</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    124.2325</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># For reproducibility, specify how to match replicates between surveys ----</span></span></span>
 <span class="r-in"><span></span></span>

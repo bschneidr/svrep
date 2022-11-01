@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   nonresponse-adjustments: nonresponse-adjustments.html
   sample-based-calibration: sample-based-calibration.html
-last_built: 2022-10-31T21:17Z
+last_built: 2022-11-01T02:55Z
 urls:
   reference: https://bschneidr.github.io/svrep/reference
   article: https://bschneidr.github.io/svrep/articles
