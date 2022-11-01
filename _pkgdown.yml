@@ -9,6 +9,7 @@ reference:
 - contents:
   - matches("summarize_rep_weights")
 - title: Nonresponse Adjustments
+- contents:
   - matches("redistribute")
 - title: Calibrating to Estimated Control Totals
 - contents:
