@@ -124,7 +124,7 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
   std_dev_squared_residuals <- apply(
     X = squared_residuals,
     MARGIN = 2,
-    FUN = sd
+    FUN = stats::sd
   )
   cv_squared_residuals <- std_dev_squared_residuals / mean_squared_residuals
 
@@ -270,7 +270,7 @@ estimate_boot_sim_cv <- function(svrepstat) {
   std_dev_squared_residuals <- apply(
     X = squared_residuals,
     MARGIN = 2,
-    FUN = sd
+    FUN = stats::sd
   )
 
   cv_squared_residuals <- std_dev_squared_residuals / mean_squared_residuals

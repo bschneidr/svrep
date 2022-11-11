@@ -111,7 +111,8 @@ where each unit's "selection probability" at that stage is its response propensi
        num_replicates = 5000,
        samp_unit_ids = multistage_srswor_design$cluster,
        strata_ids = multistage_srswor_design$strata,
-       samp_unit_sel_probs = multistage_srswor_design$fpc$sampsize / multistage_srswor_design$fpc$popsize,
+       samp_unit_sel_probs = multistage_srswor_design$fpc$sampsize /
+                             multistage_srswor_design$fpc$popsize,
        samp_method_by_stage = c("SRSWOR", "SRSWOR")
      )
 
@@ -128,10 +129,12 @@ where each unit's "selection probability" at that stage is its response propensi
        'Statistic' = c('total', 'mean', 'median'),
        'SE (bootstrap)' = c(SE(svytotal(x = ~ y1, design = bootstrap_rep_design)),
                             SE(svymean(x = ~ y1, design = bootstrap_rep_design)),
-                            SE(svyquantile(x = ~ y1, quantile = 0.5, design = bootstrap_rep_design))),
+                            SE(svyquantile(x = ~ y1, quantile = 0.5,
+                                           design = bootstrap_rep_design))),
        'SE (linearization)' = c(SE(svytotal(x = ~ y1, design = multistage_srswor_design)),
                                 SE(svymean(x = ~ y1, design = multistage_srswor_design)),
-                                SE(svyquantile(x = ~ y1, quantile = 0.5, design = multistage_srswor_design))),
+                                SE(svyquantile(x = ~ y1, quantile = 0.5,
+                                               design = multistage_srswor_design))),
        check.names = FALSE
      )
 
@@ -166,9 +169,12 @@ where each unit's "selection probability" at that stage is its response propensi
      data.frame(
        'Statistic' = c('total', 'mean'),
        'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
-                            SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design))),
-       'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush, design = pps_wor_design)),
-                                               SE(svymean(x = ~ I(Bush/votes), design = pps_wor_design))),
+                            SE(svymean(x = ~ I(Bush/votes),
+                                       design = bootstrap_rep_design))),
+       'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush,
+                                                           design = pps_wor_design)),
+                                               SE(svymean(x = ~ I(Bush/votes),
+                                                          design = pps_wor_design))),
        check.names = FALSE
      )
 }

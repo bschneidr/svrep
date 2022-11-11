@@ -49,6 +49,7 @@
 #'
 #'
 #' @examples
+#' library(survey)
 #' # Example 1: A multistage sample with two stages of SRSWOR
 #'
 #'   ## Load an example dataset from a multistage sample, with two stages of SRSWOR
@@ -67,10 +68,12 @@
 #'     'Statistic' = c('total', 'mean', 'median'),
 #'     'SE (bootstrap)' = c(SE(svytotal(x = ~ y1, design = bootstrap_rep_design)),
 #'                          SE(svymean(x = ~ y1, design = bootstrap_rep_design)),
-#'                          SE(svyquantile(x = ~ y1, quantile = 0.5, design = bootstrap_rep_design))),
+#'                          SE(svyquantile(x = ~ y1, quantile = 0.5,
+#'                                         design = bootstrap_rep_design))),
 #'     'SE (linearization)' = c(SE(svytotal(x = ~ y1, design = multistage_srswor_design)),
 #'                              SE(svymean(x = ~ y1, design = multistage_srswor_design)),
-#'                              SE(svyquantile(x = ~ y1, quantile = 0.5, design = multistage_srswor_design))),
+#'                              SE(svyquantile(x = ~ y1, quantile = 0.5,
+#'                                             design = multistage_srswor_design))),
 #'     check.names = FALSE
 #'   )
 #'
@@ -93,7 +96,8 @@
 #'     'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
 #'                          SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design))),
 #'     'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush, design = pps_wor_design)),
-#'                                             SE(svymean(x = ~ I(Bush/votes), design = pps_wor_design))),
+#'                                             SE(svymean(x = ~ I(Bush/votes),
+#'                                                        design = pps_wor_design))),
 #'     check.names = FALSE
 #'   )
 

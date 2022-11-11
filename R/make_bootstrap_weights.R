@@ -97,7 +97,8 @@
 #'        num_replicates = 5000,
 #'        samp_unit_ids = multistage_srswor_design$cluster,
 #'        strata_ids = multistage_srswor_design$strata,
-#'        samp_unit_sel_probs = multistage_srswor_design$fpc$sampsize / multistage_srswor_design$fpc$popsize,
+#'        samp_unit_sel_probs = multistage_srswor_design$fpc$sampsize /
+#'                              multistage_srswor_design$fpc$popsize,
 #'        samp_method_by_stage = c("SRSWOR", "SRSWOR")
 #'      )
 #'
@@ -114,10 +115,12 @@
 #'        'Statistic' = c('total', 'mean', 'median'),
 #'        'SE (bootstrap)' = c(SE(svytotal(x = ~ y1, design = bootstrap_rep_design)),
 #'                             SE(svymean(x = ~ y1, design = bootstrap_rep_design)),
-#'                             SE(svyquantile(x = ~ y1, quantile = 0.5, design = bootstrap_rep_design))),
+#'                             SE(svyquantile(x = ~ y1, quantile = 0.5,
+#'                                            design = bootstrap_rep_design))),
 #'        'SE (linearization)' = c(SE(svytotal(x = ~ y1, design = multistage_srswor_design)),
 #'                                 SE(svymean(x = ~ y1, design = multistage_srswor_design)),
-#'                                 SE(svyquantile(x = ~ y1, quantile = 0.5, design = multistage_srswor_design))),
+#'                                 SE(svyquantile(x = ~ y1, quantile = 0.5,
+#'                                                design = multistage_srswor_design))),
 #'        check.names = FALSE
 #'      )
 #'
@@ -152,9 +155,12 @@
 #'      data.frame(
 #'        'Statistic' = c('total', 'mean'),
 #'        'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
-#'                             SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design))),
-#'        'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush, design = pps_wor_design)),
-#'                                                SE(svymean(x = ~ I(Bush/votes), design = pps_wor_design))),
+#'                             SE(svymean(x = ~ I(Bush/votes),
+#'                                        design = bootstrap_rep_design))),
+#'        'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush,
+#'                                                            design = pps_wor_design)),
+#'                                                SE(svymean(x = ~ I(Bush/votes),
+#'                                                           design = pps_wor_design))),
 #'        check.names = FALSE
 #'      )
 
@@ -275,7 +281,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
 
       # Determine 'multiplicities' (number of times each PSU is resampled)
       multiplicities <- lapply(seq_len(H), function(h) {
-        rmultinom(
+        stats::rmultinom(
           n = num_replicates,
           size = m_h[h],
           prob = rep(n_h[h], times = n_h[h])^(-1)
@@ -307,11 +313,11 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     if (samp_method_by_stage[stage] == "POISSON") {
       a_beaumont_emond <- lapply(X = seq_len(H), function(h) {
         alpha <- 1 - distinct_sel_probs_by_stratum[[h]]
-        a_k <- rgamma(n = n_h[h] * num_replicates,
-                      shape = alpha,
-                      rate = alpha^(-1)) |> matrix(nrow = n_h[h],
-                                                   ncol = num_replicates,
-                                                   byrow = TRUE)
+        a_k <- stats::rgamma(n = n_h[h] * num_replicates,
+                             shape = alpha,
+                             rate = alpha^(-1)) |> matrix(nrow = n_h[h],
+                                                          ncol = num_replicates,
+                                                          byrow = TRUE)
         return(a_k)
       })
     }
