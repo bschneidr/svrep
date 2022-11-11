@@ -19,13 +19,13 @@
 #'  multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
 #'  Accommodates stratified designs. All sampling within a stratum must be simple random sampling with or without replacement,
 #'  although the first-stage sampling is effectively treated as sampling without replacement.}
-#'  \item{\strong{"Canty-Davison"}: }{\cr
-#'  The Canty-Davison bootstrap, which is only applicable to single-stage designs, with arbitrary sampling fractions.
-#'  Accommodates stratified designs. All sampling with a stratum must be simple random sampling with or without replacement.}
 #'  \item{\strong{"Preston"}: }{\cr
 #'  Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
 #'  with arbitrary sampling fractions. Accommodates stratified designs. All sampling within a stratum must be
 #'  simple random sampling with or without replacement.}
+#'  \item{\strong{"Canty-Davison"}: }{\cr
+#'  The Canty-Davison bootstrap, which is only applicable to single-stage designs, with arbitrary sampling fractions.
+#'  Accommodates stratified designs. All sampling with a stratum must be simple random sampling with or without replacement.}
 #' }
 #' @param replicates Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 #' A commonly-recommended default is 500.
@@ -79,7 +79,7 @@
 #'
 #' # Example 2: A single-stage sample selected with unequal probabilities, without replacement
 #'
-#'   ## Load an example dataset of U.S. counties states with 2004 Presidential vote counts
+#'   ## Load example dataset of U.S. counties and states with 2004 Presidential vote counts
 #'   data("election", package = 'survey')
 #'   pps_wor_design <- svydesign(data = election_pps,
 #'                               pps = "overton",
@@ -95,9 +95,9 @@
 #'     'Statistic' = c('total', 'mean'),
 #'     'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
 #'                          SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design))),
-#'     'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush, design = pps_wor_design)),
-#'                                             SE(svymean(x = ~ I(Bush/votes),
-#'                                                        design = pps_wor_design))),
+#'     "SE (Overton's PPS approximation)" = c(SE(svytotal(x = ~ Bush, design = pps_wor_design)),
+#'                                            SE(svymean(x = ~ I(Bush/votes),
+#'                                                       design = pps_wor_design))),
 #'     check.names = FALSE
 #'   )
 
