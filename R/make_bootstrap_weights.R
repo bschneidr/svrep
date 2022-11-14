@@ -209,18 +209,33 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                                          number_of_stages,
                                                          num_replicates))
 
+  # Make sure each stage's sampling units are nested within strata
+  # and each stage's sampling units
+  samp_unit_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
+                                   samp_unit_ids[, 1, drop = TRUE],
+                                   sep = " | ", drop = TRUE)
+  stage <- 2L
+  while (stage <= number_of_stages) {
+    strata_ids[[stage]] <- interaction(
+      samp_unit_ids[, stage-1L, drop=TRUE],
+      strata_ids[, stage, drop=TRUE],
+      sep = " | ", drop = TRUE
+    )
+    samp_unit_ids[[stage]] <- interaction(
+      strata_ids[, stage, drop = TRUE],
+      samp_unit_ids[, stage, drop = TRUE],
+      sep = " | ", drop = TRUE
+    )
+    stage <- stage + 1L
+  }
+
   # Calculate replicate adjustment factors for each stage
   stage <- 1L
   while (stage <= number_of_stages) {
-    if (stage > 1) {
-      strata <- paste0(strata_ids[,stage-1],
-                       samp_unit_ids[,stage-1],
-                       strata_ids[,stage])
-    } else {
-      strata <- strata_ids[,stage]
-    }
-    samp_units <- samp_unit_ids[,stage]
-    sel_probs <- samp_unit_sel_probs[,stage]
+
+    samp_units <- samp_unit_ids[,stage,drop=TRUE]
+    sel_probs <- samp_unit_sel_probs[,stage,drop=TRUE]
+    strata <- strata_ids[,stage,drop=TRUE]
 
     # Determine each stratum's sample size and resample size
     distinct_strata_ids <- unique(strata)
@@ -360,7 +375,11 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     for (i in seq_len(number_of_ultimate_units)) {
       h <- which(distinct_strata_ids == strata[i])
       k <- which(distinct_samp_units_by_stratum[[h]] == samp_units[i])
-      adjustment_factors_by_stage[i,stage,] <- a_final[[h]][k,]
+      if (length(a_final[[h]]) == 1) {
+        adjustment_factors_by_stage[i,stage,] <- a_final[[h]]
+      } else {
+        adjustment_factors_by_stage[i,stage,] <- a_final[[h]][k,]
+      }
     }
 
     stage <- stage + 1L
