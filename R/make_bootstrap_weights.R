@@ -216,12 +216,12 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                    sep = " | ", drop = TRUE)
   stage <- 2L
   while (stage <= number_of_stages) {
-    strata_ids[[stage]] <- interaction(
+    strata_ids[,stage] <- interaction(
       samp_unit_ids[, stage-1L, drop=TRUE],
       strata_ids[, stage, drop=TRUE],
       sep = " | ", drop = TRUE
     )
-    samp_unit_ids[[stage]] <- interaction(
+    samp_unit_ids[,stage] <- interaction(
       strata_ids[, stage, drop = TRUE],
       samp_unit_ids[, stage, drop = TRUE],
       sep = " | ", drop = TRUE
