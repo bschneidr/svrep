@@ -124,10 +124,12 @@ set.seed(2014)
                                                     width = 4,
                                                     side = "left", pad = "0")),
       STRATUM_POP_SIZE = n(),
-      SAMPLING_PROB = ifelse(
-        n() == 2, 1,
-        sampling::inclusionprobabilities(rep(1, times = n()),
-                                         n = 2)
+      SAMPLING_PROB = case_when(
+        n() == 2 ~ 1,
+        n() >= 100 ~ sampling::inclusionprobabilities(rep(1, times = n()),
+                                                      n = ceiling(n()/50)),
+        TRUE ~ sampling::inclusionprobabilities(rep(1, times = n()),
+                                                n = 2)
       ),
       SAMPLING_INDICATOR = sampling::UPsystematic(SAMPLING_PROB)
     ) |>
