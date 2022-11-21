@@ -4,6 +4,7 @@ suppressPackageStartupMessages(library(labelled))
 suppressPackageStartupMessages(library(svrep))
 
 data('library_stsys_sample', package = 'svrep')
+set.seed(2014)
 
 # Check basic successive-difference quadratic forms ----
 
@@ -106,48 +107,38 @@ data('library_stsys_sample', package = 'svrep')
 
   ##_ Check that works if rows are not in sampling sort order
 
-  small_example <- library_stsys_sample |>
-    arrange(SAMPLING_STRATUM) |>
-    head(4)
-
-  small_example <- small_example[sample(x = nrow(small_example),
-                                        size = nrow(small_example),
-                                        replace = FALSE),]
-  sorted_small_example <- small_example |>
+  shuffled_data <- library_stsys_sample[sample(nrow(library_stsys_sample),
+                                               size = nrow(library_stsys_sample)),]
+  sorted_data <- shuffled_data |>
     arrange(SAMPLING_SORT_ORDER)
 
   test_that(
     "`make_quad_form_matrix()` with 'SD1' and 'SD2' works correctly when data frame isn't sorted", {
 
-      row_ordering <- rank(small_example[['SAMPLING_SORT_ORDER']])
-
       unsorted_quad_form_matrix <- make_quad_form_matrix(
         variance_estimator = 'SD1',
-        cluster_ids = small_example[,'FSCSKEY',drop=FALSE],
-        strata_ids = small_example[,'SAMPLING_STRATUM',drop=FALSE],
-        strata_pop_sizes = small_example[,'STRATUM_POP_SIZE',drop=FALSE],
-        sort_order = small_example[['SAMPLING_SORT_ORDER']]
+        cluster_ids = shuffled_data[,'FSCSKEY',drop=FALSE],
+        strata_ids = shuffled_data[,'SAMPLING_STRATUM',drop=FALSE],
+        strata_pop_sizes = shuffled_data[,'STRATUM_POP_SIZE',drop=FALSE],
+        sort_order = shuffled_data[['SAMPLING_SORT_ORDER']]
       )
 
       sorted_quad_form_matrix <- make_quad_form_matrix(
         variance_estimator = 'SD1',
-        cluster_ids = sorted_small_example[,'FSCSKEY',drop=FALSE],
-        strata_ids = sorted_small_example[,'SAMPLING_STRATUM',drop=FALSE],
-        strata_pop_sizes = sorted_small_example[,'STRATUM_POP_SIZE',drop=FALSE],
-        sort_order = sorted_small_example[['SAMPLING_SORT_ORDER']]
+        cluster_ids = sorted_data[,'FSCSKEY',drop=FALSE],
+        strata_ids = sorted_data[,'SAMPLING_STRATUM',drop=FALSE],
+        strata_pop_sizes = sorted_data[,'STRATUM_POP_SIZE',drop=FALSE],
+        sort_order = sorted_data[['SAMPLING_SORT_ORDER']]
       )
 
-      y_wtd_sorted <- sorted_small_example$TOTCIR/sorted_small_example$SAMPLING_PROB
-      y_wtd_unsorted <- small_example$TOTCIR/small_example$SAMPLING_PROB
+      y_wtd_sorted <- sorted_data$TOTCIR/sorted_data$SAMPLING_PROB
+      y_wtd_unsorted <- shuffled_data$TOTCIR/shuffled_data$SAMPLING_PROB
 
-      expect_equal(
-        object = unsorted_quad_form_matrix[row_ordering, row_ordering],
-        expected = sorted_quad_form_matrix
-      )
       expect_equal(
         object = t(y_wtd_sorted) %*% sorted_quad_form_matrix %*% y_wtd_sorted,
         expected = t(y_wtd_unsorted) %*% unsorted_quad_form_matrix %*% y_wtd_unsorted
       )
+
     })
 
 
