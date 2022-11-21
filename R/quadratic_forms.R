@@ -287,8 +287,8 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   if (variance_estimator %in% c("SD1", "SD2")) {
     n <- number_of_ultimate_units
     # Initialize quadratic form matrix
-    sorted_quad_form_matrix <- matrix(data = 0, nrow = n, ncol = n)
-    quad_form_matrix <- sorted_quad_form_matrix
+    quad_form_matrix <- matrix(data = 0, nrow = n, ncol = n)
+    sorted_quad_form_matrix <- quad_form_matrix
     # Sort the inputs, compile into a dataframe
     sorted_df <- data.frame('Row_ID' = seq_len(n),
                             'Stratum' = strata_ids[,1,drop=TRUE],
@@ -321,9 +321,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       sorted_quad_form_matrix[stratum_indices,stratum_indices] <- uncompressed_sd_matrix
     }
     # Arrange matrix rows/columns to match the original order of the input data
-    for (i in seq_len(n)) {
-      quad_form_matrix[i,] <- sorted_quad_form_matrix[inverse_sort_map[i],inverse_sort_map]
-    }
+      quad_form_matrix <- sorted_quad_form_matrix[inverse_sort_map,inverse_sort_map]
   }
 
   return(quad_form_matrix)
