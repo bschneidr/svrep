@@ -7,15 +7,16 @@
 make_quad_form_matrix(
   variance_estimator = "Yates-Grundy",
   joint_probs = NULL,
-  strata_ids = NULL,
   cluster_ids = NULL,
-  strata_samp_sizes = NULL,
-  strata_pop_sizes = NULL
+  strata_ids = NULL,
+  strata_pop_sizes = NULL,
+  sort_order = NULL
 )
 }
 \arguments{
 \item{variance_estimator}{The name of the variance estimator
-whose quadratic form matrix should be created. Options include:
+whose quadratic form matrix should be created. See the section "Variance Estimators" below.
+Options include:
 \itemize{
 \item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
 first-order and second-order inclusion probabilities. If this is used,
@@ -32,17 +33,22 @@ the variance of first-stage cluster totals within first-stage strata.
 If this option is used, then it is necessary to also use the arguments
 \code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}.
 Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.}
-\item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2011),
+\item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 sometimes used for variance estimation for systematic sampling.}
-\item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2011).
+\item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 This estimator is the basis of the "successive-differences replication" estimator commonly used
 for variance estimation for systematic sampling.}
 }}
 
-\item{joint_probs}{Only used if \code{variance_estimator = "Horvitz-Thompson"}.
+\item{joint_probs}{Only used if \code{variance_estimator = "Horvitz-Thompson"} or \code{variance_estimator = "Yates-Grundy"}.
 This should be a matrix of joint inclusion probabilities.
 Element \code{[i,i]} of the matrix is the first-order inclusion probability of unit \code{i},
 while element \code{[i,j]} is the joint inclusion probability of units \code{i} and \code{j}.}
+
+\item{cluster_ids}{Required unless \code{variance_estimator} equals \code{"Horvitz-Thompson"} or \code{"Yates-Grundy"}.
+This should be a matrix or data frame of cluster IDs. If there are multiple stages of sampling,
+then \code{cluster_ids} can have multiple columns,
+with one column for each level of sampling to be accounted for by the variance estimator.}
 
 \item{strata_ids}{Required if \code{variance_estimator} equals \code{"Stratified Multistage SRS"}
 or \code{"Ultimate Cluster"}.
@@ -50,35 +56,42 @@ This should be a matrix or data frame of strata IDs. If there are multiple stage
 then \code{strata_ids} can have multiple columns,
 with one column for each level of sampling to be accounted for by the variance estimator.}
 
-\item{cluster_ids}{Required unless \code{variance_estimator} equals \code{"Horvitz-Thompson"} or \code{"Yates-Grundy"}.
-This should be a matrix or data frame of cluster IDs. If there are multiple stages of sampling,
-then \code{cluster_ids} can have multiple columns,
-with one column for each level of sampling to be accounted for by the variance estimator.}
-
-\item{strata_samp_sizes}{Required if \code{variance_estimator} equals \code{"Stratified Multistage SRS"} or
-\code{"Ultimate Cluster"}. Can also be used if \code{variance_estimator} equals \code{"SD1"} or \code{"SD2"}.
-This should be a matrix or data frame giving cluster sample sizes in each stratum.
-If there are multiple stages of sampling,
-then \code{strata_samp_sizes} can have multiple columns,
-with one column for each level of sampling to be accounted for by the variance estimator.}
-
 \item{strata_pop_sizes}{Required if \code{variance_estimator} equals \code{"Stratified Multistage SRS"},
 but can optionally be used if \code{variance_estimator} equals \code{"Ultimate Cluster"}, \code{"SD1"}, or \code{"SD2"}.
 If there are multiple stages of sampling,
 then \code{strata_pop_sizes} can have multiple columns,
 with one column for each level of sampling to be accounted for by the variance estimator.}
+
+\item{sort_order}{Required if \code{variance_estimator} equals \code{"SD1"} or \code{"SD2"}.
+This should be a vector that orders the rows of data into the order used for sampling.}
 }
 \value{
 The matrix of the quadratic form representing the variance estimator.
 }
 \description{
-Common variance estimators for estimated population totals can be represented as a quadratic form,
+Common variance estimators for estimated population totals can be represented as a quadratic form.
+Given a choice of variance estimator and information about the sample design,
+this function constructs the matrix of the quadratic form.
+\cr \cr
+In notation, let
 \eqn{v(\hat{Y}) = \mathbf{\breve{y}}^{\prime}\mathbf{\Sigma}\mathbf{\breve{y}}},
 where \eqn{\breve{y}} is the vector of weighted values, \eqn{y_i/\pi_i, \space i=1,\dots,n}.
-Given a choice of variance estimator and information about the sample design,
-this function constructs the \eqn{n \times n} matrix of the quadratic form, \eqn{\mathbf{\Sigma}}.
+This function constructs the \eqn{n \times n} matrix of the quadratic form, \eqn{\mathbf{\Sigma}}.
 }
-\section{Variance Estimators}{
+\section{Arguments required for each variance estimator}{
+
+Below are the arguments that are required or optional for each variance estimator.\tabular{lrrrrr}{
+   variance_estimator \tab joint_probs \tab cluster_ids \tab strata_ids \tab strata_pop_sizes \tab sort_order \cr
+   Yates-Grundy \tab Required \tab  \tab  \tab  \tab  \cr
+   Horvitz-Thompson \tab Required \tab  \tab  \tab  \tab  \cr
+   Stratified Multistage SRS \tab  \tab Required \tab Required \tab Required \tab  \cr
+   Ultimate Cluster \tab  \tab Required \tab Required \tab Optional \tab  \cr
+   SD1 \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
+   SD2 \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
+}
+}
+
+\section{Variance estimators}{
 
 The \strong{Horvitz-Thompson} variance estimator:
 \deqn{
@@ -116,19 +129,28 @@ variance estimator, but ignoring variances from later stages of sampling.
 }
 This is the variance estimator used in the 'survey' package when the user specifies
 \code{option(survey.ultimate.cluster = TRUE)} or uses \code{svyrecvar(..., one.stage = TRUE)}.
+When the first-stage sampling fractions are small, analysts often omit the finite population corrections \eqn{(1-\frac{n_h}{N_h})}
+when using the ultimate cluster estimator.
+\cr \cr
+The \strong{SD1} and \strong{SD2} variance estimators are "successive difference"
+estimators sometimes used for systematic sampling designs.
+Ash (2014) describes each estimator as follows:
+\deqn{
+\begin{aligned}
+  \hat{v}_{S D 1}(\hat{Y}) &= \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2 \\
+  \hat{v}_{S D 2}(\hat{Y}) &= \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right] \\
+\end{aligned}
 }
-
-\section{Arguments required for each variance estimator}{
-
-Below are the arguments that are required or optional for each variance estimator.\tabular{lrrrrr}{
-   variance_estimator \tab joint_probs \tab cluster_ids \tab strata_ids \tab strata_samp_sizes \tab strata_pop_sizes \cr
-   Yates-Grundy \tab Required \tab  \tab  \tab  \tab  \cr
-   Horvitz-Thompson \tab Required \tab  \tab  \tab  \tab  \cr
-   Stratified Multistage SRS \tab  \tab Required \tab Required \tab Required \tab Required \cr
-   Ultimate Cluster \tab  \tab Required \tab Required \tab Required \tab Optional \cr
-   SD1 \tab  \tab Required \tab Optional \tab Optional \tab Optional \cr
-   SD2 \tab  \tab Required \tab Optional \tab Optional \tab Optional \cr
-}
+where \eqn{\breve{y}_k = y_k/\pi_k} is the weighted value of unit \eqn{k}
+with selection probability \eqn{\pi_k}. The SD1 estimator is recommended by Wolter (1984).
+The SD2 estimator is the basis of the successive difference replication estimator commonly
+used in for systematic sampling designs. See Ash (2014) for details.
+\cr \cr
+For multistage samples, SD1 and SD2 are applied to the clusters at each stage, separately by stratum.
+For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
+the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
+which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
 }
 
 \examples{
@@ -151,4 +173,30 @@ Below are the arguments that are required or optional for each variance estimato
 
 # Example 2: Stratified multistage Sample ----
 
+
+
+
+# Example 3: Successive-differences estimator ----
+
+data('library_stsys_sample', package = 'svrep')
+
+sd1_quad_form <- make_quad_form_matrix(
+  variance_estimator = 'SD1',
+  cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+  strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+  strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE],
+  sort_order = library_stsys_sample[['SAMPLING_SORT_ORDER']]
+)
+
+wtd_y <- as.matrix(library_stsys_sample[['TOTCIR']] /
+                    library_stsys_sample$SAMPLING_PROB)
+t(wtd_y) \%*\% sd1_quad_form \%*\% wtd_y
+
+}
+\references{
+Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
+\strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+
+Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
+\strong{Journal of Official Statistics}, Vol.1, No.3.
 }
