@@ -70,7 +70,7 @@
 #' }
 #' The \strong{Yates-Grundy} variance estimator:
 #' \deqn{
-#'   v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
+#'   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
 #' }
 #' The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
 #' proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
@@ -115,7 +115,7 @@
 #' where \eqn{\breve{y}_k = y_k/\pi_k} is the weighted value of unit \eqn{k}
 #' with selection probability \eqn{\pi_k}. The SD1 estimator is recommended by Wolter (1984).
 #' The SD2 estimator is the basis of the successive difference replication estimator commonly
-#' used in for systematic sampling designs. See Ash (2014) for details.
+#' used for systematic sampling designs. See Ash (2014) for details.
 #' \cr \cr
 #' For multistage samples, SD1 and SD2 are applied to the clusters at each stage, separately by stratum.
 #' For later stages of sampling, the variance estimate from a stratum is multiplied by the product
@@ -255,12 +255,12 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       )
       stage <- stage + 1L
     }
-  }
 
-  if (is.null(strata_pop_sizes)) {
-    strata_pop_sizes <- matrix(data = Inf,
-                               nrow = number_of_ultimate_units,
-                               ncol = number_of_stages)
+    if (is.null(strata_pop_sizes)) {
+      strata_pop_sizes <- matrix(data = Inf,
+                                 nrow = number_of_ultimate_units,
+                                 ncol = number_of_stages)
+    }
   }
 
   if (variance_estimator == "Horvitz-Thompson") {
@@ -282,6 +282,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       }
     }
     diag(quad_form_matrix) <- diag(quad_form_matrix) - rowSums(quad_form_matrix)
+    quad_form_matrix <- -1 * quad_form_matrix
   }
 
   if (variance_estimator %in% c("SD1", "SD2")) {

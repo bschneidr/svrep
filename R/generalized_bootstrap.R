@@ -1,6 +1,11 @@
-#' Creates replicate factors for the Generalized Survey Bootstrap
-#'
+#' @title Creates replicate factors for the Generalized Survey Bootstrap
+#' @description Creates replicate factors for the Generalized Survey Bootstrap method.
+#' The generalized survey bootstrap is a method for forming bootstrap replicate weights
+#' from a textbook variance estimator, provided that the variance estimator
+#' can be represented as a quadratic form whose matrix is positive semi-definite
+#' (this covers a large class of variance estimators).
 #' @param Sigma The matrix of the quadratic form used to represent the variance estimator.
+#' Must be positive semi-definite.
 #' @param num_replicates The number of bootstrap replicates to create.
 #' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
 #' used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
@@ -81,6 +86,10 @@
 #' - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
 #' \cr
 #'
+#' @seealso The function \code{\link[svrep]{make_quad_form_matrix}} can be used to
+#' represent several common variance estimators as a quadratic form's matrix,
+#' which can then be used as an input to \code{make_gen_boot_factors()}.
+#'
 #' @return A matrix with the same number of rows as \code{Sigma}, and the number of columns
 #' equal to \code{num_replicates}. The object has an attribute named \code{tau} which can be retrieved
 #' by calling \code{attr(which = 'tau')} on the object. The value \code{tau} is a rescaling factor
@@ -107,6 +116,13 @@
 #'       horvitz_thompson_matrix[i,j] <- 1 - (pi[i,i] * pi[j,j])/pi[i,j]
 #'     }
 #'   }
+#'
+#'   ## Equivalently:
+#'
+#'   horvitz_thompson_matrix <- make_quad_form_matrix(
+#'     variance_estimator = "Horvitz-Thompson",
+#'     joint_probs = election_jointprob
+#'   )
 #'
 #' # Make generalized bootstrap adjustment factors ----
 #'

@@ -99,7 +99,7 @@ The \strong{Horvitz-Thompson} variance estimator:
 }
 The \strong{Yates-Grundy} variance estimator:
 \deqn{
-  v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
+  v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
 }
 The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
 proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
@@ -144,7 +144,7 @@ Ash (2014) describes each estimator as follows:
 where \eqn{\breve{y}_k = y_k/\pi_k} is the weighted value of unit \eqn{k}
 with selection probability \eqn{\pi_k}. The SD1 estimator is recommended by Wolter (1984).
 The SD2 estimator is the basis of the successive difference replication estimator commonly
-used in for systematic sampling designs. See Ash (2014) for details.
+used for systematic sampling designs. See Ash (2014) for details.
 \cr \cr
 For multistage samples, SD1 and SD2 are applied to the clusters at each stage, separately by stratum.
 For later stages of sampling, the variance estimate from a stratum is multiplied by the product

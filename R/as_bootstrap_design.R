@@ -1,6 +1,9 @@
-#' Convert a survey design object to a replicate design with replicate weights
-#' formed using a bootstrap method
-#'
+#' @title Convert a survey design object to a bootstrap replicate design
+#' @description Converts a survey design object to a replicate design object
+#' with replicate weights formed using a bootstrap method. Supports stratified,
+#' cluster samples with one or more stages of sampling. At each stage of sampling,
+#' either simple random sampling (with or without replacement)
+#' or unequal probability sampling (with or without replacement) may be used.
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
 #' @param type The type of bootstrap to use, which should be chosen based
@@ -43,9 +46,15 @@
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #'
-#'          For especially complicated designs, use \code{\link[svrep]{make_rwyb_bootstrap_weights}} to create
+#'          For some complex designs, one can use \code{\link[svrep]{make_rwyb_bootstrap_weights}} to create
 #'          Rao-Wu-Yue-Beaumont bootstrap weights or adjustment factors given information for each stage of sampling
 #'          (the type of sampling, strata IDs, cluster IDs, selection probabilities, etc.).
+#'
+#'          \cr \cr
+#'
+#'          For systematic samples, one-PSU-per-stratum designs, or other especially complex sample designs,
+#'           one can use the generalized survey bootstrap method. See \code{\link[svrep]{make_gen_boot_factors}}.
+#'
 #'
 #'
 #' @examples

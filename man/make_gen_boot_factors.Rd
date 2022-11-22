@@ -7,7 +7,8 @@
 make_gen_boot_factors(Sigma, num_replicates, tau = "auto")
 }
 \arguments{
-\item{Sigma}{The matrix of the quadratic form used to represent the variance estimator.}
+\item{Sigma}{The matrix of the quadratic form used to represent the variance estimator.
+Must be positive semi-definite.}
 
 \item{num_replicates}{The number of bootstrap replicates to create.}
 
@@ -28,7 +29,11 @@ passed directly to \link[survey]{svrepdesign}. Note that the value of \code{scal
 while the value of \code{rscales} is vector of length \eqn{B}, with every entry equal to \eqn{1}.
 }
 \description{
-Creates replicate factors for the Generalized Survey Bootstrap
+Creates replicate factors for the Generalized Survey Bootstrap method.
+The generalized survey bootstrap is a method for forming bootstrap replicate weights
+from a textbook variance estimator, provided that the variance estimator
+can be represented as a quadratic form whose matrix is positive semi-definite
+(this covers a large class of variance estimators).
 }
 \section{Statistical Details}{
 
@@ -108,6 +113,13 @@ library(survey)
     }
   }
 
+  ## Equivalently:
+
+  horvitz_thompson_matrix <- make_quad_form_matrix(
+    variance_estimator = "Horvitz-Thompson",
+    joint_probs = election_jointprob
+  )
+
 # Make generalized bootstrap adjustment factors ----
 
   bootstrap_adjustment_factors <- make_gen_boot_factors(
@@ -162,4 +174,9 @@ in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein 
 \cr \cr
 - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
 \cr
+}
+\seealso{
+The function \code{\link[svrep]{make_quad_form_matrix}} can be used to
+represent several common variance estimators as a quadratic form's matrix,
+which can then be used as an input to \code{make_gen_boot_factors()}.
 }
