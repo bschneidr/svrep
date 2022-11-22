@@ -70,6 +70,56 @@ library_stsys_sample <- library_stsys_sample |>
       )
     })
 
+# Check Horvitz-Thompson results ----
+
+  # Load an example dataset that uses unequal probability sampling ----
+  data('election', package = 'survey')
+
+  # Create matrix to represent the Horvitz-Thompson estimator as a quadratic form ----
+  n <- nrow(election_pps)
+  pi <- election_jointprob
+  horvitz_thompson_matrix <- matrix(nrow = n, ncol = n)
+  for (i in seq_len(n)) {
+    for (j in seq_len(n)) {
+      horvitz_thompson_matrix[i,j] <- 1 - (pi[i,i] * pi[j,j])/pi[i,j]
+    }
+  }
+
+  ht_quad_form <- make_quad_form_matrix(
+    variance_estimator = "Horvitz-Thompson",
+    joint_probs = election_jointprob
+  )
+
+  test_that(
+    "Generates correct quadratic form for Horvitz-Thompson", {
+    expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
+  })
+
+# Check Sen-Yates-Grundy results ----
+
+  y_wtd <- election_pps$Bush/diag(election_jointprob)
+
+  syg_result <- as.matrix(0)
+  for (i in seq_along(y_wtd)) {
+    for (j in seq_along(y_wtd)) {
+      pi_ij <- election_jointprob[i,j]
+      pi_i <- election_jointprob[i,i]
+      pi_j <- election_jointprob[j,j]
+      contribution <- -0.5*(1 - (pi_i*pi_j)/pi_ij) * (y_wtd[i] - y_wtd[j])^2
+      syg_result <- syg_result + contribution
+    }
+  }
+
+  yg_quad_form_matrix <- make_quad_form_matrix(variance_estimator = "Yates-Grundy",
+                                               joint_probs = election_jointprob)
+
+  quad_form_result <- t(y_wtd) %*% yg_quad_form_matrix %*% y_wtd
+
+  test_that(
+    "Generates correct quadratic form for Yates-Grundy", {
+    expect_equal(object = quad_form_result, expected = syg_result)
+  })
+
 # Check SD1 and SD2 results ----
 
   ##_ Basic correctness checks
