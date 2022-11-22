@@ -22,6 +22,10 @@ A matrix with the same number of rows as \code{Sigma}, and the number of columns
 equal to \code{num_replicates}. The object has an attribute named \code{tau} which can be retrieved
 by calling \code{attr(which = 'tau')} on the object. The value \code{tau} is a rescaling factor
 which was used to avoid negative weights.
+
+In addition, the object has attributes named \code{scale} and \code{rscales} which can be
+passed directly to \link[survey]{svrepdesign}. Note that the value of \code{scale} is \eqn{\tau^2/B},
+while the value of \code{rscales} is vector of length \eqn{B}, with every entry equal to \eqn{1}.
 }
 \description{
 Creates replicate factors for the Generalized Survey Bootstrap
@@ -124,8 +128,8 @@ library(survey)
     repweights = bootstrap_adjustment_factors,
     combined.weights = FALSE,
     type = "other",
-    scale = replication_scaling_constant,
-    rscales = rep(1, times = B)
+    scale = attr(bootstrap_adjustment_factors, 'scale'),
+    rscales = attr(bootstrap_adjustment_factors, 'rscales')
   )
 
 # Compare estimates to Horvitz-Thompson estimator ----

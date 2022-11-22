@@ -86,6 +86,10 @@
 #' by calling \code{attr(which = 'tau')} on the object. The value \code{tau} is a rescaling factor
 #' which was used to avoid negative weights.
 #'
+#' In addition, the object has attributes named \code{scale} and \code{rscales} which can be
+#' passed directly to \link[survey]{svrepdesign}. Note that the value of \code{scale} is \eqn{\tau^2/B},
+#' while the value of \code{rscales} is vector of length \eqn{B}, with every entry equal to \eqn{1}.
+#'
 #' @export
 #'
 #' @examples
@@ -124,8 +128,8 @@
 #'     repweights = bootstrap_adjustment_factors,
 #'     combined.weights = FALSE,
 #'     type = "other",
-#'     scale = replication_scaling_constant,
-#'     rscales = rep(1, times = B)
+#'     scale = attr(bootstrap_adjustment_factors, 'scale'),
+#'     rscales = attr(bootstrap_adjustment_factors, 'rscales')
 #'   )
 #'
 #' # Compare estimates to Horvitz-Thompson estimator ----
@@ -176,6 +180,8 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
     rescaled_replicate_factors <- replicate_factors
   }
   attr(rescaled_replicate_factors, 'tau') <- rescaling_constant
+  attr(rescaled_replicate_factors, 'scale') <- (rescaling_constant^2)/num_replicates
+  attr(rescaled_replicate_factors, 'rscales') <- rep(1, times = num_replicates)
 
   # Set column names
   colnames(rescaled_replicate_factors) <- sprintf("REP_%s", seq_len(num_replicates))
@@ -183,3 +189,11 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
   # Return result
   return(rescaled_replicate_factors)
 }
+
+# as_gen_boot_design <- function(design, variance_estimator,
+#                                replicates, tau = "auto",
+#                                mse = getOption("survey.replicates.mse")) {
+#
+#   Si
+#
+# }
