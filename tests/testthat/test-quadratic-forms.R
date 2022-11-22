@@ -1,10 +1,19 @@
-suppressPackageStartupMessages(library(survey))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(labelled))
-suppressPackageStartupMessages(library(svrep))
+suppressWarnings({
+  suppressPackageStartupMessages({
+    library(survey)
+    library(dplyr)
+    library(labelled)
+    library(svrep)
+  })
+})
 
 data('library_stsys_sample', package = 'svrep')
 set.seed(2014)
+
+library_stsys_sample <- library_stsys_sample |>
+  mutate(
+    TOTCIR = ifelse(is.na(TOTCIR), 0, TOTCIR)
+  )
 
 # Check basic successive-difference quadratic forms ----
 
@@ -134,11 +143,30 @@ set.seed(2014)
       y_wtd_sorted <- sorted_data$TOTCIR/sorted_data$SAMPLING_PROB
       y_wtd_unsorted <- shuffled_data$TOTCIR/shuffled_data$SAMPLING_PROB
 
+      sorted_result <- t(y_wtd_sorted) %*% sorted_quad_form_matrix %*% y_wtd_sorted
+      unsorted_result <- t(y_wtd_unsorted) %*% unsorted_quad_form_matrix %*% y_wtd_unsorted
+
       expect_equal(
-        object = t(y_wtd_sorted) %*% sorted_quad_form_matrix %*% y_wtd_sorted,
-        expected = t(y_wtd_unsorted) %*% unsorted_quad_form_matrix %*% y_wtd_unsorted
+        object = sorted_result,
+        expected = unsorted_result
       )
 
     })
+
+  test_that(
+    "successive-differences estimate less than ST-SRSWOR approximation, for sys sample from sorted frame", {
+
+      expect_lt(
+        object = as.numeric(t(wtd_y) %*% sd1_quad_form %*% wtd_y),
+        expected = svydesign(
+          data = library_stsys_sample,
+          strata = ~ SAMPLING_STRATUM,
+          fpc = ~ SAMPLING_PROB,
+          ids = ~ 1
+        ) |> svytotal(x = ~TOTCIR) |> vcov()
+      )
+  })
+
+
 
 
