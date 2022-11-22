@@ -210,7 +210,8 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                                          num_replicates))
 
   # Make sure each stage's sampling units are nested within strata
-  # and each stage's sampling units
+  # and each stage's sampling units are nested within
+  # previous stage's sampling units
   samp_unit_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
                                    samp_unit_ids[, 1, drop = TRUE],
                                    sep = " | ", drop = TRUE)
@@ -320,6 +321,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
         } else if (samp_method_by_stage[stage] == "SRSWR") {
           a_k <- 1 - sqrt(m/(n - 1)) + sqrt(m/(n - 1)) * (n/m) * mstar_k
         }
+        a_k <- as.matrix(a_k)
 
         return(a_k)
       })
@@ -343,12 +345,12 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
         n <- n_h[h]
         is_certainty <- certainty_flags_by_stratum[[h]]
 
-        a_sum <- colSums(a_beaumont_emond[[h]][!is_certainty,])
+        a_sum <- colSums(a_beaumont_emond[[h]][!is_certainty,,drop=FALSE])
         adjustment_factor <- n / a_sum
 
         a_k_cal <- a_beaumont_emond[[h]]
         a_k_cal[!is_certainty,] <- t(
-          apply(X = a_beaumont_emond[[h]][!is_certainty,],
+          apply(X = a_beaumont_emond[[h]][!is_certainty,,drop=FALSE],
                 MARGIN = 1, FUN = function(x) x*adjustment_factor)
         )
         return(a_k_cal)
@@ -403,9 +405,10 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                       FUN = Reduce, f = `*`) ^ (-1)
 
 
-    # Create replicate weights by multiply adjustment factors by sampling weights
+    # Create replicate weights by multiplying adjustment factors by sampling weights
     replicate_weights <- apply(X = overall_adjustment_factors,
-                               MARGIN = 2, FUN = function(rep_factor) rep_factor * overall_sampling_weights)
+                               MARGIN = 2,
+                               FUN = function(rep_factor) rep_factor * overall_sampling_weights)
     result <- replicate_weights
   }
 

@@ -77,28 +77,33 @@
 #'     check.names = FALSE
 #'   )
 #'
-#' # Example 2: A single-stage sample selected with unequal probabilities, without replacement
+#' # Example 2: A multistage-sample,
+#' # first stage selected with unequal probabilities without replacement
+#' # second stage selected with simple random sampling without replacement
 #'
-#'   ## Load example dataset of U.S. counties and states with 2004 Presidential vote counts
-#'   data("election", package = 'survey')
-#'   pps_wor_design <- svydesign(data = election_pps,
-#'                               pps = "overton",
-#'                               fpc = ~ p, # Inclusion probabilities
-#'                               ids = ~ 1)
+#'   data("library_multistage_sample", package = "svrep")
 #'
-#'   ## Create bootstrap replicate weights
-#'   set.seed(2022)
-#'   bootstrap_rep_design <- as_bootstrap_design(pps_wor_design, replicates = 100)
+#'   multistage_pps <- svydesign(data = library_multistage_sample,
+#'                               ids = ~ PSU_ID + SSU_ID,
+#'                               fpc = ~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
+#'                               pps = "brewer")
+#'
+#'   bootstrap_rep_design <- as_bootstrap_design(multistage_pps, replicates = 100)
 #'
 #'   ## Compare std. error estimates from bootstrap versus linearization
 #'   data.frame(
-#'     'Statistic' = c('total', 'mean'),
-#'     'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
-#'                          SE(svymean(x = ~ I(Bush/votes), design = bootstrap_rep_design))),
-#'     "SE (Overton's PPS approximation)" = c(SE(svytotal(x = ~ Bush, design = pps_wor_design)),
-#'                                            SE(svymean(x = ~ I(Bush/votes),
-#'                                                       design = pps_wor_design))),
-#'     check.names = FALSE
+#'       'Statistic' = c('total', 'mean'),
+#'       'SE (bootstrap)' = c(
+#'           SE(svytotal(x = ~ TOTCIR, na.rm = TRUE,
+#'                       design = bootstrap_rep_design)),
+#'           SE(svymean(x = ~ TOTCIR, na.rm = TRUE,
+#'                      design = bootstrap_rep_design))),
+#'       'SE (linearization)' = c(
+#'           SE(svytotal(x = ~ TOTCIR, na.rm = TRUE,
+#'                       design = multistage_pps)),
+#'           SE(svymean(x = ~ TOTCIR, na.rm = TRUE,
+#'                      design = multistage_pps))),
+#'       check.names = FALSE
 #'   )
 
 as_bootstrap_design <- function(design, type = "Rao-Wu-Yue-Beaumont", replicates = 500, compress = TRUE, mse = getOption("survey.replicates.mse")) {
@@ -131,8 +136,7 @@ as_bootstrap_design.survey.design <- function(design,
 
     samp_method_by_stage <- rep("PPSWOR", times = number_of_stages)
     if (is_pps_design) {
-      samp_unit_sel_probs_by_stage <- matrix(design$prob, ncol = 1)
-      samp_method_by_stage <- "PPSWOR"
+      samp_unit_sel_probs_by_stage <- design[['allprob']]
     } else {
       samp_unit_sel_probs_by_stage <- samp_sizes_by_stage / pop_sizes_by_stage
       samp_method_by_stage[with_replacement_stages] <- "SRSWR"
