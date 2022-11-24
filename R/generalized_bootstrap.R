@@ -206,10 +206,172 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
   return(rescaled_replicate_factors)
 }
 
-# as_gen_boot_design <- function(design, variance_estimator,
-#                                replicates, tau = "auto",
-#                                mse = getOption("survey.replicates.mse")) {
-#
-#   Si
-#
-# }
+#' @title Convert a survey design object to a generalized boostrap replicate design
+#' @description Converts a survey design object to a replicate design object
+#' with replicate weights formed using the generalized bootstrap method.
+#' @param design A survey design object created using the 'survey' (or 'srvyr') package,
+#' with class \code{'survey.design'} or \code{'svyimputationList'}.
+#' @param variance_estimator The name of the variance estimator
+#' whose quadratic form matrix should be created. See the section "Variance Estimators" below.
+#' Options include:
+#' \itemize{
+#'   \item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
+#'   first-order and second-order inclusion probabilities.}
+#'   \item{\strong{"Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator based on
+#'   first-order and second-order inclusion probabilities.}
+#'   \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
+#'   based on estimating the variance of cluster totals within strata at each stage.}
+#'   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
+#'   the variance of first-stage cluster totals within first-stage strata.}
+#'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
+#'   sometimes used for variance estimation for systematic sampling.}
+#'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
+#'   This estimator is the basis of the "successive-differences replication" estimator commonly used
+#'   for variance estimation for systematic sampling.}
+#' }
+#' @param replicates Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
+#' A commonly-recommended default is 500.
+#' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
+#' used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
+#' where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
+#' If \code{tau="auto"}, the rescaling factor is determined automatically
+#' by choosing the smallest value needed to rescale the weights such that they are all nonnegative.
+#' @param compress Use a compressed representation of the replicate weights matrix.
+#' This reduces the computer memory required to represent the replicate weights and has no
+#' impact on estimates.
+#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+#' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
+#' @return
+#' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
+#' such as \code{svymean()} or \code{svyglm()}. \cr \cr
+#' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights.
+#' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
+#' for the full-sample and replicate weights.
+#' @export
+#' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
+#'
+#' @return
+#' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
+#' such as \code{svymean()} or \code{svyglm()}. \cr \cr
+#' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights.
+#' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
+#' for the full-sample and replicate weights.
+#' @export
+#'
+#' @examples
+#'
+#'library(survey)
+#'
+#'# Example 1: Bootstrap based on the Yates-Grundy estimator ----
+#'  set.seed(2014)
+#'
+#'  data('election', package = 'survey')
+#'
+#'  ## Create survey design object
+#'  pps_design_yg <- svydesign(
+#'    data = election_pps,
+#'    id = ~1, fpc = ~p,
+#'    pps = ppsmat(election_jointprob),
+#'    variance = "YG"
+#'  )
+#'
+#'  ## Convert to generalized bootstrap replicate design
+#'  gen_boot_design_yg <- pps_design_yg |>
+#'    as_gen_boot_design(variance_estimator = "Yates-Grundy",
+#'                       replicates = 1000, tau = "auto")
+#'
+#'  svytotal(x = ~ Bush + Kerry, design = pps_design_yg)
+#'  svytotal(x = ~ Bush + Kerry, design = gen_boot_design_yg)
+#'
+#'# Example 2: Bootstrap based on the successive-difference estimator ----
+#'
+#'  data('library_stsys_sample', package = 'svrep')
+#'
+#'  ## First, ensure data are sorted in same order as was used in sampling
+#'  library_stsys_sample <- library_stsys_sample[
+#'    order(library_stsys_sample$SAMPLING_SORT_ORDER),
+#'  ]
+#'
+#'  ## Create a survey design object
+#'  design_obj <- svydesign(
+#'    data = library_stsys_sample,
+#'    strata = ~ SAMPLING_STRATUM,
+#'    ids = ~ 1,
+#'    fpc = ~ STRATUM_POP_SIZE
+#'  )
+#'
+#'  ## Convert to generalized bootstrap replicate design
+#'  gen_boot_design_sd1 <- as_gen_boot_design(
+#'    design = design_obj,
+#'    variance_estimator = "SD1",
+#'    replicates = 2000
+#'  )
+#'
+#'  ## The SD2 estimator (and its bootstrap version)
+#'  ## accurately captures the reduction in sampling variance
+#'  ## that results from systematic sampling from a sorted list
+#'  svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd1)
+#'  svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
+#'
+as_gen_boot_design <- function(design, variance_estimator = NULL,
+                                replicates = 500, tau = "auto",
+                                mse = getOption("survey.replicates.mse"),
+                                compress = TRUE) {
+  UseMethod("as_gen_boot_design", design)
+}
+
+#' @export
+as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
+                                             replicates = 500, tau = "auto",
+                                             mse = getOption("survey.replicates.mse"),
+                                             compress = TRUE) {
+
+  is_pps_design <- isTRUE(design$pps)
+
+  if (variance_estimator %in% c("Horvitz-Thompson", "Yates-Grundy")) {
+    if (!is_pps_design) {
+      sprintf("For `variance_estimator='%s'`, must use a PPS design. Please see the help page for `survey::svydesign()`.") |>
+        stop()
+    }
+    if ((variance_estimator == "Yates-Grundy") & (!design$variance %in% c("YG"))) {
+      sprintf("Must specify `variance='YG'` when creating the survey design object.`") |>
+        stop()
+    }
+    if ((variance_estimator == "Horvitz-Thompson") & (!design$variance %in% c("HT"))) {
+      sprintf("Must specify `variance='HT'` when creating the survey design object.`") |>
+        stop()
+    }
+    Sigma <- dpps_ht[['dcheck']][[1]]$dcheck |> as.matrix()
+  }
+
+  if (variance_estimator %in% c("SD1", "SD2")) {
+    sprintf("For `variance_estimator='%s', assumes rows of data are sorted in the same order used in sampling.",
+            variance_estimator) |> message()
+    Sigma <- make_quad_form_matrix(
+      variance_estimator = variance_estimator,
+      cluster_ids = design$cluster,
+      strata_ids = design$strata,
+      strata_pop_sizes = design$fpc$popsize,
+      sort_order = seq_len(nrow(design))
+    )
+  }
+
+  adjustment_factors <- make_gen_boot_factors(
+    Sigma = Sigma,
+    num_replicates = replicates,
+    tau = tau
+  )
+
+  rep_design <- survey::svrepdesign(
+    variables = design$variables,
+    weights = stats::weights(design, type = "sampling"),
+    repweights = adjustment_factors * weights(design, type = "sampling"),
+    combined.weights = TRUE,
+    compress = compress, mse = mse,
+    scale = attr(adjustment_factors, 'scale'),
+    rscales = attr(adjustment_factors, 'rscales'),
+    type = "other"
+  )
+
+  return(rep_design)
+}
