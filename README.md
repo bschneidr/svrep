@@ -106,9 +106,11 @@ implemented using the `redistribute_weights()` function.
 
 ``` r
 # Adjust weights for unknown eligibility
-ue_adjusted_design <- redistribute_weights(design = orig_rep_design,
-                                           reduce_if = response_status %in% c("Unknown eligibility"),
-                                           increase_if = !response_status %in% c("Unknown eligibility"))
+ue_adjusted_design <- redistribute_weights(
+  design = orig_rep_design,
+  reduce_if = response_status %in% c("Unknown eligibility"),
+  increase_if = !response_status %in% c("Unknown eligibility")
+)
 ```
 
 By supplying column names to the `by` argument of
@@ -117,10 +119,12 @@ different groups. This can be used to conduct nonresponse weighting
 class adjustments.
 
 ``` r
-nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
-                                           reduce_if = response_status == "Nonrespondent",
-                                           increase_if = response_status == "Respondent",
-                                           by = c("stype"))
+nr_adjusted_design <- redistribute_weights(
+  design = ue_adjusted_design,
+  reduce_if = response_status == "Nonrespondent",
+  increase_if = response_status == "Respondent",
+  by = c("stype")
+)
 ```
 
 ### Comparing estimates from different sets of weights
