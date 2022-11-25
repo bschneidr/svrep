@@ -5,7 +5,7 @@ output:
     toc: true
     toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{Creating Bootstrap Replicate Weights}
+  %\VignetteIndexEntry{Bootstrap Methods for Surveys}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -36,7 +36,7 @@ This vignette provide guidance on when the bootstrap can be used for complex sur
 
 **Functions for Creating Generalized Survey Bootstrap Weights**:
 
--   `as_gen_bootstrap_design()`, which creates a replicate survey design using the generalized survey bootstrap method as described by @beaumont2012.
+-   `as_gen_boot_design()`, which creates a replicate survey design using the generalized survey bootstrap method as described by @beaumont2012.
 
 -   `make_gen_bootstrap_weights()`, which creates a matrix of replicate weights using the generalized survey bootstrap method. This function will usually be used in conjunction with the function `make_quad_form_matrix()`, which returns the quadratic form matrix representation of common variance estimators.
 
@@ -116,7 +116,7 @@ To implement these basic bootstrap methods, there are two options:
 
 ##### Option 1. Convert an existing design to a bootstrap design
 
-**Create a survey design object with the `svydesign()` function from the survey package, and then convert this object to a bootstrap replicate design using `as_bootstrap_design()`.** This method works well for designs that can be specified using the `syvdesign()` function, which include: (1) stratified, multistage samples with simple random sampling (with or without replacement) at each stage, and (2) single-stage PPS samples.
+**Create a survey design object with the `svydesign()` function from the survey package, and then convert this object to a bootstrap replicate design using `as_bootstrap_design()`.** This method works well for designs that can be specified using the `syvdesign()` function, which includes stratified, multistage samples with simple random sampling or PPS sampling (with or without replacement) at each stage.^[Note that a multistage design with PPS at any of the stages must be specified using the arguments `fpc` to specify stage-specific sampling probabilities and must use the argument `pps = "brewer"`. For example, a two-stage design with PPS at one or both stages could be specified using the following: `syvdesign(ids = ~ first_stage_cluster + second_stage_cluster, fpc = ~ first_stage_prob + second_stage_prob, pps = "brewer")`. For a stage with simple random sampling, the probabilities at that stage are just the strata sample sizes divided by the population sizes].
 
 ```{r}
 set.seed(2022)
@@ -147,9 +147,9 @@ set.seed(2022)
   svytotal(x = ~ Bush + Kerry, design = bootstrap_rep_design)
 ```
 
-##### Option 2. Convert an existing design to a bootstrap design
+##### Option 2. Create replicate factors using special-purpose functions
 
-**Use the function `make_rwyb_bootstrap_weights()` to create a matrix of replicate weights or replicate factors, given information about the survey design.** This approach allows the creation of bootstrap weights for more complicated designs than those that can be represented using the `svydesign()` function. For example, when a multistage sample has one or more stage of unequal probability sampling without replacement, or when any of the sampling stages are based on Poisson sampling.
+**Use the function `make_rwyb_bootstrap_weights()` to create a matrix of replicate weights or replicate factors, given information about the survey design.** This approach allows the creation of bootstrap weights for more complicated designs than those that can be represented using the `svydesign()` function. This approach is useful when a multistage sample has a stage that uses Poisson sampling (which is sometimes used in establishment surveys but in other contexts is sometimes used as a model for nonresponse).
 
 In the example, below the function is used to create bootstrap adjustment factors for a survey where the first stage sample was selected using unequal probability sampling without replacement (PPSWOR) and the second stage sample was selected using simple random sampling without replacement (SRSWOR)
 
@@ -196,7 +196,7 @@ bootstrap_rep_design |>
 
 ### Generalized Survey Bootstrap
 
-For sample designs with additional complex features beyond the three highlighted above, the generalized survey bootstrap method can be used.
+For sample designs with additional complex features beyond the three highlighted above, the generalized survey bootstrap method can be used. This is especially useful for systematic samples and single-PSU-per-stratum designs.
 
 #### Statistical Background
 
@@ -318,7 +318,9 @@ $$
 v_B\left(\hat{T}_y\right)=\frac{\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2}{B}
 $$
 
-We can write this bootstrap variance estimator as a quadratic form:$$
+We can write this bootstrap variance estimator as a quadratic form:
+
+$$
 \begin{aligned}
 v_B\left(\hat{T}_y\right) &=\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}} \\ 
 \textit{where}& \\
@@ -450,6 +452,7 @@ For a statistic $\hat{\theta}$, the simulation CV of the bootstrap variance esti
     & \textit{given the selected sample}
 \end{aligned}
 ```
+
 The simulation CV of a statistic, denoted $CV_{\star}(v_{B}(\hat{\theta}))$, can be estimated for a given number of replicates $B$ by estimating $CV_{\star}(E_2)$ using observed values and dividing this by $\sqrt{B}$. As a result, one can thereby estimate the number of bootstrap replicates needed to obtain a target simulation CV, which is a useful strategy for determining the number of bootstrap replicates to use for a survey.
 
 With the 'svrep' package, it is possible to estimate the number of bootstrap replicates required to obtain a target simulation CV for a statistic.
