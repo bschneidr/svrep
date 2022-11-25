@@ -267,20 +267,22 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     n <- number_of_ultimate_units
     quad_form_matrix <- matrix(nrow = n, ncol = n)
     for (i in seq_len(n)) {
-      for (j in seq_len(n)) {
+      for (j in seq(from = i, to = n, by = 1)) {
         quad_form_matrix[i,j] <- 1 - (joint_probs[i,i] * joint_probs[j,j])/joint_probs[i,j]
       }
     }
+    quad_form_matrix[lower.tri(quad_form_matrix)] <- t(quad_form_matrix)[lower.tri(quad_form_matrix)]
   }
 
   if (variance_estimator == "Yates-Grundy") {
     n <- number_of_ultimate_units
     quad_form_matrix <- matrix(nrow = n, ncol = n)
     for (i in seq_len(n)) {
-      for (j in seq_len(n)) {
+      for (j in seq(from = i, to = n, by = 1)) {
         quad_form_matrix[i,j] <- -(1 - (joint_probs[i,i] * joint_probs[j,j])/joint_probs[i,j])
       }
     }
+    quad_form_matrix[lower.tri(quad_form_matrix)] <- t(quad_form_matrix)[lower.tri(quad_form_matrix)]
     diag(quad_form_matrix) <- diag(quad_form_matrix) - rowSums(quad_form_matrix)
     quad_form_matrix <- -1 * quad_form_matrix
   }
