@@ -15,8 +15,10 @@ Must be positive semi-definite.}
 \item{tau}{Either \code{"auto"}, or a single number. This is the rescaling constant
 used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
-If \code{tau="auto"}, the rescaling factor is determined automatically
-by choosing the smallest value needed to rescale the weights such that they are all nonnegative.}
+If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
+if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
+otherwise, \code{tau} is set to the smallest value needed to rescale
+the adjustment factors such that they are all at least \code{0.01}.}
 }
 \value{
 A matrix with the same number of rows as \code{Sigma}, and the number of columns
@@ -41,7 +43,7 @@ Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated popu
 The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
 Suppose we can represent our textbook variance estimator as a quadratic form: \eqn{v(\hat{T}_y) = \breve{y}\Sigma\breve{y}^T},
 for some \eqn{n \times n} matrix \eqn{\Sigma}.
-the only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semi-definite (in other words, it should never lead to a negative variance estimate, no matter what the value of \eqn{\breve{y}} is).
+The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semi-definite.
 
 The bootstrapping process creates \eqn{B} sets of replicate weights, where the \eqn{b}-th set of replicate weights is a vector of length \eqn{n} denoted \eqn{\mathbf{a}^{(b)}}, whose \eqn{k}-th value is denoted \eqn{a_k^{(b)}}.
 This yields \eqn{B} replicate estimates of the population total, \eqn{\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k}, for \eqn{b=1, \ldots B}, which can be used to estimate sampling variance.

@@ -42,23 +42,18 @@ A commonly-recommended default is 500.}
 \item{tau}{Either \code{"auto"}, or a single number. This is the rescaling constant
 used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
-If \code{tau="auto"}, the rescaling factor is determined automatically
-by choosing the smallest value needed to rescale the weights such that they are all nonnegative.}
+If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
+if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
+otherwise, \code{tau} is set to the smallest value needed to rescale
+the adjustment factors such that they are all at least \code{0.01}.}
 
 \item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
 
-\item{compress}{Use a compressed representation of the replicate weights matrix.
-This reduces the computer memory required to represent the replicate weights and has no
+\item{compress}{This reduces the computer memory required to represent the replicate weights and has no
 impact on estimates.}
 }
 \value{
-A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
-such as \code{svymean()} or \code{svyglm()}. \cr \cr
-Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights.
-Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
-for the full-sample and replicate weights.
-
 A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
 such as \code{svymean()} or \code{svyglm()}. \cr \cr
 Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights.
@@ -68,63 +63,207 @@ for the full-sample and replicate weights.
 \description{
 Converts a survey design object to a replicate design object
 with replicate weights formed using the generalized bootstrap method.
+The generalized survey bootstrap is a method for forming bootstrap replicate weights
+from a textbook variance estimator, provided that the variance estimator
+can be represented as a quadratic form whose matrix is positive semi-definite
+(this covers a large class of variance estimators).
 }
+\section{Statistical Details}{
+
+Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
+The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
+Suppose we can represent our textbook variance estimator as a quadratic form: \eqn{v(\hat{T}_y) = \breve{y}\Sigma\breve{y}^T},
+for some \eqn{n \times n} matrix \eqn{\Sigma}.
+The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semi-definite (in other words, it should never lead to a negative variance estimate, no matter what the value of \eqn{\breve{y}} is).
+
+The bootstrapping process creates \eqn{B} sets of replicate weights, where the \eqn{b}-th set of replicate weights is a vector of length \eqn{n} denoted \eqn{\mathbf{a}^{(b)}}, whose \eqn{k}-th value is denoted \eqn{a_k^{(b)}}.
+This yields \eqn{B} replicate estimates of the population total, \eqn{\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k}, for \eqn{b=1, \ldots B}, which can be used to estimate sampling variance.
+
+\deqn{
+  v_B\left(\hat{T}_y\right)=\frac{\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2}{B}
+}
+
+This bootstrap variance estimator can be written as a quadratic form:
+
+  \deqn{
+    \begin{aligned}
+    v_B\left(\hat{T}_y\right) &=\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}} \\
+    \textit{where}& \\
+    \boldsymbol{\Sigma}_B &= \frac{\sum_{b=1}^B\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)^{\prime}}{B}
+    \end{aligned}
+  }
+
+Note that if the vector of adjustment factors \eqn{\mathbf{a}^{(b)}} has expectation \eqn{\mathbf{1}_n} and variance-covariance matrix \eqn{\boldsymbol{\Sigma}},
+then we have the bootstrap expectation \eqn{E_{*}\left( \boldsymbol{\Sigma}_B \right) = \boldsymbol{\Sigma}}. Since the bootstrap process takes the sample values \eqn{\breve{y}} as fixed, the bootstrap expectation of the variance estimator is \eqn{E_{*} \left( \mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}\right)= \mathbf{\breve{y}}^{\prime}\Sigma \mathbf{\breve{y}}}.
+Thus, we can produce a bootstrap variance estimator with the same expectation as the textbook variance estimator simply by randomly generating \eqn{\mathbf{a}^{(b)}} from a distribution with the following two conditions:
+\cr
+    \strong{Condition 1}: \eqn{\quad \mathbf{E}_*(\mathbf{a})=\mathbf{1}_n}
+\cr
+    \strong{Condition 2}: \eqn{\quad \mathbf{E}_*\left(\mathbf{a}-\mathbf{1}_n\right)\left(\mathbf{a}-\mathbf{1}_n\right)^{\prime}=\mathbf{\Sigma}}
+\cr \cr
+While there are multiple ways to generate adjustment factors satisfying these conditions,
+the simplest general method is to simulate from a multivariate normal distribution: \eqn{\mathbf{a} \sim MVN(\mathbf{1}_n, \boldsymbol{\Sigma})}.
+This is the method used by this function.
+}
+
+\section{Details on Rescaling to Avoid Negative Adjustment Factors}{
+
+Let \eqn{\mathbf{A} = \left[ \mathbf{a}^{(1)} \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]} denote the \eqn{(n \times B)} matrix of bootstrap adjustment factors.
+To eliminate negative adjustment factors, Beaumont and Patak (2012) propose forming a rescaled matrix of nonnegative replicate factors \eqn{\mathbf{A}^S} by rescaling each adjustment factor \eqn{a_k^{(b)}} as follows:
+\deqn{
+ \begin{aligned}
+ a_k^{S,(b)} &= \frac{a_k^{(b)} + \tau - 1}{\tau} \\
+ \textit{where } \tau &\geq 1 - a_k^{(b)} \geq 1 \\
+ &\textit{for all }k \textit{ in } \left\{ 1,\ldots,n \right\} \\
+ &\textit{and all }b \textit{ in } \left\{1, \ldots, B\right\} \\
+ \end{aligned}
+}
+The value of \eqn{\tau} can be set based on the realized adjustment factor matrix \eqn{\mathbf{A}} or by choosing \eqn{\tau} prior to generating the adjustment factor matrix \eqn{\mathbf{A}} so that \eqn{\tau} is likely to be large enough to prevent negative bootstrap weights.
+
+If the adjustment factors are rescaled in this manner, it is important to adjust the scale factor used in estimating the variance with the bootstrap replicates, which becomes \eqn{\frac{\tau^2}{B}} instead of \eqn{\frac{1}{B}}.
+\deqn{
+ \begin{aligned}
+ \textbf{Prior to rescaling: } v_B\left(\hat{T}_y\right) &= \frac{1}{B}\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2 \\
+ \textbf{After rescaling: } v_B\left(\hat{T}_y\right) &= \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2 \\
+ \end{aligned}
+}
+When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
+}
+
+\section{Variance estimators}{
+
+The \strong{Horvitz-Thompson} variance estimator:
+\deqn{
+  v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
+}
+The \strong{Yates-Grundy} variance estimator:
+\deqn{
+  v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
+}
+The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
+proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
+The estimator can be used for any number of sampling stages. For illustration, we describe its use
+for two sampling stages.
+\deqn{
+  \begin{aligned}
+  v(\hat{Y}) &= \hat{V}_1 + \hat{V}_2 \\
+  \hat{V}_1 &= \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2 \\
+  \hat{V}_2 &= \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.}) \\
+  \end{aligned}
+}
+where:
+\deqn{
+  \begin{aligned}
+  n_h &\textit{ is the number of sampled clusters in stratum }h \\
+  N_h &\textit{ is the number of population clusters in stratum }h \\
+  y_{hi.} &\textit{ is the weighted cluster total in cluster }i\textit{ of stratum }h \\
+  \bar{y}_{hi.} &= \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.} \\
+  v_{hi}(y_{hi.}) &\textit{ is the estimated sampling variance of }y_{hi.}
+  \end{aligned}
+}
+The \strong{Ultimate Cluster} variance estimator is simply the stratified multistage SRS
+variance estimator, but ignoring variances from later stages of sampling.
+\deqn{
+  v(\hat{Y}) = \hat{V}_1
+}
+This is the variance estimator used in the 'survey' package when the user specifies
+\code{option(survey.ultimate.cluster = TRUE)} or uses \code{svyrecvar(..., one.stage = TRUE)}.
+When the first-stage sampling fractions are small, analysts often omit the finite population corrections \eqn{(1-\frac{n_h}{N_h})}
+when using the ultimate cluster estimator.
+\cr \cr
+The \strong{SD1} and \strong{SD2} variance estimators are "successive difference"
+estimators sometimes used for systematic sampling designs.
+Ash (2014) describes each estimator as follows:
+\deqn{
+\begin{aligned}
+  \hat{v}_{S D 1}(\hat{Y}) &= \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2 \\
+  \hat{v}_{S D 2}(\hat{Y}) &= \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right] \\
+\end{aligned}
+}
+where \eqn{\breve{y}_k = y_k/\pi_k} is the weighted value of unit \eqn{k}
+with selection probability \eqn{\pi_k}. The SD1 estimator is recommended by Wolter (1984).
+The SD2 estimator is the basis of the successive difference replication estimator commonly
+used for systematic sampling designs. See Ash (2014) for details.
+\cr \cr
+For multistage samples, SD1 and SD2 are applied to the clusters at each stage, separately by stratum.
+For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
+the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
+which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+}
+
 \examples{
 
 library(survey)
 
 # Example 1: Bootstrap based on the Yates-Grundy estimator ----
- set.seed(2014)
+   set.seed(2014)
 
- data('election', package = 'survey')
+   data('election', package = 'survey')
 
- ## Create survey design object
- pps_design_yg <- svydesign(
-   data = election_pps,
-   id = ~1, fpc = ~p,
-   pps = ppsmat(election_jointprob),
-   variance = "YG"
- )
+   ## Create survey design object
+   pps_design_yg <- svydesign(
+     data = election_pps,
+     id = ~1, fpc = ~p,
+     pps = ppsmat(election_jointprob),
+     variance = "YG"
+   )
 
- ## Convert to generalized bootstrap replicate design
- gen_boot_design_yg <- pps_design_yg |>
-   as_gen_boot_design(variance_estimator = "Yates-Grundy",
-                      replicates = 1000, tau = "auto")
+   ## Convert to generalized bootstrap replicate design
+   gen_boot_design_yg <- pps_design_yg |>
+     as_gen_boot_design(variance_estimator = "Yates-Grundy",
+                        replicates = 1000, tau = "auto")
 
- svytotal(x = ~ Bush + Kerry, design = pps_design_yg)
- svytotal(x = ~ Bush + Kerry, design = gen_boot_design_yg)
+   svytotal(x = ~ Bush + Kerry, design = pps_design_yg)
+   svytotal(x = ~ Bush + Kerry, design = gen_boot_design_yg)
 
 # Example 2: Bootstrap based on the successive-difference estimator ----
 
- data('library_stsys_sample', package = 'svrep')
+   data('library_stsys_sample', package = 'svrep')
 
- ## First, ensure data are sorted in same order as was used in sampling
- library_stsys_sample <- library_stsys_sample[
-   order(library_stsys_sample$SAMPLING_SORT_ORDER),
- ]
+   ## First, ensure data are sorted in same order as was used in sampling
+   library_stsys_sample <- library_stsys_sample[
+     order(library_stsys_sample$SAMPLING_SORT_ORDER),
+   ]
 
- ## Create a survey design object
- design_obj <- svydesign(
-   data = library_stsys_sample,
-   strata = ~ SAMPLING_STRATUM,
-   ids = ~ 1,
-   fpc = ~ STRATUM_POP_SIZE
- )
+   ## Create a survey design object
+   design_obj <- svydesign(
+     data = library_stsys_sample,
+     strata = ~ SAMPLING_STRATUM,
+     ids = ~ 1,
+     fpc = ~ STRATUM_POP_SIZE
+   )
 
- ## Convert to generalized bootstrap replicate design
- gen_boot_design_sd1 <- as_gen_boot_design(
-   design = design_obj,
-   variance_estimator = "SD1",
-   replicates = 2000
- )
+   ## Convert to generalized bootstrap replicate design
+   gen_boot_design_sd2 <- as_gen_boot_design(
+     design = design_obj,
+     variance_estimator = "SD2",
+     replicates = 2000
+   )
 
- ## The SD2 estimator (and its bootstrap version)
- ## accurately captures the reduction in sampling variance
- ## that results from systematic sampling from a sorted list
- svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd1)
- svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
+   ## Estimate sampling variances
+   svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
+   svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
 
 }
+\references{
+The generalized survey bootstrap was first proposed by Bertail and Combris (1997).
+See Beaumont and Patak (2012) for a clear overview of the generalized survey bootstrap.
+The generalized survey bootstrap represents one strategy for forming replication variance estimators
+in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein (1984).
+\cr \cr
+- Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
+\cr \cr
+- Bertail, and Combris. 1997. “Bootstrap Généralisé d’un Sondage.” Annales d’Économie Et de Statistique, no. 46: 49. https://doi.org/10.2307/20076068.
+\cr \cr
+- Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
+\cr \cr
+- Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
+\cr
+}
 \seealso{
-Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
+Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates. \cr
+For greater customiszation of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
+represent several common variance estimators as a quadratic form's matrix,
+which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
 }
