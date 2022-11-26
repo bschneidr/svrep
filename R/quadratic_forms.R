@@ -179,6 +179,14 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
                                   sort_order = NULL) {
 
   if (variance_estimator %in% c("Yates-Grundy", "Horvitz-Thompson")) {
+    if (is.null(joint_probs)) {
+      sprintf("For `variance_estimator='%s'`, must supply a matrix to the argument `joint_probs`.",
+              variance_estimator) |>
+        stop()
+    }
+    if (!is.matrix(joint_probs) || any(is.na(joint_probs)) || any(joint_probs < 0)) {
+      stop("`joint_probs` must be a matrix of values between 0 and 1, with no missing values.")
+    }
     number_of_ultimate_units <- ncol(joint_probs)
   }
 
@@ -190,26 +198,26 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster")) {
       if (is.null(cluster_ids) || is.null(strata_ids)) {
         sprintf(
-          "For `variance_estimator`='%s', must supply a matrix or data frame to both 'strata_ids' and 'cluster_ids'",
+          "For `variance_estimator='%s'`, must supply a matrix or data frame to both 'strata_ids' and 'cluster_ids'",
           variance_estimator
         ) |> stop()
       }
     }
     if (variance_estimator == "Stratified Multistage SRS") {
       if (is.null(strata_pop_sizes)) {
-        stop("For `variance_estimator`='Stratified Multistage SRS', must supply a matrix or data frame to `strata_pop_sizes.")
+        stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes.")
       }
     }
     if (variance_estimator %in% c("SD1", "SD2")) {
       if (is.null(cluster_ids)) {
         sprintf(
-          "For `variance_estimator`='%s', must supply a matrix or data frame to `cluster_ids`",
+          "For `variance_estimator='%s'`, must supply a matrix or data frame to `cluster_ids`",
           variance_estimator
         ) |> stop()
       }
       if (is.null(sort_order)) {
         sprintf(
-          "For `variance_estimator`='%s', must supply a vector to `sort_order`",
+          "For `variance_estimator='%s'`, must supply a vector to `sort_order`",
           variance_estimator
         ) |> stop()
       }

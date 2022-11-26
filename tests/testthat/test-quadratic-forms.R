@@ -38,6 +38,7 @@ library_stsys_sample <- library_stsys_sample |>
 
   test_that(
     "Helper function for successive difference quadratic forms works correctly", {
+      # Basic results correct
       expect_equal(
         object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2") %*% wtd_y,
         expected = successive_diffs(wtd_y, type = "SD2") |> as.matrix()
@@ -46,6 +47,7 @@ library_stsys_sample <- library_stsys_sample |>
         object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1") %*% wtd_y,
         expected = successive_diffs(wtd_y, type = "SD1") |> as.matrix()
       )
+      # Checks on FPC
       expect_equal(
         object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1",
                                                      f = 0.9) %*% wtd_y,
@@ -56,10 +58,21 @@ library_stsys_sample <- library_stsys_sample |>
                                                      f = 0.9) %*% wtd_y,
         expected = (1-0.9) * successive_diffs(wtd_y, type = "SD2") |> as.matrix()
       )
+      # Correct result for only a single unit
       expect_equal(
         object = svrep:::make_sd_matrix(n = 1),
         expected = matrix(0, nrow = 1, ncol = 1)
       )
+      # Correct result for only two units
+      expect_equal(
+        object = c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD1") %*% c(99,16),
+        expected = as.matrix(successive_diffs(c(99,16), type = "SD1"))
+      )
+      expect_equal(
+        object = c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD2") %*% c(99,16),
+        expected = as.matrix(successive_diffs(c(99,16), type = "SD2"))
+      )
+      # Checks on numeric arguments
       expect_error(
         object = svrep:::make_sd_matrix(n = 0),
         regexp = "must be an integer greater than"
@@ -72,10 +85,10 @@ library_stsys_sample <- library_stsys_sample |>
 
 # Check Horvitz-Thompson results ----
 
-  # Load an example dataset that uses unequal probability sampling ----
+  ## Load an example dataset that uses unequal probability sampling
   data('election', package = 'survey')
 
-  # Create matrix to represent the Horvitz-Thompson estimator as a quadratic form ----
+  ## Create matrix to represent the Horvitz-Thompson estimator as a quadratic form
   n <- nrow(election_pps)
   pi <- election_jointprob
   horvitz_thompson_matrix <- matrix(nrow = n, ncol = n)
@@ -217,6 +230,32 @@ library_stsys_sample <- library_stsys_sample |>
       )
   })
 
+# Ensure function checks inputs for issues ----
 
+  test_that(
+    "Informative errors for bad inputs", {
+
+      # Horvitz-Thompson / Yates-Grundy
+      expect_error(
+        object = make_quad_form_matrix(variance_estimator = "Yates-Grundy"),
+        regexp = "must supply a matrix.+joint_probs"
+      )
+      expect_error(
+        object = make_quad_form_matrix(variance_estimator = "Yates-Grundy",
+                                       joint_probs = matrix(NA, 2, 2)),
+        regexp = "must be a matrix.+no missing values"
+      )
+      # SD1 and SD2
+      expect_error(
+        object = make_quad_form_matrix(variance_estimator = "SD1"),
+        regexp = "must supply a matrix or data frame to `cluster_ids`"
+      )
+      expect_error(
+        object = make_quad_form_matrix(variance_estimator = "SD1",
+                                       cluster_ids = data.frame(ID = c(1,2))),
+        regexp = "must supply a vector to `sort_order`"
+      )
+
+  })
 
 
