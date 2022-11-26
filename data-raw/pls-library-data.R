@@ -111,6 +111,22 @@ set.seed(2014)
       )
     ) |> select(-STATSTRU)
 
+  ##_ Remove `haven_labelled` class from vectors
+
+  library_census <- library_census |>
+    mutate(across(one_of(c("STARTDAT", "ENDDATE",
+                           "BRANLIB", "CENTLIB",
+                           "TOTCIR", "PHYSCIR", "ELMATCIR",
+                           "VISITS", "REGBOR",
+                           "TOTSTAFF", "LIBRARIA",
+                           "TOTOPEXP", "TOTINCM")),
+                  haven::zap_labels)) |>
+    mutate(C_FSCS = factor(C_FSCS, levels = c("Y", "N"),
+                           labels = c("Yes", "No")) |>
+             labelled::`var_label<-`(
+               labelled::var_label(C_FSCS)
+             ))
+
 # Draw stratified systematic sample ----
 
   library_stsys_sample <- library_census |>
