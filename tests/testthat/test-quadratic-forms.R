@@ -2,7 +2,6 @@ suppressWarnings({
   suppressPackageStartupMessages({
     library(survey)
     library(dplyr)
-    library(labelled)
     library(svrep)
   })
 })
