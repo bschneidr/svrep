@@ -1,4 +1,8 @@
-suppressPackageStartupMessages(library(survey))
+suppressWarnings({
+  suppressPackageStartupMessages({
+    library(survey)
+  })
+})
 
 data("lou_vax_survey", package = 'svrep')
 
