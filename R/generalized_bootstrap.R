@@ -1,5 +1,5 @@
-#' @title Creates replicate factors for the Generalized Survey Bootstrap
-#' @description Creates replicate factors for the Generalized Survey Bootstrap method.
+#' @title Creates replicate factors for the generalized survey bootstrap
+#' @description Creates replicate factors for the generalized survey bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights
 #' from a textbook variance estimator, provided that the variance estimator
 #' can be represented as a quadratic form whose matrix is positive semi-definite
@@ -256,7 +256,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' for the full-sample and replicate weights.
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates. \cr
-#' For greater customiszation of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
+#' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 #' represent several common variance estimators as a quadratic form's matrix,
 #' which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
 #' @section Statistical Details:

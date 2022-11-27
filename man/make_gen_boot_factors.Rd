@@ -2,7 +2,7 @@
 % Please edit documentation in R/generalized_bootstrap.R
 \name{make_gen_boot_factors}
 \alias{make_gen_boot_factors}
-\title{Creates replicate factors for the Generalized Survey Bootstrap}
+\title{Creates replicate factors for the generalized survey bootstrap}
 \usage{
 make_gen_boot_factors(Sigma, num_replicates, tau = "auto")
 }
@@ -31,7 +31,7 @@ passed directly to \link[survey]{svrepdesign}. Note that the value of \code{scal
 while the value of \code{rscales} is vector of length \eqn{B}, with every entry equal to \eqn{1}.
 }
 \description{
-Creates replicate factors for the Generalized Survey Bootstrap method.
+Creates replicate factors for the generalized survey bootstrap method.
 The generalized survey bootstrap is a method for forming bootstrap replicate weights
 from a textbook variance estimator, provided that the variance estimator
 can be represented as a quadratic form whose matrix is positive semi-definite

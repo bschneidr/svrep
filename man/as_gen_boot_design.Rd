@@ -130,7 +130,7 @@ If the adjustment factors are rescaled in this manner, it is important to adjust
 When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
 }
 
-\section{Variance estimators}{
+\section{Variance Estimators}{
 
 The \strong{Horvitz-Thompson} variance estimator:
 \deqn{
@@ -263,7 +263,7 @@ in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein 
 }
 \seealso{
 Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates. \cr
-For greater customiszation of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
+For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 represent several common variance estimators as a quadratic form's matrix,
 which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
 }
