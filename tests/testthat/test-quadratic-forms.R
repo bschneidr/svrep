@@ -11,7 +11,8 @@ set.seed(2014)
 
 library_stsys_sample <- library_stsys_sample |>
   mutate(
-    TOTCIR = ifelse(is.na(TOTCIR), 0, TOTCIR)
+    TOTCIR = ifelse(is.na(TOTCIR), 0, TOTCIR),
+    TOTSTAFF = ifelse(is.na(TOTSTAFF), 0, TOTSTAFF)
   )
 
 # Check basic successive-difference quadratic forms ----
@@ -78,6 +79,56 @@ library_stsys_sample <- library_stsys_sample |>
       )
       expect_error(
         object = svrep:::make_sd_matrix(n = 2, f = 1.1),
+        regexp = "must be a single number between"
+      )
+    })
+
+# Check basic SRSWOR quadratic form ----
+
+  wtd_y <- library_stsys_sample[['TOTCIR']]/library_stsys_sample[['SAMPLING_PROB']]
+  n <- length(wtd_y)
+
+  wtd_y_matrix <- as.matrix(
+    library_stsys_sample[,c("TOTCIR", "TOTSTAFF")]/library_stsys_sample[['SAMPLING_PROB']]
+  )
+
+  test_that(
+    "Helper function for SRSWOR quadratic forms works correctly", {
+      # Basic results correct
+      expect_equal(
+        object = t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y,
+        expected = n * cov(as.matrix(wtd_y))
+      )
+      # Matches 'survey' package
+      expect_equal(
+        object = t(wtd_y_matrix) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y_matrix,
+        expected = svyrecvar(
+          x = wtd_y_matrix,
+          clusters = as.matrix(seq_len(n)),
+          stratas = as.matrix(rep(1, times = n)),
+          fpcs = list('sampsize' = as.matrix(rep(n, times = n)),
+                      'popsize' = as.matrix(rep(Inf, times = n))),
+          lonely.psu = "remove", one.stage = TRUE
+        )
+      )
+      # Checks on FPC
+      expect_equal(
+        object = t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y),
+                                                         f = 0.9) %*% wtd_y,
+        expected = (1-0.9) * n *  cov(as.matrix(wtd_y)) |> as.matrix()
+      )
+      # Correct result for only a single unit
+      expect_equal(
+        object = svrep:::make_srswor_matrix(n = 1),
+        expected = matrix(0, nrow = 1, ncol = 1)
+      )
+      # Checks on numeric arguments
+      expect_error(
+        object = svrep:::make_srswor_matrix(n = 0),
+        regexp = "must be an integer greater than"
+      )
+      expect_error(
+        object = svrep:::make_srswor_matrix(n = 2, f = 1.1),
         regexp = "must be a single number between"
       )
     })
@@ -226,6 +277,58 @@ library_stsys_sample <- library_stsys_sample |>
           fpc = ~ SAMPLING_PROB,
           ids = ~ 1
         ) |> svytotal(x = ~TOTCIR) |> vcov()
+      )
+  })
+
+# Check "Ultimate Cluster" results ----
+
+  test_that(
+    "Correct results for ultimate cluster", {
+
+      # Correct result for a single-stage stratified sample
+      wtd_y_matrix <- as.matrix(
+        library_stsys_sample[,c("TOTCIR", "TOTSTAFF")]
+      )/library_stsys_sample[['SAMPLING_PROB']]
+      quad_UC <- make_quad_form_matrix(
+        variance_estimator = "Ultimate Cluster",
+        cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+        strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+        strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE]
+      )
+      expect_equal(
+        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        expected = svydesign(
+          data = library_stsys_sample,
+          ids = ~ FSCSKEY,
+          strata = ~ SAMPLING_STRATUM,
+          fpc = ~ STRATUM_POP_SIZE
+        ) |> svytotal(x = ~ TOTCIR + TOTSTAFF, na.rm = TRUE) |>
+          vcov()
+      )
+
+      # Correct result for a multistage cluster sample
+      wtd_y_matrix <- as.matrix(
+        library_multistage_sample[,c("TOTCIR", "TOTSTAFF")]
+      )/library_multistage_sample[['SAMPLING_PROB']]
+      wtd_y_matrix[rowSums(is.na(wtd_y_matrix)) > 0] <- 0
+      quad_UC <- make_quad_form_matrix(
+        variance_estimator = "Ultimate Cluster",
+        cluster_ids = library_multistage_sample[,c("PSU_ID", "SSU_ID"),drop=FALSE],
+        strata_ids = data.frame('PSU_STRATUM' = rep(1, times = nrow(library_multistage_sample)),
+                                'SSU_STRATUM' = rep(1, times = nrow(library_multistage_sample))),
+        strata_pop_sizes = library_multistage_sample[,c("PSU_POP_SIZE", "SSU_POP_SIZE"),drop=FALSE]
+      )
+      expect_equal(
+        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        expected = svydesign(
+          data = library_multistage_sample |>
+            mutate(SAMPLING_WEIGHT = 1/SAMPLING_PROB),
+          weights = ~ SAMPLING_WEIGHT,
+          ids = ~ PSU_ID,
+          strata = NULL,
+          fpc = ~ PSU_POP_SIZE
+        ) |> svytotal(x = ~ TOTCIR + TOTSTAFF, na.rm = TRUE) |>
+          vcov()
       )
   })
 
