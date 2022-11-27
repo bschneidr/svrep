@@ -3,7 +3,7 @@
 \name{make_srswor_matrix}
 \alias{make_srswor_matrix}
 \title{Create a quadratic form's matrix to represent the basic variance estimator
-for simple random sampling without replacement}
+for a total under simple random sampling without replacement}
 \usage{
 make_srswor_matrix(n, f = 0)
 }
@@ -27,8 +27,8 @@ The basic variance estimator of a total for simple random sampling without repla
 \hat{v}(\hat{Y}) = (1 - f)\frac{n}{n - 1} \sum_{i=1}^{n} (y_i - \bar{y})^2
 }
 where \eqn{f} is the sampling fraction \eqn{\frac{n}{N}}. \cr \cr
-If \eqn{f=0}, then the matrix of the quadratic form has all non-diagonal elements equal to \eqn{-(n(n-1))^{-1}},
-and all diagonal elements equal to \eqn{n^{-1}}. If \eqn{f > 0}, then each element
+If \eqn{f=0}, then the matrix of the quadratic form has all non-diagonal elements equal to \eqn{-(n-1)^{-1}},
+and all diagonal elements equal to \eqn{1}. If \eqn{f > 0}, then each element
 is multiplied by \eqn{(1-f)}. \cr \cr
 If \eqn{n=1}, then this function returns a \eqn{1 \times 1} matrix whose sole element equals \eqn{0}
 (essentially treating the sole sampled unit as a selection made with probability \eqn{1}).
