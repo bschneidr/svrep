@@ -12,8 +12,8 @@
 #' @format
 #' \emph{Library Census (\code{library_census}): } \cr \cr
 #' The dataset includes 9,245 records (one per library) and 23 variables.
-#' Each column has a variable label accessible using the function \link[labelled]{var_label},
-#' and most columns include value labels accessible using the function \link[labelled]{val_labels}.
+#' Each column has a variable label, accessible using the function \code{var_label()} from the 'labelled' package
+#' or simply by calling \code{attr(x, 'label')} to a given column.
 #' These data include a subset of the variables included in the public-use data published by PLS,
 #' specifically from the Public Library System Data File. Particularly relevant variables include:
 #' \cr \cr

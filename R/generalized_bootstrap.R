@@ -479,7 +479,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
       sprintf("Must specify `variance='HT'` when creating the survey design object.`") |>
         stop()
     }
-    Sigma <- dpps_ht[['dcheck']][[1]]$dcheck |> as.matrix()
+    Sigma <- design[['dcheck']][[1]]$dcheck |> as.matrix()
   }
 
   if (variance_estimator %in% c("SD1", "SD2")) {
