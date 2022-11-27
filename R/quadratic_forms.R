@@ -249,19 +249,21 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     cluster_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
                                    cluster_ids[, 1, drop = TRUE],
                                    sep = " | ", drop = TRUE)
-    stage <- 2L
-    while (stage <= number_of_stages) {
-      strata_ids[,stage] <- interaction(
-        cluster_ids[, stage-1L, drop=TRUE],
-        strata_ids[, stage, drop=TRUE],
-        sep = " | ", drop = TRUE
-      )
-      cluster_ids[,stage] <- interaction(
-        strata_ids[, stage, drop = TRUE],
-        cluster_ids[, stage, drop = TRUE],
-        sep = " | ", drop = TRUE
-      )
-      stage <- stage + 1L
+    if (variance_estimator != "Ultimate Cluster") {
+      stage <- 2L
+      while (stage <= number_of_stages) {
+        strata_ids[,stage] <- interaction(
+          cluster_ids[, stage-1L, drop=TRUE],
+          strata_ids[, stage, drop=TRUE],
+          sep = " | ", drop = TRUE
+        )
+        cluster_ids[,stage] <- interaction(
+          strata_ids[, stage, drop = TRUE],
+          cluster_ids[, stage, drop = TRUE],
+          sep = " | ", drop = TRUE
+        )
+        stage <- stage + 1L
+      }
     }
 
     if (is.null(strata_pop_sizes)) {
@@ -295,6 +297,25 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     quad_form_matrix <- -1 * quad_form_matrix
   }
 
+  if (variance_estimator == "Ultimate Cluster") {
+    quad_form_matrix <- matrix(data = 0,
+                               nrow = number_of_ultimate_units,
+                               ncol = number_of_ultimate_units)
+
+    # Generate quadratic form for each stratum
+    for (stratum_id in unique(strata_ids[,1,drop=TRUE])) {
+      stratum_indices <- which(strata_ids[,1,drop=TRUE] == stratum_id)
+      stratum_pop_size <- strata_pop_sizes[,1,drop=TRUE][stratum_indices[1]]
+      n_clusters <- length(unique(cluster_ids[stratum_indices, 1, drop = TRUE]))
+      quad_form_matrix[stratum_indices,stratum_indices] <- distribute_matrix_across_clusters(
+        cluster_level_matrix = make_srswor_matrix(n = n_clusters,
+                                                  f = (n_clusters/stratum_pop_size)),
+        cluster_ids = cluster_ids[stratum_indices, 1, drop = TRUE],
+        rows = TRUE, cols = TRUE
+      )
+    }
+  }
+
   if (variance_estimator %in% c("SD1", "SD2")) {
     n <- number_of_ultimate_units
     # Initialize quadratic form matrix
@@ -317,19 +338,18 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     for (stratum_id in unique(sorted_df[['Stratum']])) {
       stratum_indices <- which(sorted_df[['Stratum']] == stratum_id)
       stratum_pop_size <- sorted_df[['Stratum_Pop_Size']][stratum_indices[1]]
-      ## Get indices for each cluster
-      cluster_indices <- as.numeric(
-        factor(sorted_df[stratum_indices, 'Cluster', drop = TRUE],
-               levels = unique(sorted_df[stratum_indices, 'Cluster', drop = TRUE]))
+
+      n_clusters <- length(
+        unique(sorted_df[stratum_indices, 'Cluster', drop = TRUE])
       )
-      ## Create a cluster-level quadratic form matrix
-      n_clusters <- max(cluster_indices)
-      sd_matrix <- make_sd_matrix(n = n_clusters, f = (n_clusters/stratum_pop_size),
-                                  type = variance_estimator)
-      ## Duplicate the cluster-level matrix entries as needed
-      ## to make a matrix of the appropriate dimension
-      uncompressed_sd_matrix <- sd_matrix[,cluster_indices,drop=FALSE][cluster_indices,,drop=FALSE]
-      sorted_quad_form_matrix[stratum_indices,stratum_indices] <- uncompressed_sd_matrix
+
+      sorted_quad_form_matrix[stratum_indices,stratum_indices] <- distribute_matrix_across_clusters(
+        cluster_level_matrix = make_sd_matrix(n = n_clusters,
+                                              f = (n_clusters/stratum_pop_size),
+                                              type = variance_estimator),
+        cluster_ids = sorted_df[stratum_indices, 'Cluster', drop = TRUE],
+        rows = TRUE, cols = TRUE
+      )
     }
     # Arrange matrix rows/columns to match the original order of the input data
       quad_form_matrix <- sorted_quad_form_matrix[inverse_sort_map,inverse_sort_map]
@@ -411,4 +431,92 @@ make_sd_matrix <- function(n, f = 0, type = "SD1") {
   C_matrix <- ((1-f)/2) * C_matrix
 
   return(C_matrix)
+}
+
+
+#' @title Create a quadratic form's matrix to represent the basic variance estimator
+#' for a total under simple random sampling without replacement
+#' @description The usual variance estimator simple random sampling without replacement
+#' can be represented as a quadratic form.
+#' This function determines the matrix of the quadratic form.
+#' @param n Sample size
+#' @param f A single number between \code{0} and \code{1},
+#' representing the sampling fraction. Default value is \code{0}.
+#' @return A symmetric matrix of dimension \code{n}
+#' @details
+#' The basic variance estimator of a total for simple random sampling without replacement is as follows:
+#' \deqn{
+#' \hat{v}(\hat{Y}) = (1 - f)\frac{n}{n - 1} \sum_{i=1}^{n} (y_i - \bar{y})^2
+#' }
+#' where \eqn{f} is the sampling fraction \eqn{\frac{n}{N}}. \cr \cr
+#' If \eqn{f=0}, then the matrix of the quadratic form has all non-diagonal elements equal to \eqn{-(n-1)^{-1}},
+#' and all diagonal elements equal to \eqn{1}. If \eqn{f > 0}, then each element
+#' is multiplied by \eqn{(1-f)}. \cr \cr
+#' If \eqn{n=1}, then this function returns a \eqn{1 \times 1} matrix whose sole element equals \eqn{0}
+#' (essentially treating the sole sampled unit as a selection made with probability \eqn{1}).
+make_srswor_matrix <- function(n, f = 0) {
+  if (!is.numeric(n) || (length(n) != 1) || is.na(n) || (n %% 1 != 0) || (n < 1)) {
+    stop("`n` must be an integer greater than or equal to 1")
+  }
+  if (!is.numeric(f) || (length(f) != 1) || is.na(f) || (f < 0) || (f > 1)) {
+    stop("`f` must be a single number between 0 and 1")
+  }
+  if (n == 1) {
+    C_matrix <- matrix(0, nrow = 1, ncol = 1)
+  } else {
+    C_matrix <- matrix(-1/(n-1), nrow = n, ncol = n)
+    diag(C_matrix) <- 1
+    C_matrix <- (1-f) * C_matrix
+  }
+  return(C_matrix)
+}
+
+#' @title Helper function to turn a cluster-level matrix into an element-level matrix
+#' by duplicating rows or columns of the matrix
+#' @description Turns a cluster-level matrix into an element-level matrix
+#' by suitably duplicating rows or columns of the matrix.
+#' @param cluster_level_matrix A square matrix, whose number of rows/columns matches the number of clusters.
+#' @param cluster_ids A vector of cluster identifiers.
+#' If \code{rows=TRUE}, the number of unique elements of \code{cluster_ids}
+#' must match the number of rows of \code{cluster_level_matrix}.
+#' If \code{cols=TRUE}, the number of unique elements of \code{cluster_ids}
+#' must match the number of columns of \code{cluster_level_matrix}.
+#' @param rows Whether to duplicate rows of the \code{cluster_level_matrix} for elements from the same cluster.
+#' @param cols Whether to duplicate columns of the \code{cluster_level_matrix} for elements from the same cluster.
+#' @return The input \code{cluster_level_matrix} has its rows/columns
+#' duplicated so that the number of rows (if \code{rows=TRUE}) or columns (if \code{cols=TRUE})
+#' equals the length of \code{cluster_ids}.
+#'
+distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids, rows = TRUE, cols = TRUE) {
+  if (any(is.na(cluster_ids))) {
+    stop("`cluster_ids` cannot have any missing values.")
+  }
+  ## Get indices for each cluster
+  cluster_indices <- as.numeric(
+    factor(cluster_ids,
+           levels = unique(cluster_ids))
+  )
+  n_clusters <- max(cluster_indices)
+  if ((nrow(cluster_level_matrix) != n_clusters) | (ncol(cluster_level_matrix) != n_clusters)) {
+
+  }
+  if (rows && cols) {
+    if ((n_clusters != nrow(cluster_level_matrix)) || (n_clusters != ncol(cluster_level_matrix))) {
+      stop("The number of rows/columns of `cluster_level_matrix` must match the number of unique elements of `cluster_ids`.")
+    }
+    result <- cluster_level_matrix[cluster_indices,cluster_indices,drop=FALSE]
+  } else if (rows && (!cols)) {
+    if ((n_clusters != nrow(cluster_level_matrix))) {
+      stop("The number of rows of `cluster_level_matrix` must match the number of unique elements of `cluster_ids`.")
+    }
+    result <- cluster_level_matrix[cluster_indices,,drop=FALSE]
+  } else if ((!rows) && cols) {
+    if ((n_clusters != ncol(cluster_level_matrix))) {
+      stop("The number of columns of `cluster_level_matrix` must match the number of unique elements of `cluster_ids`.")
+    }
+    result <- cluster_level_matrix[,cluster_indices,drop=FALSE]
+  } else {
+    stop("Must set `rows=TRUE` and/or `cols=TRUE`")
+  }
+  return(result)
 }
