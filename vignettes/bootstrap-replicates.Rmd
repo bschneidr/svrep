@@ -19,7 +19,6 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message=FALSE, warning=FALSE}
-library(labelled) # For variable/value labels
 library(dplyr) # For data manipulation
 library(survey) # For complex survey analysis
 library(srvyr) # For complex survey analysis with dplyr syntax
