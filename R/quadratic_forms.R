@@ -134,7 +134,7 @@
 #'
 #' @examples
 #' # Example 1: The Horvitz-Thompson Estimator
-#'
+#'   library(survey)
 #'   data("election", package = "survey")
 #'
 #'   ht_quad_form_matrix <- make_quad_form_matrix(variance_estimator = "Horvitz-Thompson",
