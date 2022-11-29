@@ -493,7 +493,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
       sort_order = seq_len(nrow(design))
     )
   }
-  if (variance_estimator == "Ultimate Cluster") {
+  if (variance_estimator %in% c("Ultimate Cluster", "Stratified Multistage SRS")) {
     Sigma <- make_quad_form_matrix(
       variance_estimator = variance_estimator,
       cluster_ids = design$cluster,

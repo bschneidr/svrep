@@ -3,6 +3,7 @@ suppressWarnings({
     library(survey)
     library(dplyr)
     library(svrep)
+    library(testthat)
   })
 })
 
@@ -331,6 +332,78 @@ library_stsys_sample <- library_stsys_sample |>
           vcov()
       )
   })
+
+# Check "Stratified Multistage SRS" results ----
+
+  test_that(
+    "Correct results for stratified multistage SRS", {
+
+      # Correct result for a single-stage stratified sample
+      wtd_y_matrix <- as.matrix(
+        library_stsys_sample[,c("TOTCIR", "TOTSTAFF")]
+      )/library_stsys_sample[['SAMPLING_PROB']]
+      quad_UC <- make_quad_form_matrix(
+        variance_estimator = "Stratified Multistage SRS",
+        cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+        strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+        strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE]
+      )
+      expect_equal(
+        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        expected = svydesign(
+          data = library_stsys_sample,
+          ids = ~ FSCSKEY,
+          strata = ~ SAMPLING_STRATUM,
+          fpc = ~ STRATUM_POP_SIZE
+        ) |> svytotal(x = ~ TOTCIR + TOTSTAFF, na.rm = TRUE) |>
+          vcov()
+      )
+
+      # Correct result for a multistage cluster sample
+      data('mu284', package = 'survey')
+      mu284 <- mu284 |> arrange(id1, id2)
+      mu284_design <- survey::svydesign(
+        data = mu284,
+        ids = ~ id1 + id2,
+        fpc = ~ n1 + n2
+      )
+      wtd_y_matrix <- as.matrix(
+        mu284_design$variables$y1
+      ) * weights(mu284_design)
+      wtd_y_matrix[rowSums(is.na(wtd_y_matrix)) > 0] <- 0
+      colnames(wtd_y_matrix) <- c("y1")
+
+      # Use function to produce quadratic form matrix
+      qf_matrix <- make_quad_form_matrix(
+        variance_estimator = "Stratified Multistage SRS",
+        cluster_ids = mu284_design$cluster,
+        strata_ids = mu284_design$strata,
+        strata_pop_sizes = mu284_design$fpc$popsize
+      )
+
+      # Determine expected correct quadratic form matrix
+      quad_form_UC <- make_quad_form_matrix(
+        variance_estimator = "Ultimate Cluster",
+        cluster_ids = mu284_design$cluster,
+        strata_ids = mu284_design$strata,
+        strata_pop_sizes = mu284_design$fpc$popsize
+      )
+      later_stage_quad_form <- make_quad_form_matrix(
+        variance_estimator = "Ultimate Cluster",
+        cluster_ids = mu284_design$cluster[,2,drop=FALSE],
+        strata_ids = mu284_design$strata[,2,drop=FALSE],
+        strata_pop_sizes = mu284_design$fpc$popsize[,2,drop=FALSE]
+      )
+      expected_quad_form <- quad_form_UC + (0.1 * later_stage_quad_form)
+
+      # Compare to survey package
+      expect_equal(
+        object = t(wtd_y_matrix) %*% qf_matrix %*% wtd_y_matrix,
+        expected = mu284_design |>
+          svytotal(x = ~ y1, na.rm = TRUE) |>
+          vcov()
+      )
+    })
 
 # Ensure function checks inputs for issues ----
 

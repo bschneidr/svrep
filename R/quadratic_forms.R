@@ -316,6 +316,52 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     }
   }
 
+  if (variance_estimator == "Stratified Multistage SRS") {
+    quad_form_matrix <- matrix(data = 0,
+                               nrow = number_of_ultimate_units,
+                               ncol = number_of_ultimate_units)
+    # Obtain matrix of cluster sample sizes by stage
+    count <- function(x) sum(!duplicated(x))
+    sampsize <- matrix(ncol = ncol(cluster_ids), nrow = nrow(cluster_ids))
+    for (i in seq_len(number_of_stages)) {
+      split(sampsize[, i], strata_ids[, i]) <- lapply(split(cluster_ids[,i], strata_ids[, i]), count)
+    }
+    # Iterate over stages
+    stage <- 1L
+    while (stage <= number_of_stages) {
+      # Generate quadratic form for each stratum
+      for (stratum_id in unique(strata_ids[,stage,drop=TRUE])) {
+        # Variance of estimated total from current stage units
+        stratum_indices <- which(strata_ids[,stage,drop=TRUE] == stratum_id)
+        stratum_pop_size <- strata_pop_sizes[,stage,drop=TRUE][stratum_indices[1]]
+        n_clusters <- sampsize[,stage,drop=TRUE][stratum_indices[1]]
+
+        Q_current <- distribute_matrix_across_clusters(
+          cluster_level_matrix = make_srswor_matrix(n = n_clusters,
+                                                    f = (n_clusters/stratum_pop_size)),
+          cluster_ids = cluster_ids[stratum_indices, stage, drop = TRUE],
+          rows = TRUE, cols = TRUE
+        )
+
+        # Obtain product of previous-stage sampling fractions
+        if (stage > 1) {
+          prev_n_clusters <- sampsize[stratum_indices[1],seq_len(stage-1),drop=TRUE]
+          prev_stratum_pop_size <- strata_pop_sizes[stratum_indices[1],seq_len(stage-1),drop=TRUE]
+          prev_samp_fraction <- Reduce(f = `*`, x = prev_n_clusters)/Reduce(f = `*`, x = prev_stratum_pop_size)
+        } else {
+          prev_samp_fraction <- 1
+        }
+
+        # Add overall variance contribution from current stage/stratum sampling
+        quad_form_matrix[stratum_indices,stratum_indices] <- quad_form_matrix[stratum_indices,stratum_indices] +
+          (Q_current * prev_samp_fraction)
+
+      }
+      stage <- stage + 1L
+    }
+
+  }
+
   if (variance_estimator %in% c("SD1", "SD2")) {
     n <- number_of_ultimate_units
     # Initialize quadratic form matrix
