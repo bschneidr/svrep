@@ -81,7 +81,7 @@ The simple answer is that bootstrap methods generally require many more replicat
 
 Essentially every bootstrap method commonly used for surveys can be used for simple random sampling with replacement and can easily be applied to stratified sampling (simply repeat the method separately for each stratum). However, things become more complicated for other types of sampling and care is needed to use a bootstrap method appropriate to the survey design. For many common designs used in practice, it is possible (and easy!) to use one of the bootstrap methods described in the section of this vignette titled "Basic Bootstrap Methods." If the design isn't appropriate for one of those basic bootstrap methods, then it may be possible to use the generalized survey bootstrap described in a later section of this vignette, which covers a wide range of designs. The interested reader is encouraged to read @mashreghi2016 for an overview of bootstrap methods developed for survey samples.
 
-### Basic Bootstrap Methods
+## Basic Bootstrap Methods
 
 For most sample designs used in practice, there are three basic survey design features that must be considered when choosing a bootstrap method:
 
@@ -193,11 +193,11 @@ bootstrap_rep_design |>
   svymean(x = ~ TOTCIR + TOTINCM, na.rm = TRUE, deff = TRUE)
 ```
 
-### Generalized Survey Bootstrap
+## Generalized Survey Bootstrap
 
-For sample designs with additional complex features beyond the three highlighted above, the generalized survey bootstrap method can be used. This is especially useful for systematic samples and single-PSU-per-stratum designs.
+For sample designs with additional complex features beyond the three highlighted above, the generalized survey bootstrap method can be used. This is especially useful for systematic samples or for complex designs where one wishes to use a general-purpose estimator such as the Horvitz-Thompson or Yates-Grundy estimator.
 
-#### Statistical Background
+### Statistical Background
 
 The generalized survey bootstrap is based on a remarkable observation from @fay1984, summarized nicely by @dippo1984:
 
@@ -223,13 +223,13 @@ The starting point for implementing the generalized survey bootstrap method is t
 
     -   The SD1 and SD2 successive-differences estimators, which are the basis of the commonly-used "successive-differences replication" (SDR) estimator (see @ash2014 for an overview of SDR).
 
-Once the textbook variance estimator has been selected and its quadratic form identified, the generalized survey bootstrap method consists of randomly generating each set of replicate weights from a multivariate distribution whose expectation is the $n$-vector $\mathbf{1}_n$ and whose variance-covariance matrix is the matrix of the quadratic form used for the textbook variance estimator. This ensures that, in expectation, the replication variance estimator for a total equals the textbook variance estimator and thus inherits properties such as design-unbiasedness and design-consistency.
+Once the textbook variance estimator has been selected and its quadratic form identified, the generalized survey bootstrap method consists of randomly generating each set of replicate weights from a multivariate distribution whose expectation is the $n$-vector $\mathbf{1}_n$ and whose variance-covariance matrix is the matrix of the quadratic form used for the textbook variance estimator. This ensures that, in expectation, the bootstrap variance estimator for a total equals the textbook variance estimator and thus inherits properties such as design-unbiasedness and design-consistency.
 
-#### Details and Notation for the Generalized Survey Bootstrap Method
+### Details and Notation for the Generalized Survey Bootstrap Method
 
 In this section, we describe the generalized survey bootstrap in greater detail, using the notation of @beaumont2012.
 
-##### Quadratic Forms: 
+##### Quadratic Forms
 
 Let $v( \hat{T_y})$ be the textbook variance estimator for an estimated population total $\hat{T}_y$ of some variable $y$. The base weight for case $i$ in our sample is $w_i$, and we let $\breve{y}_i$ denote the weighted value $w_iy_i$.
 
@@ -309,9 +309,9 @@ sprintf("Coefficient of Variation: %s",
         round(sqrt(variance_estimate[1,1])/point_estimate, 2))
 ```
 
-##### Forming Adjustment Factors:
+##### Forming Adjustment Factors
 
-Our goal is to form $B$ sets of replicate weights, where the $b$-th set of replicate weights is a vector of length $n$ denoted $\mathbf{a}^{(b)}$, whose $k$-th value is denoted $a_k^{(b)}$. This gives us $B$ replicate estimates of the population total, $\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k$, for $b=1, \ldots B$, from which we can easily calculate an estimate of the sampling variance.
+Our goal is to form $B$ sets of bootstrap weights, where the $b$-th set of bootstrap weights is a vector of length $n$ denoted $\mathbf{a}^{(b)}$, whose $k$-th value is denoted $a_k^{(b)}$. This gives us $B$ replicate estimates of the population total, $\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k$, for $b=1, \ldots B$, from which we can easily calculate an estimate of the sampling variance.
 
 $$
 v_B\left(\hat{T}_y\right)=\frac{\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2}{B}
@@ -324,7 +324,8 @@ $$
 v_B\left(\hat{T}_y\right) &=\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}} \\ 
 \textit{where}& \\
 \boldsymbol{\Sigma}_B &= \frac{\sum_{b=1}^B\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)^{\prime}}{B}
-\end{aligned}$$
+\end{aligned}
+$$
 
 Note that if the vector of adjustment factors $\mathbf{a}^{(b)}$ has expectation $\mathbf{1}_n$ and variance-covariance matrix $\boldsymbol{\Sigma}$, then we have the bootstrap expectation $E_{*}\left( \boldsymbol{\Sigma}_B \right) = \boldsymbol{\Sigma}$. Since the bootstrap process takes the sample values $\breve{y}$ as fixed, the bootstrap expectation of the variance estimator is $E_{*} \left( \mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}\right)= \mathbf{\breve{y}}^{\prime}\Sigma \mathbf{\breve{y}}$. Thus, we can produce a bootstrap variance estimator with the same expectation as the textbook variance estimator simply by randomly generating $\mathbf{a}^{(b)}$ from a distribution with the following two conditions:
 
@@ -334,7 +335,7 @@ Note that if the vector of adjustment factors $\mathbf{a}^{(b)}$ has expectation
 
 The simplest, general way to generate the adjustment factors is to simulate from a multivariate normal distribution $\mathbf{a} \sim MVN(\mathbf{1}_n, \boldsymbol{\Sigma})$, which is the method used in this package. However, this method can lead to negative adjustment factors and hence negative bootstrap weights, which--while perfectly valid for variance estimation--may be undesirable from a practical point of view. Thus, in the following subsection, we describe one method for adjusting the replicate factors so that they are nonnegative and $E_{*} \left( \mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}\right) =\mathbf{\breve{y}}^{\prime}\Sigma \mathbf{\breve{y}}$.
 
-#### Adjusting Generalized Survey Bootstrap Replicates to Avoid Negative Weights
+##### Adjusting Generalized Survey Bootstrap Replicates to Avoid Negative Weights
 
 Let $\mathbf{A} = \left[ \mathbf{a}^{(1)} \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]$ denote the $(n \times B)$ matrix of bootstrap adjustment factors. To eliminate negative adjustment factors, @beaumont2012 propose forming a rescaled matrix of nonnegative replicate factors $\mathbf{A}^S$ by rescaling each adjustment factor $a_k^{(b)}$ as follows:
 
@@ -358,9 +359,90 @@ $$
 \end{aligned}
 $$
 
-When sharing a dataset that uses rescaled weights from a generalized bootstrap survey, the documentation for the dataset should instruct the user to use replication scale factor $\frac{\tau^2}{B}$ rather than $\frac{1}{B}$ when estimating sampling variances.
+When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor $\frac{\tau^2}{B}$ rather than $\frac{1}{B}$ when estimating sampling variances.
 
-#### Implementation
+### Implementation
+
+There are two ways to implement the generalized survey bootstrap.
+
+##### Option 1: Convert an existing design to a generalized bootstrap design
+
+The simplest method is to convert an existing survey design object to a generalized bootstrap design. 
+
+With this approach, we create a survey design object using the `svydesign()` function. This allows us to represent information about stratification and clustering (potentially at multiple stages), as well as information about finite population corrections.
+
+```{r}
+# Load example data from stratified systematic sample
+data('library_stsys_sample', package = 'svrep')
+
+# First, ensure data are sorted in same order as was used in sampling
+library_stsys_sample <- library_stsys_sample[
+  order(library_stsys_sample$SAMPLING_SORT_ORDER),
+]
+
+# Create a survey design object
+design_obj <- svydesign(
+  data = library_stsys_sample,
+  strata = ~ SAMPLING_STRATUM,
+  ids = ~ 1,
+  fpc = ~ STRATUM_POP_SIZE
+)
+```
+
+Next, we convert the survey design object to a replicate design using the function `as_gen_boot_design()`. The function argument `variance_estimator` allows us to specify the name of a variance estimator to use as the basis for creating replicate weights.
+
+```{r}
+# Convert to generalized bootstrap replicate design
+gen_boot_design_sd2 <- as_gen_boot_design(
+  design = design_obj,
+  variance_estimator = "SD2",
+  replicates = 2000
+)
+
+# Estimate sampling variances
+svymean(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
+```
+
+For a PPS design that uses the Horvitz-Thompson or Yates-Grundy estimator, we can create a generalized bootstrap estimator with the same expectation. In the example below, we create a PPS design with the 'survey' package and convert it to a generalied bootstrap design.
+
+```{r}
+# Load example data of a PPS survey of counties and states
+   data('election', package = 'survey')
+
+# Create survey design object
+   pps_design_ht <- svydesign(
+     data = election_pps,
+     id = ~1, fpc = ~p,
+     pps = ppsmat(election_jointprob),
+     variance = "HT"
+   )
+
+  
+# Convert to generalized bootstrap replicate design
+gen_boot_design_ht <- pps_design_ht |>
+  as_gen_boot_design(variance_estimator = "Horvitz-Thompson",
+                     replicates = 5000, tau = "auto")
+
+# Compare sampling variances from bootstrap vs. Yates-Grundy estimator
+svytotal(x = ~ Bush + Kerry, design = pps_design_ht)
+svytotal(x = ~ Bush + Kerry, design = gen_boot_design_ht)
+```
+
+Unless specified otherwise, `as_gen_boot_design()` automatically selects a rescaling value $\tau$ to use for eliminating negative adjustment factors. The `scale` attribute of the resulting replicate survey design object is thus set to equal $\tau^2/B$.
+
+```{r}
+overall_scale_factor <- gen_boot_design_ht$scale
+print(overall_scale_factor)
+
+
+B <- ncol(gen_boot_design_ht$repweights)
+tau <- sqrt(overall_scale_factor * B)
+
+print(tau)
+```
+
+
+##### Option 2: Create the quadratic form matrix and then use it to create bootstrap weights
 
 The generalized survey bootstrap can be implemented with a two-step process:
 
@@ -417,7 +499,6 @@ gen_boot_design |>
   svymean(x = ~ TOTSTAFF,
           na.rm = TRUE, deff = TRUE)
 ```
-
 
 ## Choosing the Number of Bootstrap Replicates
 
