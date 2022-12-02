@@ -169,16 +169,13 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 
   n <- nrow(Sigma)
 
-  if (!isSymmetric.matrix(Sigma)) {
-    stop("`Sigma` must be a symmetric matrix.")
-  }
-
   # Generate replicate factors by simulating from a multivariate normal distribution
   replicate_factors <- t(
-    MASS::mvrnorm(n = num_replicates,
-                  mu = rep(1, times = n),
-                  Sigma = Sigma,
-                  empirical = FALSE)
+    mvtnorm::rmvnorm(n = num_replicates,
+                     mean = rep(1, times = n),
+                     sigma = Sigma,
+                     checkSymmetry = TRUE,
+                     method = "eigen")
   )
 
   # (Potentially) rescale to avoid negative weights
@@ -464,6 +461,23 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
+  accepted_variance_estimators <- c(
+    "Yates-Grundy", "Horvitz-Thompson",
+    "Ultimate Cluster", "Stratified Multistage SRS",
+    "SD1", "SD2"
+  )
+
+  if (is.null(variance_estimator)) {
+    stop("Must specify a value for `variance_estimator`.")
+  }
+
+  if (!variance_estimator %in% accepted_variance_estimators) {
+    sprintf("`%s` is not a supported variance estimator, or else there is a typo.") |> stop()
+  }
+  if (length(variance_estimator) > 1) {
+    stop("Can only specify one estimator for `variance_estimator`.")
+  }
+
   is_pps_design <- isTRUE(design$pps)
 
   if (variance_estimator %in% c("Horvitz-Thompson", "Yates-Grundy")) {
@@ -480,6 +494,13 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
         stop()
     }
     Sigma <- design[['dcheck']][[1]]$dcheck |> as.matrix()
+
+    if (variance_estimator == "Yates-Grundy") {
+      Sigma <- - Sigma
+      diag(Sigma) <- diag(Sigma) - rowSums(Sigma)
+      Sigma <- - Sigma
+    }
+
   }
 
   if (variance_estimator %in% c("SD1", "SD2")) {

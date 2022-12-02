@@ -178,6 +178,19 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
                                   strata_pop_sizes = NULL,
                                   sort_order = NULL) {
 
+  accepted_variance_estimators <- c(
+    "Yates-Grundy", "Horvitz-Thompson",
+    "Ultimate Cluster", "Stratified Multistage SRS",
+    "SD1", "SD2"
+  )
+
+  if (!variance_estimator %in% accepted_variance_estimators) {
+    sprintf("`%s` is not a supported variance estimator, or else there is a typo.") |> stop()
+  }
+  if (length(variance_estimator) > 1) {
+    stop("Can only specify one estimator for `variance_estimator`.")
+  }
+
   if (variance_estimator %in% c("Yates-Grundy", "Horvitz-Thompson")) {
     if (is.null(joint_probs)) {
       sprintf("For `variance_estimator='%s'`, must supply a matrix to the argument `joint_probs`.",

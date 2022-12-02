@@ -25,7 +25,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.0
 Imports: 
-    MASS,
+    mvtnorm,
     stats,
     survey (>= 4.1),
     utils
