@@ -53,6 +53,7 @@ Estimates the bootstrap simulation error, expressed as a "simulation coefficient
 }
 
 \examples{
+\dontrun{
 set.seed(2022)
 
 # Create an example bootstrap survey design object ----
@@ -84,6 +85,7 @@ custom_statistic <- withReplicates(design = boot_design,
   estimate_boot_sim_cv(
     svrepstat = custom_statistic
   )
+}
 }
 \references{
 See Section 3.3 and Section 8 of Beaumont and Patak (2012) for details and an example where the simulation CV is used

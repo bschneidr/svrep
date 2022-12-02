@@ -74,6 +74,7 @@ and this simulation error is measured as a simulation coefficient of variation (
 }
 
 \examples{
+\dontrun{
 set.seed(2022)
 
 # Create an example bootstrap survey design object ----
@@ -107,6 +108,7 @@ custom_statistic <- withReplicates(design = boot_design,
     svrepstat = custom_statistic,
     target_cv = c(0.01, 0.05, 0.10)
   )
+}
 }
 \references{
 See Section 3.3 and Section 8 of Beaumont and Patak (2012) for details and an example where the simulation CV is used

@@ -70,6 +70,7 @@
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_sim_cv}} to estimate the simulation CV for the number of bootstrap replicates actually used.
 #' @examples
+#' \dontrun{
 #' set.seed(2022)
 #'
 #' # Create an example bootstrap survey design object ----
@@ -103,6 +104,7 @@
 #'     svrepstat = custom_statistic,
 #'     target_cv = c(0.01, 0.05, 0.10)
 #'   )
+#' }
 estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
 
   if (is.null(svrepstat$replicates)) {
@@ -215,6 +217,7 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #' @examples
+#' \dontrun{
 #' set.seed(2022)
 #'
 #' # Create an example bootstrap survey design object ----
@@ -246,6 +249,7 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
 #'   estimate_boot_sim_cv(
 #'     svrepstat = custom_statistic
 #'   )
+#' }
 
 estimate_boot_sim_cv <- function(svrepstat) {
 
