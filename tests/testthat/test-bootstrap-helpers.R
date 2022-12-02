@@ -44,4 +44,50 @@ suppressWarnings({
       )
   })
 
+# Sanity check ----
 
+  library(survey)
+  data("election", package = "survey")
+
+  ht_quad_form_matrix <- make_quad_form_matrix(variance_estimator = "Horvitz-Thompson",
+                                               joint_probs = election_jointprob)
+  ##_ Produce variance estimate
+  wtd_y <- as.matrix(election_pps$wt * election_pps$Bush)
+  expected_value <- as.numeric(t(wtd_y) %*% ht_quad_form_matrix %*% wtd_y)
+
+  set.seed(2014)
+  sim_results <- replicate(n = 1000, expr = {
+    adj_factors <- make_gen_boot_factors(Sigma = ht_quad_form_matrix,
+                                         num_replicates = 1000,
+                                         tau = "auto")
+    election_pps_bootstrap_design <- svrepdesign(
+      data = election_pps,
+      weights = 1 / diag(election_jointprob),
+      repweights = adj_factors,
+      combined.weights = FALSE,
+      type = "other",
+      scale = attr(adj_factors, 'scale'),
+      rscales = attr(adj_factors, 'rscales')
+    )
+
+    estimate <- svytotal(x = ~ Bush, design = election_pps_bootstrap_design,
+                         return.replicates = TRUE)
+
+    sim_cv_estimate <- estimate_boot_sim_cv(estimate)[['SIMULATION_CV']]
+    var_estimate <- as.numeric(vcov(estimate))
+    c('sim_cv' = sim_cv_estimate, 'var_estimate' = var_estimate)
+  })
+
+  empirical_sim_cv <- sd(sim_results['var_estimate',]) / expected_value
+  mean_estimated_sim_cv <- mean(sim_results['sim_cv',])
+
+  rel_abs_error <- abs(mean_estimated_sim_cv - empirical_sim_cv)/empirical_sim_cv
+
+  test_that(
+    "`estimate_boot_sim_cv() produces correct results", {
+      expect_lt(
+        object = rel_abs_error,
+        expected = 0.01
+      )
+    }
+  )
