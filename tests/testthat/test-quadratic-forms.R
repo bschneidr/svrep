@@ -138,6 +138,7 @@ library_stsys_sample <- library_stsys_sample |>
 
   ## Load an example dataset that uses unequal probability sampling
   data('election', package = 'survey')
+  y_wtd <- election_pps$Bush/diag(election_jointprob)
 
   ## Create matrix to represent the Horvitz-Thompson estimator as a quadratic form
   n <- nrow(election_pps)
@@ -159,6 +160,21 @@ library_stsys_sample <- library_stsys_sample |>
     expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
   })
 
+  svy_pkg_result <- svydesign(
+    data = election_pps,
+    id = ~1, fpc = ~p,
+    pps = ppsmat(election_jointprob),
+    variance = "HT"
+  ) |> svytotal(x = ~ Bush) |> vcov()
+
+  quad_form_result <- t(y_wtd) %*% ht_quad_form %*% y_wtd
+
+  test_that(
+    "Generates correct quadratic form for Horvitz-Thompson", {
+      expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
+      expect_equal(object = quad_form_result, expected = svy_pkg_result)
+    })
+
 # Check Sen-Yates-Grundy results ----
 
   y_wtd <- election_pps$Bush/diag(election_jointprob)
@@ -179,10 +195,21 @@ library_stsys_sample <- library_stsys_sample |>
 
   quad_form_result <- t(y_wtd) %*% yg_quad_form_matrix %*% y_wtd
 
+
+  svy_pkg_result <- svydesign(
+    data = election_pps,
+    id = ~1, fpc = ~p,
+    pps = ppsmat(election_jointprob),
+    variance = "YG"
+  ) |> svytotal(x = ~ Bush) |> vcov()
+
   test_that(
     "Generates correct quadratic form for Yates-Grundy", {
     expect_equal(object = quad_form_result, expected = syg_result)
+    expect_equal(object = quad_form_result, expected = svy_pkg_result)
   })
+
+
 
 # Check SD1 and SD2 results ----
 
