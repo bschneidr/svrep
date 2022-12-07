@@ -198,3 +198,57 @@ set.seed(2014)
         expected = election_pps_reps
       )
     })
+
+# Outputs either factors or weights ----
+
+  test_that(
+    "Able to correctly output either adjustment factors or weights", {
+      expect_equal(
+        object = withr::with_seed(2014, {
+          as_bootstrap_design(dclus1, type = "Rao-Wu-Yue-Beaumont") |>
+            weights(type = "analysis")
+        }),
+        expected = withr::with_seed(2014, {
+          as_bootstrap_design(dclus1, type = "Rao-Wu-Yue-Beaumont") |>
+            weights(type = "replication") * weights(dclus1)
+        })
+      )
+      expect_equal(
+        object = withr::with_seed(2014, {
+          as_bootstrap_design(dclus1, type = "Rao-Wu-Yue-Beaumont",
+                              replicates = 100) |>
+            weights(type = "analysis")
+        }),
+        expected = withr::with_seed(2014, {
+          make_rwyb_bootstrap_weights(
+            num_replicates = 100,
+            samp_unit_ids = dclus1$cluster,
+            strata_ids = dclus1$strata,
+            samp_unit_sel_probs = dclus1$allprob,
+            samp_method_by_stage = c("SRSWOR"),
+            output = 'weights'
+          ) |> `dimnames<-`(NULL)
+        })
+      )
+    })
+
+# Expected warnings and errors ----
+
+  data('mu284', package = 'survey')
+  test_that(
+    desc = "Expected error for noncertainty singleton strata", {
+      expect_error(
+        object =   svydesign(
+          data = mu284 |>
+            mutate(Stratum = case_when(
+              id1 == "19" ~ "1",
+              TRUE ~ "2"
+            )),
+          ids = ~ id1 + id2,
+          strata = ~ Stratum,
+          fpc = ~ n1 + n2
+        ) |> as_bootstrap_design(type = "Rao-Wu-Yue-Beaumont"),
+        regexp = "Cannot form bootstrap adjustment factors for a stratum at stage 1"
+      )
+  })
+
