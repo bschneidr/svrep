@@ -8,6 +8,12 @@
   `as.svrepdesign()` that supports additional bootstrap methods
   and has detailed documentation about which bootstrap methods can be used
   for different types of sampling designs.
+  
+  * Added function `as_gen_boot_design()` to convert a survey design
+  object to a replicate design with replicate weights created
+  using the generalized survey bootstrap. The user must supply the name of
+  a target variance estimator (e.g., "Horvitz-Thompson" or "Ultimate Cluster")
+  used to create the generalized bootstrap factors. See the new vignette for details.
 
   * Added function `estimate_boot_sim_cv()` to estimate the simulation error
   in a bootstrap estimate caused by using a finite number of bootstrap replicates.

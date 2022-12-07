@@ -122,7 +122,7 @@ set.seed(2014)
     samp_unit_sel_probs = matrix(0,
                                  nrow = nrow(dclus2wr$fpc$sampsize),
                                  ncol = ncol(dclus2wr$fpc$sampsize)),
-    samp_method_by_stage = c("SRSWOR", "SRSWOR"),
+    samp_method_by_stage = c("SRSWR", "SRSWR"),
     output = 'factors'
   ) |> `dimnames<-`(NULL)
 
