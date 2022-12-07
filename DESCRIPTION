@@ -36,7 +36,8 @@ Suggests:
     rmarkdown,
     tidycensus,
     dplyr,
-    srvyr
+    srvyr,
+    withr
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)

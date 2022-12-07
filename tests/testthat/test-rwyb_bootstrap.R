@@ -20,8 +20,10 @@ set.seed(2014)
   dclus1<-svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc)
 
   ## Two-stage cluster sample (SRSWOR)
-
   dclus2 <- svydesign(id=~dnum+snum, fpc=~fpc1+fpc2, data=apiclus2)
+
+  ## Two-stage cluster sample (SRSWR)
+  dclus2wr <- svydesign(id=~dnum+snum, weights = ~pw, data=apiclus2)
 
   ## Library two-stage survey (first stage PPSWOR, second stage SRSWOR)
   library_multistage_survey <- svydesign(
@@ -92,6 +94,24 @@ set.seed(2014)
   ) |> `dimnames<-`(NULL)
 
   set.seed(1999)
+  dclus2wr_boot <- as_bootstrap_design(
+    design = dclus2wr,
+    type = "Rao-Wu-Yue-Beaumont",
+    replicates = 100
+  )
+  set.seed(1999)
+  dclus2wr_reps <- make_rwyb_bootstrap_weights(
+    num_replicates = 100,
+    samp_unit_ids = dclus2$cluster,
+    strata_ids = dclus2$strata,
+    samp_unit_sel_probs = matrix(0,
+                                 nrow = nrow(dclus2wr$fpc$sampsize),
+                                 ncol = ncol(dclus2wr$fpc$sampsize)),
+    samp_method_by_stage = c("SRSWOR", "SRSWOR"),
+    output = 'factors'
+  ) |> `dimnames<-`(NULL)
+
+  set.seed(1999)
   library_multistage_boot <- as_bootstrap_design(
     design = library_multistage_survey,
     type = "Rao-Wu-Yue-Beaumont",
@@ -152,6 +172,14 @@ set.seed(2014)
       expect_equal(
         object = dclus2_boot$repweights,
         expected = dclus2_reps
+      )
+    })
+
+  test_that(
+    "Same results from conversion versus creating from scratch: dclus2wr", {
+      expect_equal(
+        object = dclus2wr_boot$repweights,
+        expected = dclus2wr_reps
       )
     })
 

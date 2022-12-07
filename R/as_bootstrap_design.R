@@ -165,6 +165,9 @@ as_bootstrap_design.survey.design <- function(design,
 
     # Determine which stages were with-replacement
     with_replacement_stages <- apply(X = pop_sizes_by_stage, MARGIN = 2, FUN = function(N) all(is.infinite(N)))
+    if (all(with_replacement_stages)) {
+      samp_unit_sel_probs_by_stage <- samp_sizes_by_stage / pop_sizes_by_stage
+    }
 
     if (is.null(samp_method_by_stage)) {
       if (is_pps_design) {
@@ -203,7 +206,7 @@ as_bootstrap_design.survey.design <- function(design,
                    'rao-wu' = "subbootstrap",
                    'subbootstrap' = "subbootstrap",
                    'canty-davison' = "bootstrap",
-                   'bootstrap' = "canty-davison")
+                   'bootstrap' = "bootstrap")
     rep_design <- survey::as.svrepdesign(design = design,
                                          type = type,
                                          compress = compress,
