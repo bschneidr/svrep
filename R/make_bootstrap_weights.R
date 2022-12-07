@@ -208,19 +208,19 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
   # Make sure each stage's sampling units are nested within strata
   # and each stage's sampling units are nested
   # within previous stage sampling units
-  cluster_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
-                                 cluster_ids[, 1, drop = TRUE],
-                                 sep = " | ", drop = TRUE)
+  samp_unit_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
+                                   samp_unit_ids[, 1, drop = TRUE],
+                                   sep = " | ", drop = TRUE)
   stage <- 2L
   while (stage <= number_of_stages) {
     strata_ids[,stage] <- interaction(
-      cluster_ids[, stage-1L, drop=TRUE],
+      samp_unit_ids[, stage-1L, drop=TRUE],
       strata_ids[, stage, drop=TRUE],
       sep = " | ", drop = TRUE
     )
-    cluster_ids[,stage] <- interaction(
+    samp_unit_ids[,stage] <- interaction(
       strata_ids[, stage, drop = TRUE],
-      cluster_ids[, stage, drop = TRUE],
+      samp_unit_ids[, stage, drop = TRUE],
       sep = " | ", drop = TRUE
     )
     stage <- stage + 1L
