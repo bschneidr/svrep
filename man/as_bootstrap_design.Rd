@@ -9,7 +9,8 @@ as_bootstrap_design(
   type = "Rao-Wu-Yue-Beaumont",
   replicates = 500,
   compress = TRUE,
-  mse = getOption("survey.replicates.mse")
+  mse = getOption("survey.replicates.mse"),
+  samp_method_by_stage = NULL
 )
 }
 \arguments{
@@ -50,6 +51,18 @@ impact on estimates.}
 
 \item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
+
+\item{samp_method_by_stage}{(Optional). By default, this function will automatically determine the sampling method used at each stage.
+However, this argument can be used to ensure the correct sampling method is identified for each stage. \cr
+Accepts a vector with length equal to the number of stages of sampling.
+Each element should be one of the following: \cr
+\itemize{
+ \item{"SRSWOR"}{ - Simple random sampling, without replacement}
+ \item{"SRSWR"}{ - Simple random sampling, with replacement}
+ \item{"PPSWOR"}{ - Unequal probabilities of selection, without replacement}
+ \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
+ \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
+}}
 }
 \value{
 A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
@@ -105,7 +118,10 @@ library(survey)
                               fpc = ~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
                               pps = "brewer")
 
-  bootstrap_rep_design <- as_bootstrap_design(multistage_pps, replicates = 100)
+  bootstrap_rep_design <- as_bootstrap_design(
+    multistage_pps, replicates = 500,
+    samp_method_by_stage = c("PPSWOR", "SRSWOR")
+  )
 
   ## Compare std. error estimates from bootstrap versus linearization
   data.frame(
@@ -129,9 +145,8 @@ Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the num
          For some complex designs, one can use \code{\link[svrep]{make_rwyb_bootstrap_weights}} to create
          Rao-Wu-Yue-Beaumont bootstrap weights or adjustment factors given information for each stage of sampling
          (the type of sampling, strata IDs, cluster IDs, selection probabilities, etc.).
-
-         \cr \cr
+         \cr
 
          For systematic samples, one-PSU-per-stratum designs, or other especially complex sample designs,
-          one can use the generalized survey bootstrap method. See \code{\link[svrep]{make_gen_boot_factors}}.
+          one can use the generalized survey bootstrap method. See \code{\link[svrep]{as_gen_boot_design}} or \code{\link[svrep]{make_gen_boot_factors}}.
 }

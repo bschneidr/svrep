@@ -47,11 +47,11 @@ set.seed(2014)
   dstrat_boot <- as_bootstrap_design(
     design = dstrat,
     type = "Rao-Wu-Yue-Beaumont",
-    replicates = 10
+    replicates = 100
   )
   set.seed(1999)
   dstrat_reps <- make_rwyb_bootstrap_weights(
-    num_replicates = 10,
+    num_replicates = 100,
     samp_unit_ids = dstrat$cluster,
     strata_ids = dstrat$strata,
     samp_unit_sel_probs = dstrat$allprob,
@@ -63,11 +63,11 @@ set.seed(2014)
   dclus1_boot <- as_bootstrap_design(
     design = dclus1,
     type = "Rao-Wu-Yue-Beaumont",
-    replicates = 10
+    replicates = 100
   )
   set.seed(1999)
   dclus1_reps <- make_rwyb_bootstrap_weights(
-    num_replicates = 10,
+    num_replicates = 100,
     samp_unit_ids = dclus1$cluster,
     strata_ids = dclus1$strata,
     samp_unit_sel_probs = dclus1$allprob,
@@ -79,11 +79,11 @@ set.seed(2014)
   dclus2_boot <- as_bootstrap_design(
     design = dclus2,
     type = "Rao-Wu-Yue-Beaumont",
-    replicates = 10
+    replicates = 100
   )
   set.seed(1999)
   dclus2_reps <- make_rwyb_bootstrap_weights(
-    num_replicates = 10,
+    num_replicates = 100,
     samp_unit_ids = dclus2$cluster,
     strata_ids = dclus2$strata,
     samp_unit_sel_probs = dclus2$allprob,
@@ -95,15 +95,16 @@ set.seed(2014)
   library_multistage_boot <- as_bootstrap_design(
     design = library_multistage_survey,
     type = "Rao-Wu-Yue-Beaumont",
-    replicates = 10
+    replicates = 100,
+    samp_method_by_stage = c("PPSWOR", "SRSWOR")
   )
   set.seed(1999)
   library_multistage_reps <- make_rwyb_bootstrap_weights(
-    num_replicates = 10,
+    num_replicates = 100,
     samp_unit_ids = library_multistage_survey$cluster,
     strata_ids = library_multistage_survey$strata,
     samp_unit_sel_probs = library_multistage_survey$allprob,
-    samp_method_by_stage = c("PPSWOR", "PPSWOR"),
+    samp_method_by_stage = c("PPSWOR", "SRSWOR"),
     output = 'factors'
   ) |> `dimnames<-`(NULL)
 
@@ -111,11 +112,11 @@ set.seed(2014)
   election_pps_boot <- as_bootstrap_design(
     design = pps_design_ht,
     type = "Rao-Wu-Yue-Beaumont",
-    replicates = 10
+    replicates = 100
   )
   set.seed(1999)
   election_pps_reps <- make_rwyb_bootstrap_weights(
-    num_replicates = 10,
+    num_replicates = 100,
     samp_unit_ids = pps_design_ht$cluster,
     strata_ids = pps_design_ht$strata,
     samp_unit_sel_probs = pps_design_ht$allprob,
