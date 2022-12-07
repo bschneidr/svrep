@@ -1,7 +1,7 @@
 #' Create bootstrap replicate weights for a general survey design,
 #' using the Rao-Wu-Yue-Beaumont bootstrap method
 #' @description Creates bootstrap replicate weights for a multistage stratified sample design
-#' using the methods of Beaumont and Émond (2022), which are generalizations of the Rao-Wu-Yue bootstrap. \cr \cr
+#' using the method of Beaumont and Émond (2022), which is a generalization of the Rao-Wu-Yue bootstrap. \cr \cr
 #' The design may have different sampling methods used at different stages.
 #' Each stage of sampling may potentially use unequal probabilities (with or without replacement)
 #' and may potentially use Poisson sampling.
@@ -21,12 +21,8 @@
 #'  \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
 #'  \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
 #' }
-#' @param allow_singletons_at_final_stage Logical value indicating whether to allow
-#' non-certainty singleton strata at the final sampling stage (rather than throw an error message).
-#' A "non-certainty singleton stratum" is defined as a final-stage stratum where only
-#' one unit was sampled, and its selection probability is less than one.
-#' A common example is in surveys where multiple households are selected in the first stages of sampling,
-#' but in the final stage of sampling only one person is sampled from each household. \cr
+#' @param allow_final_stage_singletons Logical value indicating whether to allow
+#' non-certainty singleton strata at the final sampling stage (rather than throw an error message). \cr
 #' If \code{TRUE}, the sampling unit in a non-certainty singleton stratum will have its final-stage adjustment factor
 #' calculated as if it was selected with certainty at the final stage (i.e., its adjustment factor will be 1),
 #' and then its final bootstrap weight will be calculated by combining this adjustment factor
@@ -168,7 +164,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                         samp_unit_ids, strata_ids,
                                         samp_unit_sel_probs,
                                         samp_method_by_stage = rep("PPSWOR", times = ncol(samp_unit_ids)),
-                                        allow_singletons_at_final_stage = TRUE,
+                                        allow_final_stage_singletons = TRUE,
                                         output = "weights") {
 
   number_of_stages <- ncol(samp_unit_ids)
@@ -210,21 +206,21 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                                          num_replicates))
 
   # Make sure each stage's sampling units are nested within strata
-  # and each stage's sampling units are nested within
-  # previous stage's sampling units
-  samp_unit_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
-                                   samp_unit_ids[, 1, drop = TRUE],
-                                   sep = " | ", drop = TRUE)
+  # and each stage's sampling units are nested
+  # within previous stage sampling units
+  cluster_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
+                                 cluster_ids[, 1, drop = TRUE],
+                                 sep = " | ", drop = TRUE)
   stage <- 2L
   while (stage <= number_of_stages) {
     strata_ids[,stage] <- interaction(
-      samp_unit_ids[, stage-1L, drop=TRUE],
+      cluster_ids[, stage-1L, drop=TRUE],
       strata_ids[, stage, drop=TRUE],
       sep = " | ", drop = TRUE
     )
-    samp_unit_ids[,stage] <- interaction(
+    cluster_ids[,stage] <- interaction(
       strata_ids[, stage, drop = TRUE],
-      samp_unit_ids[, stage, drop = TRUE],
+      cluster_ids[, stage, drop = TRUE],
       sep = " | ", drop = TRUE
     )
     stage <- stage + 1L
@@ -263,7 +259,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
       (n_h[h] == 1) & !all(certainty_flags_by_stratum[[h]])
     })
     if (any(noncertainty_singleton_strata)) {
-      if ((stage < number_of_stages) | !allow_singletons_at_final_stage) {
+      if ((stage < number_of_stages) | !allow_final_stage_singletons) {
         error_msg <- sprintf(
           paste("Cannot form bootstrap adjustment factors for a stratum at stage %s, ",
                 "since the stratum has only one sampling unit, ",
@@ -271,7 +267,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                 ifelse(
                   stage == number_of_stages,
                   paste0(
-                    " Setting `allow_singletons_at_final_stage = TRUE` will avoid this error message",
+                    " Setting `allow_final_stage_singletons = TRUE` will avoid this error message",
                     " by calculating that sampling unit's final-stage adjustment factor as if it was selected with certainty at the final stage,",
                     " and then calculating the bootstrap weight using this adjustment factor combined with the final-stage selection probability."
                   ),

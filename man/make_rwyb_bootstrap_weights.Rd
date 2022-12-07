@@ -11,7 +11,7 @@ make_rwyb_bootstrap_weights(
   strata_ids,
   samp_unit_sel_probs,
   samp_method_by_stage = rep("PPSWOR", times = ncol(samp_unit_ids)),
-  allow_singletons_at_final_stage = TRUE,
+  allow_final_stage_singletons = TRUE,
   output = "weights"
 )
 }
@@ -37,12 +37,8 @@ Each element should be one of the following: \cr
  \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
 }}
 
-\item{allow_singletons_at_final_stage}{Logical value indicating whether to allow
-non-certainty singleton strata at the final sampling stage (rather than throw an error message).
-A "non-certainty singleton stratum" is defined as a final-stage stratum where only
-one unit was sampled, and its selection probability is less than one.
-A common example is in surveys where multiple households are selected in the first stages of sampling,
-but in the final stage of sampling only one person is sampled from each household. \cr
+\item{allow_final_stage_singletons}{Logical value indicating whether to allow
+non-certainty singleton strata at the final sampling stage (rather than throw an error message). \cr
 If \code{TRUE}, the sampling unit in a non-certainty singleton stratum will have its final-stage adjustment factor
 calculated as if it was selected with certainty at the final stage (i.e., its adjustment factor will be 1),
 and then its final bootstrap weight will be calculated by combining this adjustment factor
@@ -63,7 +59,7 @@ where the full-sample weights are inferred using \code{samp_unit_sel_probs}.
 }
 \description{
 Creates bootstrap replicate weights for a multistage stratified sample design
-using the methods of Beaumont and Émond (2022), which are generalizations of the Rao-Wu-Yue bootstrap. \cr \cr
+using the method of Beaumont and Émond (2022), which is a generalization of the Rao-Wu-Yue bootstrap. \cr \cr
 The design may have different sampling methods used at different stages.
 Each stage of sampling may potentially use unequal probabilities (with or without replacement)
 and may potentially use Poisson sampling.

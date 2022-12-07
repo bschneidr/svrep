@@ -157,7 +157,7 @@ as_bootstrap_design.survey.design <- function(design,
       strata_ids = strata_ids_by_stage,
       samp_unit_sel_probs = samp_unit_sel_probs_by_stage,
       samp_method_by_stage = samp_method_by_stage,
-      allow_singletons_at_final_stage = TRUE,
+      allow_final_stage_singletons = TRUE,
       output = "factors"
     )
 
