@@ -292,3 +292,19 @@ set.seed(2014)
       )
   })
 
+# Check for correctness ----
+
+  test_that(
+    "For SRSWOR, sum of weights in replicates always matches the population size", {
+      expect_equal(
+        object =   svrep::library_census |>
+          slice_sample(n = 100, replace = FALSE) |>
+          mutate(N_PSUS = nrow(svrep::library_census)) |>
+          svydesign(data = _, ids = ~ 1, fpc = ~ N_PSUS) |>
+          as_bootstrap_design(replicates = 100) |>
+          summarize_rep_weights(type = "overall") |>
+          select(avg_wgt_sum, sd_wgt_sums) |>
+          as.numeric(),
+        expected = c(9245, 0)
+      )
+    })
