@@ -161,11 +161,13 @@ as_bootstrap_design.survey.design <- function(design,
     } else {
       pop_sizes_by_stage <- as.matrix(fpcs_by_stage$popsize)
     }
+
     samp_unit_sel_probs_by_stage <- design[['allprob']]
 
     # Determine which stages were with-replacement
     with_replacement_stages <- apply(X = pop_sizes_by_stage, MARGIN = 2, FUN = function(N) all(is.infinite(N)))
-    if (all(with_replacement_stages)) {
+    # For WR stages of non-PPS designs, selection probabilities will be 0
+    if (!is_pps_design & all(with_replacement_stages)) {
       samp_unit_sel_probs_by_stage <- samp_sizes_by_stage / pop_sizes_by_stage
     }
 

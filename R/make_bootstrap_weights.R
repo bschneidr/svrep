@@ -325,12 +325,15 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
 
     if (samp_method_by_stage[stage] == "POISSON") {
       a_beaumont_emond <- lapply(X = seq_len(H), function(h) {
-        alpha <- 1 - distinct_sel_probs_by_stratum[[h]]
-        a_k <- stats::rgamma(n = n_h[h] * num_replicates,
-                             shape = alpha,
-                             rate = alpha^(-1)) |> matrix(nrow = n_h[h],
-                                                          ncol = num_replicates,
-                                                          byrow = TRUE)
+        delta <- 1 - distinct_sel_probs_by_stratum[[h]]
+        a_k <- sapply(
+          X = delta,
+          FUN = function(scale_param) {
+            stats::rgamma(n = num_replicates,
+                          shape = 1/scale_param,
+                          scale = scale_param)
+          }
+        ) |> t()
         return(a_k)
       })
     }

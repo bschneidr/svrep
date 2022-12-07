@@ -294,17 +294,66 @@ set.seed(2014)
 
 # Check for correctness ----
 
+  ##_ SRSWOR ----
   test_that(
     "For SRSWOR, sum of weights in replicates always matches the population size", {
+      set.seed(2014)
       expect_equal(
-        object =   svrep::library_census |>
-          slice_sample(n = 100, replace = FALSE) |>
-          mutate(N_PSUS = nrow(svrep::library_census)) |>
-          svydesign(data = _, ids = ~ 1, fpc = ~ N_PSUS) |>
+        object = svrep::library_census |>
+          group_by(STABR) |>
+          mutate(N_PSUS = n()) |>
+          arrange(sample(x = n())) |>
+          slice_head(n = 2) |>
+          ungroup() %>%
+          svydesign(data = ., ids = ~ 1, strata = ~ STABR, fpc = ~ N_PSUS) |>
           as_bootstrap_design(replicates = 100) |>
           summarize_rep_weights(type = "overall") |>
           select(avg_wgt_sum, sd_wgt_sums) |>
           as.numeric(),
         expected = c(9245, 0)
+      )
+    })
+
+  ##_ Poisson ----
+
+  test_that(
+    "For single-stage Poisson design, RWYB bootstrap close to Horvitz-Thompson estimate", {
+      set.seed(2014)
+
+      ### Represent Poisson design as PPS design with Horvitz-Thompson estimator
+      poisson_design <- multistage_survey_with_poisson_nonresponse$variables |>
+        filter(RESP_STATUS == 1) %>%
+        svydesign(data = .,
+                  probs = ~ RESP_PROB,
+                  ids = ~ 1,
+                  pps = ppsmat(
+                    (.$RESP_PROB %*% t(.$RESP_PROB)) |>
+                      `diag<-`(.$RESP_PROB)
+                  ),
+                  variance = "HT")
+
+      ### Convert to RWYB bootstrap design
+      poisson_boot <- poisson_design |>
+        as_bootstrap_design(samp_method_by_stage = 'Poisson',
+                            replicates = 5000)
+
+      ### Calculate Horvitz-Thompson estimate
+      poisson_quad_matrix <- make_quad_form_matrix(
+        variance_estimator = "Horvitz-Thompson",
+        joint_probs = (poisson_design$prob %*% t(poisson_design$prob)) |>
+          `diag<-`(poisson_design$prob)
+      )
+      wtd_y <- poisson_design$variables$TOTCIR / poisson_design$prob
+      wtd_y[is.na(wtd_y)] <- 0
+
+      expected_value <- as.numeric(t(wtd_y) %*% poisson_quad_matrix %*% wtd_y)
+
+      ### Compare bootstrap estimate to Horvitz-Thompson estimate
+      rwyb_boot_est <- svytotal(x = ~ TOTCIR, design = poisson_boot, na.rm = TRUE) |>
+        vcov() |> as.numeric()
+
+      expect_lt(
+        object = abs(rwyb_boot_est - expected_value)/expected_value,
+        expected = 0.05
       )
     })
