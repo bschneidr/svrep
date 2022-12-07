@@ -129,6 +129,8 @@ as_bootstrap_design.survey.design <- function(design,
   type <- tolower(type)
 
   if (type == "rao-wu-yue-beaumont") {
+    # Extract information from the survey design object
+    is_pps_design <- isTRUE(design$pps)
     samp_unit_ids_by_stage <- design$cluster
     strata_ids_by_stage <- design$strata
     fpcs_by_stage <- design$fpc
@@ -140,14 +142,15 @@ as_bootstrap_design.survey.design <- function(design,
     } else {
       pop_sizes_by_stage <- as.matrix(fpcs_by_stage$popsize)
     }
-    with_replacement_stages <- apply(X = pop_sizes_by_stage, MARGIN = 2, FUN = function(N) all(is.infinite(N)))
-    is_pps_design <- isTRUE(design$pps)
+    samp_unit_sel_probs_by_stage <- design[['allprob']]
 
-    samp_method_by_stage <- rep("PPSWOR", times = number_of_stages)
+    # Determine which stages were with-replacement
+    with_replacement_stages <- apply(X = pop_sizes_by_stage, MARGIN = 2, FUN = function(N) all(is.infinite(N)))
+
     if (is_pps_design) {
-      samp_unit_sel_probs_by_stage <- design[['allprob']]
+      samp_method_by_stage <- rep("PPSWOR", times = number_of_stages)
     } else {
-      samp_unit_sel_probs_by_stage <- samp_sizes_by_stage / pop_sizes_by_stage
+      samp_method_by_stage <- rep("SRSWOR", times = number_of_stages)
       samp_method_by_stage[with_replacement_stages] <- "SRSWR"
     }
 
@@ -164,7 +167,7 @@ as_bootstrap_design.survey.design <- function(design,
     rep_design <- survey::svrepdesign(
       variables = design$variables,
       weights = weights(design, type = "sampling"),
-      repweights = adjustment_factors * weights(design, type = "sampling"), combined.weights = TRUE,
+      repweights = adjustment_factors, combined.weights = FALSE,
       compress = compress, mse = mse,
       scale = 1/replicates, rscales = rep(1, times = replicates),
       type = "bootstrap"
