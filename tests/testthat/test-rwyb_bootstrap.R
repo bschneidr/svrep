@@ -33,6 +33,21 @@ set.seed(2014)
     pps = "brewer"
   )
 
+  ## Library two-stage survey with nonresponse
+  multistage_survey_with_poisson_nonresponse <- svydesign(
+    data = svrep::library_multistage_sample |>
+      mutate(
+        RESP_PROB = runif(n = nrow(svrep::library_multistage_sample),
+                          min = 0.6, max = 1),
+        RESP_STATUS = ifelse(
+          runif(n = nrow(svrep::library_multistage_sample)) < RESP_PROB,
+          1, 0)
+      ),
+    fpc = ~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB + RESP_PROB,
+    ids = ~ PSU_ID + SSU_ID + RESP_STATUS,
+    pps = "brewer"
+  )
+
   ## One-stage PPSWOR
   data('election', package = 'survey')
 
@@ -129,6 +144,23 @@ set.seed(2014)
   ) |> `dimnames<-`(NULL)
 
   set.seed(1999)
+  ms_w_poisson_nr_boot <- as_bootstrap_design(
+    design = multistage_survey_with_poisson_nonresponse,
+    type = "Rao-Wu-Yue-Beaumont",
+    replicates = 100,
+    samp_method_by_stage = c("PPSWOR", "SRSWOR", "Poisson")
+  )
+  set.seed(1999)
+  ms_w_poisson_nr_reps <- make_rwyb_bootstrap_weights(
+    num_replicates = 100,
+    samp_unit_ids = multistage_survey_with_poisson_nonresponse$cluster,
+    strata_ids = multistage_survey_with_poisson_nonresponse$strata,
+    samp_unit_sel_probs = multistage_survey_with_poisson_nonresponse$allprob,
+    samp_method_by_stage = c("PPSWOR", "SRSWOR", "Poisson"),
+    output = 'factors'
+  ) |> `dimnames<-`(NULL)
+
+  set.seed(1999)
   election_pps_boot <- as_bootstrap_design(
     design = pps_design_ht,
     type = "Rao-Wu-Yue-Beaumont",
@@ -188,6 +220,14 @@ set.seed(2014)
       expect_equal(
         object = library_multistage_boot$repweights,
         expected = library_multistage_reps
+      )
+    })
+
+  test_that(
+    "Same results from conversion versus creating from scratch: multistage_survey_with_poisson_nonresponse", {
+      expect_equal(
+        object = ms_w_poisson_nr_boot$repweights,
+        expected = ms_w_poisson_nr_reps
       )
     })
 
