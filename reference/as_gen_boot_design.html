@@ -299,7 +299,7 @@ which can then be used as an input to <code><a href="make_gen_boot_factors.html"
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 1: Bootstrap based on the Yates-Grundy estimator ----</span></span></span>
@@ -321,13 +321,7 @@ which can then be used as an input to <code><a href="make_gen_boot_factors.html"
 <span class="r-in"><span>                        replicates <span class="op">=</span> <span class="fl">1000</span>, tau <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>   <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">Bush</span> <span class="op">+</span> <span class="va">Kerry</span>, design <span class="op">=</span> <span class="va">pps_design_yg</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          total      SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bush  64518472 2406526</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Kerry 51202102 2408091</span>
 <span class="r-in"><span>   <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">Bush</span> <span class="op">+</span> <span class="va">Kerry</span>, design <span class="op">=</span> <span class="va">gen_boot_design_yg</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          total      SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bush  64518472 2422125</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Kerry 51202102 2424414</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 2: Bootstrap based on the successive-difference estimator ----</span></span></span>
 <span class="r-in"><span></span></span>
@@ -352,16 +346,11 @@ which can then be used as an input to <code><a href="make_gen_boot_factors.html"
 <span class="r-in"><span>     variance_estimator <span class="op">=</span> <span class="st">"SD2"</span>,</span></span>
 <span class="r-in"><span>     replicates <span class="op">=</span> <span class="fl">2000</span></span></span>
 <span class="r-in"><span>   <span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> For `variance_estimator='SD2', assumes rows of data are sorted in the same order used in sampling.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>   <span class="co">## Estimate sampling variances</span></span></span>
 <span class="r-in"><span>   <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTSTAFF</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, design <span class="op">=</span> <span class="va">gen_boot_design_sd2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           total    SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> TOTSTAFF 180977 38367</span>
 <span class="r-in"><span>   <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTSTAFF</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, design <span class="op">=</span> <span class="va">design_obj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           total    SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> TOTSTAFF 180977 39029</span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

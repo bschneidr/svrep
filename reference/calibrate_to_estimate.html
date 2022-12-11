@@ -179,7 +179,8 @@ or supply a vector of randomly-selected column indices to the argument <code>col
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Load example data for primary survey ----</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span><span class="op">)</span></span></span>
@@ -208,9 +209,6 @@ or supply a vector of randomly-selected column indices to the argument <code>col
 <span class="r-in"><span>    vcov_estimate <span class="op">=</span> <span class="va">control_vcov_estimate</span>,</span></span>
 <span class="r-in"><span>    cal_formula <span class="op">=</span> <span class="op">~</span> <span class="va">stype</span> <span class="op">+</span> <span class="va">enroll</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Selection of replicate columns whose control totals will be perturbed will be done at random.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> For tips on reproducible selection, see `help('calibrate_to_estimate')`</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Setting `mse` to TRUE; variance estimates will be centered around full-sample estimate, not mean of replicates.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inspect estimates before and after calibration ----</span></span></span>
 <span class="r-in"><span></span></span>
@@ -218,55 +216,24 @@ or supply a vector of randomly-selected column indices to the argument <code>col
 <span class="r-in"><span>  <span class="co">##_ from calibrated design will match those of the control survey</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">stype</span> <span class="op">+</span> <span class="va">enroll</span>, design <span class="op">=</span> <span class="va">primary_survey</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             total        SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeE    4873.97   1333.32</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeH     473.86    158.70</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeM     846.17    167.55</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> enroll 3404940.13 932235.03</span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">stype</span> <span class="op">+</span> <span class="va">enroll</span>, design <span class="op">=</span> <span class="va">control_survey</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             total        SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeE    4397.74    196.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeH     774.25    142.85</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeM    1022.01    160.33</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> enroll 3621074.34 169519.65</span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">stype</span> <span class="op">+</span> <span class="va">enroll</span>, design <span class="op">=</span> <span class="va">calibrated_rep_design</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             total        SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeE    4397.74    196.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeH     774.25    142.85</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stypeM    1022.01    160.33</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> enroll 3621074.34 169519.65</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co">##_ Estimates from other variables will be changed as well</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">api00</span> <span class="op">+</span> <span class="va">api99</span>, design <span class="op">=</span> <span class="va">primary_survey</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         mean     SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api00 644.17 26.329</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api99 606.98 26.998</span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">api00</span> <span class="op">+</span> <span class="va">api99</span>, design <span class="op">=</span> <span class="va">control_survey</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         mean     SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api00 656.58 9.2497</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api99 624.68 9.5003</span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">api00</span> <span class="op">+</span> <span class="va">api99</span>, design <span class="op">=</span> <span class="va">calibrated_rep_design</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         mean     SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api00 642.69 27.165</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> api99 606.91 28.114</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inspect weights before and after calibration ----</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="summarize_rep_weights.html">summarize_rep_weights</a></span><span class="op">(</span><span class="va">primary_survey</span>, type <span class="op">=</span> <span class="st">'overall'</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   183    15           14   15        6194    403.1741           0    36.26464</span>
 <span class="r-in"><span>  <span class="fu"><a href="summarize_rep_weights.html">summarize_rep_weights</a></span><span class="op">(</span><span class="va">calibrated_rep_design</span>, type <span class="op">=</span> <span class="st">'overall'</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   183    15           14   15        6194 0.0003277581           0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   max_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    119.1069</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># For reproducibility, specify which columns are randomly selected for Fuller method ----</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">column_selection</span> <span class="op">&lt;-</span> <span class="va">calibrated_rep_design</span><span class="op">$</span><span class="va">col_selection</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">column_selection</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 13  5  1  7</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">calibrated_rep_design</span> <span class="op">&lt;-</span> <span class="fu">calibrate_to_estimate</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    rep_design <span class="op">=</span> <span class="va">primary_survey</span>,</span></span>
@@ -275,7 +242,7 @@ or supply a vector of randomly-selected column indices to the argument <code>col
 <span class="r-in"><span>    cal_formula <span class="op">=</span> <span class="op">~</span> <span class="va">stype</span> <span class="op">+</span> <span class="va">enroll</span>,</span></span>
 <span class="r-in"><span>    col_selection <span class="op">=</span> <span class="va">column_selection</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Setting `mse` to TRUE; variance estimates will be centered around full-sample estimate, not mean of replicates.</span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

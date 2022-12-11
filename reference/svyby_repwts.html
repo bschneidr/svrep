@@ -160,7 +160,8 @@ The first grouping factor always consists of indicators for which replicate desi
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">api</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">dclus1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span>id<span class="op">=</span><span class="op">~</span><span class="va">dnum</span>, weights<span class="op">=</span><span class="op">~</span><span class="va">pw</span>, data<span class="op">=</span><span class="va">apiclus1</span>, fpc<span class="op">=</span><span class="op">~</span><span class="va">fpc</span><span class="op">)</span></span></span>
@@ -198,14 +199,6 @@ The first grouping factor always consists of indicators for which replicate desi
 <span class="r-in"><span>                                  rep_design <span class="op">=</span> <span class="va">list_of_designs</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">means_by_design</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                               Design_Name    api00    api99</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nonresponse adjusted                 nonresponse adjusted 648.1231 611.4245</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> original                                         original 644.1694 606.9781</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unknown eligibility adjusted unknown eligibility adjusted 651.4723 615.4139</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                   se1      se2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nonresponse adjusted         32.50403 32.59888</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> original                     26.32936 26.99854</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unknown eligibility adjusted 27.68438 27.78748</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co">##_ Next compare domain means for two variables</span></span></span>
 <span class="r-in"><span>  <span class="va">domain_means_by_design</span> <span class="op">&lt;-</span> <span class="fu">svyby_repwts</span><span class="op">(</span>formula <span class="op">=</span> <span class="op">~</span> <span class="va">api00</span> <span class="op">+</span> <span class="va">api99</span>,</span></span>
@@ -214,26 +207,6 @@ The first grouping factor always consists of indicators for which replicate desi
 <span class="r-in"><span>                                         rep_design <span class="op">=</span> <span class="va">list_of_designs</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">domain_means_by_design</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                 Design_Name stype    api00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nonresponse adjusted.E                 nonresponse adjusted     E 645.5592</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> original.E                                         original     E 648.8681</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unknown eligibility adjusted.E unknown eligibility adjusted     E 651.6449</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nonresponse adjusted.H                 nonresponse adjusted     H 648.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> original.H                                         original     H 618.5714</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unknown eligibility adjusted.H unknown eligibility adjusted     H 623.6364</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nonresponse adjusted.M                 nonresponse adjusted     M 662.9600</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> original.M                                         original     M 631.4400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unknown eligibility adjusted.M unknown eligibility adjusted     M 666.0667</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                   api99      se1      se2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nonresponse adjusted.E         604.0193 32.50013 31.91501</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> original.E                     607.7917 25.37430 25.83542</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unknown eligibility adjusted.E 611.3271 27.59638 27.02945</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nonresponse adjusted.H         631.6364 37.42840 39.57779</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> original.H                     595.7143 46.34412 50.75106</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unknown eligibility adjusted.H 603.5455 41.50905 45.69795</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nonresponse adjusted.M         642.7600 46.90776 50.22305</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> original.M                     608.6000 33.68762 34.82521</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unknown eligibility adjusted.M 645.6000 35.29351 37.38312</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate confidence interval for difference between estimates</span></span></span>
 <span class="r-in"><span></span></span>
@@ -247,14 +220,9 @@ The first grouping factor always consists of indicators for which replicate desi
 <span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">differences_in_estimates</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                         contrast     SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean of api00: NR-adjusted vs. Original   3.9537 11.441</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean of api99: NR-adjusted vs. Original   4.4464 11.512</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">differences_in_estimates</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                             2.5 %   97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean of api00: NR-adjusted vs. Original -18.47062 26.37806</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean of api99: NR-adjusted vs. Original -18.11726 27.01002</span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
