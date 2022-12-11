@@ -56,9 +56,9 @@ suppressWarnings({
   expected_value <- as.numeric(t(wtd_y) %*% ht_quad_form_matrix %*% wtd_y)
 
   set.seed(2014)
-  sim_results <- replicate(n = 1000, expr = {
+  sim_results <- replicate(n = 200, expr = {
     adj_factors <- make_gen_boot_factors(Sigma = ht_quad_form_matrix,
-                                         num_replicates = 1000,
+                                         num_replicates = 50,
                                          tau = "auto")
     election_pps_bootstrap_design <- svrepdesign(
       data = election_pps,
@@ -87,7 +87,7 @@ suppressWarnings({
     "`estimate_boot_sim_cv() produces correct results", {
       expect_lt(
         object = rel_abs_error,
-        expected = 0.01
+        expected = 0.05
       )
     }
   )

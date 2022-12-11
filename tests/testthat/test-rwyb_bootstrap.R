@@ -335,7 +335,7 @@ set.seed(2014)
         design = multistage_design,
         type = "Rao-Wu-Yue-Beaumont",
         samp_method_by_stage = c("PPSWOR", "SRSWOR"),
-        replicates = 10000
+        replicates = 500
       )
 
       # Compare variance estimates
@@ -374,7 +374,7 @@ set.seed(2014)
       ### Convert to RWYB bootstrap design
       poisson_boot <- poisson_design |>
         as_bootstrap_design(samp_method_by_stage = 'Poisson',
-                            replicates = 5000)
+                            replicates = 500)
 
       ### Calculate Horvitz-Thompson estimate
       poisson_quad_matrix <- make_quad_form_matrix(
@@ -393,6 +393,6 @@ set.seed(2014)
 
       expect_lt(
         object = abs(rwyb_boot_est - expected_value)/expected_value,
-        expected = 0.05
+        expected = 0.10
       )
     })
