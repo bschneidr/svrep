@@ -121,16 +121,19 @@ give the number of replicates needed for each statistic.</p>
 <p>For a statistic \(\hat{\theta}\), the simulation CV of the bootstrap variance estimator
  \(v_{B}(\hat{\theta})\) based on \(B\) replicate estimates \(\hat{\theta}^{\star}_1,\dots,\hat{\theta}^{\star}_B\) is defined as follows:
  $$
-   \begin{aligned}   CV_{\star}(v_{B}(\hat{\theta})) &amp;= \frac{\sqrt{var_{\star}(v_B(\hat{\theta}))}}{E_{\star}(v_B(\hat{\theta}))} = \frac{CV_{\star}(E_2)}{\sqrt{B}} \\
-   \textit{where:}&amp; \\
-   E_2 &amp;= (\hat{\theta}^{\star} - \hat{\theta})^2 \\
-   CV_{\star}(E_2) &amp;= \frac{\sqrt{var_{\star}(E_2)}}{E_{\star}(E_2)} \\
-   \textit{and }&amp; var_{\star} \text{ and } E_{\star} \textit{ are evaluated} \\
-   &amp; \textit{with respect to the bootstrapping process} \\
-   &amp; \textit{given the selected sample}
-   \end{aligned}
- $$</p>
-<p>The simulation CV, denoted \(CV_{\star}(v_{B}(\hat{\theta}))\), is estimated for a given number of replicates \(B\)
+   CV_{\star}(v_{B}(\hat{\theta})) = \frac{\sqrt{var_{\star}(v_B(\hat{\theta}))}}{E_{\star}(v_B(\hat{\theta}))} = \frac{CV_{\star}(E_2)}{\sqrt{B}}
+ $$
+ where
+ $$
+   E_2 = (\hat{\theta}^{\star} - \hat{\theta})^2
+ $$
+ $$
+   CV_{\star}(E_2) = \frac{\sqrt{var_{\star}(E_2)}}{E_{\star}(E_2)}
+ $$
+ and \(var_{\star}\) and \(E_{\star}\) are evaluated with respect to
+ the bootstrapping process, given the selected sample.
+<br><br>
+ The simulation CV, denoted \(CV_{\star}(v_{B}(\hat{\theta}))\), is estimated for a given number of replicates \(B\)
  by estimating \(CV_{\star}(E_2)\) using observed values and dividing this by \(\sqrt{B}\). If the bootstrap errors
  are assumed to be normally distributed, then \(CV_{\star}(E_2)=\sqrt{2}\) and so \(CV_{\star}(v_{B}(\hat{\theta}))\) would not need to be estimated.
  Using observed replicate estimates to estimate the simulation CV instead of assuming normality allows simulation CV to be

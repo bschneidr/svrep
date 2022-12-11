@@ -125,16 +125,16 @@ This yields \(B\) replicate estimates of the population total, \(\hat{T}_y^{*(b)
 $$</p>
 <p>This bootstrap variance estimator can be written as a quadratic form:</p>
 <p>$$
-    \begin{aligned}
-    v_B\left(\hat{T}_y\right) &amp;=\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}} \\
-    \textit{where}&amp; \\
-    \boldsymbol{\Sigma}_B &amp;= \frac{\sum_{b=1}^B\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)^{\prime}}{B}
-    \end{aligned}
+    v_B\left(\hat{T}_y\right) =\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}
+  $$
+  where
+  $$
+    \boldsymbol{\Sigma}_B = \frac{\sum_{b=1}^B\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)^{\prime}}{B}
   $$</p>
 <p>Note that if the vector of adjustment factors \(\mathbf{a}^{(b)}\) has expectation \(\mathbf{1}_n\) and variance-covariance matrix \(\boldsymbol{\Sigma}\),
 then we have the bootstrap expectation \(E_{*}\left( \boldsymbol{\Sigma}_B \right) = \boldsymbol{\Sigma}\). Since the bootstrap process takes the sample values \(\breve{y}\) as fixed, the bootstrap expectation of the variance estimator is \(E_{*} \left( \mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}\right)= \mathbf{\breve{y}}^{\prime}\Sigma \mathbf{\breve{y}}\).
 Thus, we can produce a bootstrap variance estimator with the same expectation as the textbook variance estimator simply by randomly generating \(\mathbf{a}^{(b)}\) from a distribution with the following two conditions:
-<br><strong>Condition 1</strong>: \(\quad \mathbf{E}_*(\mathbf{a})=\mathbf{1}_n\)
+<br><br><strong>Condition 1</strong>: \(\quad \mathbf{E}_*(\mathbf{a})=\mathbf{1}_n\)
 <br><strong>Condition 2</strong>: \(\quad \mathbf{E}_*\left(\mathbf{a}-\mathbf{1}_n\right)\left(\mathbf{a}-\mathbf{1}_n\right)^{\prime}=\mathbf{\Sigma}\)
 <br><br>
 While there are multiple ways to generate adjustment factors satisfying these conditions,
@@ -148,20 +148,16 @@ This is the method used by this function.</p>
 <p>Let \(\mathbf{A} = \left[ \mathbf{a}^{(1)} \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]\) denote the \((n \times B)\) matrix of bootstrap adjustment factors.
 To eliminate negative adjustment factors, Beaumont and Patak (2012) propose forming a rescaled matrix of nonnegative replicate factors \(\mathbf{A}^S\) by rescaling each adjustment factor \(a_k^{(b)}\) as follows:
 $$
- \begin{aligned}
- a_k^{S,(b)} &amp;= \frac{a_k^{(b)} + \tau - 1}{\tau} \\
- \textit{where } \tau &amp;\geq 1 - a_k^{(b)} \geq 1 \\
- &amp;\textit{for all }k \textit{ in } \left\{ 1,\ldots,n \right\} \\
- &amp;\textit{and all }b \textit{ in } \left\{1, \ldots, B\right\} \\
- \end{aligned}
-$$
-The value of \(\tau\) can be set based on the realized adjustment factor matrix \(\mathbf{A}\) or by choosing \(\tau\) prior to generating the adjustment factor matrix \(\mathbf{A}\) so that \(\tau\) is likely to be large enough to prevent negative bootstrap weights.</p>
+   a_k^{S,(b)} = \frac{a_k^{(b)} + \tau - 1}{\tau}
+ $$
+where \(\tau \geq 1 - a_k^{(b)} \geq 1\) for all \(k\) in \(\left\{ 1,\ldots,n \right\}\) and all \(b\) in \(\left\{1, \ldots, B\right\}\).</p>
+<p>The value of \(\tau\) can be set based on the realized adjustment factor matrix \(\mathbf{A}\) or by choosing \(\tau\) prior to generating the adjustment factor matrix \(\mathbf{A}\) so that \(\tau\) is likely to be large enough to prevent negative bootstrap weights.</p>
 <p>If the adjustment factors are rescaled in this manner, it is important to adjust the scale factor used in estimating the variance with the bootstrap replicates, which becomes \(\frac{\tau^2}{B}\) instead of \(\frac{1}{B}\).
 $$
- \begin{aligned}
- \textbf{Prior to rescaling: } v_B\left(\hat{T}_y\right) &amp;= \frac{1}{B}\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2 \\
- \textbf{After rescaling: } v_B\left(\hat{T}_y\right) &amp;= \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2 \\
- \end{aligned}
+ \textbf{Prior to rescaling: } v_B\left(\hat{T}_y\right) = \frac{1}{B}\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2
+ $$
+$$
+ \textbf{After rescaling: } v_B\left(\hat{T}_y\right) = \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
 $$
 When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \(\frac{\tau^2}{B}\) rather than \(\frac{1}{B}\) when estimating sampling variances.</p>
     </div>

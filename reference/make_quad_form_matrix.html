@@ -165,7 +165,7 @@ This should be a vector that orders the rows of data into the order used for sam
 
 <p>Below are the arguments that are required or optional for each variance estimator.</p><table class="table table"><tr><td>variance_estimator</td><td>joint_probs</td><td>cluster_ids</td><td>strata_ids</td><td>strata_pop_sizes</td><td>sort_order</td></tr><tr><td>Yates-Grundy</td><td>Required</td><td></td><td></td><td></td><td></td></tr><tr><td>Horvitz-Thompson</td><td>Required</td><td></td><td></td><td></td><td></td></tr><tr><td>Stratified Multistage SRS</td><td></td><td>Required</td><td>Required</td><td>Required</td><td></td></tr><tr><td>Ultimate Cluster</td><td></td><td>Required</td><td>Required</td><td>Optional</td><td></td></tr><tr><td>SD1</td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr><tr><td>SD2</td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr></table></div>
     <div class="section level2">
-    <h2 id="variance-estimators">Variance estimators<a class="anchor" aria-label="anchor" href="#variance-estimators"></a></h2>
+    <h2 id="variance-estimators">Variance Estimators<a class="anchor" aria-label="anchor" href="#variance-estimators"></a></h2>
     
 
 <p>The <strong>Horvitz-Thompson</strong> variance estimator:
@@ -181,22 +181,23 @@ proposed by Bellhouse (1985) and used in the 'survey' package's function <a href
 The estimator can be used for any number of sampling stages. For illustration, we describe its use
 for two sampling stages.
 $$
-  \begin{aligned}
-  v(\hat{Y}) &amp;= \hat{V}_1 + \hat{V}_2 \\
-  \hat{V}_1 &amp;= \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2 \\
-  \hat{V}_2 &amp;= \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.}) \\
-  \end{aligned}
+  v(\hat{Y}) = \hat{V}_1 + \hat{V}_2
 $$
-where:
+where
 $$
-  \begin{aligned}
-  n_h &amp;\textit{ is the number of sampled clusters in stratum }h \\
-  N_h &amp;\textit{ is the number of population clusters in stratum }h \\
-  y_{hi.} &amp;\textit{ is the weighted cluster total in cluster }i\textit{ of stratum }h \\
-  \bar{y}_{hi.} &amp;= \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.} \\
-  v_{hi}(y_{hi.}) &amp;\textit{ is the estimated sampling variance of }y_{hi.}
-  \end{aligned}
+  \hat{V}_1 = \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2
 $$
+and
+$$
+  \hat{V}_2 = \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.})
+$$
+where \(n_h\) is the number of sampled clusters in stratum \(h\),
+\(N_h\) is the number of population clusters in stratum \(h\),
+\(y_{hi.}\) is the weighted cluster total in cluster \(i\) of stratum \(h\),
+\(\bar{y}_{hi.}\) is the mean weighted cluster total of stratum \(h\),
+(\(\bar{y}_{hi.} = \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.}\)), and
+\(v_{hi}(y_{hi.})\) is the estimated sampling variance of \(y_{hi.}\).
+<br><br>
 The <strong>Ultimate Cluster</strong> variance estimator is simply the stratified multistage SRS
 variance estimator, but ignoring variances from later stages of sampling.
 $$
@@ -211,10 +212,10 @@ The <strong>SD1</strong> and <strong>SD2</strong> variance estimators are "succe
 estimators sometimes used for systematic sampling designs.
 Ash (2014) describes each estimator as follows:
 $$
-\begin{aligned}
-  \hat{v}_{S D 1}(\hat{Y}) &amp;= \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2 \\
-  \hat{v}_{S D 2}(\hat{Y}) &amp;= \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right] \\
-\end{aligned}
+  \hat{v}_{S D 1}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2
+$$
+$$
+  \hat{v}_{S D 2}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right]
 $$
 where \(\breve{y}_k = y_k/\pi_k\) is the weighted value of unit \(k\)
 with selection probability \(\pi_k\). The SD1 estimator is recommended by Wolter (1984).
