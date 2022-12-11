@@ -167,7 +167,7 @@ status and a handful of demographic variables, based on a simple random
 sample of 1,000 residents of Louisville, Kentucky.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load the data</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bschneidr/svrep" class="external-link">svrep</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bschneidr.github.io/svrep/">svrep</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lou_vax_survey"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Inspect the first few rows</span></span>
@@ -792,13 +792,13 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">13368.6960</td>
-<td align="right">13403.7402</td>
+<td align="right">13418.1751</td>
+<td align="right">13410.0268</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">13415.6179</td>
-<td align="right">13416.8692</td>
+<td align="right">13387.4316</td>
+<td align="right">13443.3520</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
@@ -1085,13 +1085,13 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">0.0234465</td>
-<td align="right">0.0234437</td>
+<td align="right">0.0234694</td>
+<td align="right">0.0234801</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">0.0234465</td>
-<td align="right">0.0234437</td>
+<td align="right">0.0234694</td>
+<td align="right">0.0234801</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
@@ -1161,7 +1161,7 @@ control totals, we can use the function argument
 <span>                             size <span class="op">=</span> <span class="va">dimension_of_control_totals</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">columns_to_perturb</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] 797 557 927 319  95  61  22 453 463 781 980 938 660 346 577 184</span></span>
+<span><span class="co">#&gt;  [1] 829 825 708 749 631  29 296 745 248  58 980 828 219 638 902 834</span></span>
 <span></span>
 <span><span class="co"># Perform the calibration</span></span>
 <span><span class="va">poststratified_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_to_estimate.html">calibrate_to_estimate</a></span><span class="op">(</span></span>
