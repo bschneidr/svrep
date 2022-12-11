@@ -111,11 +111,12 @@ The 'svrep' and 'survey' packages implement four basic bootstrap methods, each o
 
 : Data Required for Each Bootstrap Method
 
-To implement these basic bootstrap methods, there are two options:
 
-##### Option 1. Convert an existing design to a bootstrap design
+#### Implementation
 
-**Create a survey design object with the `svydesign()` function from the survey package, and then convert this object to a bootstrap replicate design using `as_bootstrap_design()`.** This method works well for designs that can be specified using the `syvdesign()` function, which includes stratified, multistage samples with simple random sampling or PPS sampling (with or without replacement) at each stage.^[Note that a multistage design with PPS at any of the stages must be specified using the arguments `fpc` to specify stage-specific sampling probabilities and must use the argument `pps = "brewer"`. For example, a two-stage design with PPS at one or both stages could be specified using the following: `syvdesign(ids = ~ first_stage_cluster + second_stage_cluster, fpc = ~ first_stage_prob + second_stage_prob, pps = "brewer")`. For a stage with simple random sampling, the probabilities at that stage are just the strata sample sizes divided by the population sizes].
+To implement these basic bootstrap methods, we can create a survey design object with the `svydesign()` function from the survey package, and then convert this object to a bootstrap replicate design using `as_bootstrap_design()`. This method can be used for multistage, stratified designs with one or more different kinds of sampling, provided the "Rao-Wu-Yue-Beaumont" method is used.
+
+**Example 1: Multistage SRSWOR**
 
 ```{r}
 set.seed(2022)
@@ -127,11 +128,16 @@ set.seed(2022)
                                         fpc = ~ n1 + n2)
 
   bootstrap_rep_design <- as_bootstrap_design(multistage_srswor_design,
+                                              type = "Rao-Wu-Yue-Beaumont",
                                               replicates = 500)
   
   svytotal(x = ~ y1, design = multistage_srswor_design)
   svytotal(x = ~ y1, design = bootstrap_rep_design)
+```
 
+**Example 2: Single-stage unequal probability sampling without replacement**
+
+```{r}
 # Load example dataset of U.S. counties and states with 2004 Presidential vote counts
   data("election", package = 'survey')
   pps_wor_design <- svydesign(data = election_pps,
@@ -146,51 +152,32 @@ set.seed(2022)
   svytotal(x = ~ Bush + Kerry, design = bootstrap_rep_design)
 ```
 
-##### Option 2. Create replicate factors using special-purpose functions
+**Example 3: Multistage Sampling with Different Sampling Methods at Each Stage**
 
-**Use the function `make_rwyb_bootstrap_weights()` to create a matrix of replicate weights or replicate factors, given information about the survey design.** This approach allows the creation of bootstrap weights for more complicated designs than those that can be represented using the `svydesign()` function. This approach is useful when a multistage sample has a stage that uses Poisson sampling (which is sometimes used in establishment surveys but in other contexts is sometimes used as a model for nonresponse).
-
-In the example, below the function is used to create bootstrap adjustment factors for a survey where the first stage sample was selected using unequal probability sampling without replacement (PPSWOR) and the second stage sample was selected using simple random sampling without replacement (SRSWOR)
+For designs that use different sampling methods at different stages, we can use the argument `samp_method_by_stage` to ensure that the correct method is used to form the bootstrap weights. In general, if a multistage design uses unequal probability sampling for only some stages, then when creating the initial design object, the stage-specific sampling probabilities should be supplied to the `fpc` argument of the `svydesign()` function, and the user should specify `pps = "brewer"`.
 
 ```{r}
-data('library_multistage_sample', package = 'svrep')
+# Declare a multistage design
+# where first-stage probabilities are PPSWOR sampling
+# and second-stage probabilities are based on SRSWOR
+multistage_design <- svydesign(
+  data = library_multistage_sample,
+  ids = ~ PSU_ID + SSU_ID,
+  probs = ~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
+  pps = "brewer"
+)
 
-adjustment_factors <- make_rwyb_bootstrap_weights(
-  num_replicates = 500,
-  # Sampling unit IDs at each stage
-  samp_unit_ids = library_multistage_sample |>
-    select(PSU_ID, SSU_ID),
-  # Strata IDs at each stage
-  # (should be a constant if there was no stratification)
-  strata_ids = library_multistage_sample |>
-    transmute(PSU_STRATUM = 1, SSU_STRATUM = 1),
-  # Selection probabilities of each stage
-  samp_unit_sel_probs = library_multistage_sample |>
-    select(PSU_SAMPLING_PROB, SSU_SAMPLING_PROB),
-  # Sampling method at each stage
+# Convert to a bootstrap replicate design
+boot_design <- as_bootstrap_design(
+  design = multistage_design,
+  type = "Rao-Wu-Yue-Beaumont",
   samp_method_by_stage = c("PPSWOR", "SRSWOR"),
-  output = "factors"
+  replicates = 1000
 )
-```
 
-Once the adjustment factors have been created, they can be used to create a replicate design object with the function `svrepdesign()`.
-
-```{r}
-bootstrap_rep_design <- survey::svrepdesign(
-  data = library_multistage_sample |>
-    mutate(SAMPLING_WEIGHT = 1/SAMPLING_PROB),
-  weights = ~ SAMPLING_WEIGHT,
-  repweights = adjustment_factors,
-  combined.weights = FALSE,
-  type = "bootstrap"
-)
-```
-
-Due to the fact that PSUs were selected with probability proportional to the variable `TOTCIR`, estimates for `TOTCIR` and closely-related variables have lower standard errors compared to estimates from a simple random sampling design, despite the use of cluster sampling.
-
-```{r}
-bootstrap_rep_design |>
-  svymean(x = ~ TOTCIR + TOTINCM, na.rm = TRUE, deff = TRUE)
+# Compare variance estimates
+svytotal(x = ~ TOTCIR, na.rm = TRUE, design = multistage_design)
+svytotal(x = ~ TOTCIR, na.rm = TRUE, design = boot_design)
 ```
 
 ## Generalized Survey Bootstrap
@@ -209,9 +196,9 @@ In other words, if a sample design has a textbook variance estimator for totals 
 
 The starting point for implementing the generalized survey bootstrap method is to choose a textbook variance estimator appropriate to the sampling design which can be represented as a quadratic form. Luckily, there are many useful variance estimators which can be represented as quadratic forms. We highlight a few prominent examples below:
 
--   For single-stage, stratified cluster samples:
+-   For stratified, multistage cluster samples:
 
-    -   The usual variance estimator: $\sum_{h=1}^{H} \left[(1-f_h)\times n_h \times \frac{1}{n _h-1} \sum_{i=1}^{n_h}(y_{hi.} - \bar{y}_{h..})^2 \right]$
+    -   The usual multistage variance estimator used in the 'survey' package, based on adding variance contributions from each stage. The estimator can be used for any number of sampling stages.
 
 -   Highly-general variance estimators which work for any 'measurable' survey design (i.e., designs where every pair of units in the population has a nonzero probability of appearing in the sample). This covers most designs used in practice, with the primary exceptions being "one-PSU-per-stratum" designs and systematic sampling designs.
 
@@ -367,7 +354,7 @@ There are two ways to implement the generalized survey bootstrap.
 
 ##### Option 1: Convert an existing design to a generalized bootstrap design
 
-The simplest method is to convert an existing survey design object to a generalized bootstrap design. 
+The simplest method is to convert an existing survey design object to a generalized bootstrap design.
 
 With this approach, we create a survey design object using the `svydesign()` function. This allows us to represent information about stratification and clustering (potentially at multiple stages), as well as information about finite population corrections.
 
@@ -423,24 +410,49 @@ gen_boot_design_ht <- pps_design_ht |>
   as_gen_boot_design(variance_estimator = "Horvitz-Thompson",
                      replicates = 5000, tau = "auto")
 
-# Compare sampling variances from bootstrap vs. Yates-Grundy estimator
+# Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator
 svytotal(x = ~ Bush + Kerry, design = pps_design_ht)
 svytotal(x = ~ Bush + Kerry, design = gen_boot_design_ht)
 ```
 
-Unless specified otherwise, `as_gen_boot_design()` automatically selects a rescaling value $\tau$ to use for eliminating negative adjustment factors. The `scale` attribute of the resulting replicate survey design object is thus set to equal $\tau^2/B$.
+We can also use the generalized bootstrap for designs that use multistage, stratified simple random sampling without replacement.
 
 ```{r}
+# Create a multistage survey design
+  multistage_design <- svydesign(
+    data = library_multistage_sample |>
+      mutate(Weight = 1/SAMPLING_PROB),
+    ids = ~ PSU_ID + SSU_ID,
+    fpc = ~ PSU_POP_SIZE + SSU_POP_SIZE,
+    weights = ~ Weight
+  )
+
+# Convert to a generalized bootstrap design
+  multistage_boot_design <- as_gen_boot_design(
+    design = multistage_design,
+    variance_estimator = "Stratified Multistage SRS"
+  )
+
+# Compare variance estimates
+  svytotal(x = ~ TOTCIR, na.rm = TRUE, design = multistage_design)
+  svytotal(x = ~ TOTCIR, na.rm = TRUE, design = multistage_boot_design)
+```
+
+Unless specified otherwise, `as_gen_boot_design()` automatically selects a rescaling value $\tau$ to use for eliminating negative adjustment factors. The `scale` attribute of the resulting replicate survey design object is thus set to equal $\tau^2/B$. The specific value of $\tau$ can be retrieved from the replicate design object, as follows.
+
+```{r}
+# View overall scale factor
 overall_scale_factor <- gen_boot_design_ht$scale
 print(overall_scale_factor)
 
-
-B <- ncol(gen_boot_design_ht$repweights)
-tau <- sqrt(overall_scale_factor * B)
-
+# Check that the scale factor was calculated correctly
+tau <- gen_boot_design_ht$tau
 print(tau)
-```
+B <- ncol(gen_boot_design_ht$repweights)
+print(B)
 
+print( (tau^2) / B )
+```
 
 ##### Option 2: Create the quadratic form matrix and then use it to create bootstrap weights
 
@@ -462,7 +474,6 @@ sd2_quad_form <- make_quad_form_matrix(
   sort_order = library_stsys_sample |> pull("SAMPLING_SORT_ORDER")
 )
 ```
-
 
 -   **Step 2**: Use `make_gen_boot_factors()` to generate replicate factors based on the target quadratic form. The function argument `tau` can be used to avoid negative adjustment factors using the previously-described method. The actual value of `tau` used can be extracted from the function's output using the `attr()` function.
 
@@ -532,7 +543,6 @@ For a statistic $\hat{\theta}$, the simulation CV of the bootstrap variance esti
     & \textit{given the selected sample}
 \end{aligned}
 ```
-
 The simulation CV of a statistic, denoted $CV_{\star}(v_{B}(\hat{\theta}))$, can be estimated for a given number of replicates $B$ by estimating $CV_{\star}(E_2)$ using observed values and dividing this by $\sqrt{B}$. As a result, one can thereby estimate the number of bootstrap replicates needed to obtain a target simulation CV, which is a useful strategy for determining the number of bootstrap replicates to use for a survey.
 
 With the 'svrep' package, it is possible to estimate the number of bootstrap replicates required to obtain a target simulation CV for a statistic.
@@ -566,9 +576,7 @@ data('api', package = 'survey')
 To estimate the simulation CV for the current number of replicates used, it is possible to use the function `estimate_boot_sim_cv()`.
 
 ```{r}
-estimate_boot_sim_cv(
-  estimated_means_and_proportions
-)
+estimate_boot_sim_cv(estimated_means_and_proportions)
 ```
 
 ## References
