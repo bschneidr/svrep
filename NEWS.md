@@ -1,3 +1,5 @@
+# svrep (development version)
+
 # svrep 0.4.0
 
 * This release adds several functions for creating bootstrap and generalized bootstrap replicate weights. The new vignette "Bootstrap methods for surveys" provides guidance for choosing a bootstrap method and selecting the number of bootstrap replicates to use, along with statistical details and references.
