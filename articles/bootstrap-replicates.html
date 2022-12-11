@@ -82,11 +82,6 @@
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span> <span class="co"># For data manipulation</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span> <span class="co"># For complex survey analysis</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a></span><span class="op">)</span> <span class="co"># For complex survey analysis with dplyr syntax</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bschneidr/svrep" class="external-link">svrep</a></span><span class="op">)</span></span></code></pre></div>
 <p>This vignette provide guidance on when the bootstrap can be used for
 complex survey data and how to choose a bootstrap method and number of
 bootstrap replicates for a survey. It further demonstrates how to use
@@ -110,8 +105,8 @@ Weights</strong>:</p>
 <li><p><code><a href="../reference/as_gen_boot_design.html">as_gen_boot_design()</a></code>, which creates a replicate
 survey design using the generalized survey bootstrap method as described
 by <span class="citation">Beaumont and Patak (2012)</span>.</p></li>
-<li><p><code>make_gen_bootstrap_weights()</code>, which creates a matrix
-of replicate weights using the generalized survey bootstrap method. This
+<li><p><code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code>, which creates a matrix of
+replicate weights using the generalized survey bootstrap method. This
 function will usually be used in conjunction with the function
 <code><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix()</a></code>, which returns the quadratic form
 matrix representation of common variance estimators.</p></li>
@@ -253,22 +248,22 @@ referred to as “probability proportional to size (PPS)” sampling in
 statistics jargon)</p></li>
 </ul>
 <p>The ‘svrep’ and ‘survey’ packages implement four basic bootstrap
-methods, each of which can can handle one or more of these survey design
-features. The following table summarizes these four basic bootstrap
-methods and their appropriateness for each of these common design
-features. Of the methods compared, the Rao-Wu-Yue-Beaumont bootstrap
-method <span class="citation">(Beaumont and Émond 2022)</span> is the
-only one able to directly handle all three of these design features and
-is thus the default method used in the function
-<code><a href="../reference/as_bootstrap_design.html">as_bootstrap_design()</a></code>. Preston’s method can handle both
-multistage samples and without-replacement sampling with large sample
-fractions, but it is not strictly applicable to designs with unequal
-probability sampling. The Rao-Wu method is a special case of the
-Rao-Wu-Yue-Beaumont method and only applies to designs where the first
-stage of sampling is with replacement or where the first-stage sample
-fraction is small enough to be ignored. The Canty-Davison method is only
-applicable to single-stage designs with simple random sampling (with or
-without replacement) within strata.</p>
+methods, each of which can handle one or more of these survey design
+features. Of the four methods, the Rao-Wu-Yue-Beaumont bootstrap method
+<span class="citation">(Beaumont and Émond 2022)</span> is the only one
+able to directly handle all three of these design features and is thus
+the default method used in the function
+<code><a href="../reference/as_bootstrap_design.html">as_bootstrap_design()</a></code>.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Preston’s method can handle both multistage samples and
+without-replacement sampling with large sample fractions, but it is not
+strictly applicable to designs with unequal probability sampling. The
+Rao-Wu method is a special case of the Rao-Wu-Yue-Beaumont method and
+only applies to designs where the first stage of sampling is with
+replacement or where the first-stage sample fraction is small enough to
+be ignored. The Canty-Davison method is only applicable to single-stage
+designs with simple random sampling (with or without replacement) within
+strata.&lt;/p&gt;"><sup>2</sup></a> The following table summarizes these four
+basic bootstrap methods and their appropriateness for each of the common
+design features described earlier.</p>
 <table class="table">
 <caption>Designs Covered by Each Bootstrap Method</caption>
 <colgroup>
@@ -375,9 +370,13 @@ package, and then convert this object to a bootstrap replicate design
 using <code><a href="../reference/as_bootstrap_design.html">as_bootstrap_design()</a></code>. This method can be used for
 multistage, stratified designs with one or more different kinds of
 sampling, provided the “Rao-Wu-Yue-Beaumont” method is used.</p>
-<p><strong>Example 1: Multistage SRSWOR</strong></p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2022</span><span class="op">)</span></span>
+<p><strong>Example 1: Multistage Simple Random Sampling without
+Replacement (SRSWOR)</strong></p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span> <span class="co"># For complex survey analysis</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bschneidr/svrep" class="external-link">svrep</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2022</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Load an example dataset from a multistage sample, with two stages of SRSWOR</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mu284"</span>, package <span class="op">=</span> <span class="st">'survey'</span><span class="op">)</span></span>
@@ -397,7 +396,7 @@ sampling, provided the “Rao-Wu-Yue-Beaumont” method is used.</p>
 <span><span class="co">#&gt; y1 15080 2311.1</span></span></code></pre></div>
 <p><strong>Example 2: Single-stage unequal probability sampling without
 replacement</strong></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load example dataset of U.S. counties and states with 2004 Presidential vote counts</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"election"</span>, package <span class="op">=</span> <span class="st">'survey'</span><span class="op">)</span></span>
 <span>  <span class="va">pps_wor_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">election_pps</span>,</span>
@@ -426,7 +425,7 @@ stages, then when creating the initial design object, the stage-specific
 sampling probabilities should be supplied to the <code>fpc</code>
 argument of the <code><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign()</a></code> function, and the user should
 specify <code>pps = "brewer"</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Declare a multistage design</span></span>
 <span><span class="co"># where first-stage probabilities are PPSWOR sampling</span></span>
 <span><span class="co"># and second-stage probabilities are based on SRSWOR</span></span>
@@ -586,7 +585,7 @@ use the function <code><a href="../reference/make_quad_form_matrix.html">make_qu
 inputs the name of a variance estimator and relevant survey design
 information. For example, the following code produces the quadratic form
 matrix of the “SD2” variance estimator we saw earlier.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix</a></span><span class="op">(</span></span>
 <span>    variance_estimator <span class="op">=</span> <span class="st">"SD2"</span>,</span>
 <span>    cluster_ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">4</span>,<span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -603,7 +602,7 @@ matrix of the “SD2” variance estimator we saw earlier.</p>
 for a stratified systematic sample of U.S. public libraries. First, we
 create a quadratic form matrix to represent the SD2
 successive-difference estimator.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'library_stsys_sample'</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span>
 <span></span>
@@ -611,10 +610,10 @@ successive-difference estimator.</p>
 <span><span class="co"># and obtain the matrix of that quadratic form</span></span>
 <span><span class="va">sd2_quad_form</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix</a></span><span class="op">(</span></span>
 <span>  variance_estimator <span class="op">=</span> <span class="st">'SD2'</span>,</span>
-<span>  cluster_ids <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">FSCSKEY</span><span class="op">)</span>,</span>
-<span>  strata_ids <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">SAMPLING_STRATUM</span><span class="op">)</span>,</span>
-<span>  strata_pop_sizes <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">STRATUM_POP_SIZE</span><span class="op">)</span>,</span>
-<span>  sort_order <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="st">"SAMPLING_SORT_ORDER"</span><span class="op">)</span></span>
+<span>  cluster_ids <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">FSCSKEY</span><span class="op">)</span>,</span>
+<span>  strata_ids <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">SAMPLING_STRATUM</span><span class="op">)</span>,</span>
+<span>  strata_pop_sizes <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">STRATUM_POP_SIZE</span><span class="op">)</span>,</span>
+<span>  sort_order <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu">pull</span><span class="op">(</span><span class="st">"SAMPLING_SORT_ORDER"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">sd2_quad_form</span><span class="op">)</span></span>
@@ -623,7 +622,7 @@ successive-difference estimator.</p>
 <span><span class="co">#&gt; [1] 219 219</span></span></code></pre></div>
 <p>Next, we estimate the sampling variance of the estimated total for
 the <code>TOTCIR</code> variable using the quadratic form.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtain weighted values</span></span>
 <span><span class="va">wtd_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">library_stsys_sample</span><span class="op">[[</span><span class="st">'TOTCIR'</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span></span>
 <span>                     <span class="va">library_stsys_sample</span><span class="op">[[</span><span class="st">'SAMPLING_PROB'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
@@ -750,7 +749,7 @@ a generalized bootstrap design.</p>
 <code><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign()</a></code> function. This allows us to represent
 information about stratification and clustering (potentially at multiple
 stages), as well as information about finite population corrections.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load example data from stratified systematic sample</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'library_stsys_sample'</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span>
 <span></span>
@@ -771,7 +770,7 @@ the function <code><a href="../reference/as_gen_boot_design.html">as_gen_boot_de
 <code>variance_estimator</code> allows us to specify the name of a
 variance estimator to use as the basis for creating replicate
 weights.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Convert to generalized bootstrap replicate design</span></span>
 <span><span class="va">gen_boot_design_sd2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_gen_boot_design.html">as_gen_boot_design</a></span><span class="op">(</span></span>
 <span>  design <span class="op">=</span> <span class="va">design_obj</span>,</span>
@@ -788,7 +787,7 @@ weights.</p>
 estimator, we can create a generalized bootstrap estimator with the same
 expectation. In the example below, we create a PPS design with the
 ‘survey’ package and convert it to a generalied bootstrap design.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load example data of a PPS survey of counties and states</span></span>
 <span>   <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'election'</span>, package <span class="op">=</span> <span class="st">'survey'</span><span class="op">)</span></span>
 <span></span>
@@ -817,8 +816,10 @@ expectation. In the example below, we create a PPS design with the
 <span><span class="co">#&gt; Kerry 51202102 2499754</span></span></code></pre></div>
 <p>We can also use the generalized bootstrap for designs that use
 multistage, stratified simple random sampling without replacement.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create a multistage survey design</span></span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span> <span class="co"># For data manipulation</span></span>
+<span></span>
+<span><span class="co"># Create a multistage survey design</span></span>
 <span>  <span class="va">multistage_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">library_multistage_sample</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Weight <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="va">SAMPLING_PROB</span><span class="op">)</span>,</span>
@@ -845,7 +846,7 @@ automatically selects a rescaling value <span class="math inline">\(\tau\)</span
 adjustment factors. The <code>scale</code> attribute of the resulting
 replicate survey design object is thus set to equal <span class="math inline">\(\tau^2/B\)</span>. The specific value of <span class="math inline">\(\tau\)</span> can be retrieved from the replicate
 design object, as follows.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View overall scale factor</span></span>
 <span><span class="va">overall_scale_factor</span> <span class="op">&lt;-</span> <span class="va">gen_boot_design_ht</span><span class="op">$</span><span class="va">scale</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">overall_scale_factor</span><span class="op">)</span></span>
@@ -873,7 +874,7 @@ process:</p>
 <strong>Step 1</strong>: Use <code><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix()</a></code> to
 represent the variance estimator as a quadratic form’s matrix.</li>
 </ul>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'library_stsys_sample'</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span>
 <span></span>
@@ -895,7 +896,7 @@ adjustment factors using the previously-described method. The actual
 value of <code>tau</code> used can be extracted from the function’s
 output using the <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code> function.</li>
 </ul>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rep_adj_factors</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors</a></span><span class="op">(</span></span>
 <span>  Sigma <span class="op">=</span> <span class="va">sd2_quad_form</span>,</span>
 <span>  num_replicates <span class="op">=</span> <span class="fl">500</span>,</span>
@@ -908,7 +909,7 @@ output using the <code><a href="https://rdrr.io/r/base/attr.html" class="externa
 survey design object by using the function <code><a href="https://rdrr.io/pkg/survey/man/svrepdesign.html" class="external-link">svrepdesign()</a></code>,
 with arguments <code>type = "other"</code> and specifying the
 <code>scale</code> argument to use the factor <span class="math inline">\(\tau^2/B\)</span>.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gen_boot_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svrepdesign.html" class="external-link">svrepdesign</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>SAMPLING_WEIGHT <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="va">SAMPLING_PROB</span><span class="op">)</span>,</span>
@@ -921,7 +922,7 @@ with arguments <code>type = "other"</code> and specifying the
 <span><span class="op">)</span></span></code></pre></div>
 <p>This allows us to estimate sampling variances, even for quite complex
 sampling designs.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gen_boot_design</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTSTAFF</span>,</span>
 <span>          na.rm <span class="op">=</span> <span class="cn">TRUE</span>, deff <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -999,7 +1000,7 @@ determining the number of bootstrap replicates to use for a survey.</p>
 <p>With the ‘svrep’ package, it is possible to estimate the number of
 bootstrap replicates required to obtain a target simulation CV for a
 statistic.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'api'</span>, package <span class="op">=</span> <span class="st">'survey'</span><span class="op">)</span></span>
 <span></span>
@@ -1030,7 +1031,7 @@ statistic.</p>
 <p>To estimate the simulation CV for the current number of replicates
 used, it is possible to use the function
 <code><a href="../reference/estimate_boot_sim_cv.html">estimate_boot_sim_cv()</a></code>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/estimate_boot_sim_cv.html">estimate_boot_sim_cv</a></span><span class="op">(</span><span class="va">estimated_means_and_proportions</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   STATISTIC SIMULATION_CV N_REPLICATES</span></span>
 <span><span class="co">#&gt; 1     api00    0.01153322         5000</span></span>
