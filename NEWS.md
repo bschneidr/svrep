@@ -1,4 +1,4 @@
-# svrep (development version)
+# svrep 0.4.0
 
 * This release adds several functions for creating bootstrap and generalized bootstrap replicate weights. The new vignette "Bootstrap methods for surveys" provides guidance for choosing a bootstrap method and selecting the number of bootstrap replicates to use, along with statistical details and references.
 
@@ -15,7 +15,8 @@
   a target variance estimator (e.g., "Horvitz-Thompson" or "Ultimate Cluster")
   used to create the generalized bootstrap factors. See the new vignette for details.
 
-  * Added function `estimate_boot_sim_cv()` to estimate the simulation error
+  * Added functions to help choose the number of bootstrap replicates.
+  The function `estimate_boot_sim_cv()` can be used to estimate the simulation error
   in a bootstrap estimate caused by using a finite number of bootstrap replicates.
   The new function `estimate_boot_reps_for_target_cv()` estimates the number of bootstrap
   replicates needed to reduce the simulation error to a target level.
