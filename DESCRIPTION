@@ -18,8 +18,8 @@ Description: Provides tools for creating and working with survey replicate weigh
   Diagnostic functions are included to compare weights and weighted estimates
   from different sets of replicate weights.
 License: GPL (>= 3)
-URL: https://github.com/bschneidr/svrep,
-    https://bschneidr.github.io/svrep/
+URL: https://bschneidr.github.io/svrep/,
+    https://github.com/bschneidr/svrep
 BugReports: https://github.com/bschneidr/svrep/issues
 Encoding: UTF-8
 LazyData: true
