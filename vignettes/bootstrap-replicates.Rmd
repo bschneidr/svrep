@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, message=FALSE, warning=FALSE}
+```{r setup, message=FALSE, warning=FALSE, echo=FALSE}
 library(dplyr) # For data manipulation
 library(survey) # For complex survey analysis
 library(srvyr) # For complex survey analysis with dplyr syntax
@@ -91,7 +91,9 @@ For most sample designs used in practice, there are three basic survey design fe
 
 -   Whether the design uses unequal-probability sampling (commonly referred to as "probability proportional to size (PPS)" sampling in statistics jargon)
 
-The 'svrep' and 'survey' packages implement four basic bootstrap methods, each of which can handle one or more of these survey design features. The following table summarizes these four basic bootstrap methods and their appropriateness for each of these common design features. Of the methods compared, the Rao-Wu-Yue-Beaumont bootstrap method [@beaumont2022] is the only one able to directly handle all three of these design features and is thus the default method used in the function `as_bootstrap_design()`.
+The 'svrep' and 'survey' packages implement four basic bootstrap methods, each of which can handle one or more of these survey design features. Of the four methods, the Rao-Wu-Yue-Beaumont bootstrap method [@beaumont2022] is the only one able to directly handle all three of these design features and is thus the default method used in the function `as_bootstrap_design()`.[^2] The following table summarizes these four basic bootstrap methods and their appropriateness for each of the common design features described earlier.
+
+[^2]: Preston's method can handle both multistage samples and without-replacement sampling with large sample fractions, but it is not strictly applicable to designs with unequal probability sampling. The Rao-Wu method is a special case of the Rao-Wu-Yue-Beaumont method and only applies to designs where the first stage of sampling is with replacement or where the first-stage sample fraction is small enough to be ignored. The Canty-Davison method is only applicable to single-stage designs with simple random sampling (with or without replacement) within strata.
 
 | Method              | Handles Multistage Samples?                                                          | Appropriate for Without-Replacement Sampling with Large Sample Fractions? | Unequal Probability Sampling (PPS)? |
 |------------------|------------------|------------------|------------------|
@@ -116,9 +118,12 @@ The 'svrep' and 'survey' packages implement four basic bootstrap methods, each o
 
 To implement these basic bootstrap methods, we can create a survey design object with the `svydesign()` function from the survey package, and then convert this object to a bootstrap replicate design using `as_bootstrap_design()`. This method can be used for multistage, stratified designs with one or more different kinds of sampling, provided the "Rao-Wu-Yue-Beaumont" method is used.
 
-**Example 1: Multistage SRSWOR**
+**Example 1: Multistage Simple Random Sampling without Replacement (SRSWOR)**
 
 ```{r}
+library(survey) # For complex survey analysis
+library(svrep)
+
 set.seed(2022)
 
 # Load an example dataset from a multistage sample, with two stages of SRSWOR
@@ -418,6 +423,8 @@ svytotal(x = ~ Bush + Kerry, design = gen_boot_design_ht)
 We can also use the generalized bootstrap for designs that use multistage, stratified simple random sampling without replacement.
 
 ```{r}
+library(dplyr) # For data manipulation
+
 # Create a multistage survey design
   multistage_design <- svydesign(
     data = library_multistage_sample |>
