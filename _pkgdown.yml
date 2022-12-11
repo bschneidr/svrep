@@ -11,9 +11,17 @@ reference:
 - title: Nonresponse Adjustments
 - contents:
   - matches("redistribute")
+- title: Creating Bootstrap Replicate Weights
+- contents:
+  - matches("boot")
+  - matches("quad_form")
+  - matches("sd_matrix")
+  - matches("srswor_matrix")
+  - matches("distribute_matrix")
 - title: Calibrating to Estimated Control Totals
 - contents:
   - starts_with("calibrate_to")
 - title: Example Datasets
 - contents:
   - starts_with("lou")
+  - starts_with("library_")

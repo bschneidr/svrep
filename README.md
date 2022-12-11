@@ -14,7 +14,8 @@ svrep provides methods for creating, updating, and analyzing replicate
 weights for surveys. Functions from svrep can be used to implement
 adjustments to replicate designs (e.g. nonresponse weighting class
 adjustments) and analyze their effect on the replicate weights and on
-estimates of interest.
+estimates of interest. Facilitates the creation of bootstrap and
+generalized bootstrap replicate weights.
 
 ## Installation
 
@@ -35,9 +36,11 @@ devtools::install_github("bschneidr/svrep")
 
 ## Example usage
 
-Suppose we have a replicate-weights survey design object created with
-the survey package. This survey design object can include respondents,
-non-respondents, and cases with unknown eligibility.
+### Creating replicate weights
+
+Suppose we have data from a survey selected using a complex sampling
+method such as cluster sampling. To represent the complex survey design,
+we can create a survey design object using the survey package.
 
 ``` r
 library(survey)
@@ -45,24 +48,81 @@ library(svrep)
 data(api, package = "survey")
 set.seed(2021)
 
-# Create variable giving response status
-apiclus1$response_status <- sample(x = c("Respondent", "Nonrespondent",
-                                         "Ineligible", "Unknown eligibility"),
-                                   size = nrow(apiclus1),
-                                   replace = TRUE)
-
-# Create replicate-weights survey design
+# Create a survey design object for a sample
+# selected using a single-stage cluster sample without replacement
 dclus1 <- svydesign(data = apiclus1,
                     id = ~dnum, weights = ~pw, fpc = ~fpc)
+```
 
-orig_rep_design <- as.svrepdesign(dclus1)
+To help us estimate sampling variances, we can create bootstrap
+replicate weights. The function `as_bootstrap_design()` creates
+bootstrap replicate weights appropriate to common complex sampling
+designs, using bootstrapping methods from the ‘survey’ package as well
+as additional methods such as the Rao-Wu-Yue-Beaumont method (a
+generalization of the Rao-Wu bootstrap).
+
+``` r
+# Create replicate-weights survey design
+orig_rep_design <- as_bootstrap_design(dclus1, replicates = 500,
+                                       type = "Rao-Wu-Yue-Beaumont")
 
 print(orig_rep_design)
-#> Call: as.svrepdesign.default(dclus1)
-#> Unstratified cluster jacknife (JK1) with 15 replicates.
+#> Call: as_bootstrap_design(dclus1, replicates = 500, type = "Rao-Wu-Yue-Beaumont")
+#> Survey bootstrap with 500 replicates.
+```
+
+For especially complex survey designs (e.g., systematic samples), the
+generalized survey bootstrap can be used.
+
+``` r
+# Load example data for a stratified systematic sample
+data('library_stsys_sample', package = 'svrep')
+
+# First, ensure data are sorted in same order as was used in sampling
+library_stsys_sample <- library_stsys_sample[
+  order(library_stsys_sample$SAMPLING_SORT_ORDER),
+]
+
+# Create a survey design object
+design_obj <- svydesign(
+  data = library_stsys_sample,
+  strata = ~ SAMPLING_STRATUM,
+  ids = ~ 1,
+  fpc = ~ STRATUM_POP_SIZE
+)
+
+# Convert to generalized bootstrap replicate design
+gen_boot_design_sd2 <- as_gen_boot_design(
+  design = design_obj,
+  variance_estimator = "SD2",
+  replicates = 500
+)
+#> For `variance_estimator='SD2', assumes rows of data are sorted in the same order used in sampling.
 ```
 
 ### Adjusting for non-response or unknown eligibility
+
+In social surveys, unit nonresponse is extremely common. It is also
+somewhat common for respondent cases to be classified as “ineligible”
+for the survey based on their response. In general, sampled cases are
+typically classified as “respondents”, “nonrespondents”, “ineligible
+cases”, and “unknown eligibility” cases.
+
+``` r
+# Create variable giving response status
+orig_rep_design$variables[['response_status']] <- sample(
+  x = c("Respondent", "Nonrespondent",
+        "Ineligible", "Unknown eligibility"),
+  prob = c(0.6, 0.2, 0.1, 0.1),
+  size = nrow(orig_rep_design),
+  replace = TRUE
+)
+
+table(orig_rep_design$variables$response_status)
+#> 
+#>          Ineligible       Nonrespondent          Respondent Unknown eligibility 
+#>                  26                  30                 111                  16
+```
 
 It is common practice to adjust weights when there is non-response or
 there are sampled cases whose eligibility for the survey is unknown. The
@@ -76,9 +136,11 @@ implemented using the `redistribute_weights()` function.
 
 ``` r
 # Adjust weights for unknown eligibility
-ue_adjusted_design <- redistribute_weights(design = orig_rep_design,
-                                           reduce_if = response_status %in% c("Unknown eligibility"),
-                                           increase_if = !response_status %in% c("Unknown eligibility"))
+ue_adjusted_design <- redistribute_weights(
+  design = orig_rep_design,
+  reduce_if = response_status %in% c("Unknown eligibility"),
+  increase_if = !response_status %in% c("Unknown eligibility")
+)
 ```
 
 By supplying column names to the `by` argument of
@@ -87,10 +149,12 @@ different groups. This can be used to conduct nonresponse weighting
 class adjustments.
 
 ``` r
-nr_adjusted_design <- redistribute_weights(design = ue_adjusted_design,
-                                           reduce_if = response_status == "Nonrespondent",
-                                           increase_if = response_status == "Respondent",
-                                           by = c("stype"))
+nr_adjusted_design <- redistribute_weights(
+  design = ue_adjusted_design,
+  reduce_if = response_status == "Nonrespondent",
+  increase_if = response_status == "Respondent",
+  by = c("stype")
+)
 ```
 
 ### Comparing estimates from different sets of weights
@@ -109,8 +173,8 @@ overall_estimates <- svyby_repwts(
 )
 print(overall_estimates, row.names = FALSE)
 #>           Design_Name    api00       se
-#>  nonresponse-adjusted 646.4465 30.66081
-#>              original 644.1694 26.32936
+#>  nonresponse-adjusted 636.0485 23.86925
+#>              original 644.1694 23.18402
 
 # Estimate domain means (and their standard errors) from each design
 domain_estimates <- svyby_repwts(
@@ -120,12 +184,12 @@ domain_estimates <- svyby_repwts(
 )
 print(domain_estimates, row.names = FALSE)
 #>           Design_Name stype    api00       se
-#>  nonresponse-adjusted     E 641.9463 34.19443
-#>              original     E 648.8681 25.37430
-#>  nonresponse-adjusted     H 699.5455 14.24657
-#>              original     H 618.5714 46.34412
-#>  nonresponse-adjusted     M 643.3429 41.47212
-#>              original     M 631.4400 33.68762
+#>  nonresponse-adjusted     E 634.0529 24.30579
+#>              original     E 648.8681 22.43597
+#>  nonresponse-adjusted     H 654.9667 25.43743
+#>              original     H 618.5714 37.62865
+#>  nonresponse-adjusted     M 637.7941 32.90199
+#>              original     M 631.4400 31.20674
 ```
 
 We can even test for differences in estimates from the two sets of
@@ -140,8 +204,8 @@ estimates <- svyby_repwts(
 
 vcov(estimates)
 #>                      nonresponse-adjusted original
-#> nonresponse-adjusted             940.0856 784.1324
-#> original                         784.1324 693.2352
+#> nonresponse-adjusted             569.7413 532.8208
+#> original                         532.8208 537.4989
 
 diff_between_ests <- svycontrast(stat = estimates,
                                  contrasts = list(
@@ -149,10 +213,10 @@ diff_between_ests <- svycontrast(stat = estimates,
                                  ))
 print(diff_between_ests)
 #>                       contrast     SE
-#> Original vs. Adjusted  -2.2771 8.0657
+#> Original vs. Adjusted   8.1209 6.4497
 confint(diff_between_ests)
-#>                           2.5 %   97.5 %
-#> Original vs. Adjusted -18.08562 13.53147
+#>                          2.5 %   97.5 %
+#> Original vs. Adjusted -4.52029 20.76203
 ```
 
 ### Diagnosing potential issues with weights
@@ -176,24 +240,24 @@ summarize_rep_weights(
   by = "response_status"
 ) |> 
   subset(Rep_Column %in% 1:2)
-#>        response_status Rep_Column  N N_NONZERO      SUM     MEAN        CV
-#> 1           Ineligible          1 50        47 2109.089 42.18178 0.2552106
-#> 2           Ineligible          2 50        49 2224.316 44.48631 0.1443075
-#> 16       Nonrespondent          1 48         0    0.000  0.00000       NaN
-#> 17       Nonrespondent          2 48         0    0.000  0.00000       NaN
-#> 31          Respondent          1 49        49 4128.429 84.25366 0.2403636
-#> 32          Respondent          2 49        48 4267.055 87.08275 0.2224368
-#> 46 Unknown eligibility          1 36         0    0.000  0.00000       NaN
-#> 47 Unknown eligibility          2 36         0    0.000  0.00000       NaN
-#>         MIN       MAX
-#> 1   0.00000  44.87423
-#> 2   0.00000  45.39420
-#> 16  0.00000   0.00000
-#> 17  0.00000   0.00000
-#> 31 70.51665 179.49692
-#> 32  0.00000 158.87969
-#> 46  0.00000   0.00000
-#> 47  0.00000   0.00000
+#>          response_status Rep_Column   N N_NONZERO      SUM     MEAN        CV
+#> 1             Ineligible          1  26        26 1107.878 42.61070 0.8605256
+#> 2             Ineligible          2  26        26 1344.979 51.72997 0.7047344
+#> 501        Nonrespondent          1  30         0    0.000  0.00000       NaN
+#> 502        Nonrespondent          2  30         0    0.000  0.00000       NaN
+#> 1001          Respondent          1 111       111 5739.567 51.70781 1.1151888
+#> 1002          Respondent          2 111       111 5825.598 52.48286 0.8362781
+#> 1501 Unknown eligibility          1  16         0    0.000  0.00000       NaN
+#> 1502 Unknown eligibility          2  16         0    0.000  0.00000       NaN
+#>            MIN       MAX
+#> 1    0.3681973 118.04373
+#> 2    0.3686771  78.92125
+#> 501  0.0000000   0.00000
+#> 502  0.0000000   0.00000
+#> 1001 0.4420409 149.36581
+#> 1002 0.3720584 100.59928
+#> 1501 0.0000000   0.00000
+#> 1502 0.0000000   0.00000
 ```
 
 At the end of the adjustment process, we can inspect the number of rows
@@ -207,7 +271,7 @@ nr_adjusted_design |>
     type = 'overall'
   )
 #>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
-#> 1    49    15           14   15    4087.158    259.0107           0    316.8524
+#> 1   111   500           27   28    5234.834    1227.801   0.3553929    350.0845
 ```
 
 ### Sample-based calibration
@@ -234,7 +298,7 @@ data("lou_vax_survey")
 # Load example data
 lou_vax_survey <- svydesign(ids = ~ 1, weights = ~ SAMPLING_WEIGHT,
                             data = lou_vax_survey) |>
-  as.svrepdesign(type = "boot", replicates = 100, mse = TRUE)
+  as_bootstrap_design(replicates = 100, mse = TRUE)
 
 # Adjust for nonresponse
 lou_vax_survey <- lou_vax_survey |>
@@ -339,13 +403,13 @@ svyby_repwts(
   keep.names = FALSE
 )
 #>         Design_Name VAX_STATUSUnvaccinated VAX_STATUSVaccinated        se1
-#> 1       NR-adjusted              0.4621514            0.5378486 0.02430176
-#> 2 Raked to estimate              0.4732623            0.5267377 0.02448676
-#> 3   Raked to sample              0.4732623            0.5267377 0.02446881
+#> 1       NR-adjusted              0.4621514            0.5378486 0.02088585
+#> 2 Raked to estimate              0.4732623            0.5267377 0.02119417
+#> 3   Raked to sample              0.4732623            0.5267377 0.02117422
 #>          se2
-#> 1 0.02430176
-#> 2 0.02448676
-#> 3 0.02446881
+#> 1 0.02088585
+#> 2 0.02119417
+#> 3 0.02117422
 ```
 
 ### Saving results to a data file

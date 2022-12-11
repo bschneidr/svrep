@@ -1,0 +1,581 @@
+#' @title Represent a variance estimator as a quadratic form
+#' @description Common variance estimators for estimated population totals can be represented as a quadratic form.
+#' Given a choice of variance estimator and information about the sample design,
+#' this function constructs the matrix of the quadratic form.
+#' \cr \cr
+#' In notation, let
+#' \eqn{v(\hat{Y}) = \mathbf{\breve{y}}^{\prime}\mathbf{\Sigma}\mathbf{\breve{y}}},
+#' where \eqn{\breve{y}} is the vector of weighted values, \eqn{y_i/\pi_i, \space i=1,\dots,n}.
+#' This function constructs the \eqn{n \times n} matrix of the quadratic form, \eqn{\mathbf{\Sigma}}.
+#' @param variance_estimator The name of the variance estimator
+#' whose quadratic form matrix should be created. See the section "Variance Estimators" below.
+#' Options include:
+#' \itemize{
+#'   \item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
+#'   first-order and second-order inclusion probabilities. If this is used,
+#'   the argument \code{joint_probs} must also be used.}
+#'   \item{\strong{"Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator based on
+#'   first-order and second-order inclusion probabilities. If this is used,
+#'   the argument \code{joint_probs} must also be used.}
+#'   \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
+#'   based on estimating the variance of cluster totals within strata at each stage.
+#'   If this option is used, then it is necessary to also use the arguments
+#'   \code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}, and \code{strata_pop_sizes}.}
+#'   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
+#'   the variance of first-stage cluster totals within first-stage strata.
+#'   If this option is used, then it is necessary to also use the arguments
+#'   \code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}.
+#'   Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.}
+#'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
+#'   sometimes used for variance estimation for systematic sampling.}
+#'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
+#'   This estimator is the basis of the "successive-differences replication" estimator commonly used
+#'   for variance estimation for systematic sampling.}
+#' }
+#' @param joint_probs Only used if \code{variance_estimator = "Horvitz-Thompson"} or \code{variance_estimator = "Yates-Grundy"}.
+#' This should be a matrix of joint inclusion probabilities.
+#' Element \code{[i,i]} of the matrix is the first-order inclusion probability of unit \code{i},
+#' while element \code{[i,j]} is the joint inclusion probability of units \code{i} and \code{j}.
+#' @param cluster_ids Required unless \code{variance_estimator} equals \code{"Horvitz-Thompson"} or \code{"Yates-Grundy"}.
+#' This should be a matrix or data frame of cluster IDs. If there are multiple stages of sampling,
+#' then \code{cluster_ids} can have multiple columns,
+#' with one column for each level of sampling to be accounted for by the variance estimator.
+#' @param strata_ids Required if \code{variance_estimator} equals \code{"Stratified Multistage SRS"}
+#' or \code{"Ultimate Cluster"}.
+#' This should be a matrix or data frame of strata IDs. If there are multiple stages of sampling,
+#' then \code{strata_ids} can have multiple columns,
+#' with one column for each level of sampling to be accounted for by the variance estimator.
+#' @param strata_pop_sizes Required if \code{variance_estimator} equals \code{"Stratified Multistage SRS"},
+#' but can optionally be used if \code{variance_estimator} equals \code{"Ultimate Cluster"}, \code{"SD1"}, or \code{"SD2"}.
+#' If there are multiple stages of sampling,
+#' then \code{strata_pop_sizes} can have multiple columns,
+#' with one column for each level of sampling to be accounted for by the variance estimator.
+#' @param sort_order Required if \code{variance_estimator} equals \code{"SD1"} or \code{"SD2"}.
+#' This should be a vector that orders the rows of data into the order used for sampling.
+#' @section Arguments required for each variance estimator:
+#' Below are the arguments that are required or optional for each variance estimator.
+#'
+#' | variance_estimator       | joint_probs | cluster_ids | strata_ids  | strata_pop_sizes | sort_order |
+#' | ------------------------ | -----------:| -----------:| -----------:| ----------------:|-----------:|
+#' | Yates-Grundy             | Required    |             |             |                  |            |
+#' | Horvitz-Thompson         | Required    |             |             |                  |            |
+#' | Stratified Multistage SRS|             | Required    | Required    | Required         |            |
+#' | Ultimate Cluster         |             | Required    | Required    | Optional         |            |
+#' | SD1                      |             | Required    | Optional    | Optional         | Required   |
+#' | SD2                      |             | Required    | Optional    | Optional         | Required   |
+#' @section Variance estimators:
+#' The \strong{Horvitz-Thompson} variance estimator:
+#' \deqn{
+#'   v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
+#' }
+#' The \strong{Yates-Grundy} variance estimator:
+#' \deqn{
+#'   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
+#' }
+#' The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
+#' proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
+#' The estimator can be used for any number of sampling stages. For illustration, we describe its use
+#' for two sampling stages.
+#' \deqn{
+#'   \begin{aligned}
+#'   v(\hat{Y}) &= \hat{V}_1 + \hat{V}_2 \\
+#'   \hat{V}_1 &= \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2 \\
+#'   \hat{V}_2 &= \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.}) \\
+#'   \end{aligned}
+#' }
+#' where:
+#' \deqn{
+#'   \begin{aligned}
+#'   n_h &\textit{ is the number of sampled clusters in stratum }h \\
+#'   N_h &\textit{ is the number of population clusters in stratum }h \\
+#'   y_{hi.} &\textit{ is the weighted cluster total in cluster }i\textit{ of stratum }h \\
+#'   \bar{y}_{hi.} &= \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.} \\
+#'   v_{hi}(y_{hi.}) &\textit{ is the estimated sampling variance of }y_{hi.}
+#'   \end{aligned}
+#' }
+#' The \strong{Ultimate Cluster} variance estimator is simply the stratified multistage SRS
+#' variance estimator, but ignoring variances from later stages of sampling.
+#' \deqn{
+#'   v(\hat{Y}) = \hat{V}_1
+#' }
+#' This is the variance estimator used in the 'survey' package when the user specifies
+#' \code{option(survey.ultimate.cluster = TRUE)} or uses \code{svyrecvar(..., one.stage = TRUE)}.
+#' When the first-stage sampling fractions are small, analysts often omit the finite population corrections \eqn{(1-\frac{n_h}{N_h})}
+#' when using the ultimate cluster estimator.
+#' \cr \cr
+#' The \strong{SD1} and \strong{SD2} variance estimators are "successive difference"
+#' estimators sometimes used for systematic sampling designs.
+#' Ash (2014) describes each estimator as follows:
+#' \deqn{
+#' \begin{aligned}
+#'   \hat{v}_{S D 1}(\hat{Y}) &= \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2 \\
+#'   \hat{v}_{S D 2}(\hat{Y}) &= \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right] \\
+#' \end{aligned}
+#' }
+#' where \eqn{\breve{y}_k = y_k/\pi_k} is the weighted value of unit \eqn{k}
+#' with selection probability \eqn{\pi_k}. The SD1 estimator is recommended by Wolter (1984).
+#' The SD2 estimator is the basis of the successive difference replication estimator commonly
+#' used for systematic sampling designs. See Ash (2014) for details.
+#' \cr \cr
+#' For multistage samples, SD1 and SD2 are applied to the clusters at each stage, separately by stratum.
+#' For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+#' of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
+#' the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
+#' which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+#' @references
+#' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#'
+#' Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
+#' \strong{Journal of Official Statistics}, Vol.1, No.3.
+#' @md
+#' @return The matrix of the quadratic form representing the variance estimator.
+#' @export
+#'
+#' @examples
+#' # Example 1: The Horvitz-Thompson Estimator
+#'   library(survey)
+#'   data("election", package = "survey")
+#'
+#'   ht_quad_form_matrix <- make_quad_form_matrix(variance_estimator = "Horvitz-Thompson",
+#'                                                joint_probs = election_jointprob)
+#'   ##_ Produce variance estimate
+#'   wtd_y <- as.matrix(election_pps$wt * election_pps$Bush)
+#'   t(wtd_y) %*% ht_quad_form_matrix %*% wtd_y
+#'
+#'   ##_ Compare against result from 'survey' package
+#'   svytotal(x = ~ Bush,
+#'            design = svydesign(data=election_pps,
+#'                               variance = "HT",
+#'                               pps = ppsmat(election_jointprob),
+#'                               ids = ~ 1, fpc = ~ p))
+#'
+#' # Example 2: Stratified multistage Sample ----
+#'
+#'
+#'
+#'
+#' # Example 3: Successive-differences estimator ----
+#'
+#' data('library_stsys_sample', package = 'svrep')
+#'
+#' sd1_quad_form <- make_quad_form_matrix(
+#'   variance_estimator = 'SD1',
+#'   cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+#'   strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+#'   strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE],
+#'   sort_order = library_stsys_sample[['SAMPLING_SORT_ORDER']]
+#' )
+#'
+#' wtd_y <- as.matrix(library_stsys_sample[['TOTCIR']] /
+#'                     library_stsys_sample$SAMPLING_PROB)
+#' t(wtd_y) %*% sd1_quad_form %*% wtd_y
+#'
+make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
+                                  joint_probs = NULL,
+                                  cluster_ids = NULL,
+                                  strata_ids = NULL,
+                                  strata_pop_sizes = NULL,
+                                  sort_order = NULL) {
+
+  accepted_variance_estimators <- c(
+    "Yates-Grundy", "Horvitz-Thompson",
+    "Ultimate Cluster", "Stratified Multistage SRS",
+    "SD1", "SD2"
+  )
+
+  if (!variance_estimator %in% accepted_variance_estimators) {
+    sprintf("`%s` is not a supported variance estimator, or else there is a typo.") |> stop()
+  }
+  if (length(variance_estimator) > 1) {
+    stop("Can only specify one estimator for `variance_estimator`.")
+  }
+
+  if (variance_estimator %in% c("Yates-Grundy", "Horvitz-Thompson")) {
+    if (is.null(joint_probs)) {
+      sprintf("For `variance_estimator='%s'`, must supply a matrix to the argument `joint_probs`.",
+              variance_estimator) |>
+        stop()
+    }
+    if (!is.matrix(joint_probs) || any(is.na(joint_probs)) || any(joint_probs < 0)) {
+      stop("`joint_probs` must be a matrix of values between 0 and 1, with no missing values.")
+    }
+    number_of_ultimate_units <- ncol(joint_probs)
+  }
+
+  # Check inputs and assemble all necessary information
+  # for estimators of stratified/clustered designs
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2")) {
+
+    # Ensure the minimal set of inputs is supplied
+    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster")) {
+      if (is.null(cluster_ids) || is.null(strata_ids)) {
+        sprintf(
+          "For `variance_estimator='%s'`, must supply a matrix or data frame to both 'strata_ids' and 'cluster_ids'",
+          variance_estimator
+        ) |> stop()
+      }
+    }
+    if (variance_estimator == "Stratified Multistage SRS") {
+      if (is.null(strata_pop_sizes)) {
+        stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes.")
+      }
+    }
+    if (variance_estimator %in% c("SD1", "SD2")) {
+      if (is.null(cluster_ids)) {
+        sprintf(
+          "For `variance_estimator='%s'`, must supply a matrix or data frame to `cluster_ids`",
+          variance_estimator
+        ) |> stop()
+      }
+      if (is.null(sort_order)) {
+        sprintf(
+          "For `variance_estimator='%s'`, must supply a vector to `sort_order`",
+          variance_estimator
+        ) |> stop()
+      }
+    }
+
+    # Determine number of stages and ultimate units,
+    # and make clusters/strata explicit if they weren't supplied
+    if (is.null(cluster_ids) && !is.null(strata_ids)) {
+      number_of_stages <- ncol(strata_ids)
+      number_of_ultimate_units <- nrow(strata_ids)
+      cluster_ids <- matrix(data = rep(seq_len(number_of_ultimate_units),
+                                       times = number_of_stages),
+                            nrow = number_of_ultimate_units, ncol = number_of_stages,
+                            byrow = FALSE)
+    } else if (!is.null(cluster_ids) && is.null(strata_ids)) {
+      number_of_stages <- ncol(cluster_ids)
+      number_of_ultimate_units <- nrow(cluster_ids)
+      strata_ids <- matrix(1,
+                           nrow = number_of_ultimate_units,
+                           ncol = number_of_stages)
+    } else {
+      number_of_stages <- ncol(strata_ids)
+      number_of_ultimate_units <- nrow(strata_ids)
+    }
+
+    # Make sure each stage's sampling units are nested within strata
+    # and each stage's sampling units are nested
+    # within previous stage sampling units
+    cluster_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
+                                   cluster_ids[, 1, drop = TRUE],
+                                   sep = " | ", drop = TRUE)
+    if (variance_estimator != "Ultimate Cluster") {
+      stage <- 2L
+      while (stage <= number_of_stages) {
+        strata_ids[,stage] <- interaction(
+          cluster_ids[, stage-1L, drop=TRUE],
+          strata_ids[, stage, drop=TRUE],
+          sep = " | ", drop = TRUE
+        )
+        cluster_ids[,stage] <- interaction(
+          strata_ids[, stage, drop = TRUE],
+          cluster_ids[, stage, drop = TRUE],
+          sep = " | ", drop = TRUE
+        )
+        stage <- stage + 1L
+      }
+    }
+
+    if (is.null(strata_pop_sizes)) {
+      strata_pop_sizes <- matrix(data = Inf,
+                                 nrow = number_of_ultimate_units,
+                                 ncol = number_of_stages)
+    }
+  }
+
+  if (variance_estimator == "Horvitz-Thompson") {
+    n <- number_of_ultimate_units
+    quad_form_matrix <- matrix(nrow = n, ncol = n)
+    for (i in seq_len(n)) {
+      for (j in seq(from = i, to = n, by = 1)) {
+        quad_form_matrix[i,j] <- 1 - (joint_probs[i,i] * joint_probs[j,j])/joint_probs[i,j]
+      }
+    }
+    quad_form_matrix[lower.tri(quad_form_matrix)] <- t(quad_form_matrix)[lower.tri(quad_form_matrix)]
+  }
+
+  if (variance_estimator == "Yates-Grundy") {
+    n <- number_of_ultimate_units
+    quad_form_matrix <- matrix(nrow = n, ncol = n)
+    for (i in seq_len(n)) {
+      for (j in seq(from = i, to = n, by = 1)) {
+        quad_form_matrix[i,j] <- -(1 - (joint_probs[i,i] * joint_probs[j,j])/joint_probs[i,j])
+      }
+    }
+    quad_form_matrix[lower.tri(quad_form_matrix)] <- t(quad_form_matrix)[lower.tri(quad_form_matrix)]
+    diag(quad_form_matrix) <- diag(quad_form_matrix) - rowSums(quad_form_matrix)
+    quad_form_matrix <- -1 * quad_form_matrix
+  }
+
+  if (variance_estimator == "Ultimate Cluster") {
+    quad_form_matrix <- matrix(data = 0,
+                               nrow = number_of_ultimate_units,
+                               ncol = number_of_ultimate_units)
+
+    # Generate quadratic form for each stratum
+    for (stratum_id in unique(strata_ids[,1,drop=TRUE])) {
+      stratum_indices <- which(strata_ids[,1,drop=TRUE] == stratum_id)
+      stratum_pop_size <- strata_pop_sizes[,1,drop=TRUE][stratum_indices[1]]
+      n_clusters <- length(unique(cluster_ids[stratum_indices, 1, drop = TRUE]))
+      quad_form_matrix[stratum_indices,stratum_indices] <- distribute_matrix_across_clusters(
+        cluster_level_matrix = make_srswor_matrix(n = n_clusters,
+                                                  f = (n_clusters/stratum_pop_size)),
+        cluster_ids = cluster_ids[stratum_indices, 1, drop = TRUE],
+        rows = TRUE, cols = TRUE
+      )
+    }
+  }
+
+  if (variance_estimator == "Stratified Multistage SRS") {
+    quad_form_matrix <- matrix(data = 0,
+                               nrow = number_of_ultimate_units,
+                               ncol = number_of_ultimate_units)
+    # Obtain matrix of cluster sample sizes by stage
+    count <- function(x) sum(!duplicated(x))
+    sampsize <- matrix(ncol = ncol(cluster_ids), nrow = nrow(cluster_ids))
+    for (i in seq_len(number_of_stages)) {
+      split(sampsize[, i], strata_ids[, i]) <- lapply(split(cluster_ids[,i], strata_ids[, i]), count)
+    }
+    # Iterate over stages
+    stage <- 1L
+    while (stage <= number_of_stages) {
+      # Generate quadratic form for each stratum
+      for (stratum_id in unique(strata_ids[,stage,drop=TRUE])) {
+        # Variance of estimated total from current stage units
+        stratum_indices <- which(strata_ids[,stage,drop=TRUE] == stratum_id)
+        stratum_pop_size <- strata_pop_sizes[,stage,drop=TRUE][stratum_indices[1]]
+        n_clusters <- sampsize[,stage,drop=TRUE][stratum_indices[1]]
+
+        Q_current <- distribute_matrix_across_clusters(
+          cluster_level_matrix = make_srswor_matrix(n = n_clusters,
+                                                    f = (n_clusters/stratum_pop_size)),
+          cluster_ids = cluster_ids[stratum_indices, stage, drop = TRUE],
+          rows = TRUE, cols = TRUE
+        )
+
+        # Obtain product of previous-stage sampling fractions
+        if (stage > 1) {
+          prev_n_clusters <- sampsize[stratum_indices[1],seq_len(stage-1),drop=TRUE]
+          prev_stratum_pop_size <- strata_pop_sizes[stratum_indices[1],seq_len(stage-1),drop=TRUE]
+          prev_samp_fraction <- Reduce(f = `*`, x = prev_n_clusters)/Reduce(f = `*`, x = prev_stratum_pop_size)
+        } else {
+          prev_samp_fraction <- 1
+        }
+
+        # Add overall variance contribution from current stage/stratum sampling
+        quad_form_matrix[stratum_indices,stratum_indices] <- quad_form_matrix[stratum_indices,stratum_indices] +
+          (Q_current * prev_samp_fraction)
+
+      }
+      stage <- stage + 1L
+    }
+
+  }
+
+  if (variance_estimator %in% c("SD1", "SD2")) {
+    n <- number_of_ultimate_units
+    # Initialize quadratic form matrix
+    quad_form_matrix <- matrix(data = 0, nrow = n, ncol = n)
+    sorted_quad_form_matrix <- quad_form_matrix
+    # Sort the inputs, compile into a dataframe
+    sorted_df <- data.frame('Row_ID' = seq_len(n),
+                            'Stratum' = strata_ids[,1,drop=TRUE],
+                            'Cluster' = cluster_ids[,1,drop=TRUE],
+                            'Sort_Order' = sort_order,
+                            'Stratum_Pop_Size' = strata_pop_sizes[,1,drop=TRUE],
+                            stringsAsFactors = FALSE)
+    sorted_df <- sorted_df[order(sorted_df[['Sort_Order']],
+                                 sorted_df[['Stratum']],
+                                 sorted_df[['Cluster']]),]
+    sorted_df[['New_Order']] <- seq_len(n)
+    inverse_sort_map <- sorted_df[['New_Order']][order(sorted_df[['Row_ID']])]
+
+    # Generate quadratic form for each stratum
+    for (stratum_id in unique(sorted_df[['Stratum']])) {
+      stratum_indices <- which(sorted_df[['Stratum']] == stratum_id)
+      stratum_pop_size <- sorted_df[['Stratum_Pop_Size']][stratum_indices[1]]
+
+      n_clusters <- length(
+        unique(sorted_df[stratum_indices, 'Cluster', drop = TRUE])
+      )
+
+      sorted_quad_form_matrix[stratum_indices,stratum_indices] <- distribute_matrix_across_clusters(
+        cluster_level_matrix = make_sd_matrix(n = n_clusters,
+                                              f = (n_clusters/stratum_pop_size),
+                                              type = variance_estimator),
+        cluster_ids = sorted_df[stratum_indices, 'Cluster', drop = TRUE],
+        rows = TRUE, cols = TRUE
+      )
+    }
+    # Arrange matrix rows/columns to match the original order of the input data
+      quad_form_matrix <- sorted_quad_form_matrix[inverse_sort_map,inverse_sort_map]
+  }
+
+  return(quad_form_matrix)
+}
+
+#' @title Create a quadratic form's matrix to represent a successive-difference variance estimator
+#' @description A successive-difference variance estimator can be represented
+#' as a quadratic form. This function determines the matrix of the quadratic form.
+#' @param n Number of rows or columns for the matrix
+#' @param f A single number between \code{0} and \code{1},
+#' representing the sampling fraction. Default value is \code{0}.
+#' @param type Either "SD1" or "SD2". See the "Details" section for definitions.
+#' @return A matrix of dimension \code{n}
+#' @details
+#' Ash (2014) describes each estimator as follows:
+#' \deqn{
+#' \begin{aligned}
+#'   \hat{v}_{SD1}(\hat{Y}) &= (1-f) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2 \\
+#'   \hat{v}_{SD2}(\hat{Y}) &= \frac{1}{2}(1-f)\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right] \\
+#' \end{aligned}
+#' }
+#' where \eqn{\breve{y}_k} is the weighted value \eqn{y_k/\pi_k} of unit \eqn{k}
+#' with selection probability \eqn{\pi_k}, and \eqn{f} is the sampling fraction \eqn{\frac{n}{N}}.
+#' @references
+#' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+make_sd_matrix <- function(n, f = 0, type = "SD1") {
+
+  if (!is.numeric(n) || (length(n) != 1) || is.na(n) || (n %% 1 != 0) || (n < 1)) {
+    stop("`n` must be an integer greater than or equal to 1")
+  }
+  if (!is.numeric(f) || (length(f) != 1) || is.na(f) || (f < 0) || (f > 1)) {
+    stop("`f` must be a single number between 0 and 1")
+  }
+
+  if (n == 1) {
+    C_matrix <- matrix(0, nrow = 1, ncol = 1)
+  }
+  if (type == "SD1" && (n > 1)) {
+    C_matrix <- diag(n) * 2
+    C_matrix[1,1] <- 1
+    C_matrix[n,n] <- 1
+    for (i in seq_len(n)) {
+      if (i < n) {
+        C_matrix[i,i+1] <- -1
+        C_matrix[i+1,i] <- -1
+      }
+      if (i > 0) {
+        C_matrix[i,i-1] <- -1
+        C_matrix[i-1,i] <- -1
+      }
+    }
+    C_matrix <- (n/(n-1)) * C_matrix
+  }
+  if (type == "SD2" && (n > 1)) {
+    C_matrix <- diag(n) * 2
+    for (i in seq_len(n)) {
+      if (i < n) {
+        C_matrix[i,i+1] <- -1
+        C_matrix[i+1,i] <- -1
+      }
+      if (i > 0) {
+        C_matrix[i,i-1] <- -1
+        C_matrix[i-1,i] <- -1
+      }
+    }
+    if (n > 2) {
+      C_matrix[1,n] <- -1
+      C_matrix[n,1] <- -1
+    } else if (n == 2) {
+      C_matrix[1,n] <- -2
+      C_matrix[n,1] <- -2
+    }
+  }
+
+  C_matrix <- ((1-f)/2) * C_matrix
+
+  return(C_matrix)
+}
+
+
+#' @title Create a quadratic form's matrix to represent the basic variance estimator
+#' for a total under simple random sampling without replacement
+#' @description The usual variance estimator simple random sampling without replacement
+#' can be represented as a quadratic form.
+#' This function determines the matrix of the quadratic form.
+#' @param n Sample size
+#' @param f A single number between \code{0} and \code{1},
+#' representing the sampling fraction. Default value is \code{0}.
+#' @return A symmetric matrix of dimension \code{n}
+#' @details
+#' The basic variance estimator of a total for simple random sampling without replacement is as follows:
+#' \deqn{
+#' \hat{v}(\hat{Y}) = (1 - f)\frac{n}{n - 1} \sum_{i=1}^{n} (y_i - \bar{y})^2
+#' }
+#' where \eqn{f} is the sampling fraction \eqn{\frac{n}{N}}. \cr \cr
+#' If \eqn{f=0}, then the matrix of the quadratic form has all non-diagonal elements equal to \eqn{-(n-1)^{-1}},
+#' and all diagonal elements equal to \eqn{1}. If \eqn{f > 0}, then each element
+#' is multiplied by \eqn{(1-f)}. \cr \cr
+#' If \eqn{n=1}, then this function returns a \eqn{1 \times 1} matrix whose sole element equals \eqn{0}
+#' (essentially treating the sole sampled unit as a selection made with probability \eqn{1}).
+make_srswor_matrix <- function(n, f = 0) {
+  if (!is.numeric(n) || (length(n) != 1) || is.na(n) || (n %% 1 != 0) || (n < 1)) {
+    stop("`n` must be an integer greater than or equal to 1")
+  }
+  if (!is.numeric(f) || (length(f) != 1) || is.na(f) || (f < 0) || (f > 1)) {
+    stop("`f` must be a single number between 0 and 1")
+  }
+  if (n == 1) {
+    C_matrix <- matrix(0, nrow = 1, ncol = 1)
+  } else {
+    C_matrix <- matrix(-1/(n-1), nrow = n, ncol = n)
+    diag(C_matrix) <- 1
+    C_matrix <- (1-f) * C_matrix
+  }
+  return(C_matrix)
+}
+
+#' @title Helper function to turn a cluster-level matrix into an element-level matrix
+#' by duplicating rows or columns of the matrix
+#' @description Turns a cluster-level matrix into an element-level matrix
+#' by suitably duplicating rows or columns of the matrix.
+#' @param cluster_level_matrix A square matrix, whose number of rows/columns matches the number of clusters.
+#' @param cluster_ids A vector of cluster identifiers.
+#' If \code{rows=TRUE}, the number of unique elements of \code{cluster_ids}
+#' must match the number of rows of \code{cluster_level_matrix}.
+#' If \code{cols=TRUE}, the number of unique elements of \code{cluster_ids}
+#' must match the number of columns of \code{cluster_level_matrix}.
+#' @param rows Whether to duplicate rows of the \code{cluster_level_matrix} for elements from the same cluster.
+#' @param cols Whether to duplicate columns of the \code{cluster_level_matrix} for elements from the same cluster.
+#' @return The input \code{cluster_level_matrix} has its rows/columns
+#' duplicated so that the number of rows (if \code{rows=TRUE}) or columns (if \code{cols=TRUE})
+#' equals the length of \code{cluster_ids}.
+#'
+distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids, rows = TRUE, cols = TRUE) {
+  if (any(is.na(cluster_ids))) {
+    stop("`cluster_ids` cannot have any missing values.")
+  }
+  ## Get indices for each cluster
+  cluster_indices <- as.numeric(
+    factor(cluster_ids,
+           levels = unique(cluster_ids))
+  )
+  n_clusters <- max(cluster_indices)
+  if ((nrow(cluster_level_matrix) != n_clusters) | (ncol(cluster_level_matrix) != n_clusters)) {
+
+  }
+  if (rows && cols) {
+    if ((n_clusters != nrow(cluster_level_matrix)) || (n_clusters != ncol(cluster_level_matrix))) {
+      stop("The number of rows/columns of `cluster_level_matrix` must match the number of unique elements of `cluster_ids`.")
+    }
+    result <- cluster_level_matrix[cluster_indices,cluster_indices,drop=FALSE]
+  } else if (rows && (!cols)) {
+    if ((n_clusters != nrow(cluster_level_matrix))) {
+      stop("The number of rows of `cluster_level_matrix` must match the number of unique elements of `cluster_ids`.")
+    }
+    result <- cluster_level_matrix[cluster_indices,,drop=FALSE]
+  } else if ((!rows) && cols) {
+    if ((n_clusters != ncol(cluster_level_matrix))) {
+      stop("The number of columns of `cluster_level_matrix` must match the number of unique elements of `cluster_ids`.")
+    }
+    result <- cluster_level_matrix[,cluster_indices,drop=FALSE]
+  } else {
+    stop("Must set `rows=TRUE` and/or `cols=TRUE`")
+  }
+  return(result)
+}

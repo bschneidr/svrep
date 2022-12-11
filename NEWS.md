@@ -1,4 +1,39 @@
-# svrep (development version)
+# svrep 0.4.0
+
+* This release adds several functions for creating bootstrap and generalized bootstrap replicate weights. The new vignette "Bootstrap methods for surveys" provides guidance for choosing a bootstrap method and selecting the number of bootstrap replicates to use, along with statistical details and references.
+
+  * Added function `as_bootstrap_design()` to convert a survey design
+  object to a replicate design with replicate weights created
+  using a bootstrap method. This is essentially a specialized version of 
+  `as.svrepdesign()` that supports additional bootstrap methods
+  and has detailed documentation about which bootstrap methods can be used
+  for different types of sampling designs.
+  
+  * Added function `as_gen_boot_design()` to convert a survey design
+  object to a replicate design with replicate weights created
+  using the generalized survey bootstrap. The user must supply the name of
+  a target variance estimator (e.g., "Horvitz-Thompson" or "Ultimate Cluster")
+  used to create the generalized bootstrap factors. See the new vignette for details.
+
+  * Added functions to help choose the number of bootstrap replicates.
+  The function `estimate_boot_sim_cv()` can be used to estimate the simulation error
+  in a bootstrap estimate caused by using a finite number of bootstrap replicates.
+  The new function `estimate_boot_reps_for_target_cv()` estimates the number of bootstrap
+  replicates needed to reduce the simulation error to a target level.
+
+  * Added function `make_rwyb_bootstrap_weights()`, which creates
+  bootstrap replicate weights for a wide range of survey designs
+  using the method of Rao-Wu-Yue-Beaumont (i.e., Beaumont's 
+  generalization of the Rao-Wu-Yue bootstrap method). This function
+  can be used directly, or users can specify `as_bootstrap_design(type = "Rao-Wu-Yue-Beaumont")`.
+
+  * Added function `make_gen_boot_factors()` to create replicate adjustment factors
+  using the generalized survey bootstrap. The key input to `make_gen_boot_factors()`
+  is the matrix of the quadratic form used to represent a variance estimator.
+  The new function `make_quad_form_matrix()` can be used to represent a chosen variance
+  estimator as a quadratic form, given information about the sample design. This can be
+  used for stratified multistage SRS designs (with or without replacement),
+  systematic samples, and PPS samples, with or without replacement.
 
 * Minor Updates and Bug Fixes:
   * When using `as_data_frame_with_weights()`,
