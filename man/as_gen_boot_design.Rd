@@ -74,7 +74,7 @@ Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated popu
 The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
 Suppose we can represent our textbook variance estimator as a quadratic form: \eqn{v(\hat{T}_y) = \breve{y}\Sigma\breve{y}^T},
 for some \eqn{n \times n} matrix \eqn{\Sigma}.
-The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semi-definite (in other words, it should never lead to a negative variance estimate, no matter what the value of \eqn{\breve{y}} is).
+The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semi-definite.
 
 The bootstrapping process creates \eqn{B} sets of replicate weights, where the \eqn{b}-th set of replicate weights is a vector of length \eqn{n} denoted \eqn{\mathbf{a}^{(b)}}, whose \eqn{k}-th value is denoted \eqn{a_k^{(b)}}.
 This yields \eqn{B} replicate estimates of the population total, \eqn{\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k}, for \eqn{b=1, \ldots B}, which can be used to estimate sampling variance.
@@ -86,11 +86,11 @@ This yields \eqn{B} replicate estimates of the population total, \eqn{\hat{T}_y^
 This bootstrap variance estimator can be written as a quadratic form:
 
   \deqn{
-    \begin{aligned}
-    v_B\left(\hat{T}_y\right) &=\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}} \\
-    \textit{where}& \\
-    \boldsymbol{\Sigma}_B &= \frac{\sum_{b=1}^B\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)^{\prime}}{B}
-    \end{aligned}
+    v_B\left(\hat{T}_y\right) =\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}
+  }
+  where
+  \deqn{
+    \boldsymbol{\Sigma}_B = \frac{\sum_{b=1}^B\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)^{\prime}}{B}
   }
 
 Note that if the vector of adjustment factors \eqn{\mathbf{a}^{(b)}} has expectation \eqn{\mathbf{1}_n} and variance-covariance matrix \eqn{\boldsymbol{\Sigma}},
@@ -111,21 +111,18 @@ This is the method used by this function.
 Let \eqn{\mathbf{A} = \left[ \mathbf{a}^{(1)} \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]} denote the \eqn{(n \times B)} matrix of bootstrap adjustment factors.
 To eliminate negative adjustment factors, Beaumont and Patak (2012) propose forming a rescaled matrix of nonnegative replicate factors \eqn{\mathbf{A}^S} by rescaling each adjustment factor \eqn{a_k^{(b)}} as follows:
 \deqn{
- \begin{aligned}
- a_k^{S,(b)} &= \frac{a_k^{(b)} + \tau - 1}{\tau} \\
- \textit{where } \tau &\geq 1 - a_k^{(b)} \geq 1 \\
- &\textit{for all }k \textit{ in } \left\{ 1,\ldots,n \right\} \\
- &\textit{and all }b \textit{ in } \left\{1, \ldots, B\right\} \\
- \end{aligned}
-}
+   a_k^{S,(b)} = \frac{a_k^{(b)} + \tau - 1}{\tau}
+ }
+where \eqn{\tau \geq 1 - a_k^{(b)} \geq 1} for all \eqn{k} in \eqn{\left\{ 1,\ldots,n \right\}} and all \eqn{b} in \eqn{\left\{1, \ldots, B\right\}}.
+
 The value of \eqn{\tau} can be set based on the realized adjustment factor matrix \eqn{\mathbf{A}} or by choosing \eqn{\tau} prior to generating the adjustment factor matrix \eqn{\mathbf{A}} so that \eqn{\tau} is likely to be large enough to prevent negative bootstrap weights.
 
 If the adjustment factors are rescaled in this manner, it is important to adjust the scale factor used in estimating the variance with the bootstrap replicates, which becomes \eqn{\frac{\tau^2}{B}} instead of \eqn{\frac{1}{B}}.
 \deqn{
- \begin{aligned}
- \textbf{Prior to rescaling: } v_B\left(\hat{T}_y\right) &= \frac{1}{B}\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2 \\
- \textbf{After rescaling: } v_B\left(\hat{T}_y\right) &= \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2 \\
- \end{aligned}
+ \textbf{Prior to rescaling: } v_B\left(\hat{T}_y\right) = \frac{1}{B}\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2
+ }
+\deqn{
+ \textbf{After rescaling: } v_B\left(\hat{T}_y\right) = \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
 }
 When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
 }
@@ -145,22 +142,23 @@ proposed by Bellhouse (1985) and used in the 'survey' package's function \link[s
 The estimator can be used for any number of sampling stages. For illustration, we describe its use
 for two sampling stages.
 \deqn{
-  \begin{aligned}
-  v(\hat{Y}) &= \hat{V}_1 + \hat{V}_2 \\
-  \hat{V}_1 &= \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2 \\
-  \hat{V}_2 &= \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.}) \\
-  \end{aligned}
+  v(\hat{Y}) = \hat{V}_1 + \hat{V}_2
 }
-where:
+where
 \deqn{
-  \begin{aligned}
-  n_h &\textit{ is the number of sampled clusters in stratum }h \\
-  N_h &\textit{ is the number of population clusters in stratum }h \\
-  y_{hi.} &\textit{ is the weighted cluster total in cluster }i\textit{ of stratum }h \\
-  \bar{y}_{hi.} &= \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.} \\
-  v_{hi}(y_{hi.}) &\textit{ is the estimated sampling variance of }y_{hi.}
-  \end{aligned}
+  \hat{V}_1 = \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2
 }
+and
+\deqn{
+  \hat{V}_2 = \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.})
+}
+where \eqn{n_h} is the number of sampled clusters in stratum \eqn{h},
+\eqn{N_h} is the number of population clusters in stratum \eqn{h},
+\eqn{y_{hi.}} is the weighted cluster total in cluster \eqn{i} of stratum \eqn{h},
+\eqn{\bar{y}_{hi.}} is the mean weighted cluster total of stratum \eqn{h},
+(\eqn{\bar{y}_{hi.} = \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.}}), and
+\eqn{v_{hi}(y_{hi.})} is the estimated sampling variance of \eqn{y_{hi.}}.
+\cr \cr
 The \strong{Ultimate Cluster} variance estimator is simply the stratified multistage SRS
 variance estimator, but ignoring variances from later stages of sampling.
 \deqn{
@@ -175,10 +173,10 @@ The \strong{SD1} and \strong{SD2} variance estimators are "successive difference
 estimators sometimes used for systematic sampling designs.
 Ash (2014) describes each estimator as follows:
 \deqn{
-\begin{aligned}
-  \hat{v}_{S D 1}(\hat{Y}) &= \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2 \\
-  \hat{v}_{S D 2}(\hat{Y}) &= \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right] \\
-\end{aligned}
+  \hat{v}_{S D 1}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2
+}
+\deqn{
+  \hat{v}_{S D 2}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right]
 }
 where \eqn{\breve{y}_k = y_k/\pi_k} is the weighted value of unit \eqn{k}
 with selection probability \eqn{\pi_k}. The SD1 estimator is recommended by Wolter (1984).

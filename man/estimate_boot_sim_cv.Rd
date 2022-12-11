@@ -33,18 +33,18 @@ Estimates the bootstrap simulation error, expressed as a "simulation coefficient
  For a statistic \eqn{\hat{\theta}}, the simulation CV of the bootstrap variance estimator
  \eqn{v_{B}(\hat{\theta})} based on \eqn{B} replicate estimates \eqn{\hat{\theta}^{\star}_1,\dots,\hat{\theta}^{\star}_B} is defined as follows:
  \deqn{
-   \begin{aligned}
-
-   CV_{\star}(v_{B}(\hat{\theta})) &= \frac{\sqrt{var_{\star}(v_B(\hat{\theta}))}}{E_{\star}(v_B(\hat{\theta}))} = \frac{CV_{\star}(E_2)}{\sqrt{B}} \\
-   \textit{where:}& \\
-   E_2 &= (\hat{\theta}^{\star} - \hat{\theta})^2 \\
-   CV_{\star}(E_2) &= \frac{\sqrt{var_{\star}(E_2)}}{E_{\star}(E_2)} \\
-   \textit{and }& var_{\star} \text{ and } E_{\star} \textit{ are evaluated} \\
-   & \textit{with respect to the bootstrapping process} \\
-   & \textit{given the selected sample}
-   \end{aligned}
+   CV_{\star}(v_{B}(\hat{\theta})) = \frac{\sqrt{var_{\star}(v_B(\hat{\theta}))}}{E_{\star}(v_B(\hat{\theta}))} = \frac{CV_{\star}(E_2)}{\sqrt{B}}
  }
-
+ where
+ \deqn{
+   E_2 = (\hat{\theta}^{\star} - \hat{\theta})^2
+ }
+ \deqn{
+   CV_{\star}(E_2) = \frac{\sqrt{var_{\star}(E_2)}}{E_{\star}(E_2)}
+ }
+ and \eqn{var_{\star}} and \eqn{E_{\star}} are evaluated with respect to
+ the bootstrapping process, given the selected sample.
+\cr \cr
  The simulation CV, denoted \eqn{CV_{\star}(v_{B}(\hat{\theta}))}, is estimated for a given number of replicates \eqn{B}
  by estimating \eqn{CV_{\star}(E_2)} using observed values and dividing this by \eqn{\sqrt{B}}. If the bootstrap errors
  are assumed to be normally distributed, then \eqn{CV_{\star}(E_2)=\sqrt{2}} and so \eqn{CV_{\star}(v_{B}(\hat{\theta}))} would not need to be estimated.
