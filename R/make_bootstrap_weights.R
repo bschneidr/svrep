@@ -77,6 +77,7 @@
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #' @examples
+#' \dontrun{
 #'  library(survey)
 #'
 #'  # Example 1: A multistage sample with two stages of SRSWOR
@@ -159,6 +160,7 @@
 #'                                                           design = pps_wor_design))),
 #'        check.names = FALSE
 #'      )
+#' }
 
 make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                                         samp_unit_ids, strata_ids,

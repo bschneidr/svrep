@@ -79,6 +79,7 @@ The user can either call \link[base]{set.seed} before using the function,
 or supply a vector of randomly-selected column indices to the argument \code{col_selection}.
 }
 \examples{
+\dontrun{
 
 # Load example data for primary survey ----
 
@@ -141,6 +142,7 @@ or supply a vector of randomly-selected column indices to the argument \code{col
     cal_formula = ~ stype + enroll,
     col_selection = column_selection
   )
+}
 }
 \references{
 Fuller, W.A. (1998).

@@ -191,7 +191,7 @@ which is the product of sampling fractions from the first-stage stratum and seco
 }
 
 \examples{
-
+\dontrun{
 library(survey)
 
 # Example 1: Bootstrap based on the Yates-Grundy estimator ----
@@ -242,7 +242,7 @@ library(survey)
    ## Estimate sampling variances
    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
-
+}
 }
 \references{
 The generalized survey bootstrap was first proposed by Bertail and Combris (1997).

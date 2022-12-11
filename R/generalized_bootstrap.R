@@ -101,7 +101,8 @@
 #' @export
 #'
 #' @examples
-#' library(survey)
+#' \dontrun{
+#'   library(survey)
 #'
 #' # Load an example dataset that uses unequal probability sampling ----
 #'   data('election', package = 'survey')
@@ -161,7 +162,7 @@
 #'          design = election_pps_bootstrap_design)
 #' svytotal(x = ~ Bush + Kerry,
 #'          design = election_pps_ht_design)
-#'
+#' }
 make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 
   n <- nrow(Sigma)
@@ -393,8 +394,8 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' @export
 #'
 #' @examples
-#'
-#'library(survey)
+#' \dontrun{
+#' library(survey)
 #'
 #'# Example 1: Bootstrap based on the Yates-Grundy estimator ----
 #'    set.seed(2014)
@@ -444,7 +445,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #'    ## Estimate sampling variances
 #'    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
 #'    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
-#'
+#' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
                                 replicates = 500, tau = "auto",
                                 mse = getOption("survey.replicates.mse"),

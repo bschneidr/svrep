@@ -62,6 +62,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #'
 #' # Load example data for primary survey ----
 #'
@@ -115,6 +116,7 @@
 #'     cal_formula = ~ stype + enroll,
 #'     control_col_matches = column_matching
 #'   )
+#' }
 
 calibrate_to_sample <- function(primary_rep_design, control_rep_design,
                                 cal_formula,

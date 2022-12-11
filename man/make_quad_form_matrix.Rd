@@ -155,6 +155,7 @@ which is the product of sampling fractions from the first-stage stratum and seco
 }
 
 \examples{
+\dontrun{
 # Example 1: The Horvitz-Thompson Estimator
   library(survey)
   data("election", package = "survey")
@@ -208,7 +209,7 @@ which is the product of sampling fractions from the first-stage stratum and seco
   wtd_y[is.na(wtd_y)] <- 0
 
 t(wtd_y) \%*\% sd1_quad_form \%*\% wtd_y
-
+}
 }
 \references{
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."

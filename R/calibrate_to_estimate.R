@@ -53,6 +53,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #'
 #' # Load example data for primary survey ----
 #'
@@ -115,6 +116,7 @@
 #'     cal_formula = ~ stype + enroll,
 #'     col_selection = column_selection
 #'   )
+#' }
 
 calibrate_to_estimate <- function(rep_design,
                                   estimate, vcov_estimate,

@@ -91,6 +91,7 @@ stage of sampling, where sampling is conducted with Poisson sampling
 where each unit's "selection probability" at that stage is its response propensity (which typically has to be estimated).
 }
 \examples{
+\dontrun{
  library(survey)
 
  # Example 1: A multistage sample with two stages of SRSWOR
@@ -173,6 +174,7 @@ where each unit's "selection probability" at that stage is its response propensi
                                                           design = pps_wor_design))),
        check.names = FALSE
      )
+}
 }
 \references{
 Beaumont, J.-F.; Émond, N. (2022).

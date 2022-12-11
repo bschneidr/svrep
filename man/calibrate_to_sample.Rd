@@ -90,6 +90,7 @@ The user can either call \link[base]{set.seed} before using the function,
 or supply a mapping to the argument \code{control_col_matches}.
 }
 \examples{
+\dontrun{
 
 # Load example data for primary survey ----
 
@@ -143,6 +144,7 @@ or supply a mapping to the argument \code{control_col_matches}.
     cal_formula = ~ stype + enroll,
     control_col_matches = column_matching
   )
+}
 }
 \references{
 Opsomer, J.D. and A. Erciulescu (2021).

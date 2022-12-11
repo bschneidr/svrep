@@ -31,6 +31,7 @@ represents all adults (persons aged 18 or over) in Louisville, KY. \cr
 These data include replicate weights to use for variance estimation.
 }
 \examples{
+\dontrun{
 data(lou_pums_microdata)
 
 # Prepare the data for analysis with the survey package
@@ -46,5 +47,6 @@ data(lou_pums_microdata)
 
 # Estimate population proportions
   svymean(~ SEX, design = lou_pums_rep_design)
+}
 }
 \keyword{datasets}

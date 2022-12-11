@@ -97,7 +97,8 @@ When sharing a dataset that uses rescaled weights from a generalized survey boot
 }
 
 \examples{
-library(survey)
+\dontrun{
+  library(survey)
 
 # Load an example dataset that uses unequal probability sampling ----
   data('election', package = 'survey')
@@ -157,7 +158,7 @@ svytotal(x = ~ Bush + Kerry,
          design = election_pps_bootstrap_design)
 svytotal(x = ~ Bush + Kerry,
          design = election_pps_ht_design)
-
+}
 }
 \references{
 The generalized survey bootstrap was first proposed by Bertail and Combris (1997).

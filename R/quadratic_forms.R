@@ -135,6 +135,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Example 1: The Horvitz-Thompson Estimator
 #'   library(survey)
 #'   data("election", package = "survey")
@@ -188,7 +189,7 @@
 #'   wtd_y[is.na(wtd_y)] <- 0
 #'
 #' t(wtd_y) %*% sd1_quad_form %*% wtd_y
-#'
+#' }
 make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
                                   joint_probs = NULL,
                                   cluster_ids = NULL,

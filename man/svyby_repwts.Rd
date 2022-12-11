@@ -70,6 +70,7 @@ Whereas \code{svyby()} calculates statistics separately for each subset formed b
 \code{svyby_repwts()} calculates statistics separately for each replicate design, in addition to any additional user-specified grouping variables.
 }
 \examples{
+\dontrun{
 suppressPackageStartupMessages(library(survey))
 data(api)
 
@@ -131,4 +132,5 @@ differences_in_estimates <- svycontrast(stat = ests_by_design, contrasts = list(
 print(differences_in_estimates)
 
 confint(differences_in_estimates, level = 0.95)
+}
 }
