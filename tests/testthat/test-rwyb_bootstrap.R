@@ -314,6 +314,45 @@ set.seed(2014)
       )
     })
 
+  ##_ PPSWOR ----
+
+  test_that(
+    "For PPSWOR+SRSWOR two-stage design, RWYB bootstrap has correct weights sums, and estimate close to Brewer's approximation", {
+      set.seed(2014)
+
+      # Declare a multistage design
+      # where first-stage probabilities are PPSWOR sampling
+      # and second-stage probabilities are based on SRSWOR
+      multistage_design <- svydesign(
+        data = library_multistage_sample,
+        ids = ~ PSU_ID + SSU_ID,
+        probs = ~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
+        pps = "brewer"
+      )
+
+      # Convert to a bootstrap replicate design
+      boot_design <- as_bootstrap_design(
+        design = multistage_design,
+        type = "Rao-Wu-Yue-Beaumont",
+        samp_method_by_stage = c("PPSWOR", "SRSWOR"),
+        replicates = 10000
+      )
+
+      # Compare variance estimates
+      brewer_estimate <- svytotal(x = ~ TOTCIR, na.rm = TRUE, design = multistage_design) |>
+        vcov() |> as.numeric()
+      boot_estimate <- svytotal(x = ~ TOTCIR, na.rm = TRUE, design = boot_design) |>
+        vcov() |> as.numeric()
+
+      expect_lt(
+        object = abs(boot_estimate - brewer_estimate)/brewer_estimate,
+        expected = 0.1
+      )
+    })
+
+
+
+
   ##_ Poisson ----
 
   test_that(
