@@ -33,3 +33,4 @@ is multiplied by \eqn{(1-f)}. \cr \cr
 If \eqn{n=1}, then this function returns a \eqn{1 \times 1} matrix whose sole element equals \eqn{0}
 (essentially treating the sole sampled unit as a selection made with probability \eqn{1}).
 }
+\keyword{internal}

@@ -34,3 +34,4 @@ equals the length of \code{cluster_ids}.
 Turns a cluster-level matrix into an element-level matrix
 by suitably duplicating rows or columns of the matrix.
 }
+\keyword{internal}

@@ -455,6 +455,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#' @keywords internal
 make_sd_matrix <- function(n, f = 0, type = "SD1") {
 
   if (!is.numeric(n) || (length(n) != 1) || is.na(n) || (n %% 1 != 0) || (n < 1)) {
@@ -530,6 +531,7 @@ make_sd_matrix <- function(n, f = 0, type = "SD1") {
 #' is multiplied by \eqn{(1-f)}. \cr \cr
 #' If \eqn{n=1}, then this function returns a \eqn{1 \times 1} matrix whose sole element equals \eqn{0}
 #' (essentially treating the sole sampled unit as a selection made with probability \eqn{1}).
+#' @keywords internal
 make_srswor_matrix <- function(n, f = 0) {
   if (!is.numeric(n) || (length(n) != 1) || is.na(n) || (n %% 1 != 0) || (n < 1)) {
     stop("`n` must be an integer greater than or equal to 1")
@@ -562,7 +564,7 @@ make_srswor_matrix <- function(n, f = 0) {
 #' @return The input \code{cluster_level_matrix} has its rows/columns
 #' duplicated so that the number of rows (if \code{rows=TRUE}) or columns (if \code{cols=TRUE})
 #' equals the length of \code{cluster_ids}.
-#'
+#' @keywords internal
 distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids, rows = TRUE, cols = TRUE) {
   if (any(is.na(cluster_ids))) {
     stop("`cluster_ids` cannot have any missing values.")
