@@ -59,7 +59,7 @@
 #'
 #'  Beaumont, J.-F. and Z. Patak. (2012),
 #'  "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling."
-#'  \strong{International Statistical Review}, \emph{80}: 127-148. \href{https://doi.org/10.1111/j.1751-5823.2011.00166.x}{https://doi.org/10.1111/j.1751-5823.2011.00166.x}.
+#'  \strong{International Statistical Review}, \emph{80}: 127-148. \doi{https://doi.org/10.1111/j.1751-5823.2011.00166.x}.
 #'
 #' @return
 #' A data frame with one row for each value of \code{target_cv}.
@@ -207,7 +207,7 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
 #'
 #'  Beaumont, J.-F. and Z. Patak. (2012),
 #'  "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling."
-#'  \strong{International Statistical Review}, \emph{80}: 127-148. \href{https://doi.org/10.1111/j.1751-5823.2011.00166.x}{https://doi.org/10.1111/j.1751-5823.2011.00166.x}.
+#'  \strong{International Statistical Review}, \emph{80}: 127-148. \doi{https://doi.org/10.1111/j.1751-5823.2011.00166.x}.
 #'
 #' @return
 #' A data frame with one row for each statistic.

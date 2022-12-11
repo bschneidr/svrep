@@ -116,7 +116,7 @@ See Section 3.3 and Section 8 of Beaumont and Patak (2012) for details and an ex
 
  Beaumont, J.-F. and Z. Patak. (2012),
  "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling."
- \strong{International Statistical Review}, \emph{80}: 127-148. \href{https://doi.org/10.1111/j.1751-5823.2011.00166.x}{https://doi.org/10.1111/j.1751-5823.2011.00166.x}.
+ \strong{International Statistical Review}, \emph{80}: 127-148. \doi{https://doi.org/10.1111/j.1751-5823.2011.00166.x}.
 }
 \seealso{
 Use \code{\link[svrep]{estimate_boot_sim_cv}} to estimate the simulation CV for the number of bootstrap replicates actually used.
