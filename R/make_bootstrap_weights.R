@@ -260,30 +260,34 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     })
     if (any(noncertainty_singleton_strata)) {
       if ((stage < number_of_stages) | !allow_final_stage_singletons) {
-        error_msg <- sprintf(
-          paste("Cannot form bootstrap adjustment factors for a stratum at stage %s, ",
-                "since the stratum has only one sampling unit, ",
-                "and that single sampling unit was not selected with certainty.",
-                ifelse(
-                  stage == number_of_stages,
-                  paste0(
-                    " Setting `allow_final_stage_singletons = TRUE` will avoid this error message",
-                    " by calculating that sampling unit's final-stage adjustment factor as if it was selected with certainty at the final stage,",
-                    " and then calculating the bootstrap weight using this adjustment factor combined with the final-stage selection probability."
+        if (samp_method_by_stage[stage] != "POISSON") {
+          error_msg <- sprintf(
+            paste("Cannot form bootstrap adjustment factors for a stratum at stage %s, ",
+                  "since the stratum has only one sampling unit, ",
+                  "and that single sampling unit was not selected with certainty.",
+                  ifelse(
+                    stage == number_of_stages,
+                    paste0(
+                      " Setting `allow_final_stage_singletons = TRUE` will avoid this error message",
+                      " by calculating that sampling unit's final-stage adjustment factor as if it was selected with certainty at the final stage,",
+                      " and then calculating the bootstrap weight using this adjustment factor combined with the final-stage selection probability."
+                    ),
+                    ""
                   ),
-                  ""
-                ),
-                sep = ""),
-          stage
-        )
-        stop(error_msg)
+                  sep = ""),
+            stage
+          )
+          stop(error_msg)
+        }
       }
     }
 
     # For later stages of sampling, get the previous stage selection probability of the higher-level sampling unit
     if (stage > 1) {
       sel_prob_of_higher_unit_from_previous_stage_by_stratum <- sapply(X = seq_len(H), function(h) {
-        samp_unit_sel_probs[,stage-1][strata == distinct_strata_ids[h]][1]
+        row_to_select <- min(which(strata == distinct_strata_ids[h]))
+        prior_stage_probs <- samp_unit_sel_probs[row_to_select, seq_len(stage-1), drop=TRUE]
+        return(Reduce(prior_stage_probs, f = `*`))
       })
     } else {
       sel_prob_of_higher_unit_from_previous_stage_by_stratum <- rep(1, times = H)
@@ -300,7 +304,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
         )
       })
 
-      # Calculate adjustment from Equation (21) of Beaumont & Emond 2022 in the cases of PPSWOR of SRSWOR,
+      # Calculate adjustment from Equation (21) of Beaumont & Emond 2022 in the cases of PPSWOR or SRSWOR,
       #                        or Equation (20) in the case of SRSWR (which is the Rao-Wu-Yue method)
       a_beaumont_emond <- lapply(X = seq_len(H), function(h) {
         m <- m_h[h]
@@ -341,11 +345,12 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     # For PPSWOR, "calibrate" adjustments to sum to actual sample size, using Equation (24) of Beaumont & Emond 2022
     if (samp_method_by_stage[stage] == "PPSWOR") {
       a_beaumont_emond_cal <- lapply(X = seq_len(H), function(h) {
-        n <- n_h[h]
+
         is_certainty <- certainty_flags_by_stratum[[h]]
+        n_noncertainty <- sum(!is_certainty)
 
         a_sum <- colSums(a_beaumont_emond[[h]][!is_certainty,,drop=FALSE])
-        adjustment_factor <- n / a_sum
+        adjustment_factor <- n_noncertainty / a_sum
 
         a_k_cal <- a_beaumont_emond[[h]]
         a_k_cal[!is_certainty,] <- t(

@@ -360,6 +360,22 @@ library_stsys_sample <- library_stsys_sample |>
       )
   })
 
+  test_that(
+    "Fills in implicit cluster or strata IDs", {
+      wtd_y_matrix <- as.matrix(
+        library_stsys_sample[,c("TOTCIR", "TOTSTAFF")]
+      )/library_stsys_sample[['SAMPLING_PROB']]
+      qf <- make_quad_form_matrix(
+        variance_estimator = "SD1",
+        cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+        #strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+        strata_pop_sizes = library_stsys_sample |> transmute(N = 50000),
+        sort_order = library_stsys_sample$SAMPLING_SORT_ORDER
+      )
+      expect_equal(object = dim(qf),
+                   expected = c(219, 219))
+  })
+
 # Check "Stratified Multistage SRS" results ----
 
   test_that(
@@ -458,6 +474,41 @@ library_stsys_sample <- library_stsys_sample |>
         regexp = "must supply a vector to `sort_order`"
       )
 
+  })
+
+# Helper functions work ----
+
+  test_that("`distribute_matrix_across_clusters() works", {
+    expect_equal(
+      object =   svrep:::distribute_matrix_across_clusters(
+        cluster_level_matrix = matrix(c(1,2,3,4,
+                                        5,6), nrow = 3, ncol = 2,
+                                      byrow = TRUE),
+        cluster_ids = c(1,2,2,3),
+        cols = FALSE
+      ),
+      expected = structure(c(1, 3, 3, 5, 2, 4, 4, 6), dim = c(4L, 2L))
+    )
+    expect_equal(
+      object =   svrep:::distribute_matrix_across_clusters(
+        cluster_level_matrix = matrix(c(1,2,3,4,
+                                        5,6), nrow = 2, ncol = 3,
+                                      byrow = TRUE),
+        cluster_ids = c(1,2,2,3),
+        cols = TRUE, rows = FALSE
+      ),
+      expected = structure(c(1, 4, 2, 5, 2, 5, 3, 6), dim = c(2L, 4L))
+    )
+    expect_error(
+      object = svrep:::distribute_matrix_across_clusters(
+        cluster_level_matrix = matrix(c(1,2,3,4,
+                                        5,6), nrow = 2, ncol = 3,
+                                      byrow = TRUE),
+        cluster_ids = c(1,2,2,3),
+        cols = FALSE, rows = FALSE
+      ),
+      regexp = "Must set `rows=TRUE` and/or `cols=TRUE`"
+    )
   })
 
 
