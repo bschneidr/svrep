@@ -201,8 +201,8 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">overall_estimates</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Design_Name    api00       se</span></span>
-<span><span class="co">#&gt;  nonresponse-adjusted 636.0485 23.86925</span></span>
-<span><span class="co">#&gt;              original 644.1694 23.18402</span></span>
+<span><span class="co">#&gt;  nonresponse-adjusted 636.0485 23.74044</span></span>
+<span><span class="co">#&gt;              original 644.1694 23.06284</span></span>
 <span></span>
 <span><span class="co"># Estimate domain means (and their standard errors) from each design</span></span>
 <span><span class="va">domain_estimates</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/svyby_repwts.html">svyby_repwts</a></span><span class="op">(</span></span>
@@ -212,12 +212,12 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">domain_estimates</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Design_Name stype    api00       se</span></span>
-<span><span class="co">#&gt;  nonresponse-adjusted     E 634.0529 24.30579</span></span>
-<span><span class="co">#&gt;              original     E 648.8681 22.43597</span></span>
-<span><span class="co">#&gt;  nonresponse-adjusted     H 654.9667 25.43743</span></span>
-<span><span class="co">#&gt;              original     H 618.5714 37.62865</span></span>
-<span><span class="co">#&gt;  nonresponse-adjusted     M 637.7941 32.90199</span></span>
-<span><span class="co">#&gt;              original     M 631.4400 31.20674</span></span></code></pre></div>
+<span><span class="co">#&gt;  nonresponse-adjusted     E 634.0529 24.16837</span></span>
+<span><span class="co">#&gt;              original     E 648.8681 22.31347</span></span>
+<span><span class="co">#&gt;  nonresponse-adjusted     H 654.9667 25.25871</span></span>
+<span><span class="co">#&gt;              original     H 618.5714 37.39448</span></span>
+<span><span class="co">#&gt;  nonresponse-adjusted     M 637.7941 32.72545</span></span>
+<span><span class="co">#&gt;              original     M 631.4400 31.03957</span></span></code></pre></div>
 <p>We can even test for differences in estimates from the two sets of weights and calculate confidence intervals for their difference.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">estimates</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/svyby_repwts.html">svyby_repwts</a></span><span class="op">(</span></span>
@@ -228,8 +228,8 @@
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">estimates</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                      nonresponse-adjusted original</span></span>
-<span><span class="co">#&gt; nonresponse-adjusted             569.7413 532.8208</span></span>
-<span><span class="co">#&gt; original                         532.8208 537.4989</span></span>
+<span><span class="co">#&gt; nonresponse-adjusted             563.6085 527.2104</span></span>
+<span><span class="co">#&gt; original                         527.2104 531.8947</span></span>
 <span></span>
 <span><span class="va">diff_between_ests</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svycontrast.html" class="external-link">svycontrast</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="va">estimates</span>,</span>
 <span>                                 contrasts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -237,10 +237,10 @@
 <span>                                 <span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diff_between_ests</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                       contrast     SE</span></span>
-<span><span class="co">#&gt; Original vs. Adjusted   8.1209 6.4497</span></span>
+<span><span class="co">#&gt; Original vs. Adjusted   8.1209 6.4096</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">diff_between_ests</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                          2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt; Original vs. Adjusted -4.52029 20.76203</span></span></code></pre></div>
+<span><span class="co">#&gt;                           2.5 %   97.5 %</span></span>
+<span><span class="co">#&gt; Original vs. Adjusted -4.441618 20.68336</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="diagnosing-potential-issues-with-weights">Diagnosing potential issues with weights<a class="anchor" aria-label="anchor" href="#diagnosing-potential-issues-with-weights"></a>
@@ -255,21 +255,21 @@
 <span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Rep_Column</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          response_status Rep_Column   N N_NONZERO      SUM     MEAN        CV</span></span>
-<span><span class="co">#&gt; 1             Ineligible          1  26        26 1107.878 42.61070 0.8605256</span></span>
-<span><span class="co">#&gt; 2             Ineligible          2  26        26 1344.979 51.72997 0.7047344</span></span>
+<span><span class="co">#&gt; 1             Ineligible          1  26        26 1107.164 42.58325 0.8568075</span></span>
+<span><span class="co">#&gt; 2             Ineligible          2  26        26 1343.087 51.65720 0.7022211</span></span>
 <span><span class="co">#&gt; 501        Nonrespondent          1  30         0    0.000  0.00000       NaN</span></span>
 <span><span class="co">#&gt; 502        Nonrespondent          2  30         0    0.000  0.00000       NaN</span></span>
-<span><span class="co">#&gt; 1001          Respondent          1 111       111 5739.567 51.70781 1.1151888</span></span>
-<span><span class="co">#&gt; 1002          Respondent          2 111       111 5825.598 52.48286 0.8362781</span></span>
+<span><span class="co">#&gt; 1001          Respondent          1 111       111 5737.029 51.68495 1.1101252</span></span>
+<span><span class="co">#&gt; 1002          Respondent          2 111       111 5822.631 52.45613 0.8325374</span></span>
 <span><span class="co">#&gt; 1501 Unknown eligibility          1  16         0    0.000  0.00000       NaN</span></span>
 <span><span class="co">#&gt; 1502 Unknown eligibility          2  16         0    0.000  0.00000       NaN</span></span>
 <span><span class="co">#&gt;            MIN       MAX</span></span>
-<span><span class="co">#&gt; 1    0.3681973 118.04373</span></span>
-<span><span class="co">#&gt; 2    0.3686771  78.92125</span></span>
+<span><span class="co">#&gt; 1    0.5503606 117.64198</span></span>
+<span><span class="co">#&gt; 2    0.5510743  78.71338</span></span>
 <span><span class="co">#&gt; 501  0.0000000   0.00000</span></span>
 <span><span class="co">#&gt; 502  0.0000000   0.00000</span></span>
-<span><span class="co">#&gt; 1001 0.4420409 149.36581</span></span>
-<span><span class="co">#&gt; 1002 0.3720584 100.59928</span></span>
+<span><span class="co">#&gt; 1001 0.6608875 148.85960</span></span>
+<span><span class="co">#&gt; 1002 0.5585803 100.33251</span></span>
 <span><span class="co">#&gt; 1501 0.0000000   0.00000</span></span>
 <span><span class="co">#&gt; 1502 0.0000000   0.00000</span></span></code></pre></div>
 <p>At the end of the adjustment process, we can inspect the number of rows and columns and examine the variability of the weights across all of the replicates.</p>
@@ -280,7 +280,7 @@
 <span>    type <span class="op">=</span> <span class="st">'overall'</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt;   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt</span></span>
-<span><span class="co">#&gt; 1   111   500           27   28    5234.834    1227.801   0.3553929    350.0845</span></span></code></pre></div>
+<span><span class="co">#&gt; 1   111   500           27   28    5234.807    1221.695   0.5329224    348.5783</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="sample-based-calibration">Sample-based calibration<a class="anchor" aria-label="anchor" href="#sample-based-calibration"></a>
