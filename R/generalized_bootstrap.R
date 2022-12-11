@@ -186,6 +186,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
   if (any(replicate_factors < 0)) {
     if (tau == "auto") {
       rescaling_constant <- max(1 - replicate_factors) + 0.01
+      rescaling_constant <- ceiling(rescaling_constant * 100)/100
     } else {
       rescaling_constant <- tau
     }
@@ -540,6 +541,8 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
     rscales = attr(adjustment_factors, 'rscales'),
     type = "other"
   )
+
+  rep_design$tau <- attr(adjustment_factors, 'tau')
 
   return(rep_design)
 }
