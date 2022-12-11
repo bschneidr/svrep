@@ -173,8 +173,8 @@ overall_estimates <- svyby_repwts(
 )
 print(overall_estimates, row.names = FALSE)
 #>           Design_Name    api00       se
-#>  nonresponse-adjusted 636.0485 23.86925
-#>              original 644.1694 23.18402
+#>  nonresponse-adjusted 636.0485 23.74044
+#>              original 644.1694 23.06284
 
 # Estimate domain means (and their standard errors) from each design
 domain_estimates <- svyby_repwts(
@@ -184,12 +184,12 @@ domain_estimates <- svyby_repwts(
 )
 print(domain_estimates, row.names = FALSE)
 #>           Design_Name stype    api00       se
-#>  nonresponse-adjusted     E 634.0529 24.30579
-#>              original     E 648.8681 22.43597
-#>  nonresponse-adjusted     H 654.9667 25.43743
-#>              original     H 618.5714 37.62865
-#>  nonresponse-adjusted     M 637.7941 32.90199
-#>              original     M 631.4400 31.20674
+#>  nonresponse-adjusted     E 634.0529 24.16837
+#>              original     E 648.8681 22.31347
+#>  nonresponse-adjusted     H 654.9667 25.25871
+#>              original     H 618.5714 37.39448
+#>  nonresponse-adjusted     M 637.7941 32.72545
+#>              original     M 631.4400 31.03957
 ```
 
 We can even test for differences in estimates from the two sets of
@@ -204,8 +204,8 @@ estimates <- svyby_repwts(
 
 vcov(estimates)
 #>                      nonresponse-adjusted original
-#> nonresponse-adjusted             569.7413 532.8208
-#> original                         532.8208 537.4989
+#> nonresponse-adjusted             563.6085 527.2104
+#> original                         527.2104 531.8947
 
 diff_between_ests <- svycontrast(stat = estimates,
                                  contrasts = list(
@@ -213,10 +213,10 @@ diff_between_ests <- svycontrast(stat = estimates,
                                  ))
 print(diff_between_ests)
 #>                       contrast     SE
-#> Original vs. Adjusted   8.1209 6.4497
+#> Original vs. Adjusted   8.1209 6.4096
 confint(diff_between_ests)
-#>                          2.5 %   97.5 %
-#> Original vs. Adjusted -4.52029 20.76203
+#>                           2.5 %   97.5 %
+#> Original vs. Adjusted -4.441618 20.68336
 ```
 
 ### Diagnosing potential issues with weights
@@ -241,21 +241,21 @@ summarize_rep_weights(
 ) |> 
   subset(Rep_Column %in% 1:2)
 #>          response_status Rep_Column   N N_NONZERO      SUM     MEAN        CV
-#> 1             Ineligible          1  26        26 1107.878 42.61070 0.8605256
-#> 2             Ineligible          2  26        26 1344.979 51.72997 0.7047344
+#> 1             Ineligible          1  26        26 1107.164 42.58325 0.8568075
+#> 2             Ineligible          2  26        26 1343.087 51.65720 0.7022211
 #> 501        Nonrespondent          1  30         0    0.000  0.00000       NaN
 #> 502        Nonrespondent          2  30         0    0.000  0.00000       NaN
-#> 1001          Respondent          1 111       111 5739.567 51.70781 1.1151888
-#> 1002          Respondent          2 111       111 5825.598 52.48286 0.8362781
+#> 1001          Respondent          1 111       111 5737.029 51.68495 1.1101252
+#> 1002          Respondent          2 111       111 5822.631 52.45613 0.8325374
 #> 1501 Unknown eligibility          1  16         0    0.000  0.00000       NaN
 #> 1502 Unknown eligibility          2  16         0    0.000  0.00000       NaN
 #>            MIN       MAX
-#> 1    0.3681973 118.04373
-#> 2    0.3686771  78.92125
+#> 1    0.5503606 117.64198
+#> 2    0.5510743  78.71338
 #> 501  0.0000000   0.00000
 #> 502  0.0000000   0.00000
-#> 1001 0.4420409 149.36581
-#> 1002 0.3720584 100.59928
+#> 1001 0.6608875 148.85960
+#> 1002 0.5585803 100.33251
 #> 1501 0.0000000   0.00000
 #> 1502 0.0000000   0.00000
 ```
@@ -271,7 +271,7 @@ nr_adjusted_design |>
     type = 'overall'
   )
 #>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
-#> 1   111   500           27   28    5234.834    1227.801   0.3553929    350.0845
+#> 1   111   500           27   28    5234.807    1221.695   0.5329224    348.5783
 ```
 
 ### Sample-based calibration
