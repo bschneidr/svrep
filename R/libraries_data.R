@@ -58,7 +58,7 @@
 #' @rdname libraries
 #' @usage data(library_multistage_sample)
 #' @format
-#' \cr
+#'
 #' \emph{Library Multistage Sample (\code{library_multistage_sample}): } \cr \cr
 #' These data represent a two-stage sample (PSUs and SSUs),
 #' where the first stage sample is selected using unequal probability sampling
@@ -80,7 +80,7 @@
 #' @rdname libraries
 #' @usage data(library_stsys_sample)
 #' @format
-#' \cr
+#'
 #' \emph{Library Stratified Systematic Sample (\code{library_stsys_sample}): } \cr \cr
 #' These data represent a stratified systematic sample. \cr \cr
 #' Includes the same variables as \code{library_census},

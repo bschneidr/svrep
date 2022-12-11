@@ -44,7 +44,6 @@ Location:
 
 }
 
-\cr
 \emph{Library Multistage Sample (\code{library_multistage_sample}): } \cr \cr
 These data represent a two-stage sample (PSUs and SSUs),
 where the first stage sample is selected using unequal probability sampling
@@ -62,7 +61,6 @@ but with additional design variables.
   \item{SSU_POP_SIZE: }{The number of population SSUs within the PSU}
 }
 
-\cr
 \emph{Library Stratified Systematic Sample (\code{library_stsys_sample}): } \cr \cr
 These data represent a stratified systematic sample. \cr \cr
 Includes the same variables as \code{library_census},
