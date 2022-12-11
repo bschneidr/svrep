@@ -7,6 +7,9 @@
     <loc>https://bschneidr.github.io/svrep/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/articles/bootstrap-replicates.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/articles/index.html</loc>
   </url>
   <url>
@@ -25,7 +28,13 @@
     <loc>https://bschneidr.github.io/svrep/news/index.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/reference/as_bootstrap_design.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/reference/as_data_frame_with_weights.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/as_gen_boot_design.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.html</loc>
@@ -34,7 +43,19 @@
     <loc>https://bschneidr.github.io/svrep/reference/calibrate_to_sample.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/reference/distribute_matrix_across_clusters.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/estimate_boot_reps_for_target_cv.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/estimate_boot_sim_cv.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/libraries.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/lou_pums_microdata.html</loc>
@@ -44,6 +65,21 @@
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/lou_vax_survey_control_totals.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/make_gen_boot_factors.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/make_quad_form_matrix.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/make_rwyb_bootstrap_weights.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/make_sd_matrix.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/make_srswor_matrix.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/redistribute_weights.html</loc>

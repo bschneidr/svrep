@@ -8,7 +8,7 @@
 <meta name="description" content="Provides tools for creating and working with survey replicate weights,
   extending functionality of the survey package from Lumley (2004) &lt;doi:10.18637/jss.v009.i08&gt;.
   Methods are provided for applying nonresponse adjustments to
-  both full-sample and replicate weights as suggested by 
+  both full-sample and replicate weights as described by 
   Rust and Rao (1996) &lt;doi:10.1177/096228029600500305&gt;.
   Implements methods for sample-based calibration described by Opsomer and Erciulescu (2021) 
   &lt;https://www150.statcan.gc.ca/n1/pub/12-001-x/2021002/article/00006-eng.htm&gt;.
@@ -23,7 +23,7 @@
 <meta property="og:description" content="Provides tools for creating and working with survey replicate weights,
   extending functionality of the survey package from Lumley (2004) &lt;doi:10.18637/jss.v009.i08&gt;.
   Methods are provided for applying nonresponse adjustments to
-  both full-sample and replicate weights as suggested by 
+  both full-sample and replicate weights as described by 
   Rust and Rao (1996) &lt;doi:10.1177/096228029600500305&gt;.
   Implements methods for sample-based calibration described by Opsomer and Erciulescu (2021) 
   &lt;https://www150.statcan.gc.ca/n1/pub/12-001-x/2021002/article/00006-eng.htm&gt;.
@@ -57,6 +57,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/bootstrap-replicates.html">Bootstrap Methods for Surveys</a>
     <a class="dropdown-item" href="articles/nonresponse-adjustments.html">Nonresponse Adjustments</a>
     <a class="dropdown-item" href="articles/sample-based-calibration.html">Calibrating to Estimated Control Totals</a>
   </div>
@@ -88,7 +89,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>svrep provides methods for creating, updating, and analyzing replicate weights for surveys. Functions from svrep can be used to implement adjustments to replicate designs (e.g. nonresponse weighting class adjustments) and analyze their effect on the replicate weights and on estimates of interest.</p>
+<p>svrep provides methods for creating, updating, and analyzing replicate weights for surveys. Functions from svrep can be used to implement adjustments to replicate designs (e.g. nonresponse weighting class adjustments) and analyze their effect on the replicate weights and on estimates of interest. Facilitates the creation of bootstrap and generalized bootstrap replicate weights.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -103,49 +104,95 @@
 <div class="section level2">
 <h2 id="example-usage">Example usage<a class="anchor" aria-label="anchor" href="#example-usage"></a>
 </h2>
-<p>Suppose we have a replicate-weights survey design object created with the survey package. This survey design object can include respondents, non-respondents, and cases with unknown eligibility.</p>
+<div class="section level3">
+<h3 id="creating-replicate-weights">Creating replicate weights<a class="anchor" aria-label="anchor" href="#creating-replicate-weights"></a>
+</h3>
+<p>Suppose we have data from a survey selected using a complex sampling method such as cluster sampling. To represent the complex survey design, we can create a survey design object using the survey package.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bschneidr/svrep" class="external-link">svrep</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">api</span>, package <span class="op">=</span> <span class="st">"survey"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2021</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Create variable giving response status</span></span>
-<span><span class="va">apiclus1</span><span class="op">$</span><span class="va">response_status</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Respondent"</span>, <span class="st">"Nonrespondent"</span>,</span>
-<span>                                         <span class="st">"Ineligible"</span>, <span class="st">"Unknown eligibility"</span><span class="op">)</span>,</span>
-<span>                                   size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">apiclus1</span><span class="op">)</span>,</span>
-<span>                                   replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create replicate-weights survey design</span></span>
+<span><span class="co"># Create a survey design object for a sample</span></span>
+<span><span class="co"># selected using a single-stage cluster sample without replacement</span></span>
 <span><span class="va">dclus1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">apiclus1</span>,</span>
-<span>                    id <span class="op">=</span> <span class="op">~</span><span class="va">dnum</span>, weights <span class="op">=</span> <span class="op">~</span><span class="va">pw</span>, fpc <span class="op">=</span> <span class="op">~</span><span class="va">fpc</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">orig_rep_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/as.svrepdesign.html" class="external-link">as.svrepdesign</a></span><span class="op">(</span><span class="va">dclus1</span><span class="op">)</span></span>
+<span>                    id <span class="op">=</span> <span class="op">~</span><span class="va">dnum</span>, weights <span class="op">=</span> <span class="op">~</span><span class="va">pw</span>, fpc <span class="op">=</span> <span class="op">~</span><span class="va">fpc</span><span class="op">)</span></span></code></pre></div>
+<p>To help us estimate sampling variances, we can create bootstrap replicate weights. The function <code><a href="reference/as_bootstrap_design.html">as_bootstrap_design()</a></code> creates bootstrap replicate weights appropriate to common complex sampling designs, using bootstrapping methods from the ‘survey’ package as well as additional methods such as the Rao-Wu-Yue-Beaumont method (a generalization of the Rao-Wu bootstrap).</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create replicate-weights survey design</span></span>
+<span><span class="va">orig_rep_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/as_bootstrap_design.html">as_bootstrap_design</a></span><span class="op">(</span><span class="va">dclus1</span>, replicates <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>                                       type <span class="op">=</span> <span class="st">"Rao-Wu-Yue-Beaumont"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">orig_rep_design</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Call: as.svrepdesign.default(dclus1)</span></span>
-<span><span class="co">#&gt; Unstratified cluster jacknife (JK1) with 15 replicates.</span></span></code></pre></div>
+<span><span class="co">#&gt; Call: as_bootstrap_design(dclus1, replicates = 500, type = "Rao-Wu-Yue-Beaumont")</span></span>
+<span><span class="co">#&gt; Survey bootstrap with 500 replicates.</span></span></code></pre></div>
+<p>For especially complex survey designs (e.g., systematic samples), the generalized survey bootstrap can be used.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load example data for a stratified systematic sample</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'library_stsys_sample'</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># First, ensure data are sorted in same order as was used in sampling</span></span>
+<span><span class="va">library_stsys_sample</span> <span class="op">&lt;-</span> <span class="va">library_stsys_sample</span><span class="op">[</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">library_stsys_sample</span><span class="op">$</span><span class="va">SAMPLING_SORT_ORDER</span><span class="op">)</span>,</span>
+<span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Create a survey design object</span></span>
+<span><span class="va">design_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">library_stsys_sample</span>,</span>
+<span>  strata <span class="op">=</span> <span class="op">~</span> <span class="va">SAMPLING_STRATUM</span>,</span>
+<span>  ids <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>  fpc <span class="op">=</span> <span class="op">~</span> <span class="va">STRATUM_POP_SIZE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Convert to generalized bootstrap replicate design</span></span>
+<span><span class="va">gen_boot_design_sd2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/as_gen_boot_design.html">as_gen_boot_design</a></span><span class="op">(</span></span>
+<span>  design <span class="op">=</span> <span class="va">design_obj</span>,</span>
+<span>  variance_estimator <span class="op">=</span> <span class="st">"SD2"</span>,</span>
+<span>  replicates <span class="op">=</span> <span class="fl">500</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; For `variance_estimator='SD2', assumes rows of data are sorted in the same order used in sampling.</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="adjusting-for-non-response-or-unknown-eligibility">Adjusting for non-response or unknown eligibility<a class="anchor" aria-label="anchor" href="#adjusting-for-non-response-or-unknown-eligibility"></a>
 </h3>
+<p>In social surveys, unit nonresponse is extremely common. It is also somewhat common for respondent cases to be classified as “ineligible” for the survey based on their response. In general, sampled cases are typically classified as “respondents”, “nonrespondents”, “ineligible cases”, and “unknown eligibility” cases.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create variable giving response status</span></span>
+<span><span class="va">orig_rep_design</span><span class="op">$</span><span class="va">variables</span><span class="op">[[</span><span class="st">'response_status'</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Respondent"</span>, <span class="st">"Nonrespondent"</span>,</span>
+<span>        <span class="st">"Ineligible"</span>, <span class="st">"Unknown eligibility"</span><span class="op">)</span>,</span>
+<span>  prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>  size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">orig_rep_design</span><span class="op">)</span>,</span>
+<span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">orig_rep_design</span><span class="op">$</span><span class="va">variables</span><span class="op">$</span><span class="va">response_status</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          Ineligible       Nonrespondent          Respondent Unknown eligibility </span></span>
+<span><span class="co">#&gt;                  26                  30                 111                  16</span></span></code></pre></div>
 <p>It is common practice to adjust weights when there is non-response or there are sampled cases whose eligibility for the survey is unknown. The most common form of adjustment is “weight redistribution”: for example, weights from non-respondents are reduced to zero, and weights from respondents are correspondingly increased so that the total weight in the sample is unchanged. In order to account for these adjustments when estimating variances for survey statistics, the adjustments are repeated separately for each set of replicate weights. This process can be easily implemented using the <code><a href="reference/redistribute_weights.html">redistribute_weights()</a></code> function.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Adjust weights for unknown eligibility</span></span>
-<span><span class="va">ue_adjusted_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/redistribute_weights.html">redistribute_weights</a></span><span class="op">(</span>design <span class="op">=</span> <span class="va">orig_rep_design</span>,</span>
-<span>                                           reduce_if <span class="op">=</span> <span class="va">response_status</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unknown eligibility"</span><span class="op">)</span>,</span>
-<span>                                           increase_if <span class="op">=</span> <span class="op">!</span><span class="va">response_status</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unknown eligibility"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">ue_adjusted_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/redistribute_weights.html">redistribute_weights</a></span><span class="op">(</span></span>
+<span>  design <span class="op">=</span> <span class="va">orig_rep_design</span>,</span>
+<span>  reduce_if <span class="op">=</span> <span class="va">response_status</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unknown eligibility"</span><span class="op">)</span>,</span>
+<span>  increase_if <span class="op">=</span> <span class="op">!</span><span class="va">response_status</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unknown eligibility"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>By supplying column names to the <code>by</code> argument of <code><a href="reference/redistribute_weights.html">redistribute_weights()</a></code>, adjustments are conducted separately in different groups. This can be used to conduct nonresponse weighting class adjustments.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nr_adjusted_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/redistribute_weights.html">redistribute_weights</a></span><span class="op">(</span>design <span class="op">=</span> <span class="va">ue_adjusted_design</span>,</span>
-<span>                                           reduce_if <span class="op">=</span> <span class="va">response_status</span> <span class="op">==</span> <span class="st">"Nonrespondent"</span>,</span>
-<span>                                           increase_if <span class="op">=</span> <span class="va">response_status</span> <span class="op">==</span> <span class="st">"Respondent"</span>,</span>
-<span>                                           by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stype"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nr_adjusted_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/redistribute_weights.html">redistribute_weights</a></span><span class="op">(</span></span>
+<span>  design <span class="op">=</span> <span class="va">ue_adjusted_design</span>,</span>
+<span>  reduce_if <span class="op">=</span> <span class="va">response_status</span> <span class="op">==</span> <span class="st">"Nonrespondent"</span>,</span>
+<span>  increase_if <span class="op">=</span> <span class="va">response_status</span> <span class="op">==</span> <span class="st">"Respondent"</span>,</span>
+<span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stype"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="comparing-estimates-from-different-sets-of-weights">Comparing estimates from different sets of weights<a class="anchor" aria-label="anchor" href="#comparing-estimates-from-different-sets-of-weights"></a>
 </h3>
 <p>In order to assess whether weighting adjustments have an impact on the estimates we care about, we want to compare the estimates from the different sets of weights. The function <code><a href="reference/svyby_repwts.html">svyby_repwts()</a></code> makes it easy to compare estimates from different sets of weights.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Estimate overall means (and their standard errors) from each design</span></span>
 <span><span class="va">overall_estimates</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/svyby_repwts.html">svyby_repwts</a></span><span class="op">(</span></span>
 <span>  rep_designs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'original'</span> <span class="op">=</span> <span class="va">orig_rep_design</span>,</span>
@@ -154,8 +201,8 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">overall_estimates</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Design_Name    api00       se</span></span>
-<span><span class="co">#&gt;  nonresponse-adjusted 646.4465 30.66081</span></span>
-<span><span class="co">#&gt;              original 644.1694 26.32936</span></span>
+<span><span class="co">#&gt;  nonresponse-adjusted 636.0485 23.86925</span></span>
+<span><span class="co">#&gt;              original 644.1694 23.18402</span></span>
 <span></span>
 <span><span class="co"># Estimate domain means (and their standard errors) from each design</span></span>
 <span><span class="va">domain_estimates</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/svyby_repwts.html">svyby_repwts</a></span><span class="op">(</span></span>
@@ -165,14 +212,14 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">domain_estimates</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Design_Name stype    api00       se</span></span>
-<span><span class="co">#&gt;  nonresponse-adjusted     E 641.9463 34.19443</span></span>
-<span><span class="co">#&gt;              original     E 648.8681 25.37430</span></span>
-<span><span class="co">#&gt;  nonresponse-adjusted     H 699.5455 14.24657</span></span>
-<span><span class="co">#&gt;              original     H 618.5714 46.34412</span></span>
-<span><span class="co">#&gt;  nonresponse-adjusted     M 643.3429 41.47212</span></span>
-<span><span class="co">#&gt;              original     M 631.4400 33.68762</span></span></code></pre></div>
+<span><span class="co">#&gt;  nonresponse-adjusted     E 634.0529 24.30579</span></span>
+<span><span class="co">#&gt;              original     E 648.8681 22.43597</span></span>
+<span><span class="co">#&gt;  nonresponse-adjusted     H 654.9667 25.43743</span></span>
+<span><span class="co">#&gt;              original     H 618.5714 37.62865</span></span>
+<span><span class="co">#&gt;  nonresponse-adjusted     M 637.7941 32.90199</span></span>
+<span><span class="co">#&gt;              original     M 631.4400 31.20674</span></span></code></pre></div>
 <p>We can even test for differences in estimates from the two sets of weights and calculate confidence intervals for their difference.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">estimates</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/svyby_repwts.html">svyby_repwts</a></span><span class="op">(</span></span>
 <span>  rep_designs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'original'</span> <span class="op">=</span> <span class="va">orig_rep_design</span>,</span>
 <span>                     <span class="st">'nonresponse-adjusted'</span> <span class="op">=</span> <span class="va">nr_adjusted_design</span><span class="op">)</span>,</span>
@@ -181,8 +228,8 @@
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">estimates</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                      nonresponse-adjusted original</span></span>
-<span><span class="co">#&gt; nonresponse-adjusted             940.0856 784.1324</span></span>
-<span><span class="co">#&gt; original                         784.1324 693.2352</span></span>
+<span><span class="co">#&gt; nonresponse-adjusted             569.7413 532.8208</span></span>
+<span><span class="co">#&gt; original                         532.8208 537.4989</span></span>
 <span></span>
 <span><span class="va">diff_between_ests</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svycontrast.html" class="external-link">svycontrast</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="va">estimates</span>,</span>
 <span>                                 contrasts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -190,63 +237,63 @@
 <span>                                 <span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diff_between_ests</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                       contrast     SE</span></span>
-<span><span class="co">#&gt; Original vs. Adjusted  -2.2771 8.0657</span></span>
+<span><span class="co">#&gt; Original vs. Adjusted   8.1209 6.4497</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">diff_between_ests</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                           2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt; Original vs. Adjusted -18.08562 13.53147</span></span></code></pre></div>
+<span><span class="co">#&gt;                          2.5 %   97.5 %</span></span>
+<span><span class="co">#&gt; Original vs. Adjusted -4.52029 20.76203</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="diagnosing-potential-issues-with-weights">Diagnosing potential issues with weights<a class="anchor" aria-label="anchor" href="#diagnosing-potential-issues-with-weights"></a>
 </h3>
 <p>When adjusting replicate weights, there are several diagnostics which can be used to ensure that the adjustments were carried out correctly and that they do more good than harm. The function <code><a href="reference/summarize_rep_weights.html">summarize_rep_weights()</a></code> helps by allowing you to quickly summarize the replicate weights.</p>
 <p>For example, when carrying out nonresponse adjustments, we might want to verify that all of the weights for nonrespondents have been set to zero in each replicate. We can use the <code><a href="reference/summarize_rep_weights.html">summarize_rep_weights()</a></code> to compare summary statistics for each replicate, and we can use its <code>by</code> argument to group the summaries by one or more variables.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/summarize_rep_weights.html">summarize_rep_weights</a></span><span class="op">(</span></span>
 <span>  rep_design <span class="op">=</span> <span class="va">nr_adjusted_design</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">'specific'</span>,</span>
 <span>  by <span class="op">=</span> <span class="st">"response_status"</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Rep_Column</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        response_status Rep_Column  N N_NONZERO      SUM     MEAN        CV</span></span>
-<span><span class="co">#&gt; 1           Ineligible          1 50        47 2109.089 42.18178 0.2552106</span></span>
-<span><span class="co">#&gt; 2           Ineligible          2 50        49 2224.316 44.48631 0.1443075</span></span>
-<span><span class="co">#&gt; 16       Nonrespondent          1 48         0    0.000  0.00000       NaN</span></span>
-<span><span class="co">#&gt; 17       Nonrespondent          2 48         0    0.000  0.00000       NaN</span></span>
-<span><span class="co">#&gt; 31          Respondent          1 49        49 4128.429 84.25366 0.2403636</span></span>
-<span><span class="co">#&gt; 32          Respondent          2 49        48 4267.055 87.08275 0.2224368</span></span>
-<span><span class="co">#&gt; 46 Unknown eligibility          1 36         0    0.000  0.00000       NaN</span></span>
-<span><span class="co">#&gt; 47 Unknown eligibility          2 36         0    0.000  0.00000       NaN</span></span>
-<span><span class="co">#&gt;         MIN       MAX</span></span>
-<span><span class="co">#&gt; 1   0.00000  44.87423</span></span>
-<span><span class="co">#&gt; 2   0.00000  45.39420</span></span>
-<span><span class="co">#&gt; 16  0.00000   0.00000</span></span>
-<span><span class="co">#&gt; 17  0.00000   0.00000</span></span>
-<span><span class="co">#&gt; 31 70.51665 179.49692</span></span>
-<span><span class="co">#&gt; 32  0.00000 158.87969</span></span>
-<span><span class="co">#&gt; 46  0.00000   0.00000</span></span>
-<span><span class="co">#&gt; 47  0.00000   0.00000</span></span></code></pre></div>
+<span><span class="co">#&gt;          response_status Rep_Column   N N_NONZERO      SUM     MEAN        CV</span></span>
+<span><span class="co">#&gt; 1             Ineligible          1  26        26 1107.878 42.61070 0.8605256</span></span>
+<span><span class="co">#&gt; 2             Ineligible          2  26        26 1344.979 51.72997 0.7047344</span></span>
+<span><span class="co">#&gt; 501        Nonrespondent          1  30         0    0.000  0.00000       NaN</span></span>
+<span><span class="co">#&gt; 502        Nonrespondent          2  30         0    0.000  0.00000       NaN</span></span>
+<span><span class="co">#&gt; 1001          Respondent          1 111       111 5739.567 51.70781 1.1151888</span></span>
+<span><span class="co">#&gt; 1002          Respondent          2 111       111 5825.598 52.48286 0.8362781</span></span>
+<span><span class="co">#&gt; 1501 Unknown eligibility          1  16         0    0.000  0.00000       NaN</span></span>
+<span><span class="co">#&gt; 1502 Unknown eligibility          2  16         0    0.000  0.00000       NaN</span></span>
+<span><span class="co">#&gt;            MIN       MAX</span></span>
+<span><span class="co">#&gt; 1    0.3681973 118.04373</span></span>
+<span><span class="co">#&gt; 2    0.3686771  78.92125</span></span>
+<span><span class="co">#&gt; 501  0.0000000   0.00000</span></span>
+<span><span class="co">#&gt; 502  0.0000000   0.00000</span></span>
+<span><span class="co">#&gt; 1001 0.4420409 149.36581</span></span>
+<span><span class="co">#&gt; 1002 0.3720584 100.59928</span></span>
+<span><span class="co">#&gt; 1501 0.0000000   0.00000</span></span>
+<span><span class="co">#&gt; 1502 0.0000000   0.00000</span></span></code></pre></div>
 <p>At the end of the adjustment process, we can inspect the number of rows and columns and examine the variability of the weights across all of the replicates.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nr_adjusted_design</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">response_status</span> <span class="op">==</span> <span class="st">"Respondent"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/summarize_rep_weights.html">summarize_rep_weights</a></span><span class="op">(</span></span>
 <span>    type <span class="op">=</span> <span class="st">'overall'</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt;   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt</span></span>
-<span><span class="co">#&gt; 1    49    15           14   15    4087.158    259.0107           0    316.8524</span></span></code></pre></div>
+<span><span class="co">#&gt; 1   111   500           27   28    5234.834    1227.801   0.3553929    350.0845</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="sample-based-calibration">Sample-based calibration<a class="anchor" aria-label="anchor" href="#sample-based-calibration"></a>
 </h3>
 <p>When we rake or poststratify to estimated control totals rather than to “true” population values, we may need to account for the variance of the estimated control totals to ensure that calibrated estimates appropriately reflect sampling error of both the primary survey of interest and the survey from which the control totals were estimated. The ‘svrep’ package provides two functions which accomplish this. The function <code><a href="reference/calibrate_to_estimate.html">calibrate_to_estimate()</a></code> requires the user to supply a vector of control totals and its variance-covariance matrix, while the function <code><a href="reference/calibrate_to_sample.html">calibrate_to_sample()</a></code> requires the user to supply a dataset with replicate weights to use for estimating control totals and their sampling variance.</p>
 <p>As an example, suppose we have a survey measuring vaccination status of adults in Louisville, Kentucky. For variance estimation, we use 100 bootstrap replicates.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lou_vax_survey"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Load example data</span></span>
 <span><span class="va">lou_vax_survey</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span>ids <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, weights <span class="op">=</span> <span class="op">~</span> <span class="va">SAMPLING_WEIGHT</span>,</span>
 <span>                            data <span class="op">=</span> <span class="va">lou_vax_survey</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/as.svrepdesign.html" class="external-link">as.svrepdesign</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"boot"</span>, replicates <span class="op">=</span> <span class="fl">100</span>, mse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/as_bootstrap_design.html">as_bootstrap_design</a></span><span class="op">(</span>replicates <span class="op">=</span> <span class="fl">100</span>, mse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Adjust for nonresponse</span></span>
 <span><span class="va">lou_vax_survey</span> <span class="op">&lt;-</span> <span class="va">lou_vax_survey</span> <span class="op">|&gt;</span></span>
@@ -256,7 +303,7 @@
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">RESPONSE_STATUS</span> <span class="op">==</span> <span class="st">"Respondent"</span><span class="op">)</span></span></code></pre></div>
 <p>To reduce nonresponse bias or coverage error for the survey, we can rake the survey to population totals for demographic groups estimated by the Census Bureau in the American Community Survey (ACS). To estimate the population totals for raking purposes, we can use microdata with replicate weights.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load microdata to use for estimating control totals</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lou_pums_microdata"</span><span class="op">)</span></span>
 <span></span>
@@ -268,7 +315,7 @@
 <span>  mse <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>We can see that the distribution of race/ethnicity among respondents differs from the distribution of race/ethnicity in the ACS benchmarks.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compare demographic estimates from the two data sources</span></span>
 <span><span class="va">estimate_comparisons</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  <span class="st">'Vax_Survey'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">RACE_ETHNICITY</span>, design <span class="op">=</span> <span class="va">acs_benchmark_survey</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -288,7 +335,7 @@
 <span><span class="co">#&gt; Other Race, not Hispanic or Latino                         0.05776892</span></span>
 <span><span class="co">#&gt; White alone, not Hispanic or Latino                        0.73904382</span></span></code></pre></div>
 <p>There are two options for calibrating the sample to the control totals from the benchmark survey. With the first approach, we supply point estimates and their variance-covariance matrix to the function <code><a href="reference/calibrate_to_estimate.html">calibrate_to_estimate()</a></code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Estimate control totals and their variance-covariance matrix</span></span>
 <span><span class="va">control_totals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">RACE_ETHNICITY</span> <span class="op">+</span> <span class="va">EDUC_ATTAINMENT</span>,</span>
 <span>                          design <span class="op">=</span> <span class="va">acs_benchmark_survey</span><span class="op">)</span></span>
@@ -304,7 +351,7 @@
 <span>  calfun <span class="op">=</span> <span class="fu">survey</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survey/man/make.calfun.html" class="external-link">cal.raking</a></span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>With the second approach, we supply the control survey’s replicate design to <code><a href="reference/calibrate_to_sample.html">calibrate_to_sample()</a></code>.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vax_survey_raked_to_acs_sample</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calibrate_to_sample.html">calibrate_to_sample</a></span><span class="op">(</span></span>
 <span>  primary_rep_design <span class="op">=</span> <span class="va">lou_vax_survey</span>,</span>
 <span>  control_rep_design <span class="op">=</span> <span class="va">acs_benchmark_survey</span>,</span>
@@ -312,7 +359,7 @@
 <span>  calfun <span class="op">=</span> <span class="fu">survey</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survey/man/make.calfun.html" class="external-link">cal.raking</a></span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>After calibration, we can see that the estimated vaccination rate has decreased, and the estimated standard error of the estimated vaccination rate has increased.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compare the two sets of estimates</span></span>
 <span><span class="fu"><a href="reference/svyby_repwts.html">svyby_repwts</a></span><span class="op">(</span></span>
 <span>  rep_design <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -325,19 +372,19 @@
 <span>  keep.names <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Design_Name VAX_STATUSUnvaccinated VAX_STATUSVaccinated        se1</span></span>
-<span><span class="co">#&gt; 1       NR-adjusted              0.4621514            0.5378486 0.02430176</span></span>
-<span><span class="co">#&gt; 2 Raked to estimate              0.4732623            0.5267377 0.02448676</span></span>
-<span><span class="co">#&gt; 3   Raked to sample              0.4732623            0.5267377 0.02446881</span></span>
+<span><span class="co">#&gt; 1       NR-adjusted              0.4621514            0.5378486 0.02088585</span></span>
+<span><span class="co">#&gt; 2 Raked to estimate              0.4732623            0.5267377 0.02119417</span></span>
+<span><span class="co">#&gt; 3   Raked to sample              0.4732623            0.5267377 0.02117422</span></span>
 <span><span class="co">#&gt;          se2</span></span>
-<span><span class="co">#&gt; 1 0.02430176</span></span>
-<span><span class="co">#&gt; 2 0.02448676</span></span>
-<span><span class="co">#&gt; 3 0.02446881</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 0.02088585</span></span>
+<span><span class="co">#&gt; 2 0.02119417</span></span>
+<span><span class="co">#&gt; 3 0.02117422</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="saving-results-to-a-data-file">Saving results to a data file<a class="anchor" aria-label="anchor" href="#saving-results-to-a-data-file"></a>
 </h3>
 <p>Once we’re satisfied with the weights, we can create a data frame with the analysis variables and columns of final full-sample weights and replicate weights. This format is easy to export to data files that can be loaded into R or other software later.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data_frame_with_final_weights</span> <span class="op">&lt;-</span> <span class="va">vax_survey_raked_to_estimates</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/as_data_frame_with_weights.html">as_data_frame_with_weights</a></span><span class="op">(</span></span>
 <span>    full_wgt_name <span class="op">=</span> <span class="st">"RAKED_WGT"</span>,</span>
@@ -349,7 +396,7 @@
 <span><span class="co">#&gt;  [1] "RESPONSE_STATUS" "RACE_ETHNICITY"  "SEX"             "EDUC_ATTAINMENT"</span></span>
 <span><span class="co">#&gt;  [5] "VAX_STATUS"      "SAMPLING_WEIGHT" "RAKED_WGT"       "RAKED_REP_WGT_1"</span></span>
 <span><span class="co">#&gt;  [9] "RAKED_REP_WGT_2" "RAKED_REP_WGT_3"</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Write the data to a CSV file</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">data_frame_with_final_weights</span>,</span>

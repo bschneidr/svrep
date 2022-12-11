@@ -24,6 +24,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/bootstrap-replicates.html">Bootstrap Methods for Surveys</a>
     <a class="dropdown-item" href="../articles/nonresponse-adjustments.html">Nonresponse Adjustments</a>
     <a class="dropdown-item" href="../articles/sample-based-calibration.html">Calibrating to Estimated Control Totals</a>
   </div>
@@ -52,8 +53,17 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
-<ul><li>Minor Updates and Bug Fixes:
+<h2 class="pkg-version" data-toc-text="0.4.0" id="svrep-040">svrep 0.4.0<a class="anchor" aria-label="anchor" href="#svrep-040"></a></h2>
+<ul><li>
+<p>This release adds several functions for creating bootstrap and generalized bootstrap replicate weights. The new vignette “Bootstrap methods for surveys” provides guidance for choosing a bootstrap method and selecting the number of bootstrap replicates to use, along with statistical details and references.</p>
+<ul><li><p>Added function <code><a href="../reference/as_bootstrap_design.html">as_bootstrap_design()</a></code> to convert a survey design object to a replicate design with replicate weights created using a bootstrap method. This is essentially a specialized version of <code><a href="https://rdrr.io/pkg/survey/man/as.svrepdesign.html" class="external-link">as.svrepdesign()</a></code> that supports additional bootstrap methods and has detailed documentation about which bootstrap methods can be used for different types of sampling designs.</p></li>
+<li><p>Added function <code><a href="../reference/as_gen_boot_design.html">as_gen_boot_design()</a></code> to convert a survey design object to a replicate design with replicate weights created using the generalized survey bootstrap. The user must supply the name of a target variance estimator (e.g., “Horvitz-Thompson” or “Ultimate Cluster”) used to create the generalized bootstrap factors. See the new vignette for details.</p></li>
+<li><p>Added functions to help choose the number of bootstrap replicates. The function <code><a href="../reference/estimate_boot_sim_cv.html">estimate_boot_sim_cv()</a></code> can be used to estimate the simulation error in a bootstrap estimate caused by using a finite number of bootstrap replicates. The new function <code><a href="../reference/estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv()</a></code> estimates the number of bootstrap replicates needed to reduce the simulation error to a target level.</p></li>
+<li><p>Added function <code><a href="../reference/make_rwyb_bootstrap_weights.html">make_rwyb_bootstrap_weights()</a></code>, which creates bootstrap replicate weights for a wide range of survey designs using the method of Rao-Wu-Yue-Beaumont (i.e., Beaumont’s generalization of the Rao-Wu-Yue bootstrap method). This function can be used directly, or users can specify <code>as_bootstrap_design(type = "Rao-Wu-Yue-Beaumont")</code>.</p></li>
+<li><p>Added function <code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code> to create replicate adjustment factors using the generalized survey bootstrap. The key input to <code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code> is the matrix of the quadratic form used to represent a variance estimator. The new function <code><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix()</a></code> can be used to represent a chosen variance estimator as a quadratic form, given information about the sample design. This can be used for stratified multistage SRS designs (with or without replacement), systematic samples, and PPS samples, with or without replacement.</p></li>
+</ul></li>
+<li>
+<p>Minor Updates and Bug Fixes:</p>
 <ul><li>When using <code><a href="../reference/as_data_frame_with_weights.html">as_data_frame_with_weights()</a></code>, ensure that the full-sample weight is named <code>"FULL_SAMPLE_WGT"</code> if the user does not specify something different.</li>
 <li>For <code><a href="../reference/calibrate_to_estimate.html">calibrate_to_estimate()</a></code>, ensure that the output names the list of columns with perturbed control columns <code>col_selection</code> instead of <code>perturbed_control_cols</code>, so that the name matches the corresponding function argument, <code>col_selection</code>.</li>
 <li>Improvements to documentation (formatting tweaks and typo fixes)</li>
