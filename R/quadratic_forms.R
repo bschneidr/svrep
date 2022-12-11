@@ -148,27 +148,43 @@
 #'            design = svydesign(data=election_pps,
 #'                               variance = "HT",
 #'                               pps = ppsmat(election_jointprob),
-#'                               ids = ~ 1, fpc = ~ p))
+#'                               ids = ~ 1, fpc = ~ p)) |> vcov()
 #'
 #' # Example 2: Stratified multistage Sample ----
 #'
+#'   data("mu284", package = 'survey')
+#'   multistage_srswor_design <- svydesign(data = mu284,
+#'                                         ids = ~ id1 + id2,
+#'                                         fpc = ~ n1 + n2)
 #'
+#'   multistage_srs_quad_form <- make_quad_form_matrix(
+#'     variance_estimator = "Stratified Multistage SRS",
+#'     cluster_ids = mu284[,c('id1', 'id2')],
+#'     strata_ids = matrix(1, nrow = nrow(mu284), ncol = 2),
+#'     strata_pop_sizes = mu284[,c('n1', 'n2')]
+#'   )
 #'
+#'   wtd_y <- as.matrix(weights(multistage_srswor_design) * mu284$y1)
+#'   t(wtd_y) %*% multistage_srs_quad_form %*% wtd_y
+#'
+#'   svytotal(x = ~ y1, design = multistage_srswor_design) |> vcov()
 #'
 #' # Example 3: Successive-differences estimator ----
 #'
-#' data('library_stsys_sample', package = 'svrep')
+#'   data('library_stsys_sample', package = 'svrep')
 #'
-#' sd1_quad_form <- make_quad_form_matrix(
-#'   variance_estimator = 'SD1',
-#'   cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
-#'   strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
-#'   strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE],
-#'   sort_order = library_stsys_sample[['SAMPLING_SORT_ORDER']]
-#' )
+#'   sd1_quad_form <- make_quad_form_matrix(
+#'     variance_estimator = 'SD1',
+#'     cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+#'     strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+#'     strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE],
+#'     sort_order = library_stsys_sample[['SAMPLING_SORT_ORDER']]
+#'   )
 #'
-#' wtd_y <- as.matrix(library_stsys_sample[['TOTCIR']] /
-#'                     library_stsys_sample$SAMPLING_PROB)
+#'   wtd_y <- as.matrix(library_stsys_sample[['TOTCIR']] /
+#'                       library_stsys_sample$SAMPLING_PROB)
+#'   wtd_y[is.na(wtd_y)] <- 0
+#'
 #' t(wtd_y) %*% sd1_quad_form %*% wtd_y
 #'
 make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
