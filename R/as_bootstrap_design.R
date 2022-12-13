@@ -163,6 +163,9 @@ as_bootstrap_design.survey.design <- function(design,
     }
 
     samp_unit_sel_probs_by_stage <- design[['allprob']]
+    if (ncol(samp_unit_sel_probs_by_stage) < ncol(pop_sizes_by_stage)) {
+      samp_unit_sel_probs_by_stage <- samp_sizes_by_stage/pop_sizes_by_stage
+    }
 
     # Determine which stages were with-replacement
     with_replacement_stages <- apply(X = pop_sizes_by_stage, MARGIN = 2, FUN = function(N) all(is.infinite(N)))

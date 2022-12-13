@@ -1,5 +1,15 @@
 # svrep (development version)
 
+* Minor Updates and Bug Fixes:
+  * Fix bug in [#15](https://github.com/bschneidr/svrep/issues/15), where 
+  bootstrap conversion of multistage survey design objects with `as_bootstrap_design()` 
+  would throw an error when user manually specified weights in `svydesign()`.
+  
+  * Creation of Rao-Wu-Yue-Beaumont bootstrap replicate weights is now faster
+  and takes less computer memory.
+
+  * Typo fix in vignettes.
+
 # svrep 0.4.0
 
 * This release adds several functions for creating bootstrap and generalized bootstrap replicate weights. The new vignette "Bootstrap methods for surveys" provides guidance for choosing a bootstrap method and selecting the number of bootstrap replicates to use, along with statistical details and references.

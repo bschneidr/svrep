@@ -524,7 +524,7 @@ The bootstrap suffers from unavoidable "simulation error" (also referred to as "
 
 ### General Strategy
 
-While rule-of-thumb values for the number of replicates that should be used (some say 500, others say 1,000), it is advisable to instead use a principled strategy for choosing the number of replicates. One general strategy proposed by @beaumont2012 is as follows:
+While there are many rule-of-thumb values for the number of replicates that should be used (some say 500, others say 1,000), it is advisable to instead use a principled strategy for choosing the number of replicates. One general strategy proposed by @beaumont2012 is as follows:
 
 -   **Step 1**: Determine the largest acceptable level of simulation error for key survey estimates. For example, one might determine that, on average, the bootstrap standard error estimate should be no more than $\pm 5\%$ different than the ideal bootstrap estimate.
 
