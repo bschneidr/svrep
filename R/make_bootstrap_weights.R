@@ -203,28 +203,31 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
   }
 
   # Initialize 3-dimensional array: ultimate unit X stage X replicates
-  adjustment_factors_by_stage <- array(data = 1, dim = c(number_of_ultimate_units,
-                                                         number_of_stages,
-                                                         num_replicates))
+  adjustment_factors <- matrix(
+    data = 1,
+    nrow = number_of_ultimate_units,
+    ncol = num_replicates
+  )
 
   # Make sure each stage's sampling units are nested within strata
   # and each stage's sampling units are nested
   # within previous stage sampling units
   samp_unit_ids[,1] <- interaction(strata_ids[, 1, drop = TRUE],
                                    samp_unit_ids[, 1, drop = TRUE],
-                                   sep = " | ", drop = TRUE)
+                                   sep = " | ", drop = TRUE) |>
+    as.numeric()
   stage <- 2L
   while (stage <= number_of_stages) {
     strata_ids[,stage] <- interaction(
       samp_unit_ids[, stage-1L, drop=TRUE],
       strata_ids[, stage, drop=TRUE],
       sep = " | ", drop = TRUE
-    )
+    ) |> as.numeric()
     samp_unit_ids[,stage] <- interaction(
       strata_ids[, stage, drop = TRUE],
       samp_unit_ids[, stage, drop = TRUE],
       sep = " | ", drop = TRUE
-    )
+    ) |> as.numeric()
     stage <- stage + 1L
   }
 
@@ -239,100 +242,81 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     # Determine each stratum's sample size and resample size
     distinct_strata_ids <- unique(strata)
     H <- length(distinct_strata_ids)
-    n_h <- sapply(seq_len(H), function(h) {
-      samp_units[strata == distinct_strata_ids[h]] |> unique() |> length()
-    })
-    m_h <- n_h - 1
 
-    # Get each stratum's list of sampling units and their probabilities
-    distinct_samp_units_by_stratum <- lapply(X = distinct_strata_ids, function(stratum_id) {
-      unique(samp_units[strata == stratum_id])
-    })
-    distinct_sel_probs_by_stratum <- lapply(X = seq_len(H), function(h) {
-      sapply(X = distinct_samp_units_by_stratum[[h]], FUN = function(samp_unit_id) {
-        sel_probs[strata == distinct_strata_ids[h] & samp_units == samp_unit_id][1]
-      })
-    })
-    certainty_flags_by_stratum <- lapply(X = distinct_sel_probs_by_stratum, function(pi_k) {
-      pi_k >= 1
-    })
+    for (h in seq_len(H)) {
+      stratum_indices <- which(strata == distinct_strata_ids[h])
+      n_h <- samp_units[stratum_indices] |> unique() |> length()
+      m_h <- n_h - 1
 
-    noncertainty_singleton_strata <- sapply(X = seq_len(H), function(h) {
-      (n_h[h] == 1) & !all(certainty_flags_by_stratum[[h]])
-    })
-    if (any(noncertainty_singleton_strata)) {
-      if ((stage < number_of_stages) | !allow_final_stage_singletons) {
-        if (samp_method_by_stage[stage] != "POISSON") {
-          error_msg <- sprintf(
-            paste("Cannot form bootstrap adjustment factors for a stratum at stage %s, ",
-                  "since the stratum has only one sampling unit, ",
-                  "and that single sampling unit was not selected with certainty.",
-                  ifelse(
-                    stage == number_of_stages,
-                    paste0(
-                      " Setting `allow_final_stage_singletons = TRUE` will avoid this error message",
-                      " by calculating that sampling unit's final-stage adjustment factor as if it was selected with certainty at the final stage,",
-                      " and then calculating the bootstrap weight using this adjustment factor combined with the final-stage selection probability."
+      # Get each stratum's list of sampling units and their probabilities
+      distinct_samp_units <- unique(samp_units[stratum_indices])
+      distinct_sel_probs <- sel_probs[stratum_indices][!duplicated(samp_units[stratum_indices])]
+      certainty_flags <- (distinct_sel_probs >= 1)
+
+      is_noncertainty_singleton <- (n_h == 1) && !all(certainty_flags)
+
+      if (is_noncertainty_singleton) {
+        if ((stage < number_of_stages) | !allow_final_stage_singletons) {
+          if (samp_method_by_stage[stage] != "POISSON") {
+            error_msg <- sprintf(
+              paste("Cannot form bootstrap adjustment factors for a stratum at stage %s, ",
+                    "since the stratum has only one sampling unit, ",
+                    "and that single sampling unit was not selected with certainty.",
+                    ifelse(
+                      stage == number_of_stages,
+                      paste0(
+                        " Setting `allow_final_stage_singletons = TRUE` will avoid this error message",
+                        " by calculating that sampling unit's final-stage adjustment factor as if it was selected with certainty at the final stage,",
+                        " and then calculating the bootstrap weight using this adjustment factor combined with the final-stage selection probability."
+                      ),
+                      ""
                     ),
-                    ""
-                  ),
-                  sep = ""),
-            stage
-          )
-          stop(error_msg)
+                    sep = ""),
+              stage
+            )
+            stop(error_msg)
+          }
         }
       }
-    }
 
-    # For later stages of sampling, get the previous stage selection probability of the higher-level sampling unit
-    if (stage > 1) {
-      sel_prob_of_higher_unit_from_previous_stage_by_stratum <- sapply(X = seq_len(H), function(h) {
-        row_to_select <- min(which(strata == distinct_strata_ids[h]))
+      # For later stages of sampling, get the previous stage selection probability of the higher-level sampling unit
+      if (stage > 1) {
+        row_to_select <- stratum_indices[1]
         prior_stage_probs <- samp_unit_sel_probs[row_to_select, seq_len(stage-1), drop=TRUE]
-        return(Reduce(prior_stage_probs, f = `*`))
-      })
-    } else {
-      sel_prob_of_higher_unit_from_previous_stage_by_stratum <- rep(1, times = H)
-    }
+        sel_prob_of_higher_unit_from_previous_stage <- Reduce(prior_stage_probs, f = `*`)
+      } else {
+        sel_prob_of_higher_unit_from_previous_stage <- 1
+      }
 
-    if (samp_method_by_stage[stage] != "POISSON") {
+      if (samp_method_by_stage[stage] != "POISSON") {
 
-      # Determine 'multiplicities' (number of times each PSU is resampled)
-      multiplicities <- lapply(seq_len(H), function(h) {
-        stats::rmultinom(
+        # Determine 'multiplicities' (number of times each PSU is resampled)
+        multiplicities <- stats::rmultinom(
           n = num_replicates,
-          size = m_h[h],
-          prob = rep(n_h[h], times = n_h[h])^(-1)
+          size = m_h,
+          prob = rep(n_h, times = n_h)^(-1)
         )
-      })
 
-      # Calculate adjustment from Equation (21) of Beaumont & Emond 2022 in the cases of PPSWOR or SRSWOR,
-      #                        or Equation (20) in the case of SRSWR (which is the Rao-Wu-Yue method)
-      a_beaumont_emond <- lapply(X = seq_len(H), function(h) {
-        m <- m_h[h]
-        n <- n_h[h]
-        mstar_k <- multiplicities[[h]]
-        certainty_flags <- certainty_flags_by_stratum[[h]]
-        is_singleton_stratum <- n == 1
+        # Calculate adjustment from Equation (21) of Beaumont & Emond 2022 in the cases of PPSWOR or SRSWOR,
+        #                        or Equation (20) in the case of SRSWR (which is the Rao-Wu-Yue method)
+        mstar_k <- multiplicities
+        certainty_flags <- certainty_flags
+        is_singleton_stratum <- n_h == 1
 
         if (is_singleton_stratum) {
           a_k <- 1
         } else if (samp_method_by_stage[stage] != "SRSWR") {
-          pi_k <- distinct_sel_probs_by_stratum[[h]]
-          a_k <- 1 - sqrt((m*(1-pi_k))/(n - 1)) + sqrt((m*(1-pi_k))/(n - 1)) * (n/m) * mstar_k
+          pi_k <- distinct_sel_probs
+          a_k <- 1 - sqrt((m_h*(1-pi_k))/(n_h - 1)) + sqrt((m_h*(1-pi_k))/(n_h - 1)) * (n_h/m_h) * mstar_k
         } else if (samp_method_by_stage[stage] == "SRSWR") {
-          a_k <- 1 - sqrt(m/(n - 1)) + sqrt(m/(n - 1)) * (n/m) * mstar_k
+          a_k <- 1 - sqrt(m_h/(n_h - 1)) + sqrt(m_h/(n_h - 1)) * (n_h/m_h) * mstar_k
         }
-        a_k <- as.matrix(a_k)
+        a_beaumont_emond <- as.matrix(a_k)
+      }
 
-        return(a_k)
-      })
-    }
-
-    if (samp_method_by_stage[stage] == "POISSON") {
-      a_beaumont_emond <- lapply(X = seq_len(H), function(h) {
-        delta <- 1 - distinct_sel_probs_by_stratum[[h]]
-        a_k <- sapply(
+      if (samp_method_by_stage[stage] == "POISSON") {
+        delta <- 1 - distinct_sel_probs
+        a_beaumont_emond <- sapply(
           X = delta,
           FUN = function(scale_param) {
             stats::rgamma(n = num_replicates,
@@ -340,68 +324,55 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
                           scale = scale_param)
           }
         ) |> t()
-        return(a_k)
-      })
-    }
+      }
 
-    # For PPSWOR, "calibrate" adjustments to sum to actual sample size, using Equation (24) of Beaumont & Emond 2022
-    if (samp_method_by_stage[stage] == "PPSWOR") {
-      a_beaumont_emond_cal <- lapply(X = seq_len(H), function(h) {
+      # For PPSWOR, "calibrate" adjustments to sum to actual sample size, using Equation (24) of Beaumont & Emond 2022
+      if (samp_method_by_stage[stage] == "PPSWOR") {
 
-        is_certainty <- certainty_flags_by_stratum[[h]]
-        n_noncertainty <- sum(!is_certainty)
+        n_noncertainty <- sum(!certainty_flags)
 
-        a_sum <- colSums(a_beaumont_emond[[h]][!is_certainty,,drop=FALSE])
+        a_sum <- colSums(a_beaumont_emond[!certainty_flags,,drop=FALSE])
         adjustment_factor <- n_noncertainty / a_sum
 
-        a_k_cal <- a_beaumont_emond[[h]]
-        a_k_cal[!is_certainty,] <- t(
-          apply(X = a_beaumont_emond[[h]][!is_certainty,,drop=FALSE],
+        a_k_cal <- a_beaumont_emond
+        a_k_cal[!certainty_flags,] <- t(
+          apply(X = a_beaumont_emond[!certainty_flags,,drop=FALSE],
                 MARGIN = 1, FUN = function(x) x*adjustment_factor)
         )
-        return(a_k_cal)
-      })
-    } else {
-      a_beaumont_emond_cal <- a_beaumont_emond
-    }
 
-    # For all stages other than the first, update the adjustment factor
-    # based on the selection probability of the higher-level unit from previous stage of sampling
-
-    if (stage > 1) {
-      a_final <- lapply(X = seq_len(H), function(h) {
-        a_prelim <- a_beaumont_emond_cal[[h]]
-        Delta_prev_kk <- 1 - sel_prob_of_higher_unit_from_previous_stage_by_stratum[[h]]
-        a_updated <- 1 - sqrt((1 - Delta_prev_kk)/(1 + Delta_prev_kk)) + sqrt((1 - Delta_prev_kk)/(1 + Delta_prev_kk)) * a_prelim
-        return(a_updated)
-      })
-    } else {
-      a_final <- a_beaumont_emond_cal
-    }
-
-    # For each row of the data, get the adjustment factor for the sampling unit it belongs to
-    for (i in seq_len(number_of_ultimate_units)) {
-      h <- which(distinct_strata_ids == strata[i])
-      k <- which(distinct_samp_units_by_stratum[[h]] == samp_units[i])
-      if (length(a_final[[h]]) == 1) {
-        adjustment_factors_by_stage[i,stage,] <- a_final[[h]]
+        a_beaumont_emond_cal <- a_k_cal
       } else {
-        adjustment_factors_by_stage[i,stage,] <- a_final[[h]][k,]
+        a_beaumont_emond_cal <- a_beaumont_emond
+      }
+
+      # For all stages other than the first, update the adjustment factor
+      # based on the selection probability of the higher-level unit from previous stage of sampling
+
+      if (stage > 1) {
+        a_prelim <- a_beaumont_emond_cal
+        Delta_prev_kk <- 1 - sel_prob_of_higher_unit_from_previous_stage
+        a_updated <- 1 - sqrt((1 - Delta_prev_kk)/(1 + Delta_prev_kk)) + sqrt((1 - Delta_prev_kk)/(1 + Delta_prev_kk)) * a_prelim
+        a_final <- a_updated
+      } else {
+        a_final <- a_beaumont_emond_cal
+      }
+
+      # For each row of the data, get the adjustment factor for the sampling unit it belongs to
+      for (hi in seq_along(stratum_indices)) {
+        k <- (distinct_samp_units == samp_units[stratum_indices][hi])
+        i <- stratum_indices[hi]
+        if (length(a_final) == 1) {
+          adjustment_factors[i,] <- adjustment_factors[i,,drop=TRUE] * as.vector(a_final)
+        } else {
+          adjustment_factors[i,] <- adjustment_factors[i,,drop=TRUE] * as.vector(a_final[k,])
+        }
       }
     }
 
     stage <- stage + 1L
   }
 
-  # Calculate overall adjustment factor for a unit
-  # as the product of the adjustment factors from all stages
-  overall_adjustment_factors <- apply(X = adjustment_factors_by_stage,
-                                      MARGIN = 3,
-                                      function(adj_factors_matrix_b) {
-                                        apply(X = adj_factors_matrix_b,
-                                              MARGIN = 1, FUN = Reduce, f = `*`)
-                                      })
-  result <- overall_adjustment_factors
+  result <- adjustment_factors
 
   if (output == "weights") {
     # Calculate overall sampling weight for a unit
@@ -412,7 +383,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
 
 
     # Create replicate weights by multiplying adjustment factors by sampling weights
-    replicate_weights <- apply(X = overall_adjustment_factors,
+    replicate_weights <- apply(X = adjustment_factors,
                                MARGIN = 2,
                                FUN = function(rep_factor) rep_factor * overall_sampling_weights)
     result <- replicate_weights

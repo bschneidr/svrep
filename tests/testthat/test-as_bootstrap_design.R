@@ -58,3 +58,55 @@ set.seed(2014)
         })
       )
   })
+
+# Test correct conversion whether user supplies weights or not ----
+
+  data('mu284', package = 'survey')
+  data('library_multistage_sample', package = 'svrep')
+
+  # Manually specify weights
+  design_1_srs <- svydesign(
+    data = mu284 |> transform(wt = (n1/5)*(n2/3)),
+    ids = ~ id1 + id2,
+    fpc = ~ n1  +  n2,
+    weights = ~ wt
+  )
+  design_1_pps <- svydesign(
+    data = library_multistage_sample |> transform(wt = 1/SAMPLING_PROB),
+    ids = ~ PSU_ID + SSU_ID,
+    fpc = ~ PSU_SAMPLING_PROB  +  SSU_SAMPLING_PROB,
+    pps = "brewer",
+    weights = ~ wt
+  )
+
+  # Let 'survey' package automatically figure out weights
+  design_2_srs <- svydesign(
+    data = mu284,
+    ids = ~ id1 + id2,
+    fpc = ~ n1  +  n2
+  )
+  design_2_pps <- svydesign(
+    data = library_multistage_sample,
+    ids = ~ PSU_ID + SSU_ID,
+    fpc = ~ PSU_SAMPLING_PROB  +  SSU_SAMPLING_PROB,
+    pps = "brewer"
+  )
+
+  test_that(
+    desc = "Check that stage-specific probs can be obtained with `svydesign(..., weights)`", {
+      # For multistage SRSWOR
+      set.seed(2014)
+      boot_1_srs <- as_bootstrap_design(design_1_srs, replicates = 10)
+      set.seed(2014)
+      boot_2_srs <- as_bootstrap_design(design_2_srs, replicates = 10)
+      expect_equal(object = weights(boot_1_srs, type = "analysis"),
+                   expected = weights(boot_2_srs, type = "analysis"))
+      # For two-stage PPSWOR+SSRWOR
+      set.seed(2014)
+      boot_1_pps <- as_bootstrap_design(design_1_pps, replicates = 10)
+      set.seed(2014)
+      boot_2_pps <- as_bootstrap_design(design_2_pps, replicates = 10)
+      expect_equal(object = weights(boot_1_pps, type = "analysis"),
+                   expected = weights(boot_2_pps, type = "analysis"))
+    }
+  )
