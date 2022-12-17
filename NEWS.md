@@ -1,4 +1,4 @@
-# svrep (development version)
+# svrep 0.4.1
 
 * Minor Updates and Bug Fixes:
   * Fix bug in [#15](https://github.com/bschneidr/svrep/issues/15), where 

@@ -7,10 +7,9 @@ about DOI links in the DESCRIPTION. The links are valid,
 but it seems the URL checker isn't working correctly for
 these DOI links.
 
-* I have reduced the runtimes of unit tests
-and examples, since automated checks showed overall checktime was over 10
-minutes on "r-devel-windows-x86_64" according to the automated CRAN checks
-when I last submitted.
+* This is a patch release to fix a bug that would occur
+frequently in practice. Apologies for submitting this
+CRAN release soon after the last one.
 
 ## Downstream dependencies
 
