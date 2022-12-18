@@ -447,10 +447,40 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #'    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
-                                replicates = 500, tau = "auto",
-                                mse = getOption("survey.replicates.mse"),
-                                compress = TRUE) {
+                               replicates = 500, tau = "auto",
+                               mse = getOption("survey.replicates.mse"),
+                               compress = TRUE) {
   UseMethod("as_gen_boot_design", design)
+}
+
+#' @export
+as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
+                                         replicates = 500, tau = "auto",
+                                         mse = getOption("survey.replicates.mse"),
+                                         compress = TRUE) {
+
+  Sigma <- get_design_quad_form(design, variance_estimator)
+
+  adjustment_factors <- make_gen_boot_factors(
+    Sigma = Sigma,
+    num_replicates = replicates,
+    tau = tau
+  )
+
+  rep_design <- survey::svrepdesign(
+    variables = design$phase1$full$variables[design$subset,,drop=FALSE],
+    weights = stats::weights(design, type = "sampling"),
+    repweights = adjustment_factors,
+    combined.weights = FALSE,
+    compress = compress, mse = mse,
+    scale = attr(adjustment_factors, 'scale'),
+    rscales = attr(adjustment_factors, 'rscales'),
+    type = "other"
+  )
+
+  rep_design$tau <- attr(adjustment_factors, 'tau')
+
+  return(rep_design)
 }
 
 #' @export
@@ -459,68 +489,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
-  accepted_variance_estimators <- c(
-    "Yates-Grundy", "Horvitz-Thompson",
-    "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2"
-  )
-
-  if (is.null(variance_estimator)) {
-    stop("Must specify a value for `variance_estimator`.")
-  }
-
-  if (!variance_estimator %in% accepted_variance_estimators) {
-    sprintf("`%s` is not a supported variance estimator, or else there is a typo.") |> stop()
-  }
-  if (length(variance_estimator) > 1) {
-    stop("Can only specify one estimator for `variance_estimator`.")
-  }
-
-  is_pps_design <- isTRUE(design$pps)
-
-  if (variance_estimator %in% c("Horvitz-Thompson", "Yates-Grundy")) {
-    if (!is_pps_design) {
-      sprintf("For `variance_estimator='%s'`, must use a PPS design. Please see the help page for `survey::svydesign()`.") |>
-        stop()
-    }
-    if ((variance_estimator == "Yates-Grundy") & (!design$variance %in% c("YG"))) {
-      sprintf("Must specify `variance='YG'` when creating the survey design object.`") |>
-        stop()
-    }
-    if ((variance_estimator == "Horvitz-Thompson") & (!design$variance %in% c("HT"))) {
-      sprintf("Must specify `variance='HT'` when creating the survey design object.`") |>
-        stop()
-    }
-    Sigma <- design[['dcheck']][[1]]$dcheck |> as.matrix()
-
-    if (variance_estimator == "Yates-Grundy") {
-      Sigma <- - Sigma
-      diag(Sigma) <- diag(Sigma) - rowSums(Sigma)
-      Sigma <- - Sigma
-    }
-
-  }
-
-  if (variance_estimator %in% c("SD1", "SD2")) {
-    sprintf("For `variance_estimator='%s', assumes rows of data are sorted in the same order used in sampling.",
-            variance_estimator) |> message()
-    Sigma <- make_quad_form_matrix(
-      variance_estimator = variance_estimator,
-      cluster_ids = design$cluster,
-      strata_ids = design$strata,
-      strata_pop_sizes = design$fpc$popsize,
-      sort_order = seq_len(nrow(design))
-    )
-  }
-  if (variance_estimator %in% c("Ultimate Cluster", "Stratified Multistage SRS")) {
-    Sigma <- make_quad_form_matrix(
-      variance_estimator = variance_estimator,
-      cluster_ids = design$cluster,
-      strata_ids = design$strata,
-      strata_pop_sizes = design$fpc$popsize,
-      sort_order = NULL
-    )
-  }
+  Sigma <- get_design_quad_form(design, variance_estimator)
 
   adjustment_factors <- make_gen_boot_factors(
     Sigma = Sigma,
