@@ -379,7 +379,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 #' \cr \cr
-#' Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
+#' - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
 #' \cr \cr
 #' - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
@@ -480,6 +480,8 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 
   rep_design$tau <- attr(adjustment_factors, 'tau')
 
+  rep_design$call <- sys.call(which = -1)
+
   return(rep_design)
 }
 
@@ -509,6 +511,8 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
   )
 
   rep_design$tau <- attr(adjustment_factors, 'tau')
+
+  rep_design$call <- sys.call(which = -1)
 
   return(rep_design)
 }

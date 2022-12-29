@@ -253,7 +253,7 @@ in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein 
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 \cr \cr
-Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
+- Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
 \cr \cr
 - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.

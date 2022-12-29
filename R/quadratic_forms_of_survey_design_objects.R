@@ -99,32 +99,6 @@
 #'   \item "Stratified Multistage SRS"
 #'   \item "Poisson Horvitz-Thompson"
 #' }
-#' The two-phase variance estimator has a quadratic form determined as follows.
-#' Suppose the first phase sample has size \eqn{n_a}
-#' and the second phase sample has size \eqn{n_b}.
-#' Let \eqn{\boldsymbol{\Sigma}_a} denote the quadratic form matrix for the variance estimator
-#' used for the full first-phase design, with dimension \eqn{n_a \times n_a}.
-#' Let \eqn{\boldsymbol{\Sigma}_{a^\prime}} denote the matrix of dimension \eqn{n_b \times n_b}
-#' formed by subsetting the rows and columns of \eqn{\boldsymbol{\Sigma}_a} to only include
-#' cases selected in the second-phase sample. We let \eqn{\boldsymbol{\Sigma}_{b}} denote
-#' the matrix of dimension \eqn{n_b \times n_b} representing the Horvitz-Thompson
-#' estimator of variance for the second-phase sample, conditional on the selected
-#' first-phase sample.
-#' The second phase sample has a matrix \eqn{\boldsymbol{D}_b} of weights formed by the inverses of
-#' joint inclusion probabilities, with element \eqn{kl} equal to \eqn{\pi_{bkl}^{-1}},
-#' where \eqn{\pi_{bkl}} is the conditional probability that units \eqn{k} and \eqn{l} are included
-#' in the second-phase sample, given the selected first-phase sample.
-#' The second phase sample also has a diagonal matrix \eqn{\boldsymbol{W}_b}
-#' whose \eqn{k}-th diagonal entry is the second-phase weight \eqn{\pi_{bk}^{-1}},
-#' where \eqn{\pi_{bk}} is the conditional probability that unit \eqn{k}
-#' is included in the second-phase sample, given the selected first-phase sample.
-#' \cr
-#' Then the two-phase variance estimator has a quadratic form matrix \eqn{\boldsymbol{\Sigma}_{ab}} given by:
-#' \deqn{
-#'   \boldsymbol{\Sigma}_{ab} = {W}^{-1}_b(\boldsymbol{\Sigma}_{a^\prime} \circ D_b ){W}^{-1}_b + \boldsymbol{\Sigma}_b
-#' }
-#' The first term estimates the variance contribution from the first phase of sampling,
-#' while the second term estimates the variance contribution from the second phase of sampling.
 #'
 #' @references
 #' - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
@@ -135,7 +109,8 @@
 #' \cr \cr
 #' - Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 #' @examples
-#'# Example 1: Bootstrap based on the successive-difference estimator ----
+#' \dontrun{
+#' # Example 1: Bootstrap based on the successive-difference estimator ----
 #'
 #'    data('library_stsys_sample', package = 'svrep')
 #'
@@ -161,14 +136,14 @@
 #'
 #' # Example 2: Two-phase design (second phase is nonresponse) ----
 #'
-#'    ## Create a survey design object
-#'    twophase_design <- twophase(
-#'      data = library_stsys_sample,
-#'      strata = list(~ SAMPLING_STRATUM, NULL),
-#'      id = list(~ 1, ~ 1),
-#'      fpc = list(~ STRATUM_POP_SIZE, NULL),
-#'      subset = ~ I(RESPONSE_STATUS == "Survey Respondent")
-#'    )
+#'   ## Create a survey design object
+#'   twophase_design <- twophase(
+#'     data = library_stsys_sample,
+#'     strata = list(~ SAMPLING_STRATUM, NULL),
+#'     id = list(~ 1, ~ 1),
+#'     fpc = list(~ STRATUM_POP_SIZE, NULL),
+#'     subset = ~ I(RESPONSE_STATUS == "Survey Respondent")
+#'   )
 #'
 #'   ## Convert to a bootstrap design
 #'   twophase_genboot_design <- as_gen_boot_design(
@@ -179,6 +154,7 @@
 #'     ),
 #'     replicates = 2000
 #'   )
+#' }
 #' @export
 
 get_design_quad_form <- function(design, variance_estimator) {
@@ -308,16 +284,14 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator) {
     variance_estimator = variance_estimator[[2]]
   )
 
-  # Obtain phase 2 first-order and second-order probabilities
-  phase2_prob <- 1 - diag(Sigma_phase2)
-  phase2_joint_prob <- ((1 - Sigma_phase2)^(-1)) * outer(phase2_prob, phase2_prob)
-
-  phase2_prob_matrix <- diag(design$phase2$prob)
+  # Obtain phase 2 conditional joint inclusion probabilities
+  phase2_joint_prob <- ht_matrix_to_joint_probs(Sigma_phase2)
 
   # Combine the quadratic forms from the two phases
-  Sigma <- `+`(
-    phase2_prob_matrix %*% (Sigma_phase1 / phase2_joint_prob) %*% phase2_prob_matrix,
-    Sigma_phase2
+  Sigma <- make_twophase_quad_form(
+    sigma_1 = Sigma_phase1,
+    sigma_2 = Sigma_phase2,
+    phase_2_joint_probs = phase2_joint_prob
   )
 
   return(Sigma)
