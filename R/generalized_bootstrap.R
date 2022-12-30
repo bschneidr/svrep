@@ -221,6 +221,9 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #'   first-order and second-order inclusion probabilities.}
 #'   \item{\strong{"Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator based on
 #'   first-order and second-order inclusion probabilities.}
+#'   \item{\strong{"Poisson Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator
+#'   based on assuming Poisson sampling, with first-order inclusion probabilities
+#'   inferred from the sampling probabilities of the survey design object.}
 #'   \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
 #'   based on estimating the variance of cluster totals within strata at each stage.}
 #'   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
@@ -315,6 +318,9 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' \deqn{
 #'   v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
 #' }
+#' The \strong{Poisson Horvitz-Thompson} variance estimator
+#' is simply the Horvitz-Thompson variance estimator, but
+#' where \eqn{\pi_{ij}=\pi_i \times \pi_j}, which is the case for Poisson sampling. \cr \cr
 #' The \strong{Yates-Grundy} variance estimator:
 #' \deqn{
 #'   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
@@ -370,6 +376,17 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
 #' the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
 #' which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+#' @section Two-Phase Designs:
+#' For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
+#' with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
+#' In two-phase designs, only the following estimators may be used for the second phase:
+#' \itemize{
+#'   \item "Ultimate Cluster"
+#'   \item "Stratified Multistage SRS"
+#'   \item "Poisson Horvitz-Thompson"
+#' }
+#' For statistical details on the handling of two-phase designs,
+#' see the documentation for \link[svrep]{make_twophase_quad_form}.
 #' @references
 #' The generalized survey bootstrap was first proposed by Bertail and Combris (1997).
 #' See Beaumont and Patak (2012) for a clear overview of the generalized survey bootstrap.
@@ -445,6 +462,43 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #'    ## Estimate sampling variances
 #'    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
 #'    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
+#'
+#' # Example 3: Two-phase sample ----
+#' # -- First stage is stratified systematic sampling,
+#' # -- second stage is response/nonresponse modeled as Poisson sampling
+#'
+#'   nonresponse_model <- glm(
+#'     data = library_stsys_sample,
+#'     family = quasibinomial('logit'),
+#'     formula = I(RESPONSE_STATUS == "Survey Respondent") ~ 1,
+#'     weights = 1/library_stsys_sample$SAMPLING_PROB
+#'   )
+#'
+#'   library_stsys_sample[['RESPONSE_PROPENSITY']] <- predict(
+#'     nonresponse_model,
+#'     newdata = library_stsys_sample,
+#'     type = "response"
+#'   )
+#'
+#'   twophase_design <- twophase(
+#'     data = library_stsys_sample,
+#'     # Identify cases included in second phase sample
+#'     subset = ~ I(RESPONSE_STATUS == "Survey Respondent"),
+#'     strata = list(~ SAMPLING_STRATUM, NULL),
+#'     id = list(~ 1, ~ 1),
+#'     probs = list(NULL, ~ RESPONSE_PROPENSITY),
+#'     fpc = list(~ STRATUM_POP_SIZE, NULL),
+#'   )
+#'
+#'   twophase_boot_design <- as_gen_boot_design(
+#'     design = twophase_design,
+#'     variance_estimator = list(
+#'       "SD2", "Poisson Horvitz-Thompson"
+#'     )
+#'   )
+#'
+#'   svytotal(x = ~ LIBRARIA, design = twophase_boot_design)
+#'
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
                                replicates = 500, tau = "auto",

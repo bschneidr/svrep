@@ -133,7 +133,10 @@
 #' @md
 #' @return The matrix of the quadratic form representing the variance estimator.
 #' @export
-#'
+#' @seealso
+#' For a two-phase design, the function
+#' \link[svrep]{make_twophase_quad_form} combines
+#' the quadratic form matrix from each phase.
 #' @examples
 #' \dontrun{
 #' # Example 1: The Horvitz-Thompson Estimator
@@ -620,7 +623,7 @@ ht_matrix_to_joint_probs <- function(ht_quad_form) {
 
 #' @title Combine quadratic forms from each phase of a two phase design
 #' @description This function combines quadratic forms from each phase of a two phase design,
-#' so that the combined variance of the entire two-phase sampling can be estimated.
+#' so that the combined variance of the entire two-phase sampling design can be estimated.
 #' @param sigma_1 The quadratic form for the first phase variance estimator,
 #' subsetted to only include cases selected in the phase two sample.
 #' @param sigma_2 The quadratic form for the second phase variance estimator,
@@ -690,9 +693,12 @@ ht_matrix_to_joint_probs <- function(ht_quad_form) {
 #' - Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 #' \cr \cr
 #' - Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
-#'
+#' @md
 #' @export
-#'
+#' @seealso
+#' For each phase of sampling, the function
+#' \link[svrep]{make_quad_form_matrix} can be used to create
+#' the appropriate quadratic form matrix.
 #' @examples
 #' \dontrun{
 #'

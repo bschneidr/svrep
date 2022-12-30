@@ -23,7 +23,7 @@ the sampling variance from a two-phase sample design.
 }
 \description{
 This function combines quadratic forms from each phase of a two phase design,
-so that the combined variance of the entire two-phase sampling can be estimated.
+so that the combined variance of the entire two-phase sampling design can be estimated.
 }
 \section{Statistical Details}{
 
@@ -45,32 +45,32 @@ denoted \eqn{\pi_{bk}}. \cr
 
 The notation for this estimator is as follows: \cr
 \itemize{
-  \item \eqn{n_a} denotes the first phase sample size.
+\item \eqn{n_a} denotes the first phase sample size.
 
-  \item \eqn{n_b} denotes the second phase sample size.
+\item \eqn{n_b} denotes the second phase sample size.
 
-  \item \eqn{\boldsymbol{\Sigma}_a} denotes the matrix of dimension \eqn{n_a \times n_a}
-  representing the quadratic form for the variance estimator
-  used for the full first-phase design.
+\item \eqn{\boldsymbol{\Sigma}_a} denotes the matrix of dimension \eqn{n_a \times n_a}
+representing the quadratic form for the variance estimator
+used for the full first-phase design.
 
-  \item \eqn{\boldsymbol{\Sigma}_{a^\prime}} denotes the matrix of dimension \eqn{n_b \times n_b}
-  formed by subsetting the rows and columns of \eqn{\boldsymbol{\Sigma}_a} to only include
-  cases selected in the second-phase sample.
+\item \eqn{\boldsymbol{\Sigma}_{a^\prime}} denotes the matrix of dimension \eqn{n_b \times n_b}
+formed by subsetting the rows and columns of \eqn{\boldsymbol{\Sigma}_a} to only include
+cases selected in the second-phase sample.
 
-  \item \eqn{\boldsymbol{\Sigma}_{b}} denotes
-  the matrix of dimension \eqn{n_b \times n_b} representing the Horvitz-Thompson
-  estimator of variance for the second-phase sample, conditional on the selected
-  first-phase sample.
+\item \eqn{\boldsymbol{\Sigma}_{b}} denotes
+the matrix of dimension \eqn{n_b \times n_b} representing the Horvitz-Thompson
+estimator of variance for the second-phase sample, conditional on the selected
+first-phase sample.
 
-  \item \eqn{\boldsymbol{D}_b} denotes the \eqn{n_b \times n_b} matrix of weights formed by the inverses of
-  the second-phase joint inclusion probabilities, with element \eqn{kl} equal to \eqn{\pi_{bkl}^{-1}},
-  where \eqn{\pi_{bkl}} is the conditional probability that units \eqn{k} and \eqn{l} are included
-  in the second-phase sample, given the selected first-phase sample.
+\item \eqn{\boldsymbol{D}_b} denotes the \eqn{n_b \times n_b} matrix of weights formed by the inverses of
+the second-phase joint inclusion probabilities, with element \eqn{kl} equal to \eqn{\pi_{bkl}^{-1}},
+where \eqn{\pi_{bkl}} is the conditional probability that units \eqn{k} and \eqn{l} are included
+in the second-phase sample, given the selected first-phase sample.
 
-  \item \eqn{\boldsymbol{W}_b} denotes the diagonal \eqn{n_b \times n_b} matrix
-  whose \eqn{k}-th diagonal entry is the second-phase weight \eqn{\pi_{bk}^{-1}},
-  where \eqn{\pi_{bk}} is the conditional probability that unit \eqn{k}
-  is included in the second-phase sample, given the selected first-phase sample.
+\item \eqn{\boldsymbol{W}_b} denotes the diagonal \eqn{n_b \times n_b} matrix
+whose \eqn{k}-th diagonal entry is the second-phase weight \eqn{\pi_{bk}^{-1}},
+where \eqn{\pi_{bk}} is the conditional probability that unit \eqn{k}
+is included in the second-phase sample, given the selected first-phase sample.
 }
 }
 
@@ -167,7 +167,14 @@ for any combination of first-phase and second-phase variance estimators,
 provided that the joint inclusion probabilities from the second-phase design
 are available and are all nonzero.
 \cr \cr
-- Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
+\itemize{
+\item Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 \cr \cr
-- Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
+\item Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
+}
+}
+\seealso{
+For each phase of sampling, the function
+\link[svrep]{make_quad_form_matrix} can be used to create
+the appropriate quadratic form matrix.
 }
