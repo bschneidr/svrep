@@ -33,7 +33,9 @@ library(srvyr) # For complex survey analysis with dplyr syntax
 library(svrep)
 ```
 
-This vignette provide guidance on when the bootstrap can be used for complex survey data and how to choose a bootstrap method and number of bootstrap replicates for a survey. It further demonstrates how to use functions from the "svrep" package to implement bootstrap methods and help decide the number of bootstrap replicates needed for your data. The functions covered in this vignette include:
+This vignette provide guidance on when the bootstrap can be used for complex survey data and how to choose a bootstrap method and number of bootstrap replicates for a survey. It further demonstrates how to use functions from the "svrep" package to implement bootstrap methods and help decide the number of bootstrap replicates needed for your data. 
+
+The functions covered in this vignette include:
 
 **Functions for Creating Bootstrap Weights**:
 
@@ -45,7 +47,7 @@ This vignette provide guidance on when the bootstrap can be used for complex sur
 
 -   `as_gen_boot_design()`, which creates a replicate survey design using the generalized survey bootstrap method as described by @beaumont2012.
 
--   `make_gen_boot_factors()`, which creates a matrix of replicate weights using the generalized survey bootstrap method. This function will usually be used in conjunction with the function `make_quad_form_matrix()`, which returns the quadratic form matrix representation of common variance estimators.
+-   `make_gen_boot_factors()`, which creates a matrix of replicate weights using the generalized survey bootstrap method. This function will usually be used in conjunction with the functions `get_design_quad_form()` or `make_quad_form_matrix()`, which return the quadratic form matrix representation of common variance estimators.
 
 **Functions to Help Choose the Number of Bootstrap Replicates**:
 
