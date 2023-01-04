@@ -243,6 +243,20 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
+#' @param psd_option Either \code{"warn"} (the default) or \code{"error"}.
+#' This option specifies what will happen if the target variance estimator
+#' has a quadratic form matrix which is not positive semi-definite. This
+#' can occasionally happen, particularly for two-phase designs. \cr
+#' If \code{psd_option="error"}, then an error message will be displayed. \cr
+#' If \code{psd_option="warn"}, then a warning message will be displayed,
+#' and the quadratic form matrix will be approximated by the most similar
+#' positive semidefinite matrix.
+#' This approximation was suggested by Beaumont and Patak (2012),
+#' who note that this is conservative in the sense of producing
+#' overestimates of variance.
+#' Beaumont and Patak (2012) argue that this overestimation is expected to be
+#' small in magnitude. See \code{\link[svrep]{get_nearest_psd_matrix}}
+#' for details of the approximation.
 #' @param compress This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
 #' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
@@ -502,6 +516,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
                                replicates = 500, tau = "auto",
+                               psd_option = "warn",
                                mse = getOption("survey.replicates.mse"),
                                compress = TRUE) {
   UseMethod("as_gen_boot_design", design)
@@ -510,10 +525,33 @@ as_gen_boot_design <- function(design, variance_estimator = NULL,
 #' @export
 as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
                                          replicates = 500, tau = "auto",
+                                         psd_option = "warn",
                                          mse = getOption("survey.replicates.mse"),
                                          compress = TRUE) {
 
   Sigma <- get_design_quad_form(design, variance_estimator)
+
+  if (!is_psd_matrix(Sigma)) {
+    problem_msg <- paste0(
+      "The sample quadratic form matrix",
+      " for this design and variance estimator",
+      " is not positive semi-definite."
+    )
+    if (psd_option == "warn") {
+      warning_msg <- paste0(
+        problem_msg,
+        " It will be approximated by the nearest",
+        " positive semi-definite matrix."
+      )
+      warning(warning_msg)
+    } else {
+      error_msg <- paste0(
+        problem_msg,
+        " This can be handled using the `psd_option` argument."
+      )
+      stop(error_msg)
+    }
+  }
 
   adjustment_factors <- make_gen_boot_factors(
     Sigma = Sigma,
@@ -546,6 +584,28 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              compress = TRUE) {
 
   Sigma <- get_design_quad_form(design, variance_estimator)
+
+  if (!is_psd_matrix(Sigma)) {
+    problem_msg <- paste0(
+      "The sample quadratic form matrix",
+      " for this design and variance estimator",
+      " is not positive semi-definite."
+    )
+    if (psd_option == "warn") {
+      warning_msg <- paste0(
+        problem_msg,
+        " It will be approximated by the nearest",
+        " positive semi-definite matrix."
+      )
+      warning(warning_msg)
+    } else {
+      error_msg <- paste0(
+        problem_msg,
+        " This can be handled using the `psd_option` argument."
+      )
+      stop(error_msg)
+    }
+  }
 
   adjustment_factors <- make_gen_boot_factors(
     Sigma = Sigma,

@@ -9,6 +9,7 @@ as_gen_boot_design(
   variance_estimator = NULL,
   replicates = 500,
   tau = "auto",
+  psd_option = "warn",
   mse = getOption("survey.replicates.mse"),
   compress = TRUE
 )
@@ -49,6 +50,21 @@ If \code{tau="auto"}, the rescaling factor is determined automatically as follow
 if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 otherwise, \code{tau} is set to the smallest value needed to rescale
 the adjustment factors such that they are all at least \code{0.01}.}
+
+\item{psd_option}{Either \code{"warn"} (the default) or \code{"error"}.
+This option specifies what will happen if the target variance estimator
+has a quadratic form matrix which is not positive semi-definite. This
+can occasionally happen, particularly for two-phase designs. \cr
+If \code{psd_option="error"}, then an error message will be displayed. \cr
+If \code{psd_option="warn"}, then a warning message will be displayed,
+and the quadratic form matrix will be approximated by the most similar
+positive semidefinite matrix.
+This approximation was suggested by Beaumont and Patak (2012),
+who note that this is conservative in the sense of producing
+overestimates of variance.
+Beaumont and Patak (2012) argue that this overestimation is expected to be
+small in magnitude. See \code{\link[svrep]{get_nearest_psd_matrix}}
+for details of the approximation.}
 
 \item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
