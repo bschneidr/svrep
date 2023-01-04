@@ -605,6 +605,31 @@ distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids,
   return(result)
 }
 
+#' Check whether a matrix is positive semi-definite, based on checking for symmetric and negative eigenvalues.
+#'
+#' @param X A matrix with no missing or infinite values.
+#' @param tolerance Computed eigenvalues below \code{-abs(tolerance)}
+#' will be considered negative. Some tolerance is recommended
+#' since eigenvalues are nearly always computed with some floating-point error.
+#'
+#' @return A logical value. \code{TRUE} if the matrix is deemed positive semi-definite.
+#' Negative otherwise (including if \code{X} is not symmetric).
+#'
+#' @keywords internal
+is_psd_matrix <- function(X, tolerance = 1e-06) {
+  symmetric <- isSymmetric(X)
+  if (!symmetric) {
+    result <- FALSE
+  } else {
+    if (any(is.na(X) || is.infinite(X))) {
+      stop("The matrix `X` should not have any missing or infinite values.")
+    }
+    eigenvalues <- eigen(X, only.values = TRUE)$values
+    result <- all(eigenvalues >= -abs(tolerance))
+  }
+  return(result)
+}
+
 #' @title Approximates a symmetric, real matrix by the nearest positive
 #' semi-definite matrix.
 #'
@@ -960,8 +985,7 @@ make_twophase_quad_form <- function(sigma_1, sigma_2, phase_2_joint_probs,
 
   # If necessary, approximate `wtd_sigma_1`
   # with the nearest positive semidefinite matrix
-  eigenvalues_wtd_sigma_1 <- eigen(wtd_sigma_1, only.values = TRUE)$value
-  if (ensure_psd && (any(eigenvalues_wtd_sigma_1 <  -1e-08))) {
+  if (ensure_psd && !is_psd_matrix(wtd_sigma_1)) {
     paste(
       "Approximating (sigma_1/phase_2_joint_probs) with the nearest positive semidefinite matrix,",
       "since the matrix (1/phase_2_joint_probs) is not positive semi-definite.",
