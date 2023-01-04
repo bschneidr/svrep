@@ -4,7 +4,12 @@
 \alias{make_twophase_quad_form}
 \title{Combine quadratic forms from each phase of a two phase design}
 \usage{
-make_twophase_quad_form(sigma_1, sigma_2, phase_2_joint_probs)
+make_twophase_quad_form(
+  sigma_1,
+  sigma_2,
+  phase_2_joint_probs,
+  ensure_psd = TRUE
+)
 }
 \arguments{
 \item{sigma_1}{The quadratic form for the first phase variance estimator,
@@ -16,6 +21,13 @@ conditional on the selection of the first phase sample.}
 \item{phase_2_joint_probs}{The matrix of conditional joint
 inclusion probabilities for the second phase, given the selected
 first phase sample.}
+
+\item{ensure_psd}{If \code{TRUE} (the default), ensures
+that the result is a positive semi-definite matrix. This
+is necessary if the quadratic form is used as an input for
+replication methods such as the generalized bootstrap.
+For details, see the help section entitled
+"Ensuring the Result is Positive Semi-definite".}
 }
 \value{
 A quadratic form matrix that can be used to estimate
@@ -65,7 +77,9 @@ first-phase sample.
 \item \eqn{\boldsymbol{D}_b} denotes the \eqn{n_b \times n_b} matrix of weights formed by the inverses of
 the second-phase joint inclusion probabilities, with element \eqn{kl} equal to \eqn{\pi_{bkl}^{-1}},
 where \eqn{\pi_{bkl}} is the conditional probability that units \eqn{k} and \eqn{l} are included
-in the second-phase sample, given the selected first-phase sample.
+in the second-phase sample, given the selected first-phase sample. Note that this
+matrix will often not be positive semi-definite, and so the two-phase variance estimator
+has a quadratic form which is not necessarily positive semi-definite.
 
 \item \eqn{\boldsymbol{W}_b} denotes the diagonal \eqn{n_b \times n_b} matrix
 whose \eqn{k}-th diagonal entry is the second-phase weight \eqn{\pi_{bk}^{-1}},
@@ -74,10 +88,121 @@ is included in the second-phase sample, given the selected first-phase sample.
 }
 }
 
+\section{Ensuring the Result is Positive Semi-definite}{
+
+Note that the matrix \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} may not be
+positive semi-definite, since the matrix \eqn{D_b} is not guaranteed to be positive semidefinite.
+If \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} is found not to be positive semidefinite,
+then it is approximated by the nearest positive semi-definite matrix in the Frobenius norm,
+using the method of Higham (1988). \cr \cr
+This approximation is discussed by Beaumont and Patak (2012) in the context
+of forming replicate weights for two-phase samples. The authors argue that
+this approximation should lead to only a small overestimation of variance. \cr \cr
+Since \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )}
+is a real, symmetric matrix, this is equivalent to "zeroing out" negative eigenvalues.
+To be more precise, denote \eqn{A=(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )}.
+Then we can form the spectral decomposition \eqn{A=\Gamma \Lambda \Gamma^{\prime}}, where \eqn{\Lambda} is the diagonal matrix
+whose entries are eigenvalues of \eqn{A}. The method of Higham (1988)
+is to  approximate
+\eqn{A} with \eqn{\tilde{A} = \Gamma \Lambda_{+} \Gamma^{\prime}},
+where the \eqn{ii}-th entry of \eqn{\Lambda_{+}} is \eqn{\max(\Lambda_{ii}, 0)}.
+}
+
 \examples{
 \dontrun{
 
 ## ---------------------- Example 1 ------------------------##
+## First phase is a stratified multistage sample            ##
+## Second phase is a simple random sample                   ##
+##----------------------------------------------------------##
+data('library_multistage_sample', package = 'svrep')
+
+# Load first-phase sample
+  twophase_sample <- library_multistage_sample
+
+# Select second-phase sample
+  set.seed(2022)
+
+  twophase_sample[['SECOND_PHASE_SELECTION']] <- sampling::srswor(
+    n = 100,
+    N = nrow(twophase_sample)
+  ) |> as.logical()
+
+# Declare survey design
+  twophase_design <- twophase(
+    method = "full",
+    data = twophase_sample,
+    # Identify the subset of first-phase elements
+    # which were selected into the second-phase sample
+    subset = ~ SECOND_PHASE_SELECTION,
+    # Describe clusters, probabilities, and population sizes
+    # at each phase of sampling
+    id = list(~ PSU_ID + SSU_ID,
+              ~ 1),
+    probs = list(~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
+                 NULL),
+    fpc = list(~ PSU_POP_SIZE + SSU_POP_SIZE,
+               NULL)
+  )
+
+# Get quadratic form matrix for the first phase design
+  first_phase_sigma <- get_design_quad_form(
+    design = twophase_design$phase1$full,
+    variance_estimator = "Stratified Multistage SRS"
+  )
+
+# Subset to only include cases sampled in second phase
+
+  first_phase_sigma <- first_phase_sigma[twophase_design$subset,
+                                         twophase_design$subset]
+
+# Get quadratic form matrix for the second-phase design
+  second_phase_sigma <- get_design_quad_form(
+    design = twophase_design$phase2,
+    variance_estimator = "Ultimate Cluster"
+  )
+
+# Get second-phase joint probabilities
+  n <- twophase_design$phase2$fpc$sampsize[1,1]
+  N <- twophase_design$phase2$fpc$popsize[1,1]
+
+  second_phase_joint_probs <- matrix((n/N)*((n-1)/(N-1)),
+                                     nrow = n, ncol = n)
+  diag(second_phase_joint_probs) <- rep(n/N, times = n)
+
+# Get quadratic form for entire two-phase variance estimator
+  twophase_quad_form <- make_twophase_quad_form(
+   sigma_1 = first_phase_sigma,
+   sigma_2 = second_phase_sigma,
+   phase_2_joint_probs = second_phase_joint_probs
+ )
+
+ # Use for variance estimation
+
+   rep_factors <- make_gen_boot_factors(
+     Sigma = twophase_quad_form,
+     num_replicates = 500
+   )
+
+   library(survey)
+
+   combined_weights <- 1/twophase_design$prob
+
+   twophase_rep_design <- svrepdesign(
+     data = twophase_sample |>
+       subset(SECOND_PHASE_SELECTION),
+     type = 'other',
+     repweights = rep_factors,
+     weights = combined_weights,
+     combined.weights = FALSE,
+     scale = attr(rep_factors, 'scale'),
+     rscales = attr(rep_factors, 'rscales')
+   )
+
+   svymean(x = ~ LIBRARIA, design = twophase_rep_design)
+
+
+## ---------------------- Example 2 ------------------------##
 ## First phase is a stratified systematic sample            ##
 ## Second phase is nonresponse, modeled as Poisson sampling ##
 ##----------------------------------------------------------##
@@ -168,6 +293,11 @@ provided that the joint inclusion probabilities from the second-phase design
 are available and are all nonzero.
 \cr \cr
 \itemize{
+\item Beaumont, Jean-François, and Zdenek Patak. (2012). “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.”
+International Statistical Review 80 (1): 127–48.
+\cr \cr
+\item Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103–118.
+\cr \cr
 \item Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 \cr \cr
 \item Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
