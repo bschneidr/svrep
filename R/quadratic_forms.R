@@ -605,43 +605,63 @@ distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids,
   return(result)
 }
 
-#' Check whether a matrix is positive semi-definite, based on checking for symmetric and negative eigenvalues.
+#' @title Check whether a matrix is positive semidefinite
+#' @description Check whether a matrix is positive semidefinite, based on checking for symmetric and negative eigenvalues.
 #'
 #' @param X A matrix with no missing or infinite values.
-#' @param tolerance Computed eigenvalues below \code{-abs(tolerance)}
-#' will be considered negative. Some tolerance is recommended
+#' @param tolerance Tolerance for controlling whether
+#' a tiny computed eigenvalue will actually be considered negative.
+#' Computed negative eigenvalues will be considered
+#' negative if they are less than which are less than
+#' \code{-abs(tolerance * max(eigen(X)$values))}.
+#' A small nonzero tolerance is recommended
 #' since eigenvalues are nearly always computed with some floating-point error.
 #'
-#' @return A logical value. \code{TRUE} if the matrix is deemed positive semi-definite.
+#' @return A logical value. \code{TRUE} if the matrix is deemed positive semidefinite.
 #' Negative otherwise (including if \code{X} is not symmetric).
 #'
-#' @keywords internal
-is_psd_matrix <- function(X, tolerance = 1e-06) {
+#' @seealso The function \code{\link[svrep]{get_nearest_psd_matrix}()}
+#' can be used to approximate a symmetric matrix which is not positive semidefinite,
+#' by a similar positive semidefinite matrix.
+#'
+#' @examples
+#' X <- matrix(
+#'   c(2, 5, 5,
+#'     5, 2, 5,
+#'     5, 5, 2),
+#'   nrow = 3, byrow = TRUE
+#' )
+#'
+#' is_psd_matrix(X)
+#'
+#' eigen(X)$values
+#' @export
+is_psd_matrix <- function(X, tolerance = sqrt(.Machine$double.eps)) {
   symmetric <- isSymmetric(X)
   if (!symmetric) {
     result <- FALSE
   } else {
-    if (any(is.na(X) || is.infinite(X))) {
+    if ((sum(is.na(X)) + sum(is.infinite(X))) > 0) {
       stop("The matrix `X` should not have any missing or infinite values.")
     }
     eigenvalues <- eigen(X, only.values = TRUE)$values
-    result <- all(eigenvalues >= -abs(tolerance))
+    result <- all(eigenvalues >= -tolerance * abs(eigenvalues[1]))
   }
   return(result)
 }
 
 #' @title Approximates a symmetric, real matrix by the nearest positive
-#' semi-definite matrix.
+#' semidefinite matrix.
 #'
 #' @description Approximates a symmetric, real matrix by the nearest positive
-#' semi-definite matrix in the Frobenius norm, using the method of Higham (1988).
+#' semidefinite matrix in the Frobenius norm, using the method of Higham (1988).
 #' For a real, symmetric matrix, this is equivalent to "zeroing out" negative eigenvalues.
 #' See the "Details" section for more information.
 #'
 #' @param X A symmetric, real matrix with no missing values.
 #'
 #' @details
-#' Let \eqn{A} denote a symmetric, real matrix which is not positive semi-definite.
+#' Let \eqn{A} denote a symmetric, real matrix which is not positive semidefinite.
 #' Then we can form the spectral decomposition \eqn{A=\Gamma \Lambda \Gamma^{\prime}},
 #' where \eqn{\Lambda} is the diagonal matrix
 #' whose entries are eigenvalues of \eqn{A}.
@@ -649,7 +669,7 @@ is_psd_matrix <- function(X, tolerance = 1e-06) {
 #' \eqn{A} with \eqn{\tilde{A} = \Gamma \Lambda_{+} \Gamma^{\prime}},
 #' where the \eqn{ii}-th entry of \eqn{\Lambda_{+}} is \eqn{\max(\Lambda_{ii}, 0)}.
 #'
-#' @return The nearest positive semi-definite matrix
+#' @return The nearest positive semidefinite matrix
 #' of the same dimension as \code{X}.
 #'
 #' @references
@@ -704,11 +724,11 @@ ht_matrix_to_joint_probs <- function(ht_quad_form) {
 #' inclusion probabilities for the second phase, given the selected
 #' first phase sample.
 #' @param ensure_psd If \code{TRUE} (the default), ensures
-#' that the result is a positive semi-definite matrix. This
+#' that the result is a positive semidefinite matrix. This
 #' is necessary if the quadratic form is used as an input for
 #' replication methods such as the generalized bootstrap.
 #' For details, see the help section entitled
-#' "Ensuring the Result is Positive Semi-definite".
+#' "Ensuring the Result is Positive Semidefinite".
 #' @return A quadratic form matrix that can be used to estimate
 #' the sampling variance from a two-phase sample design.
 #' @section Statistical Details:
@@ -751,19 +771,19 @@ ht_matrix_to_joint_probs <- function(ht_quad_form) {
 #'   the second-phase joint inclusion probabilities, with element \eqn{kl} equal to \eqn{\pi_{bkl}^{-1}},
 #'   where \eqn{\pi_{bkl}} is the conditional probability that units \eqn{k} and \eqn{l} are included
 #'   in the second-phase sample, given the selected first-phase sample. Note that this
-#'   matrix will often not be positive semi-definite, and so the two-phase variance estimator
-#'   has a quadratic form which is not necessarily positive semi-definite.
+#'   matrix will often not be positive semidefinite, and so the two-phase variance estimator
+#'   has a quadratic form which is not necessarily positive semidefinite.
 #'
 #'   \item \eqn{\boldsymbol{W}_b} denotes the diagonal \eqn{n_b \times n_b} matrix
 #'   whose \eqn{k}-th diagonal entry is the second-phase weight \eqn{\pi_{bk}^{-1}},
 #'   where \eqn{\pi_{bk}} is the conditional probability that unit \eqn{k}
 #'   is included in the second-phase sample, given the selected first-phase sample.
 #' }
-#' @section Ensuring the Result is Positive Semi-definite:
+#' @section Ensuring the Result is Positive semidefinite:
 #' Note that the matrix \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} may not be
-#' positive semi-definite, since the matrix \eqn{D_b} is not guaranteed to be positive semidefinite.
+#' positive semidefinite, since the matrix \eqn{D_b} is not guaranteed to be positive semidefinite.
 #' If \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} is found not to be positive semidefinite,
-#' then it is approximated by the nearest positive semi-definite matrix in the Frobenius norm,
+#' then it is approximated by the nearest positive semidefinite matrix in the Frobenius norm,
 #' using the method of Higham (1988). \cr \cr
 #' This approximation is discussed by Beaumont and Patak (2012) in the context
 #' of forming replicate weights for two-phase samples. The authors argue that
@@ -988,7 +1008,7 @@ make_twophase_quad_form <- function(sigma_1, sigma_2, phase_2_joint_probs,
   if (ensure_psd && !is_psd_matrix(wtd_sigma_1)) {
     paste(
       "Approximating (sigma_1/phase_2_joint_probs) with the nearest positive semidefinite matrix,",
-      "since the matrix (1/phase_2_joint_probs) is not positive semi-definite.",
+      "since the matrix (1/phase_2_joint_probs) is not positive semidefinite.",
       "This is expected to result in a small overestimation of variance.",
       "See `help('make_twophase_quad_form', package = 'svrep')` for details."
     ) |> warning()

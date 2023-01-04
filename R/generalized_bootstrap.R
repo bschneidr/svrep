@@ -2,10 +2,10 @@
 #' @description Creates replicate factors for the generalized survey bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights
 #' from a textbook variance estimator, provided that the variance estimator
-#' can be represented as a quadratic form whose matrix is positive semi-definite
+#' can be represented as a quadratic form whose matrix is positive semidefinite
 #' (this covers a large class of variance estimators).
 #' @param Sigma The matrix of the quadratic form used to represent the variance estimator.
-#' Must be positive semi-definite.
+#' Must be positive semidefinite.
 #' @param num_replicates The number of bootstrap replicates to create.
 #' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
 #' used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
@@ -20,7 +20,7 @@
 #' The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
 #' Suppose we can represent our textbook variance estimator as a quadratic form: \eqn{v(\hat{T}_y) = \breve{y}\Sigma\breve{y}^T},
 #' for some \eqn{n \times n} matrix \eqn{\Sigma}.
-#' The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semi-definite.
+#' The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semidefinite.
 #'
 #' The bootstrapping process creates \eqn{B} sets of replicate weights, where the \eqn{b}-th set of replicate weights is a vector of length \eqn{n} denoted \eqn{\mathbf{a}^{(b)}}, whose \eqn{k}-th value is denoted \eqn{a_k^{(b)}}.
 #' This yields \eqn{B} replicate estimates of the population total, \eqn{\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k}, for \eqn{b=1, \ldots B}, which can be used to estimate sampling variance.
@@ -209,7 +209,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' with replicate weights formed using the generalized bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights
 #' from a textbook variance estimator, provided that the variance estimator
-#' can be represented as a quadratic form whose matrix is positive semi-definite
+#' can be represented as a quadratic form whose matrix is positive semidefinite
 #' (this covers a large class of variance estimators).
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
@@ -245,7 +245,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' the adjustment factors such that they are all at least \code{0.01}.
 #' @param psd_option Either \code{"warn"} (the default) or \code{"error"}.
 #' This option specifies what will happen if the target variance estimator
-#' has a quadratic form matrix which is not positive semi-definite. This
+#' has a quadratic form matrix which is not positive semidefinite. This
 #' can occasionally happen, particularly for two-phase designs. \cr
 #' If \code{psd_option="error"}, then an error message will be displayed. \cr
 #' If \code{psd_option="warn"}, then a warning message will be displayed,
@@ -277,7 +277,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
 #' Suppose we can represent our textbook variance estimator as a quadratic form: \eqn{v(\hat{T}_y) = \breve{y}\Sigma\breve{y}^T},
 #' for some \eqn{n \times n} matrix \eqn{\Sigma}.
-#' The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semi-definite.
+#' The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semidefinite.
 #'
 #' The bootstrapping process creates \eqn{B} sets of replicate weights, where the \eqn{b}-th set of replicate weights is a vector of length \eqn{n} denoted \eqn{\mathbf{a}^{(b)}}, whose \eqn{k}-th value is denoted \eqn{a_k^{(b)}}.
 #' This yields \eqn{B} replicate estimates of the population total, \eqn{\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k}, for \eqn{b=1, \ldots B}, which can be used to estimate sampling variance.
@@ -535,15 +535,18 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
     problem_msg <- paste0(
       "The sample quadratic form matrix",
       " for this design and variance estimator",
-      " is not positive semi-definite."
+      " is not positive semidefinite."
     )
     if (psd_option == "warn") {
+
       warning_msg <- paste0(
         problem_msg,
         " It will be approximated by the nearest",
-        " positive semi-definite matrix."
+        " positive semidefinite matrix."
       )
       warning(warning_msg)
+      Sigma <- get_nearest_psd_matrix(Sigma)
+
     } else {
       error_msg <- paste0(
         problem_msg,
@@ -589,15 +592,18 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
     problem_msg <- paste0(
       "The sample quadratic form matrix",
       " for this design and variance estimator",
-      " is not positive semi-definite."
+      " is not positive semidefinite."
     )
     if (psd_option == "warn") {
+
       warning_msg <- paste0(
         problem_msg,
         " It will be approximated by the nearest",
-        " positive semi-definite matrix."
+        " positive semidefinite matrix."
       )
       warning(warning_msg)
+      Sigma <- get_nearest_psd_matrix(Sigma)
+
     } else {
       error_msg <- paste0(
         problem_msg,

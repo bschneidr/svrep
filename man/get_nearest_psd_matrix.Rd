@@ -3,7 +3,7 @@
 \name{get_nearest_psd_matrix}
 \alias{get_nearest_psd_matrix}
 \title{Approximates a symmetric, real matrix by the nearest positive
-semi-definite matrix.}
+semidefinite matrix.}
 \usage{
 get_nearest_psd_matrix(X)
 }
@@ -11,17 +11,17 @@ get_nearest_psd_matrix(X)
 \item{X}{A symmetric, real matrix with no missing values.}
 }
 \value{
-The nearest positive semi-definite matrix
+The nearest positive semidefinite matrix
 of the same dimension as \code{X}.
 }
 \description{
 Approximates a symmetric, real matrix by the nearest positive
-semi-definite matrix in the Frobenius norm, using the method of Higham (1988).
+semidefinite matrix in the Frobenius norm, using the method of Higham (1988).
 For a real, symmetric matrix, this is equivalent to "zeroing out" negative eigenvalues.
 See the "Details" section for more information.
 }
 \details{
-Let \eqn{A} denote a symmetric, real matrix which is not positive semi-definite.
+Let \eqn{A} denote a symmetric, real matrix which is not positive semidefinite.
 Then we can form the spectral decomposition \eqn{A=\Gamma \Lambda \Gamma^{\prime}},
 where \eqn{\Lambda} is the diagonal matrix
 whose entries are eigenvalues of \eqn{A}.

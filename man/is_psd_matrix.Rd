@@ -2,22 +2,42 @@
 % Please edit documentation in R/quadratic_forms.R
 \name{is_psd_matrix}
 \alias{is_psd_matrix}
-\title{Check whether a matrix is positive semi-definite, based on checking for symmetric and negative eigenvalues.}
+\title{Check whether a matrix is positive semidefinite}
 \usage{
-is_psd_matrix(X, tolerance = 1e-06)
+is_psd_matrix(X, tolerance = sqrt(.Machine$double.eps))
 }
 \arguments{
 \item{X}{A matrix with no missing or infinite values.}
 
-\item{tolerance}{Computed eigenvalues below \code{-abs(tolerance)}
-will be considered negative. Some tolerance is recommended
+\item{tolerance}{Tolerance for controlling whether
+a tiny computed eigenvalue will actually be considered negative.
+Computed negative eigenvalues will be considered
+negative if they are less than which are less than
+\code{-abs(tolerance * max(eigen(X)$values))}.
+A small nonzero tolerance is recommended
 since eigenvalues are nearly always computed with some floating-point error.}
 }
 \value{
-A logical value. \code{TRUE} if the matrix is deemed positive semi-definite.
+A logical value. \code{TRUE} if the matrix is deemed positive semidefinite.
 Negative otherwise (including if \code{X} is not symmetric).
 }
 \description{
-Check whether a matrix is positive semi-definite, based on checking for symmetric and negative eigenvalues.
+Check whether a matrix is positive semidefinite, based on checking for symmetric and negative eigenvalues.
 }
-\keyword{internal}
+\examples{
+X <- matrix(
+  c(2, 5, 5,
+    5, 2, 5,
+    5, 5, 2),
+  nrow = 3, byrow = TRUE
+)
+
+is_psd_matrix(X)
+
+eigen(X)$values
+}
+\seealso{
+The function \code{\link[svrep]{get_nearest_psd_matrix}()}
+can be used to approximate a symmetric matrix which is not positive semidefinite,
+by a similar positive semidefinite matrix.
+}

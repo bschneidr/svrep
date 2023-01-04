@@ -23,11 +23,11 @@ inclusion probabilities for the second phase, given the selected
 first phase sample.}
 
 \item{ensure_psd}{If \code{TRUE} (the default), ensures
-that the result is a positive semi-definite matrix. This
+that the result is a positive semidefinite matrix. This
 is necessary if the quadratic form is used as an input for
 replication methods such as the generalized bootstrap.
 For details, see the help section entitled
-"Ensuring the Result is Positive Semi-definite".}
+"Ensuring the Result is Positive Semidefinite".}
 }
 \value{
 A quadratic form matrix that can be used to estimate
@@ -78,8 +78,8 @@ first-phase sample.
 the second-phase joint inclusion probabilities, with element \eqn{kl} equal to \eqn{\pi_{bkl}^{-1}},
 where \eqn{\pi_{bkl}} is the conditional probability that units \eqn{k} and \eqn{l} are included
 in the second-phase sample, given the selected first-phase sample. Note that this
-matrix will often not be positive semi-definite, and so the two-phase variance estimator
-has a quadratic form which is not necessarily positive semi-definite.
+matrix will often not be positive semidefinite, and so the two-phase variance estimator
+has a quadratic form which is not necessarily positive semidefinite.
 
 \item \eqn{\boldsymbol{W}_b} denotes the diagonal \eqn{n_b \times n_b} matrix
 whose \eqn{k}-th diagonal entry is the second-phase weight \eqn{\pi_{bk}^{-1}},
@@ -88,12 +88,12 @@ is included in the second-phase sample, given the selected first-phase sample.
 }
 }
 
-\section{Ensuring the Result is Positive Semi-definite}{
+\section{Ensuring the Result is Positive semidefinite}{
 
 Note that the matrix \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} may not be
-positive semi-definite, since the matrix \eqn{D_b} is not guaranteed to be positive semidefinite.
+positive semidefinite, since the matrix \eqn{D_b} is not guaranteed to be positive semidefinite.
 If \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} is found not to be positive semidefinite,
-then it is approximated by the nearest positive semi-definite matrix in the Frobenius norm,
+then it is approximated by the nearest positive semidefinite matrix in the Frobenius norm,
 using the method of Higham (1988). \cr \cr
 This approximation is discussed by Beaumont and Patak (2012) in the context
 of forming replicate weights for two-phase samples. The authors argue that

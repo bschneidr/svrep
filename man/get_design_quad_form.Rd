@@ -4,7 +4,7 @@
 \alias{get_design_quad_form}
 \title{Determine the quadratic form matrix of a variance estimator for a survey design object}
 \usage{
-get_design_quad_form(design, variance_estimator)
+get_design_quad_form(design, variance_estimator, ensure_psd = FALSE)
 }
 \arguments{
 \item{design}{A survey design object created using the 'survey' (or 'srvyr') package,
@@ -33,6 +33,17 @@ Options include:
   This estimator is the basis of the "successive-differences replication" estimator commonly used
   for variance estimation for systematic sampling.}
 }}
+
+\item{ensure_psd}{A logical value, defaulting to \code{FALSE}.
+If \code{ensure_psd = TRUE} and the quadratic form is
+not already positive semidefinite,
+then the function \code{\link[svrep]{get_nearest_psd_matrix}()}
+is used to approximate the quadratic form matrix by the
+nearest positive semidefinite matrix.
+This is necessary if the quadratic form is used as an input for
+replication methods such as the generalized bootstrap
+and is also useful if the quadratic form is to be used directly
+for estimating covariance matrices.}
 }
 \value{
 A matrix representing the quadratic form of a specified variance estimator,
@@ -121,7 +132,7 @@ In two-phase designs, only the following estimators may be used for the second p
 
 \examples{
 \dontrun{
-# Example 1: Bootstrap based on the successive-difference estimator ----
+# Example 1: Quadratic form for successive-difference variance estimator ----
 
    data('library_stsys_sample', package = 'svrep')
 
@@ -138,32 +149,61 @@ In two-phase designs, only the following estimators may be used for the second p
      fpc = ~ STRATUM_POP_SIZE
    )
 
-   ## Convert to generalized bootstrap replicate design
-   gen_boot_design_sd2 <- as_gen_boot_design(
+   ## Obtain quadratic form
+   quad_form_matrix <- get_design_quad_form(
      design = design_obj,
-     variance_estimator = "SD2",
-     replicates = 2000
+     variance_estimator = "SD2"
    )
+
+   ## Estimate variance of estimated population total
+   y <- design_obj$variables$LIBRARIA
+   wts <- weights(design_obj, type = 'sampling')
+   y_wtd <- as.matrix(y) * wts
+   y_wtd[is.na(y_wtd)] <- 0
+
+   pop_total <- sum(y_wtd)
+
+   var_est <- t(y_wtd) \%*\% quad_form_matrix \%*\% y_wtd
+   std_error <- sqrt(var_est)
+
+   print(pop_total); print(std_error)
+
+   # Compare to estimate from assuming SRS
+   svytotal(x = ~ LIBRARIA, na.rm = TRUE,
+            design = design_obj)
 
 # Example 2: Two-phase design (second phase is nonresponse) ----
 
-  ## Create a survey design object
+  ## Estimate response propensities, separately by stratum
+  library_stsys_sample[['RESPONSE_PROB']] <- svyglm(
+    design = design_obj,
+    formula = I(RESPONSE_STATUS == "Survey Respondent") ~ SAMPLING_STRATUM,
+    family = quasibinomial('logistic')
+  ) |> predict(type = 'response')
+
+  ## Create a survey design object,
+  ## where nonresponse is treated as a second phase of sampling
   twophase_design <- twophase(
     data = library_stsys_sample,
     strata = list(~ SAMPLING_STRATUM, NULL),
     id = list(~ 1, ~ 1),
     fpc = list(~ STRATUM_POP_SIZE, NULL),
+    probs = list(NULL, ~ RESPONSE_PROB),
     subset = ~ I(RESPONSE_STATUS == "Survey Respondent")
   )
 
-  ## Convert to a bootstrap design
-  twophase_genboot_design <- as_gen_boot_design(
+  ## Obtain quadratic form for the two-phase variance estimator,
+  ## where first phase variance contribution estimated
+  ## using the successive differences estimator
+  ## and second phase variance contribution estimated
+  ## using the Horvitz-Thompson estimator
+  ## (with joint probabilities based on assumption of Poisson sampling)
+  get_design_quad_form(
     design = twophase_design,
     variance_estimator = list(
       "SD2",
       "Poisson Horvitz-Thompson"
-    ),
-    replicates = 2000
+    )
   )
 }
 }
