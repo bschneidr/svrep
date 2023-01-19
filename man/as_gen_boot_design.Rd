@@ -343,4 +343,6 @@ Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the num
 For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 represent several common variance estimators as a quadratic form's matrix,
 which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
+The function \code{\link[svrep]{rescale_reps}} is used to implement
+the rescaling of the bootstrap adjustment factors.
 }

@@ -1,3 +1,159 @@
+#' @title Rescale replicate factors to have specified lower bound
+#' @description Rescale replicate factors to ensure that they all exceed
+#' a specified lower bound. The main use of this rescaling is to ensure
+#' that all replicate weights are strictly positive.
+#'
+#' Note that this rescaling has no impact on variance estimates for totals,
+#' but variance estimates for nonlinear statistics will be affected by the rescaling.
+#'
+#' @param x Either a replicate survey design object,
+#' or a numeric matrix of replicate weights.
+#' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
+#' used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
+#' where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
+#' If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
+#' if all of the adjustment factors exceed the minimum value \code{min_wgt},
+#'  then \code{tau} is set equal to 1;
+#' otherwise, \code{tau} is set to the smallest value needed to rescale
+#' the adjustment factors such that they are all at least \code{min_wgt}.
+#' @param min_wgt Only used if \code{tau='auto'}. Specifies the minimum value for the rescaled weights.
+#'
+#' @return If the input is a numeric matrix, returns the rescaled matrix.
+#' If the input is a replicate survey design object, returns an updated replicate survey design object.
+#' \cr
+#' For a replicate survey design object, results depend on
+#' whether the object has a matrix of replicate factors rather than
+#' a matrix of replicate weights (which are the product of replicate factors and sampling weights).
+#' If the design object has \code{combined.weights=FALSE},
+#' then the replication factors are adjusted.
+#' If the design object has \code{combined.weights=TRUE},
+#' then the replicate weights are adjusted.
+#' \cr
+#' For a replicate survey design object, the \code{scale} element
+#' of the design object will be updated appropriately,
+#' and an element \code{tau} will also be added.
+#' If the input is a matrix instead of a survey design object,
+#' the result matrix will have an attribute named \code{tau}
+#' which can be retrieved using \code{attr(x, 'tau')}.
+#' @details
+#' Let \eqn{\mathbf{A} = \left[ \mathbf{a}^{(1)} \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]} denote the \eqn{(n \times B)} matrix of replicate adjustment factors.
+#' To eliminate negative adjustment factors, Beaumont and Patak (2012) propose forming a rescaled matrix of nonnegative replicate factors \eqn{\mathbf{A}^S} by rescaling each adjustment factor \eqn{a_k^{(b)}} as follows:
+#' \deqn{
+#'    a_k^{S,(b)} = \frac{a_k^{(b)} + \tau - 1}{\tau}
+#'  }
+#' where \eqn{\tau \geq 1 - a_k^{(b)} \geq 1} for all \eqn{k} in \eqn{\left\{ 1,\ldots,n \right\}} and all \eqn{b} in \eqn{\left\{1, \ldots, B\right\}}.
+#'
+#' The value of \eqn{\tau} can be set based on the realized adjustment factor matrix \eqn{\mathbf{A}} or by choosing \eqn{\tau} prior to generating the adjustment factor matrix \eqn{\mathbf{A}} so that \eqn{\tau} is likely to be large enough to prevent negative adjustment factors.
+#'
+#' If the adjustment factors are rescaled in this manner, it is important to adjust the scale factor used in estimating the variance with the bootstrap replicates.
+#' For example, for bootstrap replicates, the adjustment factor becomes \eqn{\frac{\tau^2}{B}} instead of \eqn{\frac{1}{B}}.
+#' \deqn{
+#'  \textbf{Prior to rescaling: } v_B\left(\hat{T}_y\right) = \frac{1}{B}\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2
+#'  }
+#' \deqn{
+#'  \textbf{After rescaling: } v_B\left(\hat{T}_y\right) = \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
+#' }
+#'
+#' @export
+#'
+#' @examples
+#' # Example 1: Rescaling a matrix of replicate weights
+#'
+#'  rep_wgts <- matrix(
+#'    c(1.69742746694909, -0.230761178913411, 1.53333377634192,
+#'      0.0495043413294782, 1.81820367441039, 1.13229198793703,
+#'      1.62482013925955, 1.0866133494029, 0.28856654131668,
+#'      0.581930729719006, 0.91827012312825, 1.49979905894482,
+#'      1.26281337410693, 1.99327362761477, -0.25608700039304),
+#'    nrow = 3, ncol = 5
+#'  )
+#'
+#'  rescaled_wgts <- rescale_reps(rep_wgts, tau = 'auto', min_wgt = 0.01)
+#'
+#'  print(rep_wgts)
+#'  print(rescaled_wgts)
+#'
+#'  # Example 2: Rescaling replicate weights of a survey design object
+#'  set.seed(2023)
+#'  library(survey)
+#'  data('mu284', package = 'survey')
+#'
+#'  ## First create a bootstrap design object
+#'  svy_design_object <- svydesign(
+#'    data = mu284,
+#'    ids = ~ id1 + id2,
+#'    fpc = ~ n1 + n2
+#'  )
+#'
+#'  boot_design <- as_gen_boot_design(
+#'    design = svy_design_object,
+#'    variance_estimator = "Stratified Multistage SRS",
+#'    replicates = 5, tau = 1
+#'  )
+#'
+#'  ## Rescale the weights
+#'  rescaled_boot_design <- boot_design |>
+#'    rescale_reps(tau = 'auto', min_wgt = 0.01)
+#'
+#'  boot_wgts <- weights(boot_design, "analysis")
+#'  rescaled_boot_wgts <- weights(rescaled_boot_design, 'analysis')
+#'
+#'  print(boot_wgts)
+#'  print(rescaled_boot_wgts)
+rescale_reps <- function(x, tau = "auto", min_wgt = 0.01) {
+
+  if (length(tau) != 1 || is.na(tau) || (tau != "auto" & !is.numeric(tau)) || (is.numeric(tau) & tau < 0)) {
+    stop("`tau` must be either 'auto' or a single positive number.")
+  }
+
+  UseMethod("rescale_reps", x)
+}
+
+#' @export
+rescale_reps.svyrep.design <- function(x, tau = "auto", min_wgt = 0.01) {
+
+  rep_weights <- weights(x, type = "replication")
+  if (any(rep_weights < min_wgt)) {
+    if (tau == "auto") {
+      rescaling_constant <- max(1 - rep_weights) + min_wgt
+      rescaling_constant <- ceiling(rescaling_constant * 100)/100
+    } else {
+      rescaling_constant <- tau
+    }
+
+    rescaled_rep_weights <- (rep_weights + (rescaling_constant-1))/rescaling_constant
+
+  } else {
+    rescaling_constant <- 1
+    rescaled_rep_weights <- weights(x, type = 'replication')
+  }
+  attr(rescaled_rep_weights, 'tau') <- rescaling_constant
+  attr(rescaled_rep_weights, 'scale') <- (rescaling_constant^2) * x$scale
+  x$scale <- attr(rescaled_rep_weights, 'scale')
+  x$tau <- rescaling_constant
+  x$repweights <- rescaled_rep_weights
+  return(x)
+}
+
+#' @export
+rescale_reps.matrix <- function(x, tau = "auto", min_wgt = 0.01) {
+  rep_weights <- x
+  if (any(rep_weights < min_wgt)) {
+    if (tau == "auto") {
+      rescaling_constant <- max(1 - rep_weights) + min_wgt
+      rescaling_constant <- ceiling(rescaling_constant * 100)/100
+    } else {
+      rescaling_constant <- tau
+    }
+    rescaled_rep_weights <- (rep_weights + (rescaling_constant-1))/rescaling_constant
+  } else {
+    rescaling_constant <- 1
+    rescaled_rep_weights <- rep_weights
+  }
+  attr(rescaled_rep_weights, 'tau') <- rescaling_constant
+  return(rescaled_rep_weights)
+}
+
 #' @title Creates replicate factors for the generalized survey bootstrap
 #' @description Creates replicate factors for the generalized survey bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights
@@ -177,24 +333,15 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
   )
 
   # (Potentially) rescale to avoid negative weights
-  if (length(tau) != 1 || is.na(tau) || (tau != "auto" & !is.numeric(tau)) || (is.numeric(tau) & tau < 0)) {
-    stop("`tau` must be either 'auto' or a single positive number.")
-  }
+  rescaled_replicate_factors <- rescale_reps(
+    x = replicate_factors,
+    tau = tau,
+    min_wgt = 0.01
+  )
 
-  if (any(replicate_factors < 0)) {
-    if (tau == "auto") {
-      rescaling_constant <- max(1 - replicate_factors) + 0.01
-      rescaling_constant <- ceiling(rescaling_constant * 100)/100
-    } else {
-      rescaling_constant <- tau
-    }
-    rescaled_replicate_factors <- (replicate_factors + (rescaling_constant-1))/rescaling_constant
-  } else {
-    rescaling_constant <- 1
-    rescaled_replicate_factors <- replicate_factors
-  }
-  attr(rescaled_replicate_factors, 'tau') <- rescaling_constant
-  attr(rescaled_replicate_factors, 'scale') <- (rescaling_constant^2)/num_replicates
+  selected_tau <- attr(rescaled_replicate_factors, 'tau')
+
+  attr(rescaled_replicate_factors, 'scale') <- (selected_tau^2)/num_replicates
   attr(rescaled_replicate_factors, 'rscales') <- rep(1, times = num_replicates)
 
   # Set column names
@@ -272,6 +419,8 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 #' represent several common variance estimators as a quadratic form's matrix,
 #' which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
+#' The function \code{\link[svrep]{rescale_reps}} is used to implement
+#' the rescaling of the bootstrap adjustment factors.
 #' @section Statistical Details:
 #' Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
 #' The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
