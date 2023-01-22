@@ -1013,14 +1013,7 @@ make_twophase_quad_form <- function(sigma_1, sigma_2, phase_2_joint_probs,
       "See `help('make_twophase_quad_form', package = 'svrep')` for details."
     ) |> warning()
 
-    eigen_decomposition <- eigen(wtd_sigma_1)
-    eigen_vectors <- eigen_decomposition$vectors
-    eigen_values <- eigen_decomposition$values
-
-    updated_eigen_values <- pmax(eigen_values, 0)
-    updated_eigen_values <- abs(eigen_values)
-
-    wtd_sigma_1 <- eigen_vectors %*% diag(updated_eigen_values) %*% t(eigen_vectors)
+    wtd_sigma_1 <- get_nearest_psd_matrix(wtd_sigma_1)
   }
 
   # Combine the quadratic forms from the two phases
