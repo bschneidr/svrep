@@ -738,25 +738,19 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
   Sigma <- get_design_quad_form(design, variance_estimator)
 
   if (!is_psd_matrix(Sigma)) {
-    problem_msg <- paste0(
-      "The sample quadratic form matrix",
-      " for this design and variance estimator",
-      " is not positive semidefinite."
-    )
+    problem_msg <- "The sample quadratic form matrix for this design and variance estimator is not positive semidefinite."
     if (psd_option == "warn") {
 
       warning_msg <- paste0(
         problem_msg,
-        " It will be approximated by the nearest",
-        " positive semidefinite matrix."
+        " It will be approximated by the nearest positive semidefinite matrix."
       )
       warning(warning_msg)
       Sigma <- get_nearest_psd_matrix(Sigma)
 
     } else {
       error_msg <- paste0(
-        problem_msg,
-        " This can be handled using the `psd_option` argument."
+        problem_msg, " This can be handled using the `psd_option` argument."
       )
       stop(error_msg)
     }

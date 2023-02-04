@@ -206,12 +206,13 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     "SD1", "SD2"
   )
 
+  if (length(variance_estimator) > 1) {
+    stop("Can only specify one estimator for `variance_estimator`.")
+  }
+
   if (!variance_estimator %in% accepted_variance_estimators) {
     sprintf("`%s` is not a supported variance estimator, or else there is a typo.",
             variance_estimator) |> stop()
-  }
-  if (length(variance_estimator) > 1) {
-    stop("Can only specify one estimator for `variance_estimator`.")
   }
 
   if (variance_estimator %in% c("Yates-Grundy", "Horvitz-Thompson")) {
@@ -234,14 +235,14 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster")) {
       if (is.null(cluster_ids) || is.null(strata_ids)) {
         sprintf(
-          "For `variance_estimator='%s'`, must supply a matrix or data frame to both 'strata_ids' and 'cluster_ids'",
+          "For `variance_estimator='%s'`, must supply a matrix or data frame to both `strata_ids` and `cluster_ids`",
           variance_estimator
         ) |> stop()
       }
     }
     if (variance_estimator == "Stratified Multistage SRS") {
       if (is.null(strata_pop_sizes)) {
-        stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes.")
+        stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes`.")
       }
     }
     if (variance_estimator %in% c("SD1", "SD2")) {
