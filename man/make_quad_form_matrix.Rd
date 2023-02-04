@@ -218,3 +218,8 @@ Ash, S. (2014). "\emph{Using successive difference replication for estimating va
 Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
 }
+\seealso{
+For a two-phase design, the function
+\link[svrep]{make_twophase_quad_form} combines
+the quadratic form matrix from each phase.
+}
