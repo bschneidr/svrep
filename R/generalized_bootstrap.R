@@ -732,6 +732,7 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 #' @export
 as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              replicates = 500, tau = "auto",
+                                             psd_option = "warn",
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
