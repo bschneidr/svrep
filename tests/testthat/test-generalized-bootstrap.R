@@ -307,6 +307,14 @@ twophase_design <- twophase(
     expect_gte(
       object = min(rescaled_matrix), expected = 0.05
     )
+
+    expect_equal(
+      object = matrix(c(1,0.3,0.02,2,3,4), ncol = 3) |>
+        rescale_reps(min_wgt = 0.02) |>
+        `attr<-`('tau', NULL),
+      expected = matrix(c(1,0.3,0.02,2,3,4), ncol = 3)
+    )
+
   })
 
 # Sanity check results ----

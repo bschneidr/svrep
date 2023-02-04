@@ -117,34 +117,6 @@ rescale_reps <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
 }
 
 #' @export
-rescale_reps.svyrep.design <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
-
-  rep_weights <- weights(x, type = "replication")
-  if (any(rep_weights < min_wgt)) {
-    if (tau == "auto") {
-      rescaling_constant <- min((1-rep_weights)/(min_wgt-1))
-      rescaling_constant <- abs(rescaling_constant)
-      k <- 10^digits
-      rescaling_constant <- ceiling(rescaling_constant * k)/k
-    } else {
-      rescaling_constant <- tau
-    }
-
-    rescaled_rep_weights <- (rep_weights + (rescaling_constant-1))/rescaling_constant
-
-  } else {
-    rescaling_constant <- 1
-    rescaled_rep_weights <- weights(x, type = 'replication')
-  }
-  attr(rescaled_rep_weights, 'tau') <- rescaling_constant
-  attr(rescaled_rep_weights, 'scale') <- (rescaling_constant^2) * x$scale
-  x$scale <- attr(rescaled_rep_weights, 'scale')
-  x$tau <- rescaling_constant
-  x$repweights <- rescaled_rep_weights
-  return(x)
-}
-
-#' @export
 rescale_reps.matrix <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
   rep_weights <- x
   if (any(rep_weights < min_wgt)) {
@@ -166,6 +138,20 @@ rescale_reps.matrix <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
     attr(rescaled_rep_weights, 'scale') <- (rescaling_constant^2) * orig_scale
   }
   return(rescaled_rep_weights)
+}
+
+#' @export
+rescale_reps.svyrep.design <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
+
+  rep_weights <- weights(x, type = "replication")
+  rescaled_rep_weights <- rescale_reps.matrix(x = rep_weights,
+                                              tau = tau, min_wgt = min_wgt,
+                                              digits = digits)
+  attr(rescaled_rep_weights, 'scale') <- (attr(rescaled_rep_weights, 'tau')^2) * x$scale
+  x$scale <- attr(rescaled_rep_weights, 'scale')
+  x$tau <- attr(rescaled_rep_weights, 'tau')
+  x$repweights <- rescaled_rep_weights
+  return(x)
 }
 
 #' @title Creates replicate factors for the generalized survey bootstrap

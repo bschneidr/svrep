@@ -215,19 +215,21 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
     stop("Must specify a value for `variance_estimator`.")
   }
 
+  if (length(variance_estimator) > 1) {
+    stop("Can only specify one estimator for `variance_estimator`.")
+  }
+
   if (!variance_estimator %in% accepted_variance_estimators) {
     sprintf("`%s` is not a supported variance estimator, or else there is a typo.",
             variance_estimator) |> stop()
-  }
-  if (length(variance_estimator) > 1) {
-    stop("Can only specify one estimator for `variance_estimator`.")
   }
 
   is_pps_design <- isTRUE(design$pps)
 
   if (variance_estimator %in% c("Horvitz-Thompson", "Yates-Grundy")) {
     if (!is_pps_design) {
-      sprintf("For `variance_estimator='%s'`, must use a PPS design. Please see the help page for `survey::svydesign()`.") |>
+      sprintf("For `variance_estimator='%s'`, must use a PPS design. Please see the help page for `survey::svydesign()`.",
+              variance_estimator) |>
         stop()
     }
     if ((variance_estimator == "Yates-Grundy") & (!design$variance %in% c("YG"))) {
@@ -274,10 +276,8 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
 
   if (ensure_psd && !is_psd_matrix(Sigma)) {
     informative_msg <- paste0(
-      "The combined two-phase variance estimator",
-      " does not have a positive semidefinite quadratic form.",
-      " Since `ensure_psd = TRUE`, the quadratic form matrix",
-      " is approximated by the nearest positive semidefinite matrix."
+      "The variance estimator does not have a positive semidefinite quadratic form.",
+      " Since `ensure_psd = TRUE`, the quadratic form matrix is approximated by the nearest positive semidefinite matrix."
     )
     message(informative_msg)
     Sigma <- get_nearest_psd_matrix(Sigma)
@@ -310,6 +310,10 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
     stop("For a two-phase design, must specify `variance_estimator` as a list with two elements.")
   }
 
+  if (any(sapply(variance_estimator, length) > 1)) {
+    stop("Can only specify one estimator for each element of `variance_estimator`.")
+  }
+
   if (!variance_estimator[[1]] %in% accepted_phase1_estimators) {
     sprintf("`%s` is not a supported variance estimator for the first phase of a two-phase design, or else there is a typo.",
             variance_estimator[[1]]) |> stop()
@@ -317,9 +321,6 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
   if (!variance_estimator[[2]] %in% accepted_phase2_estimators) {
     sprintf("`%s` is not a supported variance estimator for the second phase of a two-phase design, or else there is a typo.",
             variance_estimator[[2]]) |> stop()
-  }
-  if (any(sapply(variance_estimator, length) > 1)) {
-    stop("Can only specify one estimator for each element of `variance_estimator`.")
   }
 
   # Extract quadratic form for first phase,

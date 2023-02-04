@@ -92,6 +92,37 @@ suppressWarnings({
   )
 
   test_that(desc = "Expected results for PPS designs", {
+
+    expect_error(
+      regexp = "must use a PPS design",
+      object = {
+        get_design_quad_form(
+          twophase_design$phase1$sample,
+          variance_estimator = "Horvitz-Thompson"
+        )
+      }
+    )
+
+    expect_error(
+      regexp = "Must specify `variance='HT'",
+      object = {
+        get_design_quad_form(
+          yg_design,
+          variance_estimator = "Horvitz-Thompson"
+        )
+      }
+    )
+    expect_error(
+      regexp = "Must specify `variance='YG'",
+      object = {
+        get_design_quad_form(
+          ht_design,
+          variance_estimator = "Yates-Grundy"
+        )
+      }
+    )
+
+
     expect_equal(
       object = get_design_quad_form(
         yg_design,
@@ -126,4 +157,23 @@ suppressWarnings({
     )
   })
 
-#
+# Informative messages for bad inputs ----
+
+  test_that(
+    "Informative error messages for bad inputs", {
+      expect_error(
+        object = {get_design_quad_form(ht_design, variance_estimator = NULL)},
+        regexp = "Must specify a value"
+      )
+      expect_error(
+        object = {get_design_quad_form(ht_design,
+                                       variance_estimator = list(
+                                         'SD1', 'SD2'
+                                       ))},
+        regexp = "Can only specify one"
+      )
+      expect_error(
+        object = {get_design_quad_form(ht_design, "made-up")},
+        regexp = "`made-up` is not a supported variance estimator"
+      )
+  })
