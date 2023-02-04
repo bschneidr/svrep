@@ -15,9 +15,12 @@ reference:
 - contents:
   - matches("boot")
   - matches("quad_form")
+  - matches("rescale_reps")
   # - matches("sd_matrix")
   # - matches("srswor_matrix")
   # - matches("distribute_matrix")
+- title: Helper Functions for Working with Quadratic Forms
+  - matches("psd_matrix")
 - title: Calibrating to Estimated Control Totals
 - contents:
   - starts_with("calibrate_to")
