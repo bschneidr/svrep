@@ -1,5 +1,38 @@
 # svrep (development version)
 
+* This release adds extensive new functionality for two-phase designs. The new vignette "Replication Methods for Two-phase Sampling" describes the new functionality as well as the underlying statistical methods.
+
+  * The function `as_gen_boot_design()` can now create generalized bootstrap weights
+  for two-phase survey design objects created with the 'survey' package's `twophase()` function. 
+  The user must specify a list of two variance estimators to use for each phase, e.g. `list('Stratified Multistage SRS', 'Ultimate Cluster')`.
+  
+  * The function `make_twophase_quad_form()` can be used to create a quadratic form
+  for a two-phase variance estimator, by combining quadratic forms from each phase.
+  
+  * The helper function `get_nearest_psd_matrix()` can be used to approximate
+  a quadratic form matrix by the nearest positive semidefinite matrix. This can be
+  particularly useful for two-phase designs, since the double
+  expansion estimator commonly used in practice frequently does not have a 
+  variance estimator which is positive semidefinite.
+  
+* The function `as_gen_boot_design()` has a new argument named `psd_option`, which
+controls what will happen if the target variance estimator 
+has a quadratic form matrix which is not positive semi-definite. 
+This can occasionally happen, particularly for two-phase designs. By default,
+the function will warn the user if the quadratic form is not positive semi-definite
+and then automatically approximate the matrix by the nearest positive semi-definite matrix.
+
+* Added a new function `get_design_quad_form()`, 
+which determines the quadratic form matrix of a specified variance estimator, 
+by parsing the information stored in a survey design object created using the 'survey' package.
+  
+* Added a new function `rescale_reps()` which implements the rescaling of replicate
+adjustment factors to avoid negative replicate weights. This functionality
+already existed in `as_gen_boot_design()` and `make_gen_boot_factors()`, but now
+it is implemented with the help of this new function.
+
+* Minor improvements to vignettes, particularly formatting.
+  
 # svrep 0.4.1
 
 * Minor Updates and Bug Fixes:
