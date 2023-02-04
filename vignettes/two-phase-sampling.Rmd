@@ -927,7 +927,7 @@ In the example two-phase design based on the library survey from earlier, we can
 ##       we use `my_design$phase1$full$variables
 
 wts <- weights(twophase_design, type = "sampling")
-y <- twophase_design$phase1$sample$variables$LIBRARIA
+y <- twophase_design$phase1$sample$variables$TOTSTAFF
 wtd_y <- as.matrix(wts * y)
 
 # Estimate standard errors
@@ -941,6 +941,8 @@ approx_std_error <- as.numeric(
 
 print(approx_std_error)
 print(std_error)
+
+approx_std_error / std_error
 ```
 
 # References
