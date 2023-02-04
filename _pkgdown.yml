@@ -20,6 +20,7 @@ reference:
   # - matches("srswor_matrix")
   # - matches("distribute_matrix")
 - title: Helper Functions for Working with Quadratic Forms
+- contents:
   - matches("psd_matrix")
 - title: Calibrating to Estimated Control Totals
 - contents:
