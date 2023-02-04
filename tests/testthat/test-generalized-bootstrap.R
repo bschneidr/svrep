@@ -16,6 +16,18 @@ library_stsys_sample <- library_stsys_sample |>
     TOTSTAFF = ifelse(is.na(TOTSTAFF), 0, TOTSTAFF)
   )
 
+data('mu284', package = 'survey')
+
+mu284$phase2 <- mu284$id1 %in% c(19,31,45)
+mu284 <- mu284[order(mu284$id1),]
+
+twophase_design <- twophase(
+  data = mu284,
+  id = list(~id1, ~id1),
+  fpc = list(~n1, NULL),
+  subset = ~ phase2
+)
+
 # Same results from conversion vs. creating from scratch ----
 
   set.seed(2014)
@@ -225,6 +237,85 @@ library_stsys_sample <- library_stsys_sample |>
       )
 
     })
+
+  test_that(
+    "Two-phase Design: Same results from conversion vs. creating from scratch", {
+
+      suppressMessages({
+        expect_warning(
+          regexp = "The sample quadratic form matrix for this design and variance estimator is not positive semidefinite.", object = {
+            set.seed(2023)
+            twophase_gen_boot <- twophase_design |>
+              as_gen_boot_design(
+                replicates = 5, tau = 1,
+                variance_estimator = list('SD2', 'Ultimate Cluster'),
+                psd_option = "warn"
+              )
+          }
+        )
+      })
+
+      suppressMessages({
+        suppressWarnings({
+          set.seed(2023)
+          gen_boot_reps <- twophase_design |>
+            get_design_quad_form(
+              variance_estimator = list('SD2', 'Ultimate Cluster')
+            ) |>
+            get_nearest_psd_matrix() |>
+            make_gen_boot_factors(
+              num_replicates = 5, tau = 1
+            )
+
+          expect_equal(
+            object = twophase_gen_boot$repweights,
+            expected = gen_boot_reps
+          )
+        })
+      })
+
+  })
+
+# Rescaling functions work as expected ----
+
+  test_that(
+    "Rescaling functions work as expected", {
+
+      suppressMessages({
+        suppressWarnings({
+          twophase_gen_boot <- twophase_design |>
+            as_gen_boot_design(
+              variance_estimator = list(
+                'SD2', 'Ultimate Cluster'
+              ),
+              replicates = 5, tau = 1
+            )
+        })
+      })
+
+      rescaled_design <- twophase_gen_boot |>
+        rescale_reps(tau = "auto", min_wgt = 0.05)
+      rescaled_matrix <- twophase_gen_boot |>
+        weights(type = "replication") |>
+        rescale_reps(tau = "auto", min_wgt = 0.05)
+
+    expect_equal(
+      object = rescaled_design |> weights(type = "replication"),
+      expected = rescaled_matrix
+    )
+
+    expect_gte(
+      object = min(rescaled_matrix), expected = 0.05
+    )
+
+    expect_equal(
+      object = matrix(c(1,0.3,0.02,2,3,4), ncol = 3) |>
+        rescale_reps(min_wgt = 0.02) |>
+        `attr<-`('tau', NULL),
+      expected = matrix(c(1,0.3,0.02,2,3,4), ncol = 3)
+    )
+
+  })
 
 # Sanity check results ----
 

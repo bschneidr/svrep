@@ -9,6 +9,7 @@ as_gen_boot_design(
   variance_estimator = NULL,
   replicates = 500,
   tau = "auto",
+  psd_option = "warn",
   mse = getOption("survey.replicates.mse"),
   compress = TRUE
 )
@@ -25,6 +26,9 @@ Options include:
   first-order and second-order inclusion probabilities.}
   \item{\strong{"Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator based on
   first-order and second-order inclusion probabilities.}
+  \item{\strong{"Poisson Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator
+  based on assuming Poisson sampling, with first-order inclusion probabilities
+  inferred from the sampling probabilities of the survey design object.}
   \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
   based on estimating the variance of cluster totals within strata at each stage.}
   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
@@ -47,6 +51,21 @@ if all of the adjustment factors are nonnegative, then \code{tau} is set equal t
 otherwise, \code{tau} is set to the smallest value needed to rescale
 the adjustment factors such that they are all at least \code{0.01}.}
 
+\item{psd_option}{Either \code{"warn"} (the default) or \code{"error"}.
+This option specifies what will happen if the target variance estimator
+has a quadratic form matrix which is not positive semidefinite. This
+can occasionally happen, particularly for two-phase designs. \cr
+If \code{psd_option="error"}, then an error message will be displayed. \cr
+If \code{psd_option="warn"}, then a warning message will be displayed,
+and the quadratic form matrix will be approximated by the most similar
+positive semidefinite matrix.
+This approximation was suggested by Beaumont and Patak (2012),
+who note that this is conservative in the sense of producing
+overestimates of variance.
+Beaumont and Patak (2012) argue that this overestimation is expected to be
+small in magnitude. See \code{\link[svrep]{get_nearest_psd_matrix}}
+for details of the approximation.}
+
 \item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
 
@@ -65,7 +84,7 @@ Converts a survey design object to a replicate design object
 with replicate weights formed using the generalized bootstrap method.
 The generalized survey bootstrap is a method for forming bootstrap replicate weights
 from a textbook variance estimator, provided that the variance estimator
-can be represented as a quadratic form whose matrix is positive semi-definite
+can be represented as a quadratic form whose matrix is positive semidefinite
 (this covers a large class of variance estimators).
 }
 \section{Statistical Details}{
@@ -74,7 +93,7 @@ Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated popu
 The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
 Suppose we can represent our textbook variance estimator as a quadratic form: \eqn{v(\hat{T}_y) = \breve{y}\Sigma\breve{y}^T},
 for some \eqn{n \times n} matrix \eqn{\Sigma}.
-The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semi-definite.
+The only constraint on \eqn{\Sigma} is that, for our sample, it must be symmetric and positive semidefinite.
 
 The bootstrapping process creates \eqn{B} sets of replicate weights, where the \eqn{b}-th set of replicate weights is a vector of length \eqn{n} denoted \eqn{\mathbf{a}^{(b)}}, whose \eqn{k}-th value is denoted \eqn{a_k^{(b)}}.
 This yields \eqn{B} replicate estimates of the population total, \eqn{\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k}, for \eqn{b=1, \ldots B}, which can be used to estimate sampling variance.
@@ -133,6 +152,9 @@ The \strong{Horvitz-Thompson} variance estimator:
 \deqn{
   v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
 }
+The \strong{Poisson Horvitz-Thompson} variance estimator
+is simply the Horvitz-Thompson variance estimator, but
+where \eqn{\pi_{ij}=\pi_i \times \pi_j}, which is the case for Poisson sampling. \cr \cr
 The \strong{Yates-Grundy} variance estimator:
 \deqn{
   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
@@ -190,6 +212,20 @@ the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1
 which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
 }
 
+\section{Two-Phase Designs}{
+
+For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
+with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
+In two-phase designs, only the following estimators may be used for the second phase:
+\itemize{
+  \item "Ultimate Cluster"
+  \item "Stratified Multistage SRS"
+  \item "Poisson Horvitz-Thompson"
+}
+For statistical details on the handling of two-phase designs,
+see the documentation for \link[svrep]{make_twophase_quad_form}.
+}
+
 \examples{
 \dontrun{
 library(survey)
@@ -242,6 +278,43 @@ library(survey)
    ## Estimate sampling variances
    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
    svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
+
+# Example 3: Two-phase sample ----
+# -- First stage is stratified systematic sampling,
+# -- second stage is response/nonresponse modeled as Poisson sampling
+
+  nonresponse_model <- glm(
+    data = library_stsys_sample,
+    family = quasibinomial('logit'),
+    formula = I(RESPONSE_STATUS == "Survey Respondent") ~ 1,
+    weights = 1/library_stsys_sample$SAMPLING_PROB
+  )
+
+  library_stsys_sample[['RESPONSE_PROPENSITY']] <- predict(
+    nonresponse_model,
+    newdata = library_stsys_sample,
+    type = "response"
+  )
+
+  twophase_design <- twophase(
+    data = library_stsys_sample,
+    # Identify cases included in second phase sample
+    subset = ~ I(RESPONSE_STATUS == "Survey Respondent"),
+    strata = list(~ SAMPLING_STRATUM, NULL),
+    id = list(~ 1, ~ 1),
+    probs = list(NULL, ~ RESPONSE_PROPENSITY),
+    fpc = list(~ STRATUM_POP_SIZE, NULL),
+  )
+
+  twophase_boot_design <- as_gen_boot_design(
+    design = twophase_design,
+    variance_estimator = list(
+      "SD2", "Poisson Horvitz-Thompson"
+    )
+  )
+
+  svytotal(x = ~ LIBRARIA, design = twophase_boot_design)
+
 }
 }
 \references{
@@ -253,7 +326,7 @@ in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein 
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 \cr \cr
-Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
+- Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
 \cr \cr
 - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
@@ -270,4 +343,6 @@ Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the num
 For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 represent several common variance estimators as a quadratic form's matrix,
 which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
+The function \code{\link[svrep]{rescale_reps}} is used to implement
+the rescaling of the bootstrap adjustment factors.
 }
