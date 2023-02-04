@@ -16,11 +16,15 @@
 #'  then \code{tau} is set equal to 1;
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{min_wgt}.
-#' @param min_wgt Only used if \code{tau='auto'}. Specifies the minimum value for the rescaled weights.
+#' @param min_wgt Only used if \code{tau='auto'}. Specifies the minimum acceptable value for the rescaled weights.
+#' Must be at least zero and must be less than one.
+#' @param digits Only used if \code{tau='auto'}. Specifies the number of decimal places
+#' to use for choosing \code{tau}. Using a smaller number of \code{digits}
+#' is useful simply for producing easier-to-read documentation.
 #'
 #' @return If the input is a numeric matrix, returns the rescaled matrix.
 #' If the input is a replicate survey design object, returns an updated replicate survey design object.
-#' \cr
+#'
 #' For a replicate survey design object, results depend on
 #' whether the object has a matrix of replicate factors rather than
 #' a matrix of replicate weights (which are the product of replicate factors and sampling weights).
@@ -28,7 +32,7 @@
 #' then the replication factors are adjusted.
 #' If the design object has \code{combined.weights=TRUE},
 #' then the replicate weights are adjusted.
-#' \cr
+#'
 #' For a replicate survey design object, the \code{scale} element
 #' of the design object will be updated appropriately,
 #' and an element \code{tau} will also be added.
@@ -100,23 +104,28 @@
 #'
 #'  print(boot_wgts)
 #'  print(rescaled_boot_wgts)
-rescale_reps <- function(x, tau = "auto", min_wgt = 0.01) {
+rescale_reps <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
 
   if (length(tau) != 1 || is.na(tau) || (tau != "auto" & !is.numeric(tau)) || (is.numeric(tau) & tau < 0)) {
     stop("`tau` must be either 'auto' or a single positive number.")
+  }
+  if ((tau == "auto") && (min_wgt < 0 || min_wgt > 1)) {
+    stop("When `tau='auto'`, the argument `min_wgt` must be at least 0 and less than 1.")
   }
 
   UseMethod("rescale_reps", x)
 }
 
 #' @export
-rescale_reps.svyrep.design <- function(x, tau = "auto", min_wgt = 0.01) {
+rescale_reps.svyrep.design <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
 
   rep_weights <- weights(x, type = "replication")
   if (any(rep_weights < min_wgt)) {
     if (tau == "auto") {
-      rescaling_constant <- max(1 - rep_weights) + min_wgt
-      rescaling_constant <- ceiling(rescaling_constant * 100)/100
+      rescaling_constant <- min((1-rep_weights)/(min_wgt-1))
+      rescaling_constant <- abs(rescaling_constant)
+      k <- 10^digits
+      rescaling_constant <- ceiling(rescaling_constant * k)/k
     } else {
       rescaling_constant <- tau
     }
@@ -136,11 +145,12 @@ rescale_reps.svyrep.design <- function(x, tau = "auto", min_wgt = 0.01) {
 }
 
 #' @export
-rescale_reps.matrix <- function(x, tau = "auto", min_wgt = 0.01) {
+rescale_reps.matrix <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
   rep_weights <- x
   if (any(rep_weights < min_wgt)) {
     if (tau == "auto") {
-      rescaling_constant <- max(1 - rep_weights) + min_wgt
+      rescaling_constant <- min((1-rep_weights)/(min_wgt-1))
+      rescaling_constant <- abs(rescaling_constant)
       rescaling_constant <- ceiling(rescaling_constant * 100)/100
     } else {
       rescaling_constant <- tau
@@ -151,6 +161,10 @@ rescale_reps.matrix <- function(x, tau = "auto", min_wgt = 0.01) {
     rescaled_rep_weights <- rep_weights
   }
   attr(rescaled_rep_weights, 'tau') <- rescaling_constant
+  orig_scale <- attr(x, "scale")
+  if (!is.null(orig_scale)) {
+    attr(rescaled_rep_weights, 'scale') <- (rescaling_constant^2) * orig_scale
+  }
   return(rescaled_rep_weights)
 }
 

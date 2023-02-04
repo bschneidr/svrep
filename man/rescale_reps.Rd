@@ -4,7 +4,7 @@
 \alias{rescale_reps}
 \title{Rescale replicate factors to have specified lower bound}
 \usage{
-rescale_reps(x, tau = "auto", min_wgt = 0.01)
+rescale_reps(x, tau = "auto", min_wgt = 0.01, digits = 2)
 }
 \arguments{
 \item{x}{Either a replicate survey design object,
@@ -19,12 +19,17 @@ if all of the adjustment factors exceed the minimum value \code{min_wgt},
 otherwise, \code{tau} is set to the smallest value needed to rescale
 the adjustment factors such that they are all at least \code{min_wgt}.}
 
-\item{min_wgt}{Only used if \code{tau='auto'}. Specifies the minimum value for the rescaled weights.}
+\item{min_wgt}{Only used if \code{tau='auto'}. Specifies the minimum acceptable value for the rescaled weights.
+Must be at least zero and must be less than one.}
+
+\item{digits}{Only used if \code{tau='auto'}. Specifies the number of decimal places
+to use for choosing \code{tau}. Using a smaller number of \code{digits}
+is useful simply for producing easier-to-read documentation.}
 }
 \value{
 If the input is a numeric matrix, returns the rescaled matrix.
 If the input is a replicate survey design object, returns an updated replicate survey design object.
-\cr
+
 For a replicate survey design object, results depend on
 whether the object has a matrix of replicate factors rather than
 a matrix of replicate weights (which are the product of replicate factors and sampling weights).
@@ -32,7 +37,7 @@ If the design object has \code{combined.weights=FALSE},
 then the replication factors are adjusted.
 If the design object has \code{combined.weights=TRUE},
 then the replicate weights are adjusted.
-\cr
+
 For a replicate survey design object, the \code{scale} element
 of the design object will be updated appropriately,
 and an element \code{tau} will also be added.
