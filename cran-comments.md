@@ -7,10 +7,6 @@ about DOI links in the DESCRIPTION. The links are valid,
 but it seems the URL checker isn't working correctly for
 these DOI links.
 
-* This is a patch release to fix a bug that would occur
-frequently in practice. Apologies for submitting this
-CRAN release soon after the last one.
-
 ## Downstream dependencies
 
 * This package does not yet have any downstream dependencies.
