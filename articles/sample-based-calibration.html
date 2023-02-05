@@ -8,8 +8,8 @@
 <meta name="description" content="svrep">
 <title>Calibrating to Estimated Control Totals • svrep</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Calibrating to Estimated Control Totals">
 <meta property="og:description" content="svrep">
@@ -44,6 +44,7 @@
     <a class="dropdown-item" href="../articles/bootstrap-replicates.html">Bootstrap Methods for Surveys</a>
     <a class="dropdown-item" href="../articles/nonresponse-adjustments.html">Nonresponse Adjustments</a>
     <a class="dropdown-item" href="../articles/sample-based-calibration.html">Calibrating to Estimated Control Totals</a>
+    <a class="dropdown-item" href="../articles/two-phase-sampling.html">Replication Methods for Two-phase Sampling</a>
   </div>
 </li>
 <li class="nav-item">
@@ -82,9 +83,9 @@
 
     
     
-<div class="section level3">
-<h3 id="sample-based-calibration-an-introduction">Sample-based Calibration: An Introduction<a class="anchor" aria-label="anchor" href="#sample-based-calibration-an-introduction"></a>
-</h3>
+<div class="section level2">
+<h2 id="sample-based-calibration-an-introduction">Sample-based Calibration: An Introduction<a class="anchor" aria-label="anchor" href="#sample-based-calibration-an-introduction"></a>
+</h2>
 <p>Calibration weighting adjustments such as post-stratification or
 raking are often helpful for reducing sampling variance or non-sampling
 errors such as nonresponse bias. Typically, the benchmark data used for
@@ -122,9 +123,9 @@ method of <span class="citation">Opsomer and Erciulescu (2021)</span>
 requires the analyst to use the full dataset for the control survey
 along with associated replicate weights.</p>
 </div>
-<div class="section level3">
-<h3 id="functions-for-implementing-sample-based-calibration">Functions for Implementing Sample-Based Calibration<a class="anchor" aria-label="anchor" href="#functions-for-implementing-sample-based-calibration"></a>
-</h3>
+<div class="section level2">
+<h2 id="functions-for-implementing-sample-based-calibration">Functions for Implementing Sample-Based Calibration<a class="anchor" aria-label="anchor" href="#functions-for-implementing-sample-based-calibration"></a>
+</h2>
 <p>The ‘svrep’ package provides two functions to implement sample-based
 calibration.</p>
 <p>With the function <code><a href="../reference/calibrate_to_estimate.html">calibrate_to_estimate()</a></code>, adjustments
@@ -158,9 +159,9 @@ calibration weights, and the arguments such as <code>maxit</code> or
 <code>epsilon</code> allow finer control over the Newton-Raphson
 algorithm used to implement calibration.</p>
 </div>
-<div class="section level3">
-<h3 id="an-example-using-a-vaccination-survey">An Example Using a Vaccination Survey<a class="anchor" aria-label="anchor" href="#an-example-using-a-vaccination-survey"></a>
-</h3>
+<div class="section level2">
+<h2 id="an-example-using-a-vaccination-survey">An Example Using a Vaccination Survey<a class="anchor" aria-label="anchor" href="#an-example-using-a-vaccination-survey"></a>
+</h2>
 <p>To illustrate the different methods for conducting sample-based
 calibration, we’ll use an example survey measuring Covid-19 vaccination
 status and a handful of demographic variables, based on a simple random
@@ -435,9 +436,9 @@ survey design of interest. This may require some data manipulation.</p>
 <span><span class="co">#&gt; SEXMale                                                               0.0223</span></span>
 <span><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  0.0223</span></span>
 <span><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  0.0223</span></span></code></pre></div>
-<div class="section level4">
-<h4 id="raking-to-estimated-control-totals">Raking to estimated control totals<a class="anchor" aria-label="anchor" href="#raking-to-estimated-control-totals"></a>
-</h4>
+<div class="section level3">
+<h3 id="raking-to-estimated-control-totals">Raking to estimated control totals<a class="anchor" aria-label="anchor" href="#raking-to-estimated-control-totals"></a>
+</h3>
 <p>We’ll start by raking to estimates from the ACS for race/ethnicity,
 sex, and educational attainment, first using the
 <code><a href="../reference/calibrate_to_sample.html">calibrate_to_sample()</a></code> method and then using the
@@ -792,13 +793,13 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">13414.6395</td>
-<td align="right">13406.0310</td>
+<td align="right">13395.0308</td>
+<td align="right">13422.4760</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">13413.0756</td>
-<td align="right">13422.7053</td>
+<td align="right">13400.4044</td>
+<td align="right">13407.4831</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
@@ -843,9 +844,9 @@ Hispanic or Latino</td>
 </tbody>
 </table>
 </div>
-<div class="section level4">
-<h4 id="post-stratification">Post-stratification<a class="anchor" aria-label="anchor" href="#post-stratification"></a>
-</h4>
+<div class="section level3">
+<h3 id="post-stratification">Post-stratification<a class="anchor" aria-label="anchor" href="#post-stratification"></a>
+</h3>
 <p>The primary difference between post-stratification and raking is that
 post-stratification essentially involves only a single calibration
 variable, with population benchmarks provided for each value of that
@@ -1085,17 +1086,17 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">0.0234568</td>
-<td align="right">0.0234407</td>
+<td align="right">0.0234608</td>
+<td align="right">0.0234823</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">0.0234568</td>
-<td align="right">0.0234407</td>
+<td align="right">0.0234608</td>
+<td align="right">0.0234823</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
-<td align="right">0.0009757</td>
+<td align="right">0.0009762</td>
 <td align="right">0.0009765</td>
 </tr>
 <tr class="even">
@@ -1105,41 +1106,41 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se5</td>
-<td align="right">0.0007810</td>
+<td align="right">0.0007811</td>
 <td align="right">0.0007802</td>
 </tr>
 <tr class="even">
 <td align="left">se6</td>
-<td align="right">0.0007033</td>
+<td align="right">0.0007037</td>
 <td align="right">0.0007036</td>
 </tr>
 <tr class="odd">
 <td align="left">se7</td>
-<td align="right">0.0007463</td>
+<td align="right">0.0007464</td>
 <td align="right">0.0007464</td>
 </tr>
 <tr class="even">
 <td align="left">se8</td>
-<td align="right">0.0007463</td>
+<td align="right">0.0007464</td>
 <td align="right">0.0007464</td>
 </tr>
 <tr class="odd">
 <td align="left">se9</td>
-<td align="right">0.0033336</td>
+<td align="right">0.0033292</td>
 <td align="right">0.0033324</td>
 </tr>
 <tr class="even">
 <td align="left">se10</td>
-<td align="right">0.0033336</td>
+<td align="right">0.0033292</td>
 <td align="right">0.0033324</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<div class="section level3">
-<h3 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
-</h3>
+<div class="section level2">
+<h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
+</h2>
 <p>The calibration methods for <code><a href="../reference/calibrate_to_estimate.html">calibrate_to_estimate()</a></code> and
 <code><a href="../reference/calibrate_to_sample.html">calibrate_to_sample()</a></code> involve one element of randomization:
 determining which columns of replicate weights are assigned to a given
@@ -1161,8 +1162,7 @@ control totals, we can use the function argument
 <span>                             size <span class="op">=</span> <span class="va">dimension_of_control_totals</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">columns_to_perturb</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1]  297  809   21  687  996   66  531  823  349  198  812 1000  607  828  209</span></span>
-<span><span class="co">#&gt; [16]  871</span></span>
+<span><span class="co">#&gt;  [1] 688 348 958 164 903 257  51 848 199 510  46 310 129 655 706 587</span></span>
 <span></span>
 <span><span class="co"># Perform the calibration</span></span>
 <span><span class="va">poststratified_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_to_estimate.html">calibrate_to_estimate</a></span><span class="op">(</span></span>

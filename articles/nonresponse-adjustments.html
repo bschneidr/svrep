@@ -8,8 +8,8 @@
 <meta name="description" content="svrep">
 <title>Nonresponse Adjustments • svrep</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Nonresponse Adjustments">
 <meta property="og:description" content="svrep">
@@ -44,6 +44,7 @@
     <a class="dropdown-item" href="../articles/bootstrap-replicates.html">Bootstrap Methods for Surveys</a>
     <a class="dropdown-item" href="../articles/nonresponse-adjustments.html">Nonresponse Adjustments</a>
     <a class="dropdown-item" href="../articles/sample-based-calibration.html">Calibrating to Estimated Control Totals</a>
+    <a class="dropdown-item" href="../articles/two-phase-sampling.html">Replication Methods for Two-phase Sampling</a>
   </div>
 </li>
 <li class="nav-item">
@@ -82,19 +83,19 @@
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span> <span class="co"># For data manipulation</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span> <span class="co"># For complex survey analysis</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a></span><span class="op">)</span> <span class="co"># For complex survey analysis with dplyr syntax</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bschneidr.github.io/svrep/">svrep</a></span><span class="op">)</span></span></code></pre></div>
 <p>In this short vignette, we’ll demonstrate how the svrep package can
 be used to implement weighting adjustments for nonresponse in survey
 samples. For illustration, we’ll use an example survey measuring
 Covid-19 vaccination status and a handful of demographic variables,
 based on a simple random sample of 1,000 residents of Louisville,
 Kentucky.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load and inspect the data</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span> <span class="co"># For data manipulation</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span> <span class="co"># For complex survey analysis</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a></span><span class="op">)</span> <span class="co"># For complex survey analysis with dplyr syntax</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bschneidr.github.io/svrep/">svrep</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load and inspect the data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lou_vax_survey"</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lou_vax_survey</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 6</span></span></span>
@@ -115,7 +116,7 @@ Kentucky.</p>
 means that estimated vaccination rates may be significantly biased by
 nonresponse. We’ll use nonresponse weighting adjustments to try and
 reduce potential nonresponse bias.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lou_vax_survey</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">RESPONSE_STATUS</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>pct <span class="op">=</span> <span class="va">n</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
 <span><span class="co">#&gt;   RESPONSE_STATUS     n   pct</span></span>
@@ -136,7 +137,7 @@ create several types of replicate weights, using the argument
 In addition, the function <code><a href="../reference/as_bootstrap_design.html">as_bootstrap_design()</a></code> can be used
 to create bootstrap weights using additional methods not supported in
 the ‘survey’ package.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Describe the survey design</span></span>
 <span><span class="va">lou_vax_survey</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span>ids <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, weights <span class="op">=</span> <span class="op">~</span> <span class="va">SAMPLING_WEIGHT</span>,</span>
 <span>                            data <span class="op">=</span> <span class="va">lou_vax_survey</span><span class="op">)</span></span>
@@ -159,7 +160,7 @@ object with class <code>tbl_svy</code>, which allows us to use
 convenient tidyverse/dplyr syntax (<code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by()</a></code>,
 <code><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize()</a></code>, etc.) as well as other helpful functions from
 the srvyr package.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lou_vax_survey</span> <span class="op">&lt;-</span> <span class="va">lou_vax_survey</span> <span class="op">|&gt;</span> <span class="fu"><a href="http://gdfe.co/srvyr/reference/as_survey.html" class="external-link">as_survey</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">lou_vax_survey</span><span class="op">)</span></span>
@@ -205,7 +206,7 @@ f_{NR_i} &amp;= \begin{cases}
 <p>We’ll illustrate this type of adjustment with the Louisville
 vaccination survey. First, we’ll inspect the sum of the sampling weights
 for respondents, nonrespondents, and the overall sample.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Weights before adjustment</span></span>
 <span><span class="va">lou_vax_survey</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">RESPONSE_STATUS</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -226,7 +227,7 @@ specify which subset of data should have its weights reduced, we supply
 a logical expression to the argument <code>reduce_if</code>. To specify
 which subset of data should have its weights increased, we supply a
 logical expression to the argument <code>increase_if</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Conduct a basic nonresponse adjustment</span></span>
 <span><span class="va">nr_adjusted_survey</span> <span class="op">&lt;-</span> <span class="va">lou_vax_survey</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/redistribute_weights.html">redistribute_weights</a></span><span class="op">(</span></span>
@@ -235,7 +236,7 @@ logical expression to the argument <code>increase_if</code>.</p>
 <span>  <span class="op">)</span></span></code></pre></div>
 <p>After making the adjustment, we can check that all of the weight from
 nonrespondents has been redistributed to respondents.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check the sum of full-sample weights by response status</span></span>
 <span><span class="va">nr_adjusted_survey</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">RESPONSE_STATUS</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -249,7 +250,7 @@ nonrespondents has been redistributed to respondents.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Nonrespondent                  0</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Respondent                <span style="text-decoration: underline;">596</span>702</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> TOTAL                     <span style="text-decoration: underline;">596</span>702</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check sums of replicate weights by response status</span></span>
 <span><span class="va">nr_adjusted_survey</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/summarize_rep_weights.html">summarize_rep_weights</a></span><span class="op">(</span></span>
@@ -260,26 +261,26 @@ nonrespondents has been redistributed to respondents.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    RESPONSE_STATUS Rep_Column   N N_NONZERO    SUM     MEAN        CV MIN</span></span>
 <span><span class="co">#&gt; 1    Nonrespondent          1 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 2       Respondent          1 502       312 596702 1188.649 1.0256339   0</span></span>
+<span><span class="co">#&gt; 2       Respondent          1 502       313 596702 1188.649 1.0200715   0</span></span>
 <span><span class="co">#&gt; 3    Nonrespondent          2 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 4       Respondent          2 502       317 596702 1188.649 1.0164048   0</span></span>
+<span><span class="co">#&gt; 4       Respondent          2 502       324 596702 1188.649 0.9788571   0</span></span>
 <span><span class="co">#&gt; 5    Nonrespondent          3 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 6       Respondent          3 502       331 596702 1188.649 0.9238448   0</span></span>
+<span><span class="co">#&gt; 6       Respondent          3 502       321 596702 1188.649 0.9783896   0</span></span>
 <span><span class="co">#&gt; 7    Nonrespondent          4 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 8       Respondent          4 502       321 596702 1188.649 1.0084513   0</span></span>
+<span><span class="co">#&gt; 8       Respondent          4 502       336 596702 1188.649 0.9367208   0</span></span>
 <span><span class="co">#&gt; 9    Nonrespondent          5 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 10      Respondent          5 502       333 596702 1188.649 0.9228029   0</span></span>
+<span><span class="co">#&gt; 10      Respondent          5 502       316 596702 1188.649 0.9989046   0</span></span>
 <span><span class="co">#&gt;         MAX</span></span>
 <span><span class="co">#&gt; 1     0.000</span></span>
-<span><span class="co">#&gt; 2  5793.223</span></span>
+<span><span class="co">#&gt; 2  6951.868</span></span>
 <span><span class="co">#&gt; 3     0.000</span></span>
-<span><span class="co">#&gt; 4  5737.519</span></span>
+<span><span class="co">#&gt; 4  5693.721</span></span>
 <span><span class="co">#&gt; 5     0.000</span></span>
-<span><span class="co">#&gt; 6  4563.686</span></span>
+<span><span class="co">#&gt; 6  5990.984</span></span>
 <span><span class="co">#&gt; 7     0.000</span></span>
-<span><span class="co">#&gt; 8  7020.024</span></span>
+<span><span class="co">#&gt; 8  6951.868</span></span>
 <span><span class="co">#&gt; 9     0.000</span></span>
-<span><span class="co">#&gt; 10 4661.734</span></span></code></pre></div>
+<span><span class="co">#&gt; 10 5990.984</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="conducting-weighting-class-adjustments">Conducting weighting class adjustments<a class="anchor" aria-label="anchor" href="#conducting-weighting-class-adjustments"></a>
@@ -290,7 +291,7 @@ also differ in terms of what the survey is trying to measure (in this
 case, vaccination status). In our example, we can see some fairly large
 differences in response rates across different race/ethnicity
 groups.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lou_vax_survey</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">RACE_ETHNICITY</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>Response_Rate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">RESPONSE_STATUS</span> <span class="op">==</span> <span class="st">"Respondent"</span><span class="op">)</span>,</span>
@@ -314,7 +315,7 @@ The survey textbook Heeringa, West, and Berglund (2017) provides an
 excellent overview of weighting class adjustments. To implement a
 weighting class adjustment with the svrep package, we can simply use the
 <code>by</code> argument of <code><a href="../reference/redistribute_weights.html">redistribute_weights()</a></code>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nr_adjusted_survey</span> <span class="op">&lt;-</span> <span class="va">lou_vax_survey</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/redistribute_weights.html">redistribute_weights</a></span><span class="op">(</span></span>
 <span>    reduce_if <span class="op">=</span> <span class="va">RESPONSE_STATUS</span> <span class="op">==</span> <span class="st">"Nonrespondent"</span>,</span>
@@ -333,7 +334,7 @@ response propensities (known as <strong>propensity cell
 adjustment</strong>) can also be used, for example by adding a variable
 <code>PROPENSITY_CELL</code> to the data and using
 <code>redistribute_weights(..., by = "PROPENSITY_CELL")</code>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit a response propensity model</span></span>
 <span><span class="va">response_propensity_model</span> <span class="op">&lt;-</span> <span class="va">lou_vax_survey</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>IS_RESPONDENT <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">RESPONSE_STATUS</span> <span class="op">==</span> <span class="st">"Respondent"</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -350,7 +351,7 @@ adjustment</strong>) can also be used, for example by adding a variable
 <span></span>
 <span><span class="co"># Divide sample into propensity classes</span></span>
 <span><span class="va">lou_vax_survey</span> <span class="op">&lt;-</span> <span class="va">lou_vax_survey</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>PROPENSITY_CELL <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/ranking.html" class="external-link">ntile</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">RESPONSE_PROPENSITY</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>PROPENSITY_CELL <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/ntile.html" class="external-link">ntile</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">RESPONSE_PROPENSITY</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">lou_vax_survey</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">PROPENSITY_CELL</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -385,16 +386,16 @@ adjustment</strong>) can also be used, for example by adding a variable
 <span>         <span class="va">N_NONZERO</span>, <span class="va">SUM</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    PROPENSITY_CELL Rep_Column N_NONZERO      SUM</span></span>
-<span><span class="co">#&gt; 1                1          1       125 129016.6</span></span>
-<span><span class="co">#&gt; 2                2          1       121 116473.4</span></span>
-<span><span class="co">#&gt; 3                3          1       122 114084.2</span></span>
-<span><span class="co">#&gt; 4                4          1       124 123043.7</span></span>
-<span><span class="co">#&gt; 5                5          1       122 114084.2</span></span>
-<span><span class="co">#&gt; 6                1          2       117 105124.7</span></span>
-<span><span class="co">#&gt; 7                2          2       129 120057.2</span></span>
-<span><span class="co">#&gt; 8                3          2       130 130211.2</span></span>
-<span><span class="co">#&gt; 9                4          2       123 117070.7</span></span>
-<span><span class="co">#&gt; 10               5          2       128 124238.3</span></span>
+<span><span class="co">#&gt; 1                1          1       126 111695.0</span></span>
+<span><span class="co">#&gt; 2                2          1       131 123043.7</span></span>
+<span><span class="co">#&gt; 3                3          1       125 117668.0</span></span>
+<span><span class="co">#&gt; 4                4          1       128 123043.7</span></span>
+<span><span class="co">#&gt; 5                5          1       133 121251.8</span></span>
+<span><span class="co">#&gt; 6                1          2       135 127822.1</span></span>
+<span><span class="co">#&gt; 7                2          2       123 118265.3</span></span>
+<span><span class="co">#&gt; 8                3          2       120 111097.7</span></span>
+<span><span class="co">#&gt; 9                4          2       135 124835.6</span></span>
+<span><span class="co">#&gt; 10               5          2       125 114681.5</span></span>
 <span></span>
 <span><span class="co"># Inspect weights after adjustment</span></span>
 <span><span class="va">nr_adjusted_survey</span> <span class="op">|&gt;</span></span>
@@ -406,15 +407,15 @@ adjustment</strong>) can also be used, for example by adding a variable
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    PROPENSITY_CELL RESPONSE_STATUS Rep_Column N_NONZERO      SUM</span></span>
 <span><span class="co">#&gt; 1                1   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 2                1      Respondent          1        58 129016.6</span></span>
+<span><span class="co">#&gt; 2                1      Respondent          1        49 111695.0</span></span>
 <span><span class="co">#&gt; 3                2   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 4                2      Respondent          1        57 116473.4</span></span>
+<span><span class="co">#&gt; 4                2      Respondent          1        59 123043.7</span></span>
 <span><span class="co">#&gt; 5                3   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 6                3      Respondent          1        58 114084.2</span></span>
+<span><span class="co">#&gt; 6                3      Respondent          1        58 117668.0</span></span>
 <span><span class="co">#&gt; 7                4   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 8                4      Respondent          1        66 123043.7</span></span>
+<span><span class="co">#&gt; 8                4      Respondent          1        68 123043.7</span></span>
 <span><span class="co">#&gt; 9                5   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 10               5      Respondent          1        73 114084.2</span></span></code></pre></div>
+<span><span class="co">#&gt; 10               5      Respondent          1        79 121251.8</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -424,7 +425,7 @@ adjustment</strong>) can also be used, for example by adding a variable
 with the analysis variables and columns of replicate weights. This
 format is easy to export to data files that can be loaded into R or
 other software later.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data_frame_with_nr_adjusted_weights</span> <span class="op">&lt;-</span> <span class="va">nr_adjusted_survey</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/as_data_frame_with_weights.html">as_data_frame_with_weights</a></span><span class="op">(</span></span>
 <span>    full_wgt_name <span class="op">=</span> <span class="st">"NR_ADJ_WGT"</span>,</span>
@@ -437,7 +438,7 @@ other software later.</p>
 <span><span class="co">#&gt;  [4] "EDUC_ATTAINMENT"     "VAX_STATUS"          "SAMPLING_WEIGHT"    </span></span>
 <span><span class="co">#&gt;  [7] "RESPONSE_PROPENSITY" "PROPENSITY_CELL"     "NR_ADJ_WGT"         </span></span>
 <span><span class="co">#&gt; [10] "NR_ADJ_REP_WGT_1"    "NR_ADJ_REP_WGT_2"    "NR_ADJ_REP_WGT_3"</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Write the data to a CSV file</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">data_frame_with_nr_adjusted_weights</span>,</span>

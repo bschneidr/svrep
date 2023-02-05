@@ -19,6 +19,9 @@
     <loc>https://bschneidr.github.io/svrep/articles/sample-based-calibration.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/articles/two-phase-sampling.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/authors.html</loc>
   </url>
   <url>
@@ -52,7 +55,19 @@
     <loc>https://bschneidr.github.io/svrep/reference/estimate_boot_sim_cv.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/reference/get_design_quad_form.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/get_nearest_psd_matrix.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/ht_matrix_to_joint_probs.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/is_psd_matrix.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/libraries.html</loc>
@@ -82,7 +97,13 @@
     <loc>https://bschneidr.github.io/svrep/reference/make_srswor_matrix.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/reference/make_twophase_quad_form.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/reference/redistribute_weights.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/rescale_reps.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/shift_weight.html</loc>

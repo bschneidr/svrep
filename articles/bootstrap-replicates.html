@@ -8,8 +8,8 @@
 <meta name="description" content="svrep">
 <title>Bootstrap Methods for Surveys • svrep</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Bootstrap Methods for Surveys">
 <meta property="og:description" content="svrep">
@@ -44,6 +44,7 @@
     <a class="dropdown-item" href="../articles/bootstrap-replicates.html">Bootstrap Methods for Surveys</a>
     <a class="dropdown-item" href="../articles/nonresponse-adjustments.html">Nonresponse Adjustments</a>
     <a class="dropdown-item" href="../articles/sample-based-calibration.html">Calibrating to Estimated Control Totals</a>
+    <a class="dropdown-item" href="../articles/two-phase-sampling.html">Replication Methods for Two-phase Sampling</a>
   </div>
 </li>
 <li class="nav-item">
@@ -86,8 +87,8 @@
 complex survey data and how to choose a bootstrap method and number of
 bootstrap replicates for a survey. It further demonstrates how to use
 functions from the “svrep” package to implement bootstrap methods and
-help decide the number of bootstrap replicates needed for your data. The
-functions covered in this vignette include:</p>
+help decide the number of bootstrap replicates needed for your data.</p>
+<p>The functions covered in this vignette include:</p>
 <p><strong>Functions for Creating Bootstrap Weights</strong>:</p>
 <ul>
 <li><p><code><a href="../reference/as_bootstrap_design.html">as_bootstrap_design()</a></code>, which converts a survey
@@ -107,8 +108,9 @@ survey design using the generalized survey bootstrap method as described
 by <span class="citation">Beaumont and Patak (2012)</span>.</p></li>
 <li><p><code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code>, which creates a matrix of
 replicate weights using the generalized survey bootstrap method. This
-function will usually be used in conjunction with the function
-<code><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix()</a></code>, which returns the quadratic form
+function will usually be used in conjunction with the functions
+<code><a href="../reference/get_design_quad_form.html">get_design_quad_form()</a></code> or
+<code><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix()</a></code>, which return the quadratic form
 matrix representation of common variance estimators.</p></li>
 </ul>
 <p><strong>Functions to Help Choose the Number of Bootstrap
@@ -121,102 +123,6 @@ the number of bootstrap replicates needed to reduce a bootstrap’s
 simulation error to a target level.</p></li>
 </ul>
 <div class="section level2">
-<h2 id="the-bootstrap-vs--other-replication-methods">The Bootstrap vs. Other Replication Methods<a class="anchor" aria-label="anchor" href="#the-bootstrap-vs--other-replication-methods"></a>
-</h2>
-<blockquote>
-<p>Far better an approximate answer to the right question, which is
-often vague, than the exact answer to the wrong question, which can
-always be made precise.</p>
-<p>-- John Tukey</p>
-<p>Ok, but what if the approximate answer is, like, <em>really</em>
-approximate or requires a whole lot of computing?</p>
-<p>-- Survey sampling statisticians</p>
-</blockquote>
-<p>Survey bootstrap methods are directly applicable to a wider variety
-of sample designs than the jackknife or balanced repeated replication
-(BRR). Nonetheless, complex survey designs are often shoehorned into
-jackknife or BRR variance estimation by pretending that the actual
-survey design was something simpler. The BRR method, for instance, is
-only applicable to samples with two clusters sampled from each stratum,
-but statisticians frequently use it for designs with three or more
-sampled clusters by grouping the actual clusters into two
-pseudo-clusters. For designs with a large number of sampling units in a
-stratum, the exact jackknife (JK1 or JKn) requires a large number of
-replicates and so is often replaced by the “delete-a-group jackknife
-(DAGJK) which randomly groups clusters into larger pseudo-clusters.</p>
-<p>Why do statisticians go to all this effort to shoehorn their variance
-estimation problem into jackknife or BRR methods when they could just
-use the bootstrap?</p>
-<p>The simple answer is that bootstrap methods generally require many
-more replicates than other methods in order to obtain a stable variance
-estimate. And using a large number of replicates can be a problem if you
-have to do a large amount of computing or if your dataset is large and
-you’re concerned about storage costs. Statistical agencies are
-particularly sensitive to these concerns when they publish microdata,
-since agencies often serve a large number of end-users with varying
-computational resources.</p>
-<p><strong>So why use the bootstrap?</strong></p>
-<ol style="list-style-type: decimal">
-<li><p><strong>The bootstrap tends to works well for a larger class of
-statistics than the jackknife.</strong> For example, for estimating the
-sampling variance of an estimated median or other quantiles, the
-jackknife tends to perform poorly but bootstrap methods at least do an
-adequate job.</p></li>
-<li><p><strong>Bootstrap methods enable different options for forming
-confidence intervals.</strong> For all of the standard replication
-methods (BRR, Jackknife, etc.), confidence intervals are generally
-formed using a Wald interval (<span class="math inline">\(\hat{\theta}
-\pm \hat{se}(\hat{\theta}) \times z_{1-\frac{\alpha}{2}}\)</span>).<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Non-Wald methods are typically only used in practice for
-confidence intervals for proportions. These non-Wald methods are
-normally based on the point estimate, the standard error, and a measure
-of effective sample size.&lt;/p&gt;"><sup>1</sup></a> But for
-certain bootstrap methods, it is possible to also form confidence
-intervals using other approaches, such as the bootstrap percentile
-method.</p></li>
-<li>
-<p><strong>You can analyze your design rather than an approximation
-of your design, which can both reduce costs and better control
-errors</strong>. To use BRR for general survey designs, you have to
-approximate your actual survey design with a “two PSUs per stratum”
-design. This works surprisingly well in many cases, but it requires
-careful work on the part of a specially-trained statistician. For the
-jackknife with a large number of sampling units, you either end up with
-the same number of replicates as a bootstrap method or you have to
-randomly group your sampling units into a smaller number so you can use
-the DAGJK method to essentially approximate your actual survey design
-with a simpler one. Again, this takes careful work on the part of a
-specially-trained statistician.</p>
-<ol style="list-style-type: decimal">
-<li><p>By analyzing your design for what it is, <strong>you don’t have
-to pay a specially-trained statistician to meticulously approximate a
-design so that it can be shoehorned into a jackknife or BRR variance
-estimation problem</strong>, which is perhaps not the best use of a
-limited budget.</p></li>
-<li><p><strong>If the variance estimation is based on a bootstrap method
-tailored to the actual survey design, then the replication error in the
-variance estimates for key statistics is unbiased and can be quantified
-and controlled as a function of the number of replicates</strong>. In
-contrast, when variance estimation is based on approximating a design so
-that it can be shoehorned into a jackknife or BRR variance estimation
-problem, then the replication error in the variance estimates is more
-difficult to quantify and can consist of both noise and bias.</p></li>
-</ol>
-</li>
-<li><p><strong>For most statisticians, it’s probably easier to
-learn.</strong> The bootstrap is the most well-known replication method
-among general statisticians, to the point that it’s often taught in
-first-year undergraduate statistics courses. So the basic idea is
-already familiar even to statisticians with only passing familiarity
-with complex survey sampling. BRR, in contrast, takes specialized
-training to learn and entails pre-requisite concepts such as Hadamard
-matrices, partial balancing, and so on. Outside of survey statistics,
-the jackknife tends to be much less used (and taught) compared to the
-bootstrap, due to its limitations with non-smooth statistics and the
-complexity required to make it work efficiently for large sample
-sizes.</p></li>
-</ol>
-</div>
-<div class="section level2">
 <h2 id="choosing-a-bootstrap-method">Choosing a Bootstrap Method<a class="anchor" aria-label="anchor" href="#choosing-a-bootstrap-method"></a>
 </h2>
 <p>Essentially every bootstrap method commonly used for surveys can be
@@ -226,11 +132,13 @@ each stratum). However, things become more complicated for other types
 of sampling and care is needed to use a bootstrap method appropriate to
 the survey design. For many common designs used in practice, it is
 possible (and easy!) to use one of the bootstrap methods described in
-the section of this vignette titled “Basic Bootstrap Methods.” If the
-design isn’t appropriate for one of those basic bootstrap methods, then
-it may be possible to use the generalized survey bootstrap described in
-a later section of this vignette, which covers a wide range of designs.
-The interested reader is encouraged to read <span class="citation">Mashreghi, Haziza, and Léger (2016)</span> for an
+the section of this vignette titled “Basic Bootstrap Methods.”</p>
+<p>If the design isn’t appropriate for one of those basic bootstrap
+methods, then it may be possible to use the generalized survey bootstrap
+described in a later section of this vignette. The generalized survey
+bootstrap method can be used for especially complex designs, such as
+systematic sampling or two-phase sampling designs.</p>
+<p>The interested reader is encouraged to read <span class="citation">Mashreghi, Haziza, and Léger (2016)</span> for an
 overview of bootstrap methods developed for survey samples.</p>
 </div>
 <div class="section level2">
@@ -261,7 +169,7 @@ only applies to designs where the first stage of sampling is with
 replacement or where the first-stage sample fraction is small enough to
 be ignored. The Canty-Davison method is only applicable to single-stage
 designs with simple random sampling (with or without replacement) within
-strata.&lt;/p&gt;"><sup>2</sup></a> The following table summarizes these four
+strata.&lt;/p&gt;"><sup>1</sup></a> The following table summarizes these four
 basic bootstrap methods and their appropriateness for each of the common
 design features described earlier.</p>
 <table class="table">
@@ -361,9 +269,9 @@ sampling fraction</td>
 </tr>
 </tbody>
 </table>
-<div class="section level4">
-<h4 id="implementation">Implementation<a class="anchor" aria-label="anchor" href="#implementation"></a>
-</h4>
+<div class="section level3">
+<h3 id="implementation">Implementation<a class="anchor" aria-label="anchor" href="#implementation"></a>
+</h3>
 <p>To implement these basic bootstrap methods, we can create a survey
 design object with the <code><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign()</a></code> function from the survey
 package, and then convert this object to a bootstrap replicate design
@@ -458,9 +366,9 @@ specify <code>pps = "brewer"</code>.</p>
 </h2>
 <p>For sample designs with additional complex features beyond the three
 highlighted above, the generalized survey bootstrap method can be used.
-This is especially useful for systematic samples or for complex designs
-where one wishes to use a general-purpose estimator such as the
-Horvitz-Thompson or Yates-Grundy estimator.</p>
+This is especially useful for systematic samples, two-phase samples, or
+complex designs where one wishes to use a general-purpose estimator such
+as the Horvitz-Thompson or Yates-Grundy estimator.</p>
 <div class="section level3">
 <h3 id="statistical-background">Statistical Background<a class="anchor" aria-label="anchor" href="#statistical-background"></a>
 </h3>
@@ -519,6 +427,14 @@ estimator (see <span class="citation">Ash (2014)</span> for an overview
 of SDR).</li>
 </ul>
 </li>
+<li>
+<p>For two-phase samples:</p>
+<ul>
+<li>The double-expansion variance estimator described in Section 9.3 of
+<span class="citation">Särndal, Swensson, and Wretman
+(1992)</span>.</li>
+</ul>
+</li>
 </ul>
 <p>Once the textbook variance estimator has been selected and its
 quadratic form identified, the generalized survey bootstrap method
@@ -537,9 +453,9 @@ Method<a class="anchor" aria-label="anchor" href="#details-and-notation-for-the-
 <p>In this section, we describe the generalized survey bootstrap in
 greater detail, using the notation of <span class="citation">Beaumont
 and Patak (2012)</span>.</p>
-<div class="section level5">
-<h5 id="quadratic-forms">Quadratic Forms<a class="anchor" aria-label="anchor" href="#quadratic-forms"></a>
-</h5>
+<div class="section level4">
+<h4 id="quadratic-forms">Quadratic Forms<a class="anchor" aria-label="anchor" href="#quadratic-forms"></a>
+</h4>
 <p>Let <span class="math inline">\(v( \hat{T_y})\)</span> be the
 textbook variance estimator for an estimated population total <span class="math inline">\(\hat{T}_y\)</span> of some variable <span class="math inline">\(y\)</span>. The base weight for case <span class="math inline">\(i\)</span> in our sample is <span class="math inline">\(w_i\)</span>, and we let <span class="math inline">\(\breve{y}_i\)</span> denote the weighted value
 <span class="math inline">\(w_iy_i\)</span>.</p>
@@ -601,20 +517,32 @@ matrix of the “SD2” variance estimator we saw earlier.</p>
 <p>In the following example, we use this method to estimate the variance
 for a stratified systematic sample of U.S. public libraries. First, we
 create a quadratic form matrix to represent the SD2
-successive-difference estimator.</p>
+successive-difference estimator. This can be done by using the
+<code><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign()</a></code> function to describe the survey design and then
+using <code><a href="../reference/get_design_quad_form.html">get_design_quad_form()</a></code> to obtain the quadratic form
+for a specified variance estimator.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'library_stsys_sample'</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Represent the SD2 successive-difference estimator as a quadratic form,</span></span>
-<span><span class="co"># and obtain the matrix of that quadratic form</span></span>
-<span><span class="va">sd2_quad_form</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix</a></span><span class="op">(</span></span>
-<span>  variance_estimator <span class="op">=</span> <span class="st">'SD2'</span>,</span>
-<span>  cluster_ids <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">FSCSKEY</span><span class="op">)</span>,</span>
-<span>  strata_ids <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">SAMPLING_STRATUM</span><span class="op">)</span>,</span>
-<span>  strata_pop_sizes <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">STRATUM_POP_SIZE</span><span class="op">)</span>,</span>
-<span>  sort_order <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span> <span class="fu">pull</span><span class="op">(</span><span class="st">"SAMPLING_SORT_ORDER"</span><span class="op">)</span></span>
+<span><span class="co"># First, sort the rows in the order used in sampling</span></span>
+<span><span class="va">library_stsys_sample</span> <span class="op">&lt;-</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">SAMPLING_SORT_ORDER</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create a survey design object</span></span>
+<span><span class="va">survey_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">library_stsys_sample</span>,</span>
+<span>  ids <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>  strata <span class="op">=</span> <span class="op">~</span> <span class="va">SAMPLING_STRATUM</span>,</span>
+<span>  fpc <span class="op">=</span> <span class="op">~</span> <span class="va">STRATUM_POP_SIZE</span></span>
 <span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Obtain the quadratic form for the target estimator</span></span>
+<span><span class="va">sd2_quad_form</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_design_quad_form.html">get_design_quad_form</a></span><span class="op">(</span></span>
+<span>  design <span class="op">=</span> <span class="va">survey_design</span>,</span>
+<span>  variance_estimator <span class="op">=</span> <span class="st">"SD2"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; For `variance_estimator='SD2', assumes rows of data are sorted in the same order used in sampling.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">sd2_quad_form</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "matrix" "array"</span></span>
@@ -624,7 +552,7 @@ successive-difference estimator.</p>
 the <code>TOTCIR</code> variable using the quadratic form.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtain weighted values</span></span>
-<span><span class="va">wtd_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">library_stsys_sample</span><span class="op">[[</span><span class="st">'TOTCIR'</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span></span>
+<span><span class="va">wtd_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">library_stsys_sample</span><span class="op">[[</span><span class="st">'LIBRARIA'</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span></span>
 <span>                     <span class="va">library_stsys_sample</span><span class="op">[[</span><span class="st">'SAMPLING_PROB'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">wtd_y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">wtd_y</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span></span>
@@ -633,19 +561,17 @@ the <code>TOTCIR</code> variable using the quadratic form.</p>
 <span></span>
 <span><span class="co"># Obtain the variance estimate using the quadratic form</span></span>
 <span><span class="va">variance_estimate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">wtd_y</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">sd2_quad_form</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">wtd_y</span></span>
+<span><span class="va">std_error</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">variance_estimate</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Summarize results</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Estimate: %s"</span>, <span class="va">point_estimate</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Estimate: 2195846830.39647"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Standard Error: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">variance_estimate</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Standard Error: 564706867.832222"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Coefficient of Variation: %s"</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">variance_estimate</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="va">point_estimate</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Coefficient of Variation: 0.26"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Estimate: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">point_estimate</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Estimate: 65642"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Standard Error: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">std_error</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Standard Error: 13972"</span></span></code></pre></div>
 </div>
-<div class="section level5">
-<h5 id="forming-adjustment-factors">Forming Adjustment Factors<a class="anchor" aria-label="anchor" href="#forming-adjustment-factors"></a>
-</h5>
+<div class="section level4">
+<h4 id="forming-adjustment-factors">Forming Adjustment Factors<a class="anchor" aria-label="anchor" href="#forming-adjustment-factors"></a>
+</h4>
 <p>Our goal is to form <span class="math inline">\(B\)</span> sets of
 bootstrap weights, where the <span class="math inline">\(b\)</span>-th
 set of bootstrap weights is a vector of length <span class="math inline">\(n\)</span> denoted <span class="math inline">\(\mathbf{a}^{(b)}\)</span>, whose <span class="math inline">\(k\)</span>-th value is denoted <span class="math inline">\(a_k^{(b)}\)</span>. This gives us <span class="math inline">\(B\)</span> replicate estimates of the population
@@ -693,10 +619,10 @@ replicate factors so that they are nonnegative and <span class="math inline">\(E
 \mathbf{\breve{y}}\right) =\mathbf{\breve{y}}^{\prime}\Sigma
 \mathbf{\breve{y}}\)</span>.</p>
 </div>
-<div class="section level5">
-<h5 id="adjusting-generalized-survey-bootstrap-replicates-to-avoid-negative-weights">Adjusting Generalized Survey Bootstrap Replicates to Avoid Negative
+<div class="section level4">
+<h4 id="adjusting-generalized-survey-bootstrap-replicates-to-avoid-negative-weights">Adjusting Generalized Survey Bootstrap Replicates to Avoid Negative
 Weights<a class="anchor" aria-label="anchor" href="#adjusting-generalized-survey-bootstrap-replicates-to-avoid-negative-weights"></a>
-</h5>
+</h4>
 <p>Let <span class="math inline">\(\mathbf{A} = \left[ \mathbf{a}^{(1)}
 \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]\)</span> denote
 the <span class="math inline">\((n \times B)\)</span> matrix of
@@ -739,10 +665,10 @@ variances.</p>
 <h3 id="implementation-1">Implementation<a class="anchor" aria-label="anchor" href="#implementation-1"></a>
 </h3>
 <p>There are two ways to implement the generalized survey bootstrap.</p>
-<div class="section level5">
-<h5 id="option-1-convert-an-existing-design-to-a-generalized-bootstrap-design">Option 1: Convert an existing design to a generalized bootstrap
+<div class="section level4">
+<h4 id="option-1-convert-an-existing-design-to-a-generalized-bootstrap-design">Option 1: Convert an existing design to a generalized bootstrap
 design<a class="anchor" aria-label="anchor" href="#option-1-convert-an-existing-design-to-a-generalized-bootstrap-design"></a>
-</h5>
+</h4>
 <p>The simplest method is to convert an existing survey design object to
 a generalized bootstrap design.</p>
 <p>With this approach, we create a survey design object using the
@@ -850,23 +776,23 @@ design object, as follows.</p>
 <code class="sourceCode R"><span><span class="co"># View overall scale factor</span></span>
 <span><span class="va">overall_scale_factor</span> <span class="op">&lt;-</span> <span class="va">gen_boot_design_ht</span><span class="op">$</span><span class="va">scale</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">overall_scale_factor</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.00464648</span></span>
+<span><span class="co">#&gt; [1] 0.00472392</span></span>
 <span></span>
 <span><span class="co"># Check that the scale factor was calculated correctly</span></span>
 <span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="va">gen_boot_design_ht</span><span class="op">$</span><span class="va">tau</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 4.82</span></span>
+<span><span class="co">#&gt; [1] 4.86</span></span>
 <span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">gen_boot_design_ht</span><span class="op">$</span><span class="va">repweights</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">B</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 5000</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span> <span class="op">(</span><span class="va">tau</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="va">B</span> <span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.00464648</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.00472392</span></span></code></pre></div>
 </div>
-<div class="section level5">
-<h5 id="option-2-create-the-quadratic-form-matrix-and-then-use-it-to-create-bootstrap-weights">Option 2: Create the quadratic form matrix and then use it to create
+<div class="section level4">
+<h4 id="option-2-create-the-quadratic-form-matrix-and-then-use-it-to-create-bootstrap-weights">Option 2: Create the quadratic form matrix and then use it to create
 bootstrap weights<a class="anchor" aria-label="anchor" href="#option-2-create-the-quadratic-form-matrix-and-then-use-it-to-create-bootstrap-weights"></a>
-</h5>
+</h4>
 <p>The generalized survey bootstrap can be implemented with a two-step
 process:</p>
 <ul>
@@ -892,24 +818,43 @@ represent the variance estimator as a quadratic form’s matrix.</li>
 <strong>Step 2</strong>: Use <code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code> to
 generate replicate factors based on the target quadratic form. The
 function argument <code>tau</code> can be used to avoid negative
-adjustment factors using the previously-described method. The actual
-value of <code>tau</code> used can be extracted from the function’s
-output using the <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code> function.</li>
+adjustment factors using the previously-described method.</li>
 </ul>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rep_adj_factors</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors</a></span><span class="op">(</span></span>
 <span>  Sigma <span class="op">=</span> <span class="va">sd2_quad_form</span>,</span>
 <span>  num_replicates <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  tau <span class="op">=</span> <span class="st">"auto"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">rep_adj_factors</span>, <span class="st">'tau'</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The actual value of <code>tau</code> used can be extracted from the
+function’s output using the <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code> function.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">rep_adj_factors</span>, <span class="st">'tau'</span><span class="op">)</span></span>
 <span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">rep_adj_factors</span><span class="op">)</span></span></code></pre></div>
+<p>For convenience, the values to use for the <code>scale</code> and
+<code>rscales</code> arguments of <code><a href="https://rdrr.io/pkg/survey/man/svrepdesign.html" class="external-link">svrepdesign()</a></code> are
+included as attributes of the adjustment factors created by
+<code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code>.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Retrieve value of 'scale'</span></span>
+<span><span class="va">rep_adj_factors</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="st">'scale'</span><span class="op">)</span> </span>
+<span><span class="co">#&gt; [1] 0.0445568</span></span>
+<span></span>
+<span><span class="co"># Compare to manually-calculated value</span></span>
+<span>  <span class="op">(</span><span class="va">tau</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="va">B</span></span>
+<span><span class="co">#&gt; [1] 0.0445568</span></span>
+<span></span>
+<span><span class="co"># Retrieve value of 'rscales'</span></span>
+<span><span class="va">rep_adj_factors</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="st">'rscales'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Only show first 5 values</span></span>
+<span><span class="co">#&gt; [1] 1 1 1 1 1 1</span></span></code></pre></div>
 <p>Using the adjustment factors thus created, we can create a replicate
 survey design object by using the function <code><a href="https://rdrr.io/pkg/survey/man/svrepdesign.html" class="external-link">svrepdesign()</a></code>,
 with arguments <code>type = "other"</code> and specifying the
 <code>scale</code> argument to use the factor <span class="math inline">\(\tau^2/B\)</span>.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gen_boot_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svrepdesign.html" class="external-link">svrepdesign</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>SAMPLING_WEIGHT <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="va">SAMPLING_PROB</span><span class="op">)</span>,</span>
@@ -917,12 +862,12 @@ with arguments <code>type = "other"</code> and specifying the
 <span>  weights <span class="op">=</span> <span class="op">~</span> <span class="va">SAMPLING_WEIGHT</span>,</span>
 <span>  combined.weights <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"other"</span>,</span>
-<span>  scale <span class="op">=</span> <span class="va">tau</span><span class="op">^</span><span class="fl">2</span><span class="op">/</span><span class="va">B</span>,</span>
-<span>  rscales <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, times <span class="op">=</span> <span class="va">B</span><span class="op">)</span></span>
+<span>  scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">rep_adj_factors</span>, <span class="st">'scale'</span><span class="op">)</span>,</span>
+<span>  rscales <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">rep_adj_factors</span>, <span class="st">'rscales'</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>This allows us to estimate sampling variances, even for quite complex
 sampling designs.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gen_boot_design</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTSTAFF</span>,</span>
 <span>          na.rm <span class="op">=</span> <span class="cn">TRUE</span>, deff <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -999,7 +944,7 @@ determining the number of bootstrap replicates to use for a survey.</p>
 <p>With the ‘svrep’ package, it is possible to estimate the number of
 bootstrap replicates required to obtain a target simulation CV for a
 statistic.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'api'</span>, package <span class="op">=</span> <span class="st">'survey'</span><span class="op">)</span></span>
 <span></span>
@@ -1030,7 +975,7 @@ statistic.</p>
 <p>To estimate the simulation CV for the current number of replicates
 used, it is possible to use the function
 <code><a href="../reference/estimate_boot_sim_cv.html">estimate_boot_sim_cv()</a></code>.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/estimate_boot_sim_cv.html">estimate_boot_sim_cv</a></span><span class="op">(</span><span class="va">estimated_means_and_proportions</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   STATISTIC SIMULATION_CV N_REPLICATES</span></span>
 <span><span class="co">#&gt; 1     api00    0.01153322         5000</span></span>
@@ -1040,7 +985,103 @@ used, it is possible to use the function
 <span><span class="co">#&gt; 5    stypeM    0.01735951         5000</span></span></code></pre></div>
 </div>
 </div>
-<div class="section level2 unnumbered">
+<div class="section level2">
+<h2 id="the-bootstrap-vs--other-replication-methods">The Bootstrap vs. Other Replication Methods<a class="anchor" aria-label="anchor" href="#the-bootstrap-vs--other-replication-methods"></a>
+</h2>
+<blockquote>
+<p>Far better an approximate answer to the right question, which is
+often vague, than the exact answer to the wrong question, which can
+always be made precise.</p>
+<p>-- John Tukey</p>
+<p>Ok, but what if the approximate answer is, like, <em>really</em>
+approximate or requires a whole lot of computing?</p>
+<p>-- Survey sampling statisticians</p>
+</blockquote>
+<p>Survey bootstrap methods are directly applicable to a wider variety
+of sample designs than the jackknife or balanced repeated replication
+(BRR). Nonetheless, complex survey designs are often shoehorned into
+jackknife or BRR variance estimation by pretending that the actual
+survey design was something simpler. The BRR method, for instance, is
+only applicable to samples with two clusters sampled from each stratum,
+but statisticians frequently use it for designs with three or more
+sampled clusters by grouping the actual clusters into two
+pseudo-clusters. For designs with a large number of sampling units in a
+stratum, the exact jackknife (JK1 or JKn) requires a large number of
+replicates and so is often replaced by the “delete-a-group jackknife”
+(DAGJK) with clusters randomly grouped into larger pseudo-clusters.</p>
+<p>Why do statisticians go to all this effort to shoehorn their variance
+estimation problem into jackknife or BRR methods when they could just
+use the bootstrap?</p>
+<p>The simple answer is that bootstrap methods generally require many
+more replicates than other methods in order to obtain a stable variance
+estimate. And using a large number of replicates can be a problem if you
+have to do a large amount of computing or if your dataset is large and
+you’re concerned about storage costs. Statistical agencies are
+particularly sensitive to these concerns when they publish microdata,
+since agencies often serve a large number of end-users with varying
+computational resources.</p>
+<p><strong>So why use the bootstrap?</strong></p>
+<ol style="list-style-type: decimal">
+<li><p><strong>The bootstrap tends to works well for a larger class of
+statistics than the jackknife.</strong> For example, for estimating the
+sampling variance of an estimated median or other quantiles, the
+jackknife tends to perform poorly but bootstrap methods at least do an
+adequate job.</p></li>
+<li><p><strong>Bootstrap methods enable different options for forming
+confidence intervals.</strong> For all of the standard replication
+methods (BRR, Jackknife, etc.), confidence intervals are generally
+formed using a Wald interval (<span class="math inline">\(\hat{\theta}
+\pm \hat{se}(\hat{\theta}) \times z_{1-\frac{\alpha}{2}}\)</span>).<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Non-Wald methods are typically only used in practice for
+confidence intervals for proportions. These non-Wald methods are
+normally based on the point estimate, the standard error, and a measure
+of effective sample size.&lt;/p&gt;"><sup>2</sup></a> But for
+certain bootstrap methods, it is possible to also form confidence
+intervals using other approaches, such as the bootstrap percentile
+method.</p></li>
+<li>
+<p><strong>You can analyze your design rather than an approximation
+of your design, which can both reduce costs and better control
+errors</strong>. To use BRR for general survey designs, you have to
+approximate your actual survey design with a “two PSUs per stratum”
+design. This works surprisingly well in many cases, but it requires
+careful work on the part of a specially-trained statistician. For the
+jackknife with a large number of sampling units, you either end up with
+the same number of replicates as a bootstrap method or you have to
+randomly group your sampling units into a smaller number so you can use
+the DAGJK method to essentially approximate your actual survey design
+with a simpler one. Again, this takes careful work on the part of a
+specially-trained statistician.</p>
+<ol style="list-style-type: decimal">
+<li><p>By analyzing your design for what it is, <strong>you don’t have
+to pay a specially-trained statistician to meticulously approximate a
+design so that it can be shoehorned into a jackknife or BRR variance
+estimation problem</strong>, which is perhaps not the best use of a
+limited budget.</p></li>
+<li><p><strong>If the variance estimation is based on a bootstrap method
+tailored to the actual survey design, then the replication error in the
+variance estimates for key statistics is unbiased and can be quantified
+and controlled as a function of the number of replicates</strong>. In
+contrast, when variance estimation is based on approximating a design so
+that it can be shoehorned into a jackknife or BRR variance estimation
+problem, then the replication error in the variance estimates is more
+difficult to quantify and can consist of both noise and bias.</p></li>
+</ol>
+</li>
+<li><p><strong>For most statisticians, it’s probably easier to
+learn.</strong> The bootstrap is the most well-known replication method
+among general statisticians, to the point that it’s often taught in
+first-year undergraduate statistics courses. So the basic idea is
+already familiar even to statisticians with only passing familiarity
+with complex survey sampling. BRR, in contrast, takes specialized
+training to learn and entails pre-requisite concepts such as Hadamard
+matrices, partial balancing, and so on. Outside of survey statistics,
+the jackknife tends to be much less used (and taught) compared to the
+bootstrap, due to its limitations with non-smooth statistics and the
+complexity required to make it work efficiently for large sample
+sizes.</p></li>
+</ol>
+</div>
+<div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
@@ -1082,6 +1123,12 @@ Statistical Association. <a href="http://www.asasrms.org/Proceedings/papers/1984
 Mashreghi, Zeinab, David Haziza, and Christian Léger. 2016. <span>“A
 Survey of Bootstrap Methods in Finite Population Sampling.”</span>
 <em>Statistics Surveys</em> 10 (none). <a href="https://doi.org/10.1214/16-SS113" class="external-link">https://doi.org/10.1214/16-SS113</a>.
+</div>
+<div id="ref-sarndalModelAssistedSurvey1992" class="csl-entry">
+Särndal, Carl-Erik, Bengt Swensson, and Jan Wretman. 1992. <em>Model
+<span>Assisted Survey Sampling</span></em>. Springer <span>Series</span>
+in <span>Statistics</span>. <span>New York, NY</span>: <span>Springer
+New York</span>. <a href="https://doi.org/10.1007/978-1-4612-4378-6" class="external-link">https://doi.org/10.1007/978-1-4612-4378-6</a>.
 </div>
 </div>
 </div>
