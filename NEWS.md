@@ -31,6 +31,10 @@ adjustment factors to avoid negative replicate weights. This functionality
 already existed in `as_gen_boot_design()` and `make_gen_boot_factors()`, but now
 it is implemented with the help of this new function.
 
+* Added helper function `is_psd_matrix()` for checking whether a matrix is positive semi-definite,
+and added a helper function `get_nearest_psd_matrix()` for approximating a square matrix
+by the nearest positive semi-definite matrix.
+
 * Minor improvements to vignettes, particularly formatting.
   
 # svrep 0.4.1
