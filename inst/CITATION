@@ -5,5 +5,5 @@ citEntry(entry="misc",
    year=2023,
    title="svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights",
    note="R package version 5.0",
-   url="https://cran.r-project.org/web/packages/svrep/",
+   url="https://CRAN.R-project.org/package=svrep",
    textVersion="Schneider, B. (2023). \"svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights\". R package version 5.0." )
