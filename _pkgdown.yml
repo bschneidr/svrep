@@ -14,17 +14,24 @@ reference:
 - title: Creating Bootstrap Replicate Weights
 - contents:
   - matches("boot")
-  - matches("quad_form")
-  - matches("rescale_reps")
   # - matches("sd_matrix")
   # - matches("srswor_matrix")
   # - matches("distribute_matrix")
-- title: Helper Functions for Working with Quadratic Forms
-- contents:
-  - matches("psd_matrix")
+  - matches("rescale_reps")
 - title: Calibrating to Estimated Control Totals
 - contents:
   - starts_with("calibrate_to")
+- title: Helper Functions for Working with Quadratic Forms
+- desc: Variance estimators for totals can be represented
+as quadratic forms. Replication methods generally work by
+generating replication factors whose variance-covariance matrix matches
+the quadratic form matrix of a target variance estimator. These functions
+help the user specify the quadratic form representation of common variance estimators
+and, if necessary, adjust them so that they are positive semidefinite (a necessary
+prerequisite for using the generalized bootstrap).
+- contents:
+  - matches("quad_form")
+  - matches("psd_matrix")
 - title: Example Datasets
 - contents:
   - starts_with("lou")
