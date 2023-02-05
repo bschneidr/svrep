@@ -272,7 +272,7 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
 
   unadjusted_control_totals <- list(
     'full-sample' = coef(unadjusted_control_totals),
-    'replicate-specific' = unadjusted_control_totals$replicates
+    'replicate-specific' = as.matrix(unadjusted_control_totals$replicates)
   )
 
   replicate_control_totals <- matrix(data = unadjusted_control_totals[['full-sample']],

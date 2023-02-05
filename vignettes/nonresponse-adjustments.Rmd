@@ -1,13 +1,16 @@
 ---
 title: "Nonresponse Adjustments"
 output: 
-  rmarkdown::html_vignette:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
     toc: true
     toc_depth: 4
 vignette: >
   %\VignetteIndexEntry{Nonresponse Adjustments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r, include = FALSE}
@@ -17,16 +20,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, message=FALSE, warning=FALSE}
+In this short vignette, we'll demonstrate how the svrep package can be used to implement weighting adjustments for nonresponse in survey samples. For illustration, we'll use an example survey measuring Covid-19 vaccination status and a handful of demographic variables, based on a simple random sample of 1,000 residents of Louisville, Kentucky.
+
+```{r, message=FALSE, warning=FALSE}
 library(dplyr) # For data manipulation
 library(survey) # For complex survey analysis
 library(srvyr) # For complex survey analysis with dplyr syntax
 library(svrep)
-```
 
-In this short vignette, we'll demonstrate how the svrep package can be used to implement weighting adjustments for nonresponse in survey samples. For illustration, we'll use an example survey measuring Covid-19 vaccination status and a handful of demographic variables, based on a simple random sample of 1,000 residents of Louisville, Kentucky.
-
-```{r}
 # Load and inspect the data
 data("lou_vax_survey", package = 'svrep')
 head(lou_vax_survey)
@@ -39,7 +40,7 @@ This vaccination survey has an overall response rate of 50.2%, which means that 
 lou_vax_survey |> count(RESPONSE_STATUS) |> mutate(pct = n/sum(n))
 ```
 
-## Creating initial replicate weights
+# Creating initial replicate weights
 
 To begin with, we'll create bootstrap replicate weights. 
 In most cases, we can do this simply by describing the survey design using the `svydesign()` function and then using a function to create appropriate appropriate replicate weights. The function `as.svrepdesign()` from the 'survey' package can be used to create several types of replicate weights, using the argument `type` (with options `'JK1'`, `'JKn'`, `'bootstrap'`, `'BRR'`, `'Fay'`, etc.) In addition, the function `as_bootstrap_design()` can be used to create bootstrap weights using additional methods not supported in the 'survey' package.
@@ -67,7 +68,7 @@ lou_vax_survey <- lou_vax_survey |> as_survey()
 print(lou_vax_survey)
 ```
 
-## Redistributing weight from nonrespondents to respondents
+# Redistributing weight from nonrespondents to respondents
 
 A common form of nonresponse adjustment is to simply 'redistribute' weight from the nonrespondents to the respondents. In other words, the weight for each nonrespondent is set to $0$, and the weight for each respondent is increased by a factor greater than one so that the sum of adjusted weights in the sample of respondents equals the sum of unadjusted weights from the full sample. For example, if the sum of weights among respondents is $299,544.4$ and the sum of weights among nonrespondents is $297,157.6$, then a basic nonresponse adjustment would set the weights among nonrespondents to $0$ and multiply the weight for each respondent by an adjustment factor equal to $1 + (297,157.6/299,544.4)$. This type of adjustment is succinctly described in mathematical notation below.
 
@@ -136,7 +137,7 @@ nr_adjusted_survey |>
 ```
 
 
-## Conducting weighting class adjustments
+# Conducting weighting class adjustments
 
 Nonresponse bias is liable to occur if different subpopulations systematically differ in terms of their response rates to the survey and also differ in terms of what the survey is trying to measure (in this case, vaccination status). In our example, we can see some fairly large differences in response rates across different race/ethnicity groups.
 
@@ -161,7 +162,7 @@ nr_adjusted_survey <- lou_vax_survey |>
 
 Multiple grouping variables may be supplied to the `by` argument. For example, one can specify `by = c("STRATUM", "RACE_ETHNICITY")` to redistribute weights separately by combinations of stratum and race/ethnicity category. 
 
-### Propensity cell adjustment
+## Propensity cell adjustment
 
 The popular method of forming weighting classes based on estimated response propensities (known as **propensity cell adjustment**) can also be used, for example by adding a variable `PROPENSITY_CELL` to the data and using `redistribute_weights(..., by = "PROPENSITY_CELL")`.
 
@@ -220,7 +221,7 @@ nr_adjusted_survey |>
 ```
 
 
-## Saving the final weights to a data file
+# Saving the final weights to a data file
 
 Once we're satisfied with the weights, we can create a data frame with the analysis variables and columns of replicate weights. This format is easy to export to data files that can be loaded into R or other software later.
 
@@ -243,7 +244,7 @@ write.csv(
 )
 ```
 
-## Statistical background
+# Statistical background
 
 The motivation for making this adjustment is that standard methods of statistical inference assume that every person in the population has a known, nonzero probability of participating in the survey (i.e. has a nonzero chance of being sampled and a nonzero chance of responding if they are sampled), denoted $p_{i,overall}$. Basic results in survey sampling theory guarantee that if this assumption is true, we can produce unbiased estimates of population means and totals by weighting data from each respondent with the weight $1/{p_{i,overall}}$. Crucially, the overall probability of participation $p_{i,overall}$ is the product of two components: the probability that a person is sampled (denoted $\pi_i$), and the probability that a person would respond to the survey if they are sampled (denoted $p_i$ and referred to as the **"response propensity"**). The sampling probability $\pi_i$ is known since we can control the method of sampling, but the response propensity $p_i$ is unknown and can only be estimated.
 
@@ -280,7 +281,7 @@ Weighting class adjustments and propensity cell adjustments are essentially more
 
 The reason for conducting weighting adjustments not only in the full-sample weights but in the replicate weights is to account for the nonresponse adjustment process when estimating sampling variances and inferential statistics such as confidence intervals. Because of random sampling, the adjustment factors used in the nonresponse adjustment will vary from one sample to the next, and applying weighting adjustments separately for each replicate reflects this variability. As we've seen in this vignette, the `redistribute_weights()` function handles this for us: after nonresponse adjustment, all of the weight in each replicate is redistributed in the same manner that weight was redistributed for the full-sample weights.
 
-## Recommended Reading
+# Recommended Reading
 
 -   See Chapter 2, Section 2.7.3 of "Applied Survey Data Analysis" for a statistical explanation of the weighting adjustments described in this vignette.
 

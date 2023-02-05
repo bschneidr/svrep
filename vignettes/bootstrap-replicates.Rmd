@@ -1,13 +1,16 @@
 ---
 title: "Bootstrap Methods for Surveys"
 output: 
-  rmarkdown::html_vignette:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
     toc: true
     toc_depth: 4
 vignette: >
   %\VignetteIndexEntry{Bootstrap Methods for Surveys}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 bibliography: references.bib
 ---
 
@@ -25,7 +28,9 @@ library(srvyr) # For complex survey analysis with dplyr syntax
 library(svrep)
 ```
 
-This vignette provide guidance on when the bootstrap can be used for complex survey data and how to choose a bootstrap method and number of bootstrap replicates for a survey. It further demonstrates how to use functions from the "svrep" package to implement bootstrap methods and help decide the number of bootstrap replicates needed for your data. The functions covered in this vignette include:
+This vignette provide guidance on when the bootstrap can be used for complex survey data and how to choose a bootstrap method and number of bootstrap replicates for a survey. It further demonstrates how to use functions from the "svrep" package to implement bootstrap methods and help decide the number of bootstrap replicates needed for your data. 
+
+The functions covered in this vignette include:
 
 **Functions for Creating Bootstrap Weights**:
 
@@ -37,7 +42,7 @@ This vignette provide guidance on when the bootstrap can be used for complex sur
 
 -   `as_gen_boot_design()`, which creates a replicate survey design using the generalized survey bootstrap method as described by @beaumont2012.
 
--   `make_gen_boot_factors()`, which creates a matrix of replicate weights using the generalized survey bootstrap method. This function will usually be used in conjunction with the function `make_quad_form_matrix()`, which returns the quadratic form matrix representation of common variance estimators.
+-   `make_gen_boot_factors()`, which creates a matrix of replicate weights using the generalized survey bootstrap method. This function will usually be used in conjunction with the functions `get_design_quad_form()` or `make_quad_form_matrix()`, which return the quadratic form matrix representation of common variance estimators.
 
 **Functions to Help Choose the Number of Bootstrap Replicates**:
 
@@ -45,43 +50,15 @@ This vignette provide guidance on when the bootstrap can be used for complex sur
 
 -   `estimate_boot_reps_for_target_cv()`, which estimates the number of bootstrap replicates needed to reduce a bootstrap's simulation error to a target level.
 
-## The Bootstrap vs. Other Replication Methods
+# Choosing a Bootstrap Method
 
-> Far better an approximate answer to the right question, which is often vague, than the exact answer to the wrong question, which can always be made precise.
->
-> \-- John Tukey
->
-> Ok, but what if the approximate answer is, like, *really* approximate or requires a whole lot of computing?
->
-> \-- Survey sampling statisticians
+Essentially every bootstrap method commonly used for surveys can be used for simple random sampling with replacement and can easily be applied to stratified sampling (simply repeat the method separately for each stratum). However, things become more complicated for other types of sampling and care is needed to use a bootstrap method appropriate to the survey design. For many common designs used in practice, it is possible (and easy!) to use one of the bootstrap methods described in the section of this vignette titled "Basic Bootstrap Methods." 
 
-Survey bootstrap methods are directly applicable to a wider variety of sample designs than the jackknife or balanced repeated replication (BRR). Nonetheless, complex survey designs are often shoehorned into jackknife or BRR variance estimation by pretending that the actual survey design was something simpler. The BRR method, for instance, is only applicable to samples with two clusters sampled from each stratum, but statisticians frequently use it for designs with three or more sampled clusters by grouping the actual clusters into two pseudo-clusters. For designs with a large number of sampling units in a stratum, the exact jackknife (JK1 or JKn) requires a large number of replicates and so is often replaced by the "delete-a-group jackknife (DAGJK) which randomly groups clusters into larger pseudo-clusters.
+If the design isn't appropriate for one of those basic bootstrap methods, then it may be possible to use the generalized survey bootstrap described in a later section of this vignette. The generalized survey bootstrap method can be used for especially complex designs, such as systematic sampling or two-phase sampling designs.
 
-Why do statisticians go to all this effort to shoehorn their variance estimation problem into jackknife or BRR methods when they could just use the bootstrap?
+The interested reader is encouraged to read @mashreghi2016 for an overview of bootstrap methods developed for survey samples.
 
-The simple answer is that bootstrap methods generally require many more replicates than other methods in order to obtain a stable variance estimate. And using a large number of replicates can be a problem if you have to do a large amount of computing or if your dataset is large and you're concerned about storage costs. Statistical agencies are particularly sensitive to these concerns when they publish microdata, since agencies often serve a large number of end-users with varying computational resources.
-
-**So why use the bootstrap?**
-
-1.  **The bootstrap tends to works well for a larger class of statistics than the jackknife.** For example, for estimating the sampling variance of an estimated median or other quantiles, the jackknife tends to perform poorly but bootstrap methods at least do an adequate job.
-
-2.  **Bootstrap methods enable different options for forming confidence intervals.** For all of the standard replication methods (BRR, Jackknife, etc.), confidence intervals are generally formed using a Wald interval ($\hat{\theta} \pm \hat{se}(\hat{\theta}) \times z_{1-\frac{\alpha}{2}}$).[^1] But for certain bootstrap methods, it is possible to also form confidence intervals using other approaches, such as the bootstrap percentile method.
-
-3.  **You can analyze your design rather than an approximation of your design, which can both reduce costs and better control errors**. To use BRR for general survey designs, you have to approximate your actual survey design with a "two PSUs per stratum" design. This works surprisingly well in many cases, but it requires careful work on the part of a specially-trained statistician. For the jackknife with a large number of sampling units, you either end up with the same number of replicates as a bootstrap method or you have to randomly group your sampling units into a smaller number so you can use the DAGJK method to essentially approximate your actual survey design with a simpler one. Again, this takes careful work on the part of a specially-trained statistician.
-
-    1.  By analyzing your design for what it is, **you don't have to pay a specially-trained statistician to meticulously approximate a design so that it can be shoehorned into a jackknife or BRR variance estimation problem**, which is perhaps not the best use of a limited budget.
-
-    2.  **If the variance estimation is based on a bootstrap method tailored to the actual survey design, then the replication error in the variance estimates for key statistics is unbiased and can be quantified and controlled as a function of the number of replicates**. In contrast, when variance estimation is based on approximating a design so that it can be shoehorned into a jackknife or BRR variance estimation problem, then the replication error in the variance estimates is more difficult to quantify and can consist of both noise and bias.
-
-4.  **For most statisticians, it's probably easier to learn.** The bootstrap is the most well-known replication method among general statisticians, to the point that it's often taught in first-year undergraduate statistics courses. So the basic idea is already familiar even to statisticians with only passing familiarity with complex survey sampling. BRR, in contrast, takes specialized training to learn and entails pre-requisite concepts such as Hadamard matrices, partial balancing, and so on. Outside of survey statistics, the jackknife tends to be much less used (and taught) compared to the bootstrap, due to its limitations with non-smooth statistics and the complexity required to make it work efficiently for large sample sizes.
-
-[^1]: Non-Wald methods are typically only used in practice for confidence intervals for proportions. These non-Wald methods are normally based on the point estimate, the standard error, and a measure of effective sample size.
-
-## Choosing a Bootstrap Method
-
-Essentially every bootstrap method commonly used for surveys can be used for simple random sampling with replacement and can easily be applied to stratified sampling (simply repeat the method separately for each stratum). However, things become more complicated for other types of sampling and care is needed to use a bootstrap method appropriate to the survey design. For many common designs used in practice, it is possible (and easy!) to use one of the bootstrap methods described in the section of this vignette titled "Basic Bootstrap Methods." If the design isn't appropriate for one of those basic bootstrap methods, then it may be possible to use the generalized survey bootstrap described in a later section of this vignette, which covers a wide range of designs. The interested reader is encouraged to read @mashreghi2016 for an overview of bootstrap methods developed for survey samples.
-
-## Basic Bootstrap Methods
+# Basic Bootstrap Methods
 
 For most sample designs used in practice, there are three basic survey design features that must be considered when choosing a bootstrap method:
 
@@ -114,7 +91,7 @@ The 'svrep' and 'survey' packages implement four basic bootstrap methods, each o
 : Data Required for Each Bootstrap Method
 
 
-#### Implementation
+## Implementation
 
 To implement these basic bootstrap methods, we can create a survey design object with the `svydesign()` function from the survey package, and then convert this object to a bootstrap replicate design using `as_bootstrap_design()`. This method can be used for multistage, stratified designs with one or more different kinds of sampling, provided the "Rao-Wu-Yue-Beaumont" method is used.
 
@@ -185,11 +162,11 @@ svytotal(x = ~ TOTCIR, na.rm = TRUE, design = multistage_design)
 svytotal(x = ~ TOTCIR, na.rm = TRUE, design = boot_design)
 ```
 
-## Generalized Survey Bootstrap
+# Generalized Survey Bootstrap
 
-For sample designs with additional complex features beyond the three highlighted above, the generalized survey bootstrap method can be used. This is especially useful for systematic samples or for complex designs where one wishes to use a general-purpose estimator such as the Horvitz-Thompson or Yates-Grundy estimator.
+For sample designs with additional complex features beyond the three highlighted above, the generalized survey bootstrap method can be used. This is especially useful for systematic samples, two-phase samples, or complex designs where one wishes to use a general-purpose estimator such as the Horvitz-Thompson or Yates-Grundy estimator.
 
-### Statistical Background
+## Statistical Background
 
 The generalized survey bootstrap is based on a remarkable observation from @fay1984, summarized nicely by @dippo1984:
 
@@ -214,14 +191,18 @@ The starting point for implementing the generalized survey bootstrap method is t
 -   For systematic samples:
 
     -   The SD1 and SD2 successive-differences estimators, which are the basis of the commonly-used "successive-differences replication" (SDR) estimator (see @ash2014 for an overview of SDR).
+    
+-   For two-phase samples:
+
+    - The double-expansion variance estimator described in Section 9.3 of @sarndalModelAssistedSurvey1992.
 
 Once the textbook variance estimator has been selected and its quadratic form identified, the generalized survey bootstrap method consists of randomly generating each set of replicate weights from a multivariate distribution whose expectation is the $n$-vector $\mathbf{1}_n$ and whose variance-covariance matrix is the matrix of the quadratic form used for the textbook variance estimator. This ensures that, in expectation, the bootstrap variance estimator for a total equals the textbook variance estimator and thus inherits properties such as design-unbiasedness and design-consistency.
 
-### Details and Notation for the Generalized Survey Bootstrap Method
+## Details and Notation for the Generalized Survey Bootstrap Method
 
 In this section, we describe the generalized survey bootstrap in greater detail, using the notation of @beaumont2012.
 
-##### Quadratic Forms
+### Quadratic Forms
 
 Let $v( \hat{T_y})$ be the textbook variance estimator for an estimated population total $\hat{T}_y$ of some variable $y$. The base weight for case $i$ in our sample is $w_i$, and we let $\breve{y}_i$ denote the weighted value $w_iy_i$.
 
@@ -260,20 +241,28 @@ make_quad_form_matrix(
 )
 ```
 
-In the following example, we use this method to estimate the variance for a stratified systematic sample of U.S. public libraries. First, we create a quadratic form matrix to represent the SD2 successive-difference estimator.
+In the following example, we use this method to estimate the variance for a stratified systematic sample of U.S. public libraries. First, we create a quadratic form matrix to represent the SD2 successive-difference estimator. This can be done by using the `svydesign()` function to describe the survey design and then using `get_design_quad_form()` to obtain the quadratic form for a specified variance estimator. 
 
-```{r}
+```{r, eval=TRUE}
 # Load an example dataset of a stratified systematic sample
 data('library_stsys_sample', package = 'svrep')
 
-# Represent the SD2 successive-difference estimator as a quadratic form,
-# and obtain the matrix of that quadratic form
-sd2_quad_form <- make_quad_form_matrix(
-  variance_estimator = 'SD2',
-  cluster_ids = library_stsys_sample |> select(FSCSKEY),
-  strata_ids = library_stsys_sample |> select(SAMPLING_STRATUM),
-  strata_pop_sizes = library_stsys_sample |> select(STRATUM_POP_SIZE),
-  sort_order = library_stsys_sample |> pull("SAMPLING_SORT_ORDER")
+# First, sort the rows in the order used in sampling
+library_stsys_sample <- library_stsys_sample |>
+  dplyr::arrange(SAMPLING_SORT_ORDER)
+
+# Create a survey design object
+survey_design <- svydesign(
+  data = library_stsys_sample,
+  ids = ~ 1,
+  strata = ~ SAMPLING_STRATUM,
+  fpc = ~ STRATUM_POP_SIZE
+)
+
+# Obtain the quadratic form for the target estimator
+sd2_quad_form <- get_design_quad_form(
+  design = survey_design,
+  variance_estimator = "SD2"
 )
 
 class(sd2_quad_form)
@@ -284,7 +273,7 @@ Next, we estimate the sampling variance of the estimated total for the `TOTCIR` 
 
 ```{r}
 # Obtain weighted values
-wtd_y <- as.matrix(library_stsys_sample[['TOTCIR']] /
+wtd_y <- as.matrix(library_stsys_sample[['LIBRARIA']] /
                      library_stsys_sample[['SAMPLING_PROB']])
 wtd_y[is.na(wtd_y)] <- 0
 
@@ -293,15 +282,14 @@ point_estimate <- sum(wtd_y)
 
 # Obtain the variance estimate using the quadratic form
 variance_estimate <- t(wtd_y) %*% sd2_quad_form %*% wtd_y
+std_error <- sqrt(variance_estimate[1,1])
 
 # Summarize results
-sprintf("Estimate: %s", point_estimate)
-sprintf("Standard Error: %s", sqrt(variance_estimate[1,1]))
-sprintf("Coefficient of Variation: %s",
-        round(sqrt(variance_estimate[1,1])/point_estimate, 2))
+sprintf("Estimate: %s", round(point_estimate))
+sprintf("Standard Error: %s", round(std_error))
 ```
 
-##### Forming Adjustment Factors
+### Forming Adjustment Factors
 
 Our goal is to form $B$ sets of bootstrap weights, where the $b$-th set of bootstrap weights is a vector of length $n$ denoted $\mathbf{a}^{(b)}$, whose $k$-th value is denoted $a_k^{(b)}$. This gives us $B$ replicate estimates of the population total, $\hat{T}_y^{*(b)}=\sum_{k \in s} a_k^{(b)} \breve{y}_k$, for $b=1, \ldots B$, from which we can easily calculate an estimate of the sampling variance.
 
@@ -327,7 +315,7 @@ Note that if the vector of adjustment factors $\mathbf{a}^{(b)}$ has expectation
 
 The simplest, general way to generate the adjustment factors is to simulate from a multivariate normal distribution $\mathbf{a} \sim MVN(\mathbf{1}_n, \boldsymbol{\Sigma})$, which is the method used in this package. However, this method can lead to negative adjustment factors and hence negative bootstrap weights, which--while perfectly valid for variance estimation--may be undesirable from a practical point of view. Thus, in the following subsection, we describe one method for adjusting the replicate factors so that they are nonnegative and $E_{*} \left( \mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}\right) =\mathbf{\breve{y}}^{\prime}\Sigma \mathbf{\breve{y}}$.
 
-##### Adjusting Generalized Survey Bootstrap Replicates to Avoid Negative Weights
+### Adjusting Generalized Survey Bootstrap Replicates to Avoid Negative Weights
 
 Let $\mathbf{A} = \left[ \mathbf{a}^{(1)} \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]$ denote the $(n \times B)$ matrix of bootstrap adjustment factors. To eliminate negative adjustment factors, @beaumont2012 propose forming a rescaled matrix of nonnegative replicate factors $\mathbf{A}^S$ by rescaling each adjustment factor $a_k^{(b)}$ as follows:
 
@@ -353,11 +341,11 @@ $$
 
 When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor $\frac{\tau^2}{B}$ rather than $\frac{1}{B}$ when estimating sampling variances.
 
-### Implementation
+## Implementation
 
 There are two ways to implement the generalized survey bootstrap.
 
-##### Option 1: Convert an existing design to a generalized bootstrap design
+### Option 1: Convert an existing design to a generalized bootstrap design
 
 The simplest method is to convert an existing survey design object to a generalized bootstrap design.
 
@@ -461,7 +449,7 @@ print(B)
 print( (tau^2) / B )
 ```
 
-##### Option 2: Create the quadratic form matrix and then use it to create bootstrap weights
+### Option 2: Create the quadratic form matrix and then use it to create bootstrap weights
 
 The generalized survey bootstrap can be implemented with a two-step process:
 
@@ -482,7 +470,7 @@ sd2_quad_form <- make_quad_form_matrix(
 )
 ```
 
--   **Step 2**: Use `make_gen_boot_factors()` to generate replicate factors based on the target quadratic form. The function argument `tau` can be used to avoid negative adjustment factors using the previously-described method. The actual value of `tau` used can be extracted from the function's output using the `attr()` function.
+-   **Step 2**: Use `make_gen_boot_factors()` to generate replicate factors based on the target quadratic form. The function argument `tau` can be used to avoid negative adjustment factors using the previously-described method.
 
 ```{r}
 rep_adj_factors <- make_gen_boot_factors(
@@ -490,9 +478,29 @@ rep_adj_factors <- make_gen_boot_factors(
   num_replicates = 500,
   tau = "auto"
 )
+```
 
+The actual value of `tau` used can be extracted from the function's output using the `attr()` function.
+
+```{r}
 tau <- attr(rep_adj_factors, 'tau')
 B <- ncol(rep_adj_factors)
+```
+
+For convenience, the values to use for the `scale` and `rscales` arguments of `svrepdesign()` are included as attributes of the adjustment factors created by `make_gen_boot_factors()`.
+
+```{r}
+# Retrieve value of 'scale'
+rep_adj_factors |>
+  attr('scale') 
+
+# Compare to manually-calculated value
+  (tau^2) / B
+
+# Retrieve value of 'rscales'
+rep_adj_factors |>
+  attr('rscales') |> 
+  head() # Only show first 5 values
 ```
 
 Using the adjustment factors thus created, we can create a replicate survey design object by using the function `svrepdesign()`, with arguments `type = "other"` and specifying the `scale` argument to use the factor $\tau^2/B$.
@@ -505,10 +513,12 @@ gen_boot_design <- svrepdesign(
   weights = ~ SAMPLING_WEIGHT,
   combined.weights = FALSE,
   type = "other",
-  scale = tau^2/B,
-  rscales = rep(1, times = B)
+  scale = attr(rep_adj_factors, 'scale'),
+  rscales = attr(rep_adj_factors, 'rscales')
 )
 ```
+
+
 
 This allows us to estimate sampling variances, even for quite complex sampling designs.
 
@@ -518,11 +528,11 @@ gen_boot_design |>
           na.rm = TRUE, deff = TRUE)
 ```
 
-## Choosing the Number of Bootstrap Replicates
+# Choosing the Number of Bootstrap Replicates
 
 The bootstrap suffers from unavoidable "simulation error" (also referred to as "Monte Carlo" error) caused by using a finite number of replicates to simulate the ideal bootstrap estimate we would obtain if we used an infinite number of replicates. In general, the simulation error can be reduced by using a larger number of bootstrap replicates.
 
-### General Strategy
+## General Strategy
 
 While there are many rule-of-thumb values for the number of replicates that should be used (some say 500, others say 1,000), it is advisable to instead use a principled strategy for choosing the number of replicates. One general strategy proposed by @beaumont2012 is as follows:
 
@@ -532,7 +542,7 @@ While there are many rule-of-thumb values for the number of replicates that shou
 
 -   **Step 3**: Estimate the minimum number of bootstrap replicates needed to reduce the level of simulation error to the target level. This can be done using the 'svrep' function `estimate_boot_reps_for_target_cv()`.
 
-### Measuring and Estimating Simulation Error
+## Measuring and Estimating Simulation Error
 
 Simulation error can be measured as a **"simulation coefficient of variation" (CV)**, which is the ratio of the standard error of a bootstrap estimator to the expectation of that bootstrap estimator, where the expectation and standard error are evaluated with respect to the bootstrapping process given the selected sample.
 
@@ -586,4 +596,36 @@ To estimate the simulation CV for the current number of replicates used, it is p
 estimate_boot_sim_cv(estimated_means_and_proportions)
 ```
 
-## References
+# The Bootstrap vs. Other Replication Methods
+
+> Far better an approximate answer to the right question, which is often vague, than the exact answer to the wrong question, which can always be made precise.
+>
+> \-- John Tukey
+>
+> Ok, but what if the approximate answer is, like, *really* approximate or requires a whole lot of computing?
+>
+> \-- Survey sampling statisticians
+
+Survey bootstrap methods are directly applicable to a wider variety of sample designs than the jackknife or balanced repeated replication (BRR). Nonetheless, complex survey designs are often shoehorned into jackknife or BRR variance estimation by pretending that the actual survey design was something simpler. The BRR method, for instance, is only applicable to samples with two clusters sampled from each stratum, but statisticians frequently use it for designs with three or more sampled clusters by grouping the actual clusters into two pseudo-clusters. For designs with a large number of sampling units in a stratum, the exact jackknife (JK1 or JKn) requires a large number of replicates and so is often replaced by the "delete-a-group jackknife" (DAGJK) with clusters randomly grouped into larger pseudo-clusters.
+
+Why do statisticians go to all this effort to shoehorn their variance estimation problem into jackknife or BRR methods when they could just use the bootstrap?
+
+The simple answer is that bootstrap methods generally require many more replicates than other methods in order to obtain a stable variance estimate. And using a large number of replicates can be a problem if you have to do a large amount of computing or if your dataset is large and you're concerned about storage costs. Statistical agencies are particularly sensitive to these concerns when they publish microdata, since agencies often serve a large number of end-users with varying computational resources.
+
+**So why use the bootstrap?**
+
+1.  **The bootstrap tends to works well for a larger class of statistics than the jackknife.** For example, for estimating the sampling variance of an estimated median or other quantiles, the jackknife tends to perform poorly but bootstrap methods at least do an adequate job.
+
+2.  **Bootstrap methods enable different options for forming confidence intervals.** For all of the standard replication methods (BRR, Jackknife, etc.), confidence intervals are generally formed using a Wald interval ($\hat{\theta} \pm \hat{se}(\hat{\theta}) \times z_{1-\frac{\alpha}{2}}$).[^1] But for certain bootstrap methods, it is possible to also form confidence intervals using other approaches, such as the bootstrap percentile method.
+
+3.  **You can analyze your design rather than an approximation of your design, which can both reduce costs and better control errors**. To use BRR for general survey designs, you have to approximate your actual survey design with a "two PSUs per stratum" design. This works surprisingly well in many cases, but it requires careful work on the part of a specially-trained statistician. For the jackknife with a large number of sampling units, you either end up with the same number of replicates as a bootstrap method or you have to randomly group your sampling units into a smaller number so you can use the DAGJK method to essentially approximate your actual survey design with a simpler one. Again, this takes careful work on the part of a specially-trained statistician.
+
+    1.  By analyzing your design for what it is, **you don't have to pay a specially-trained statistician to meticulously approximate a design so that it can be shoehorned into a jackknife or BRR variance estimation problem**, which is perhaps not the best use of a limited budget.
+
+    2.  **If the variance estimation is based on a bootstrap method tailored to the actual survey design, then the replication error in the variance estimates for key statistics is unbiased and can be quantified and controlled as a function of the number of replicates**. In contrast, when variance estimation is based on approximating a design so that it can be shoehorned into a jackknife or BRR variance estimation problem, then the replication error in the variance estimates is more difficult to quantify and can consist of both noise and bias.
+
+4.  **For most statisticians, it's probably easier to learn.** The bootstrap is the most well-known replication method among general statisticians, to the point that it's often taught in first-year undergraduate statistics courses. So the basic idea is already familiar even to statisticians with only passing familiarity with complex survey sampling. BRR, in contrast, takes specialized training to learn and entails pre-requisite concepts such as Hadamard matrices, partial balancing, and so on. Outside of survey statistics, the jackknife tends to be much less used (and taught) compared to the bootstrap, due to its limitations with non-smooth statistics and the complexity required to make it work efficiently for large sample sizes.
+
+[^1]: Non-Wald methods are typically only used in practice for confidence intervals for proportions. These non-Wald methods are normally based on the point estimate, the standard error, and a measure of effective sample size.
+
+# References

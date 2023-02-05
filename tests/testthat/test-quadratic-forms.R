@@ -453,6 +453,15 @@ library_stsys_sample <- library_stsys_sample |>
   test_that(
     "Informative errors for bad inputs", {
 
+      expect_error(
+        object = make_quad_form_matrix("made-up"),
+        regexp = "`made-up` is not a supported variance estimator"
+      )
+      expect_error(
+        object = make_quad_form_matrix(c("Yates-Grundy", "Horvitz-Thompson")),
+        regexp = "Can only specify one"
+      )
+
       # Horvitz-Thompson / Yates-Grundy
       expect_error(
         object = make_quad_form_matrix(variance_estimator = "Yates-Grundy"),
@@ -472,6 +481,18 @@ library_stsys_sample <- library_stsys_sample |>
         object = make_quad_form_matrix(variance_estimator = "SD1",
                                        cluster_ids = data.frame(ID = c(1,2))),
         regexp = "must supply a vector to `sort_order`"
+      )
+      # Stratified multistage SRS
+      expect_error(
+        object = make_quad_form_matrix(variance_estimator = "Stratified Multistage SRS",
+                                       cluster_ids = data.frame(ID = c(1,2))),
+        regexp = "matrix or data frame to both"
+      )
+      expect_error(
+        object = make_quad_form_matrix(variance_estimator = "Stratified Multistage SRS",
+                                       cluster_ids = data.frame(ID = c(1,2)),
+                                       strata_ids = data.frame(STRATUM = c(1,1))),
+        regexp = "matrix or data frame to `strata_pop_sizes`"
       )
 
   })

@@ -133,7 +133,10 @@
 #' @md
 #' @return The matrix of the quadratic form representing the variance estimator.
 #' @export
-#'
+#' @seealso
+#' For a two-phase design, the function
+#' \link[svrep]{make_twophase_quad_form} combines
+#' the quadratic form matrix from each phase.
 #' @examples
 #' \dontrun{
 #' # Example 1: The Horvitz-Thompson Estimator
@@ -203,12 +206,13 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     "SD1", "SD2"
   )
 
+  if (length(variance_estimator) > 1) {
+    stop("Can only specify one estimator for `variance_estimator`.")
+  }
+
   if (!variance_estimator %in% accepted_variance_estimators) {
     sprintf("`%s` is not a supported variance estimator, or else there is a typo.",
             variance_estimator) |> stop()
-  }
-  if (length(variance_estimator) > 1) {
-    stop("Can only specify one estimator for `variance_estimator`.")
   }
 
   if (variance_estimator %in% c("Yates-Grundy", "Horvitz-Thompson")) {
@@ -231,14 +235,14 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster")) {
       if (is.null(cluster_ids) || is.null(strata_ids)) {
         sprintf(
-          "For `variance_estimator='%s'`, must supply a matrix or data frame to both 'strata_ids' and 'cluster_ids'",
+          "For `variance_estimator='%s'`, must supply a matrix or data frame to both `strata_ids` and `cluster_ids`",
           variance_estimator
         ) |> stop()
       }
     }
     if (variance_estimator == "Stratified Multistage SRS") {
       if (is.null(strata_pop_sizes)) {
-        stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes.")
+        stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes`.")
       }
     }
     if (variance_estimator %in% c("SD1", "SD2")) {
@@ -600,4 +604,424 @@ distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids,
     stop("Must set `rows=TRUE` and/or `cols=TRUE`")
   }
   return(result)
+}
+
+#' @title Check whether a matrix is positive semidefinite
+#' @description Check whether a matrix is positive semidefinite, based on checking for symmetric and negative eigenvalues.
+#'
+#' @param X A matrix with no missing or infinite values.
+#' @param tolerance Tolerance for controlling whether
+#' a tiny computed eigenvalue will actually be considered negative.
+#' Computed negative eigenvalues will be considered
+#' negative if they are less than which are less than
+#' \code{-abs(tolerance * max(eigen(X)$values))}.
+#' A small nonzero tolerance is recommended
+#' since eigenvalues are nearly always computed with some floating-point error.
+#'
+#' @return A logical value. \code{TRUE} if the matrix is deemed positive semidefinite.
+#' Negative otherwise (including if \code{X} is not symmetric).
+#'
+#' @seealso The function \code{\link[svrep]{get_nearest_psd_matrix}()}
+#' can be used to approximate a symmetric matrix which is not positive semidefinite,
+#' by a similar positive semidefinite matrix.
+#'
+#' @examples
+#' X <- matrix(
+#'   c(2, 5, 5,
+#'     5, 2, 5,
+#'     5, 5, 2),
+#'   nrow = 3, byrow = TRUE
+#' )
+#'
+#' is_psd_matrix(X)
+#'
+#' eigen(X)$values
+#' @export
+is_psd_matrix <- function(X, tolerance = sqrt(.Machine$double.eps)) {
+  symmetric <- isSymmetric(X)
+  if (!symmetric) {
+    result <- FALSE
+  } else {
+    if ((sum(is.na(X)) + sum(is.infinite(X))) > 0) {
+      stop("The matrix `X` should not have any missing or infinite values.")
+    }
+    eigenvalues <- eigen(X, only.values = TRUE)$values
+    result <- all(eigenvalues >= -tolerance * abs(eigenvalues[1]))
+  }
+  return(result)
+}
+
+#' @title Approximates a symmetric, real matrix by the nearest positive
+#' semidefinite matrix.
+#'
+#' @description Approximates a symmetric, real matrix by the nearest positive
+#' semidefinite matrix in the Frobenius norm, using the method of Higham (1988).
+#' For a real, symmetric matrix, this is equivalent to "zeroing out" negative eigenvalues.
+#' See the "Details" section for more information.
+#'
+#' @param X A symmetric, real matrix with no missing values.
+#'
+#' @details
+#' Let \eqn{A} denote a symmetric, real matrix which is not positive semidefinite.
+#' Then we can form the spectral decomposition \eqn{A=\Gamma \Lambda \Gamma^{\prime}},
+#' where \eqn{\Lambda} is the diagonal matrix
+#' whose entries are eigenvalues of \eqn{A}.
+#' The method of Higham (1988) is to  approximate
+#' \eqn{A} with \eqn{\tilde{A} = \Gamma \Lambda_{+} \Gamma^{\prime}},
+#' where the \eqn{ii}-th entry of \eqn{\Lambda_{+}} is \eqn{\max(\Lambda_{ii}, 0)}.
+#'
+#' @return The nearest positive semidefinite matrix
+#' of the same dimension as \code{X}.
+#'
+#' @references
+#' - Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103–118.
+#' @export
+#'
+#' @examples
+#' X <- matrix(
+#'   c(2, 5, 5,
+#'     5, 2, 5,
+#'     5, 5, 2),
+#'   nrow = 3, byrow = TRUE
+#' )
+#' get_nearest_psd_matrix(X)
+get_nearest_psd_matrix <- function(X) {
+
+  eigen_decomposition <- eigen(X)
+  eigen_vectors <- eigen_decomposition$vectors
+  eigen_values <- eigen_decomposition$values
+
+  updated_eigen_values <- pmax(eigen_values, 0)
+  updated_eigen_values <- abs(updated_eigen_values)
+
+  X <- eigen_vectors %*% diag(updated_eigen_values) %*% t(eigen_vectors)
+  return(X)
+}
+
+#' @title Compute the matrix of joint inclusion probabilities
+#' from the quadratic form of a Horvitz-Thompson variance estimator.
+#'
+#' @param ht_quad_form The matrix of the quadratic form
+#' representing the Horvitz-Thompson variance estimator.
+#' @details The quadratic form matrix of the Horvitz-Thompson variance estimator
+#' has \eqn{ij}-th entry equal to \eqn{(1-\frac{\pi_i \pi_j}{\pi_{ij}})}.
+#' The matrix of joint probabilties has \eqn{ij}-th entry equal to \eqn{\pi_{ij}}.
+#' @return The matrix of joint inclusion probabilities
+#' @keywords internal
+ht_matrix_to_joint_probs <- function(ht_quad_form) {
+  first_order_probs <- 1 - diag(ht_quad_form)
+  joint_probs <- ((1 - ht_quad_form)^(-1)) * outer(first_order_probs, first_order_probs)
+  return(joint_probs)
+}
+
+#' @title Combine quadratic forms from each phase of a two phase design
+#' @description This function combines quadratic forms from each phase of a two phase design,
+#' so that the combined variance of the entire two-phase sampling design can be estimated.
+#' @param sigma_1 The quadratic form for the first phase variance estimator,
+#' subsetted to only include cases selected in the phase two sample.
+#' @param sigma_2 The quadratic form for the second phase variance estimator,
+#' conditional on the selection of the first phase sample.
+#' @param phase_2_joint_probs The matrix of conditional joint
+#' inclusion probabilities for the second phase, given the selected
+#' first phase sample.
+#' @param ensure_psd If \code{TRUE} (the default), ensures
+#' that the result is a positive semidefinite matrix. This
+#' is necessary if the quadratic form is used as an input for
+#' replication methods such as the generalized bootstrap.
+#' For details, see the help section entitled
+#' "Ensuring the Result is Positive Semidefinite".
+#' @return A quadratic form matrix that can be used to estimate
+#' the sampling variance from a two-phase sample design.
+#' @section Statistical Details:
+#' The two-phase variance estimator has a quadratic form matrix \eqn{\boldsymbol{\Sigma}_{ab}} given by:
+#' \deqn{
+#'   \boldsymbol{\Sigma}_{ab} = {W}^{-1}_b(\boldsymbol{\Sigma}_{a^\prime} \circ D_b ){W}^{-1}_b + \boldsymbol{\Sigma}_b
+#' }
+#' The first term estimates the variance contribution from the first phase of sampling,
+#' while the second term estimates the variance contribution from the second phase of sampling. \cr
+#'
+#' The full quadratic form of the variance estimator is:
+#' \deqn{
+#'   v(\hat{t_y}) = \breve{\breve{y^{'}}} \boldsymbol{\Sigma}_{ab} \breve{\breve{y}}
+#' }
+#' where the weighted variable \eqn{\breve{\breve{y}}_k = \frac{y_k}{\pi_{ak}\pi_{bk}}},
+#' is formed using the first phase inclusion probability, denoted \eqn{\pi_{ak}}, and
+#' the conditional second phase inclusion probability (given the selected first phase sample),
+#' denoted \eqn{\pi_{bk}}. \cr
+#'
+#' The notation for this estimator is as follows: \cr
+#' \itemize{
+#'   \item \eqn{n_a} denotes the first phase sample size.
+#'
+#'   \item \eqn{n_b} denotes the second phase sample size.
+#'
+#'   \item \eqn{\boldsymbol{\Sigma}_a} denotes the matrix of dimension \eqn{n_a \times n_a}
+#'   representing the quadratic form for the variance estimator
+#'   used for the full first-phase design.
+#'
+#'   \item \eqn{\boldsymbol{\Sigma}_{a^\prime}} denotes the matrix of dimension \eqn{n_b \times n_b}
+#'   formed by subsetting the rows and columns of \eqn{\boldsymbol{\Sigma}_a} to only include
+#'   cases selected in the second-phase sample.
+#'
+#'   \item \eqn{\boldsymbol{\Sigma}_{b}} denotes
+#'   the matrix of dimension \eqn{n_b \times n_b} representing the Horvitz-Thompson
+#'   estimator of variance for the second-phase sample, conditional on the selected
+#'   first-phase sample.
+#'
+#'   \item \eqn{\boldsymbol{D}_b} denotes the \eqn{n_b \times n_b} matrix of weights formed by the inverses of
+#'   the second-phase joint inclusion probabilities, with element \eqn{kl} equal to \eqn{\pi_{bkl}^{-1}},
+#'   where \eqn{\pi_{bkl}} is the conditional probability that units \eqn{k} and \eqn{l} are included
+#'   in the second-phase sample, given the selected first-phase sample. Note that this
+#'   matrix will often not be positive semidefinite, and so the two-phase variance estimator
+#'   has a quadratic form which is not necessarily positive semidefinite.
+#'
+#'   \item \eqn{\boldsymbol{W}_b} denotes the diagonal \eqn{n_b \times n_b} matrix
+#'   whose \eqn{k}-th diagonal entry is the second-phase weight \eqn{\pi_{bk}^{-1}},
+#'   where \eqn{\pi_{bk}} is the conditional probability that unit \eqn{k}
+#'   is included in the second-phase sample, given the selected first-phase sample.
+#' }
+#' @section Ensuring the Result is Positive semidefinite:
+#' Note that the matrix \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} may not be
+#' positive semidefinite, since the matrix \eqn{D_b} is not guaranteed to be positive semidefinite.
+#' If \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} is found not to be positive semidefinite,
+#' then it is approximated by the nearest positive semidefinite matrix in the Frobenius norm,
+#' using the method of Higham (1988). \cr \cr
+#' This approximation is discussed by Beaumont and Patak (2012) in the context
+#' of forming replicate weights for two-phase samples. The authors argue that
+#' this approximation should lead to only a small overestimation of variance. \cr \cr
+#' Since \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )}
+#' is a real, symmetric matrix, this is equivalent to "zeroing out" negative eigenvalues.
+#' To be more precise, denote \eqn{A=(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )}.
+#' Then we can form the spectral decomposition \eqn{A=\Gamma \Lambda \Gamma^{\prime}}, where \eqn{\Lambda} is the diagonal matrix
+#' whose entries are eigenvalues of \eqn{A}. The method of Higham (1988)
+#' is to  approximate
+#' \eqn{A} with \eqn{\tilde{A} = \Gamma \Lambda_{+} \Gamma^{\prime}},
+#' where the \eqn{ii}-th entry of \eqn{\Lambda_{+}} is \eqn{\max(\Lambda_{ii}, 0)}.
+#'
+#' @references
+#' See Section 7.5 of Tillé (2020) or Section 9.3 of Särndal, Swensson, and Wretman (1992)
+#' for an overview of variance estimation for two-phase sampling. In the case where
+#' the Horvitz-Thompson variance estimator is used for both phases, the method used in this function
+#' is equivalent to equation (9.3.8) of Särndal, Swensson, and Wretman (1992)
+#' and equation (7.7) of Tillé (2020). However, this function can be used
+#' for any combination of first-phase and second-phase variance estimators,
+#' provided that the joint inclusion probabilities from the second-phase design
+#' are available and are all nonzero.
+#' \cr \cr
+#' - Beaumont, Jean-François, and Zdenek Patak. (2012). “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.”
+#' International Statistical Review 80 (1): 127–48.
+#' \cr \cr
+#' - Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103–118.
+#' \cr \cr
+#' - Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
+#' \cr \cr
+#' - Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
+#' @md
+#' @export
+#' @seealso
+#' For each phase of sampling, the function
+#' \link[svrep]{make_quad_form_matrix} can be used to create
+#' the appropriate quadratic form matrix.
+#' @examples
+#' \dontrun{
+#'
+#' ## ---------------------- Example 1 ------------------------##
+#' ## First phase is a stratified multistage sample            ##
+#' ## Second phase is a simple random sample                   ##
+#' ##----------------------------------------------------------##
+#' data('library_multistage_sample', package = 'svrep')
+#'
+#' # Load first-phase sample
+#'   twophase_sample <- library_multistage_sample
+#'
+#' # Select second-phase sample
+#'   set.seed(2022)
+#'
+#'   twophase_sample[['SECOND_PHASE_SELECTION']] <- sampling::srswor(
+#'     n = 100,
+#'     N = nrow(twophase_sample)
+#'   ) |> as.logical()
+#'
+#' # Declare survey design
+#'   twophase_design <- twophase(
+#'     method = "full",
+#'     data = twophase_sample,
+#'     # Identify the subset of first-phase elements
+#'     # which were selected into the second-phase sample
+#'     subset = ~ SECOND_PHASE_SELECTION,
+#'     # Describe clusters, probabilities, and population sizes
+#'     # at each phase of sampling
+#'     id = list(~ PSU_ID + SSU_ID,
+#'               ~ 1),
+#'     probs = list(~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
+#'                  NULL),
+#'     fpc = list(~ PSU_POP_SIZE + SSU_POP_SIZE,
+#'                NULL)
+#'   )
+#'
+#' # Get quadratic form matrix for the first phase design
+#'   first_phase_sigma <- get_design_quad_form(
+#'     design = twophase_design$phase1$full,
+#'     variance_estimator = "Stratified Multistage SRS"
+#'   )
+#'
+#' # Subset to only include cases sampled in second phase
+#'
+#'   first_phase_sigma <- first_phase_sigma[twophase_design$subset,
+#'                                          twophase_design$subset]
+#'
+#' # Get quadratic form matrix for the second-phase design
+#'   second_phase_sigma <- get_design_quad_form(
+#'     design = twophase_design$phase2,
+#'     variance_estimator = "Ultimate Cluster"
+#'   )
+#'
+#' # Get second-phase joint probabilities
+#'   n <- twophase_design$phase2$fpc$sampsize[1,1]
+#'   N <- twophase_design$phase2$fpc$popsize[1,1]
+#'
+#'   second_phase_joint_probs <- matrix((n/N)*((n-1)/(N-1)),
+#'                                      nrow = n, ncol = n)
+#'   diag(second_phase_joint_probs) <- rep(n/N, times = n)
+#'
+#' # Get quadratic form for entire two-phase variance estimator
+#'   twophase_quad_form <- make_twophase_quad_form(
+#'    sigma_1 = first_phase_sigma,
+#'    sigma_2 = second_phase_sigma,
+#'    phase_2_joint_probs = second_phase_joint_probs
+#'  )
+#'
+#'  # Use for variance estimation
+#'
+#'    rep_factors <- make_gen_boot_factors(
+#'      Sigma = twophase_quad_form,
+#'      num_replicates = 500
+#'    )
+#'
+#'    library(survey)
+#'
+#'    combined_weights <- 1/twophase_design$prob
+#'
+#'    twophase_rep_design <- svrepdesign(
+#'      data = twophase_sample |>
+#'        subset(SECOND_PHASE_SELECTION),
+#'      type = 'other',
+#'      repweights = rep_factors,
+#'      weights = combined_weights,
+#'      combined.weights = FALSE,
+#'      scale = attr(rep_factors, 'scale'),
+#'      rscales = attr(rep_factors, 'rscales')
+#'    )
+#'
+#'    svymean(x = ~ LIBRARIA, design = twophase_rep_design)
+#'
+#'
+#' ## ---------------------- Example 2 ------------------------##
+#' ## First phase is a stratified systematic sample            ##
+#' ## Second phase is nonresponse, modeled as Poisson sampling ##
+#' ##----------------------------------------------------------##
+#'
+#' data('library_stsys_sample', package = 'svrep')
+#'
+#' # Determine quadratic form for full first-phase sample variance estimator
+#'
+#'   full_phase1_quad_form <- make_quad_form_matrix(
+#'     variance_estimator = "SD2",
+#'     cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+#'     strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+#'     strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE],
+#'     sort_order = library_stsys_sample$SAMPLING_SORT_ORDER
+#'   )
+#'
+#' # Identify cases included in phase two sample
+#' # (in this example, respondents)
+#'   phase2_inclusion <- (
+#'     library_stsys_sample$RESPONSE_STATUS == "Survey Respondent"
+#'   )
+#'   phase2_sample <- library_stsys_sample[phase2_inclusion,]
+#'
+#' # Estimate response propensities
+#'
+#'   response_propensities <- glm(
+#'     data = library_stsys_sample,
+#'     family = quasibinomial('logit'),
+#'     formula = phase2_inclusion ~ 1,
+#'     weights = 1/library_stsys_sample$SAMPLING_PROB
+#'   ) |>
+#'     predict(type = "response",
+#'             newdata = phase2_sample)
+#'
+#' # Estimate conditional joint inclusion probabilities for second phase
+#'
+#'   phase2_joint_probs <- outer(response_propensities, response_propensities)
+#'   diag(phase2_joint_probs) <- response_propensities
+#'
+#' # Determine quadratic form for variance estimator of second phase
+#' # (Horvitz-Thompson estimator for nonresponse modeled as Poisson sampling)
+#'
+#'   phase2_quad_form <- make_quad_form_matrix(
+#'     variance_estimator = "Horvitz-Thompson",
+#'     joint_probs = phase2_joint_probs
+#'   )
+#'
+#' # Create combined quadratic form for entire design
+#'
+#'  twophase_quad_form <- make_twophase_quad_form(
+#'    sigma_1 = full_phase1_quad_form[phase2_inclusion, phase2_inclusion],
+#'    sigma_2 = phase2_quad_form,
+#'    phase_2_joint_probs = phase2_joint_probs
+#'  )
+#'
+#'  combined_weights <- 1/(phase2_sample$SAMPLING_PROB * response_propensities)
+#'
+#' # Use for variance estimation
+#'
+#'   rep_factors <- make_gen_boot_factors(
+#'     Sigma = twophase_quad_form,
+#'     num_replicates = 500
+#'   )
+#'
+#'   library(survey)
+#'
+#'   twophase_rep_design <- svrepdesign(
+#'     data = phase2_sample,
+#'     type = 'other',
+#'     repweights = rep_factors,
+#'     weights = combined_weights,
+#'     combined.weights = FALSE,
+#'     scale = attr(rep_factors, 'scale'),
+#'     rscales = attr(rep_factors, 'rscales')
+#'   )
+#'
+#'   svymean(x = ~ LIBRARIA, design = twophase_rep_design)
+#' }
+make_twophase_quad_form <- function(sigma_1, sigma_2, phase_2_joint_probs,
+                                    ensure_psd = TRUE) {
+
+  # Diagonal matrix whose entries are second-phase first-order probabilities
+  phase2_prob_matrix <- diag(diag(phase_2_joint_probs))
+
+  # Weighted version of `Sigma_1`
+  wtd_sigma_1 <- sigma_1 / phase_2_joint_probs
+
+  # If necessary, approximate `wtd_sigma_1`
+  # with the nearest positive semidefinite matrix
+  if (ensure_psd && !is_psd_matrix(wtd_sigma_1)) {
+    paste(
+      "Approximating (sigma_1/phase_2_joint_probs) with the nearest positive semidefinite matrix,",
+      "since the matrix (1/phase_2_joint_probs) is not positive semidefinite.",
+      "This is expected to result in a small overestimation of variance.",
+      "See `help('make_twophase_quad_form', package = 'svrep')` for details."
+    ) |> warning()
+
+    wtd_sigma_1 <- get_nearest_psd_matrix(wtd_sigma_1)
+  }
+
+  # Combine the quadratic forms from the two phases
+  Sigma <- `+`(
+    phase2_prob_matrix %*% wtd_sigma_1 %*% phase2_prob_matrix,
+    sigma_2
+  )
+
+  return(Sigma)
 }

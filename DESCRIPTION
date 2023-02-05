@@ -10,6 +10,8 @@ Authors@R:
              comment = c(ORCID = "0000-0002-0406-8470")))
 Description: Provides tools for creating and working with survey replicate weights,
   extending functionality of the 'survey' package from Lumley (2004) <doi:10.18637/jss.v009.i08>.
+  Implements bootstrap methods for complex surveys, including the generalized survey bootstrap
+  as described by Beaumont and Patak (2012) <doi:10.1111/j.1751-5823.2011.00166.x>.
   Methods are provided for applying nonresponse adjustments to
   both full-sample and replicate weights as described by 
   Rust and Rao (1996) <doi:10.1177/096228029600500305>.
@@ -37,8 +39,10 @@ Suggests:
     tidycensus,
     dplyr,
     srvyr,
-    withr
+    withr,
+    sampling,
+    prettydoc
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
