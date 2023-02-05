@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -261,26 +261,26 @@ nonrespondents has been redistributed to respondents.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    RESPONSE_STATUS Rep_Column   N N_NONZERO    SUM     MEAN        CV MIN</span></span>
 <span><span class="co">#&gt; 1    Nonrespondent          1 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 2       Respondent          1 502       305 596702 1188.649 1.0343701   0</span></span>
+<span><span class="co">#&gt; 2       Respondent          1 502       317 596702 1188.649 1.0248181   0</span></span>
 <span><span class="co">#&gt; 3    Nonrespondent          2 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 4       Respondent          2 502       300 596702 1188.649 1.0888404   0</span></span>
+<span><span class="co">#&gt; 4       Respondent          2 502       321 596702 1188.649 1.0090710   0</span></span>
 <span><span class="co">#&gt; 5    Nonrespondent          3 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 6       Respondent          3 502       318 596702 1188.649 0.9869511   0</span></span>
+<span><span class="co">#&gt; 6       Respondent          3 502       318 596702 1188.649 0.9910411   0</span></span>
 <span><span class="co">#&gt; 7    Nonrespondent          4 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 8       Respondent          4 502       323 596702 1188.649 0.9733213   0</span></span>
+<span><span class="co">#&gt; 8       Respondent          4 502       305 596702 1188.649 1.0250473   0</span></span>
 <span><span class="co">#&gt; 9    Nonrespondent          5 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 10      Respondent          5 502       319 596702 1188.649 1.0144821   0</span></span>
+<span><span class="co">#&gt; 10      Respondent          5 502       326 596702 1188.649 0.9806752   0</span></span>
 <span><span class="co">#&gt;         MAX</span></span>
 <span><span class="co">#&gt; 1     0.000</span></span>
-<span><span class="co">#&gt; 2  6202.723</span></span>
+<span><span class="co">#&gt; 2  5967.020</span></span>
 <span><span class="co">#&gt; 3     0.000</span></span>
-<span><span class="co">#&gt; 4  6151.567</span></span>
+<span><span class="co">#&gt; 4  6819.451</span></span>
 <span><span class="co">#&gt; 5     0.000</span></span>
-<span><span class="co">#&gt; 6  5781.996</span></span>
+<span><span class="co">#&gt; 6  5919.663</span></span>
 <span><span class="co">#&gt; 7     0.000</span></span>
-<span><span class="co">#&gt; 8  5850.020</span></span>
+<span><span class="co">#&gt; 8  5884.635</span></span>
 <span><span class="co">#&gt; 9     0.000</span></span>
-<span><span class="co">#&gt; 10 6819.451</span></span></code></pre></div>
+<span><span class="co">#&gt; 10 5967.020</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="conducting-weighting-class-adjustments">Conducting weighting class adjustments<a class="anchor" aria-label="anchor" href="#conducting-weighting-class-adjustments"></a>
@@ -386,16 +386,16 @@ adjustment</strong>) can also be used, for example by adding a variable
 <span>         <span class="va">N_NONZERO</span>, <span class="va">SUM</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    PROPENSITY_CELL Rep_Column N_NONZERO      SUM</span></span>
-<span><span class="co">#&gt; 1                1          1       122 118265.3</span></span>
-<span><span class="co">#&gt; 2                2          1       128 123043.7</span></span>
-<span><span class="co">#&gt; 3                3          1       130 122446.4</span></span>
-<span><span class="co">#&gt; 4                4          1       113 118862.6</span></span>
-<span><span class="co">#&gt; 5                5          1       125 114084.2</span></span>
-<span><span class="co">#&gt; 6                1          2       114 117668.0</span></span>
-<span><span class="co">#&gt; 7                2          2       120 118862.6</span></span>
-<span><span class="co">#&gt; 8                3          2       128 121251.8</span></span>
-<span><span class="co">#&gt; 9                4          2       129 126030.2</span></span>
-<span><span class="co">#&gt; 10               5          2       121 112889.6</span></span>
+<span><span class="co">#&gt; 1                1          1       130 126030.2</span></span>
+<span><span class="co">#&gt; 2                2          1       116 110500.4</span></span>
+<span><span class="co">#&gt; 3                3          1       134 118862.6</span></span>
+<span><span class="co">#&gt; 4                4          1       133 126627.5</span></span>
+<span><span class="co">#&gt; 5                5          1       125 114681.5</span></span>
+<span><span class="co">#&gt; 6                1          2       130 124835.6</span></span>
+<span><span class="co">#&gt; 7                2          2       119 107513.9</span></span>
+<span><span class="co">#&gt; 8                3          2       129 126030.2</span></span>
+<span><span class="co">#&gt; 9                4          2       128 123043.7</span></span>
+<span><span class="co">#&gt; 10               5          2       127 115278.8</span></span>
 <span></span>
 <span><span class="co"># Inspect weights after adjustment</span></span>
 <span><span class="va">nr_adjusted_survey</span> <span class="op">|&gt;</span></span>
@@ -407,15 +407,15 @@ adjustment</strong>) can also be used, for example by adding a variable
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    PROPENSITY_CELL RESPONSE_STATUS Rep_Column N_NONZERO      SUM</span></span>
 <span><span class="co">#&gt; 1                1   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 2                1      Respondent          1        49 118265.3</span></span>
+<span><span class="co">#&gt; 2                1      Respondent          1        51 126030.2</span></span>
 <span><span class="co">#&gt; 3                2   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 4                2      Respondent          1        58 123043.7</span></span>
+<span><span class="co">#&gt; 4                2      Respondent          1        48 110500.4</span></span>
 <span><span class="co">#&gt; 5                3   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 6                3      Respondent          1        61 122446.4</span></span>
+<span><span class="co">#&gt; 6                3      Respondent          1        71 118862.6</span></span>
 <span><span class="co">#&gt; 7                4   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 8                4      Respondent          1        70 118862.6</span></span>
+<span><span class="co">#&gt; 8                4      Respondent          1        75 126627.5</span></span>
 <span><span class="co">#&gt; 9                5   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 10               5      Respondent          1        67 114084.2</span></span></code></pre></div>
+<span><span class="co">#&gt; 10               5      Respondent          1        72 114681.5</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
