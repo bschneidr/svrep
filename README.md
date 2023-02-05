@@ -36,6 +36,21 @@ You can install the development version from
 devtools::install_github("bschneidr/svrep")
 ```
 
+## Citation
+
+When using the ‘svrep’ package, please make sure to cite it any
+resulting publications. This is appreciated by the package maintainer
+and helps to incentivize ongoing development, maintenance, and support.
+
+> Schneider B. (2023). “svrep: Tools for Creating, Updating, and
+> Analyzing Survey Replicate Weights”. R package version 5.0.
+
+When using the ‘svrep’ package, please also cite the ‘survey’ package
+and R itself, since they are essential to the use of ‘svrep’. Call
+`citation('svrep')`, `citation('survey')`, and `citation('base')` for
+more information and to generate BibTex entries for citing these
+packages as well as R.
+
 ## Example usage
 
 ### Creating replicate weights
