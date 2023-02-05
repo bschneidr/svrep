@@ -1,16 +1,11 @@
 ---
 title: "Nonresponse Adjustments"
 output: 
-  html_document:
-    theme: flatly
-    highlight: zenburn
-    number_sections: true
-    highlighted: default 
-    toc: yes
-    toc_float:
-      collapsed: yes
-      smooth_scroll: no
-    toc_depth: 3
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+    toc: true
+    toc_depth: 4
 vignette: >
   %\VignetteIndexEntry{Nonresponse Adjustments}
   %\VignetteEngine{knitr::rmarkdown}

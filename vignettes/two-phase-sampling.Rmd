@@ -1,15 +1,10 @@
 ---
 title: "Replication Methods for Two-phase Sampling"
 output: 
-  html_document:
-    theme: flatly
-    highlight: zenburn
-    number_sections: true
-    highlighted: default 
-    toc: yes
-    toc_float:
-      collapsed: yes
-      smooth_scroll: no
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+    toc: true
     toc_depth: 3
 vignette: >
   %\VignetteIndexEntry{Replication Methods for Two-phase Sampling}
