@@ -1,9 +1,10 @@
-citHeader("To cite the survey package in publications use one or more of:")
-
-citEntry(entry="misc",
-   author="Benjamin Schneider",
-   year=2023,
-   title="svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights",
-   note="R package version 5.0",
-   url="https://CRAN.R-project.org/package=svrep",
-   textVersion="Schneider, B. (2023). \"svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights\". R package version 5.0." )
+bibentry(
+  bibtype="misc",
+  header = "To cite the survey package in publications use one or more of:",
+  author="Benjamin Schneider",
+  year=2023,
+  title="svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights",
+  note="R package version 5.0",
+  url="https://CRAN.R-project.org/package=svrep",
+  textVersion="Schneider, B. (2023). \"svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights\". R package version 5.0."
+)
