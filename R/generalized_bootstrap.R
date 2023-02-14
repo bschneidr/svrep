@@ -351,7 +351,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
   return(rescaled_replicate_factors)
 }
 
-#' @title Convert a survey design object to a generalized boostrap replicate design
+#' @title Convert a survey design object to a generalized bootstrap replicate design
 #' @description Converts a survey design object to a replicate design object
 #' with replicate weights formed using the generalized bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights

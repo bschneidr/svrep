@@ -2,7 +2,7 @@
 % Please edit documentation in R/generalized_bootstrap.R
 \name{as_gen_boot_design}
 \alias{as_gen_boot_design}
-\title{Convert a survey design object to a generalized boostrap replicate design}
+\title{Convert a survey design object to a generalized bootstrap replicate design}
 \usage{
 as_gen_boot_design(
   design,
