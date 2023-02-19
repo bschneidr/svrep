@@ -27,11 +27,11 @@ the argument \code{joint_probs} must also be used.}
 \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
 based on estimating the variance of cluster totals within strata at each stage.
 If this option is used, then it is necessary to also use the arguments
-\code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}, and \code{strata_pop_sizes}.}
+\code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}, and \code{strata_pop_sizes}.}
 \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
 the variance of first-stage cluster totals within first-stage strata.
 If this option is used, then it is necessary to also use the arguments
-\code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}.
+\code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}.
 Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.}
 \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 sometimes used for variance estimation for systematic sampling.}
@@ -80,14 +80,16 @@ This function constructs the \eqn{n \times n} matrix of the quadratic form, \eqn
 }
 \section{Arguments required for each variance estimator}{
 
-Below are the arguments that are required or optional for each variance estimator.\tabular{lrrrrr}{
-   variance_estimator \tab joint_probs \tab cluster_ids \tab strata_ids \tab strata_pop_sizes \tab sort_order \cr
-   Yates-Grundy \tab Required \tab  \tab  \tab  \tab  \cr
-   Horvitz-Thompson \tab Required \tab  \tab  \tab  \tab  \cr
-   Stratified Multistage SRS \tab  \tab Required \tab Required \tab Required \tab  \cr
-   Ultimate Cluster \tab  \tab Required \tab Required \tab Optional \tab  \cr
-   SD1 \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
-   SD2 \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
+Below are the arguments that are required or optional for each variance estimator.\tabular{lrrrrrr}{
+   variance_estimator \tab probs \tab joint_probs \tab cluster_ids \tab strata_ids \tab strata_pop_sizes \tab sort_order \cr
+   Stratified Multistage SRS \tab  \tab  \tab Required \tab Required \tab Required \tab  \cr
+   Ultimate Cluster \tab  \tab  \tab Required \tab Required \tab Optional \tab  \cr
+   SD1 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
+   SD2 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
+   Deville-1 \tab Required \tab  \tab Optional \tab Optional \tab Optional \tab  \cr
+   Deville-2 \tab Required \tab  \tab Optional \tab Optional \tab Optional \tab  \cr
+   Yates-Grundy \tab  \tab Required \tab  \tab  \tab  \tab  \cr
+   Horvitz-Thompson \tab  \tab Required \tab  \tab  \tab  \tab  \cr
 }
 }
 

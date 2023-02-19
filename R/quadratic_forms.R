@@ -20,11 +20,11 @@
 #'   \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
 #'   based on estimating the variance of cluster totals within strata at each stage.
 #'   If this option is used, then it is necessary to also use the arguments
-#'   \code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}, and \code{strata_pop_sizes}.}
+#'   \code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}, and \code{strata_pop_sizes}.}
 #'   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
 #'   the variance of first-stage cluster totals within first-stage strata.
 #'   If this option is used, then it is necessary to also use the arguments
-#'   \code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}.
+#'   \code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}.
 #'   Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.}
 #'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 #'   sometimes used for variance estimation for systematic sampling.}
@@ -55,15 +55,16 @@
 #' @section Arguments required for each variance estimator:
 #' Below are the arguments that are required or optional for each variance estimator.
 #'
-#' | variance_estimator       | joint_probs | cluster_ids | strata_ids  | strata_pop_sizes | sort_order |
-#' | ------------------------ | -----------:| -----------:| -----------:| ----------------:|-----------:|
-#' | Yates-Grundy             | Required    |             |             |                  |            |
-#' | Horvitz-Thompson         | Required    |             |             |                  |            |
-#' | Stratified Multistage SRS|             | Required    | Required    | Required         |            |
-#' | Ultimate Cluster         |             | Required    | Required    | Optional         |            |
-#' | SD1                      |             | Required    | Optional    | Optional         | Required   |
-#' | SD2                      |             | Required    | Optional    | Optional         | Required   |
-#'
+#' | variance_estimator       |probs       | joint_probs | cluster_ids | strata_ids  | strata_pop_sizes | sort_order |
+#' | ------------------------ |-----------:| -----------:| -----------:| -----------:| ----------------:|-----------:|
+#' | Stratified Multistage SRS|            |             | Required    | Required    | Required         |            |
+#' | Ultimate Cluster         |            |             | Required    | Required    | Optional         |            |
+#' | SD1                      |            |             | Required    | Optional    | Optional         | Required   |
+#' | SD2                      |            |             | Required    | Optional    | Optional         | Required   |
+#' | Deville-1                | Required   |             | Optional    | Optional    | Optional         |            |
+#' | Deville-2                | Required   |             | Optional    | Optional    | Optional         |            |
+#' | Yates-Grundy             |            | Required    |             |             |                  |            |
+#' | Horvitz-Thompson         |            | Required    |             |             |                  |            |
 #' @section Variance Estimators:
 #' The \strong{Horvitz-Thompson} variance estimator:
 #' \deqn{
@@ -554,6 +555,84 @@ make_srswor_matrix <- function(n, f = 0) {
     C_matrix <- (1-f) * C_matrix
   }
   return(C_matrix)
+}
+
+#' @title Create a quadratic form's matrix to represent a variance estimator
+#' for PPSWOR designs, based on commonly-used approximations
+#' @description Several variance estimators for designs that use
+#' unequal probability sampling without replacement (i.e., PPSWOR),
+#' variance estimation tends to be more accurate
+#' when using an approximation estimator that uses the first-order
+#' inclusion probabilities (i.e., the basic sampling weights)
+#' and ignores the joint inclusion probabilities.
+#' This function returns the matrix of the quadratic form used
+#' to represent such variance estimators.
+#' @param probs A vector of first-order inclusion probabilities
+#' @param method A string specifying the approximation method to use.
+#' See the "Details" section below.
+#' Options include:
+#' \itemize{
+#'   \item{"Deville-1"}
+#'   \item{"Deville-2"}
+#' }
+
+#' @return A symmetric matrix whose dimension matches the length of \code{probs}.
+#' @details
+#' These variance estimators have been shown to be effective
+#' for designs that use a fixed sample size with a high-entropy sampling method.
+#' This include most PPSWOR sampling methods,
+#' but unequal-probability systematic sampling is an important exception.
+#'
+#' These variance estimators generally take the following form:
+#' \deqn{
+#' \hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
+#' }
+#' where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
+#' and \eqn{c_i} are constants that depend on the approximation method used.  \cr \cr
+#' The matrix of the quadratic form, denoted \eqn{\Sigma}, has
+#' its \eqn{ij}-th entry defined as follows:
+#' \deqn{
+#'   \sigma_{ii} = c_i (1 - \frac{c_i}{\sum_{k=1}^{n}c_k}) \textit{ when } i = j \\
+#'   \sigma_{ij}=\frac{-c_i c_j}{\sum_{k=1}^{n}c_k} \textit{ when } i \neq j \\
+#' }
+#' The constants \eqn{c_i} are defined for each approximation method as follows,
+#' with the names taken directly from Matei and Tillé (2005).
+#' \itemize{
+#'   \item{\strong{"Deville-1"}: }{
+#'     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+#'   \item{\strong{"Deville-2"}: }{
+#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
+#' }
+#' Both of the approximations \strong{"Deville-1"} and \strong{"Deville-2"} were shown
+#' in Matei and Tillé (2005) to perform much better in terms of MSE compared
+#' to the strictly-unbiased Horvitz-Thompson and Yates-Grundy variance estimators.
+#' @references
+#' Matei, Alina, and Yves Tillé. 2005.
+#' “Evaluation of Variance Approximations and Estimators
+#' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.”
+#' Journal of Official Statistics 21(4):543–70.
+#'
+#' @keywords internal
+make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
+
+  one_minus_pi <- 1 - probs
+
+  if (method == "Deville-1") {
+    n <- length(probs)
+    c_k <- (1 - probs) * (n/(n-1))
+  }
+  if (method == "Deville-2") {
+    c_k <- (1 - probs) / (
+      1 - sum( (one_minus_pi/sum(one_minus_pi))^2 )
+    )
+  }
+
+  c_sum <- sum(c_k)
+
+  Sigma <- outer(c_k, -c_k) / c_sum
+  diag(Sigma) <- c_k*(1 - c_k/c_sum)
+
+  return(Sigma)
 }
 
 #' @title Helper function to turn a cluster-level matrix into an element-level matrix
