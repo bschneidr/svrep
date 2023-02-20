@@ -225,6 +225,7 @@
 #'   wtd_y <- as.matrix(weights(multistage_srswor_design) * mu284$y1)
 #'   t(wtd_y) %*% multistage_srs_quad_form %*% wtd_y
 #'
+#'   ##_ Compare against result from 'survey' package
 #'   svytotal(x = ~ y1, design = multistage_srswor_design) |> vcov()
 #'
 #' # Example 3: Successive-differences estimator ----
@@ -243,7 +244,7 @@
 #'                       library_stsys_sample$SAMPLING_PROB)
 #'   wtd_y[is.na(wtd_y)] <- 0
 #'
-#' t(wtd_y) %*% sd1_quad_form %*% wtd_y
+#'   t(wtd_y) %*% sd1_quad_form %*% wtd_y
 #' }
 make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
                                   probs = NULL,

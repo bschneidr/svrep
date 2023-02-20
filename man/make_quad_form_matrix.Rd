@@ -192,7 +192,7 @@ and \eqn{c_i} depend on the method used:
 \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
 }
 In the case of simple random sampling without replacement (SRSWOR),
-these estimators are both identical to usual stratified multistage SRS estimator
+these estimators are both identical to the usual stratified multistage SRS estimator
 (which is itself a special case of the Horvitz-Thompson estimator).
 
 For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
@@ -240,6 +240,7 @@ within the first-stage unit.
   wtd_y <- as.matrix(weights(multistage_srswor_design) * mu284$y1)
   t(wtd_y) \%*\% multistage_srs_quad_form \%*\% wtd_y
 
+  ##_ Compare against result from 'survey' package
   svytotal(x = ~ y1, design = multistage_srswor_design) |> vcov()
 
 # Example 3: Successive-differences estimator ----
@@ -258,7 +259,7 @@ within the first-stage unit.
                       library_stsys_sample$SAMPLING_PROB)
   wtd_y[is.na(wtd_y)] <- 0
 
-t(wtd_y) \%*\% sd1_quad_form \%*\% wtd_y
+  t(wtd_y) \%*\% sd1_quad_form \%*\% wtd_y
 }
 }
 \references{
