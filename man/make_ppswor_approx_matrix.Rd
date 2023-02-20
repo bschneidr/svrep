@@ -34,7 +34,7 @@ to represent such variance estimators.
 \details{
 These variance estimators have been shown to be effective
 for designs that use a fixed sample size with a high-entropy sampling method.
-This include most PPSWOR sampling methods,
+This includes most PPSWOR sampling methods,
 but unequal-probability systematic sampling is an important exception.
 
 These variance estimators generally take the following form:
@@ -58,8 +58,11 @@ with the names taken directly from Matei and Tillé (2005).
     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
 }
 Both of the approximations \strong{"Deville-1"} and \strong{"Deville-2"} were shown
-in Matei and Tillé (2005) to perform much better in terms of MSE compared
-to the strictly-unbiased Horvitz-Thompson and Yates-Grundy variance estimators.
+in the simulation studies of Matei and Tillé (2005) to perform much better
+in terms of MSE compared to the strictly-unbiased
+Horvitz-Thompson and Yates-Grundy variance estimators.
+In the case of simple random sampling without replacement (SRSWOR),
+these estimators are identical to the usual Horvitz-Thompson variance estimator.
 }
 \references{
 Matei, Alina, and Yves Tillé. 2005.

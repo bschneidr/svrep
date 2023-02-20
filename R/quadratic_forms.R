@@ -26,12 +26,25 @@
 #'   If this option is used, then it is necessary to also use the arguments
 #'   \code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}.
 #'   Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.}
+#'   \item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
+#'   sampling without replacement, described in Matei and Tillé (2005)
+#'   as "Deville 1". If this option is used, then it is necessary to also use the arguments
+#'   \code{strata_ids}, \code{cluster_ids}, and \code{probs}.}
+#'   \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
+#'   sampling without replacement, described in Matei and Tillé (2005)
+#'   as "Deville 2". If this option is used, then it is necessary to also use the arguments
+#'   \code{strata_ids}, \code{cluster_ids}, and \code{probs}.}
 #'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 #'   sometimes used for variance estimation for systematic sampling.}
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 #'   This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'   for variance estimation for systematic sampling.}
 #' }
+#' @param probs Required if \code{variance_estimator} equals \code{"Deville-1"} or \code{"Deville-2"}.
+#' This should be a matrix or data frame of sampling probabilities.
+#' If there are multiple stages of sampling,
+#' then \code{probs} can have multiple columns,
+#' with one column for each level of sampling to be accounted for by the variance estimator.
 #' @param joint_probs Only used if \code{variance_estimator = "Horvitz-Thompson"} or \code{variance_estimator = "Yates-Grundy"}.
 #' This should be a matrix of joint inclusion probabilities.
 #' Element \code{[i,i]} of the matrix is the first-order inclusion probability of unit \code{i},
@@ -55,14 +68,14 @@
 #' @section Arguments required for each variance estimator:
 #' Below are the arguments that are required or optional for each variance estimator.
 #'
-#' | variance_estimator       |probs       | joint_probs | cluster_ids | strata_ids  | strata_pop_sizes | sort_order |
+#' | variance_estimator       | probs      | joint_probs | cluster_ids | strata_ids  | strata_pop_sizes | sort_order |
 #' | ------------------------ |-----------:| -----------:| -----------:| -----------:| ----------------:|-----------:|
 #' | Stratified Multistage SRS|            |             | Required    | Required    | Required         |            |
 #' | Ultimate Cluster         |            |             | Required    | Required    | Optional         |            |
 #' | SD1                      |            |             | Required    | Optional    | Optional         | Required   |
 #' | SD2                      |            |             | Required    | Optional    | Optional         | Required   |
-#' | Deville-1                | Required   |             | Optional    | Optional    | Optional         |            |
-#' | Deville-2                | Required   |             | Optional    | Optional    | Optional         |            |
+#' | Deville-1                | Required   |             | Required    | Optional    |                  |            |
+#' | Deville-2                | Required   |             | Required    | Optional    |                  |            |
 #' | Yates-Grundy             |            | Required    |             |             |                  |            |
 #' | Horvitz-Thompson         |            | Required    |             |             |                  |            |
 #' @section Variance Estimators:
@@ -125,12 +138,50 @@
 #' of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
 #' the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
 #' which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+#' \cr \cr
+#' The \strong{"Deville-1"} and \strong{"Deville-2"} variance estimators
+#' are clearly described in Matei and Tillé (2005),
+#' and are intended for designs that use
+#' fixed-size, unequal-probability random sampling without replacement.
+#' These variance estimators have been shown to be effective
+#' for designs that use a fixed sample size with a high-entropy sampling method.
+#' This includes most PPSWOR sampling methods,
+#' but unequal-probability systematic sampling is an important exception.
+#'
+#' These variance estimators take the following form:
+#' \deqn{
+#' \hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
+#' }
+#' where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
+#' and \eqn{c_i} depend on the method used:
+#' \itemize{
+#'   \item{\strong{"Deville-1"}: }{
+#'     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+#'   \item{\strong{"Deville-2"}: }{
+#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
+#' }
+#' In the case of simple random sampling without replacement (SRSWOR),
+#' these estimators are both identical to the usual stratified multistage SRS estimator
+#' (which is itself a special case of the Horvitz-Thompson estimator).
+#'
+#' For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
+#' For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+#' of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+#' the variance estimate from a third-stage stratum is multiplied by \eqn{\pi_1 \times \pi_{(2 | 1)}},
+#' where \eqn{\pi_1} is the sampling probability of the first-stage unit
+#' and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
+#' within the first-stage unit.
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 #'
 #' Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
+#'
+#' Matei, Alina, and Yves Tillé. (2005).
+#' “\emph{Evaluation of Variance Approximations and Estimators
+#' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
+#' \strong{Journal of Official Statistics}, 21(4):543–70.
 #' @md
 #' @return The matrix of the quadratic form representing the variance estimator.
 #' @export
@@ -195,6 +246,7 @@
 #' t(wtd_y) %*% sd1_quad_form %*% wtd_y
 #' }
 make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
+                                  probs = NULL,
                                   joint_probs = NULL,
                                   cluster_ids = NULL,
                                   strata_ids = NULL,
@@ -204,7 +256,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   accepted_variance_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2"
+    "SD1", "SD2", "Deville-1", "Deville-2"
   )
 
   if (length(variance_estimator) > 1) {
@@ -230,10 +282,10 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
   # Check inputs and assemble all necessary information
   # for estimators of stratified/clustered designs
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2")) {
 
     # Ensure the minimal set of inputs is supplied
-    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster")) {
+    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2")) {
       if (is.null(cluster_ids) || is.null(strata_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to both `strata_ids` and `cluster_ids`",
@@ -241,18 +293,29 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         ) |> stop()
       }
     }
+    if (variance_estimator %in% c("Deville-1", "Deville-2")) {
+      if (is.null(probs)) {
+        sprintf(
+          "For `variance_estimator='%s'`, must supply a matrix or data frame to `probs`.",
+          variance_estimator
+        ) |> stop()
+      }
+    }
+
     if (variance_estimator == "Stratified Multistage SRS") {
       if (is.null(strata_pop_sizes)) {
         stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes`.")
       }
     }
-    if (variance_estimator %in% c("SD1", "SD2")) {
+    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2")) {
       if (is.null(cluster_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to `cluster_ids`",
           variance_estimator
         ) |> stop()
       }
+    }
+    if (variance_estimator %in% c("SD1", "SD2")) {
       if (is.null(sort_order)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a vector to `sort_order`",
@@ -304,6 +367,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       }
     }
 
+
     if (is.null(strata_pop_sizes)) {
       strata_pop_sizes <- matrix(data = Inf,
                                  nrow = number_of_ultimate_units,
@@ -354,7 +418,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     }
   }
 
-  if (variance_estimator == "Stratified Multistage SRS") {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2")) {
     quad_form_matrix <- matrix(data = 0,
                                nrow = number_of_ultimate_units,
                                ncol = number_of_ultimate_units)
@@ -369,30 +433,61 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     while (stage <= number_of_stages) {
       # Generate quadratic form for each stratum
       for (stratum_id in unique(strata_ids[,stage,drop=TRUE])) {
-        # Variance of estimated total from current stage units
+
         stratum_indices <- which(strata_ids[,stage,drop=TRUE] == stratum_id)
-        stratum_pop_size <- strata_pop_sizes[,stage,drop=TRUE][stratum_indices[1]]
-        n_clusters <- sampsize[,stage,drop=TRUE][stratum_indices[1]]
 
-        Q_current <- distribute_matrix_across_clusters(
-          cluster_level_matrix = make_srswor_matrix(n = n_clusters,
-                                                    f = (n_clusters/stratum_pop_size)),
-          cluster_ids = cluster_ids[stratum_indices, stage, drop = TRUE],
-          rows = TRUE, cols = TRUE
-        )
+        if (variance_estimator == "Stratified Multistage SRS") {
 
-        # Obtain product of previous-stage sampling fractions
-        if (stage > 1) {
-          prev_n_clusters <- sampsize[stratum_indices[1],seq_len(stage-1),drop=TRUE]
-          prev_stratum_pop_size <- strata_pop_sizes[stratum_indices[1],seq_len(stage-1),drop=TRUE]
-          prev_samp_fraction <- Reduce(f = `*`, x = prev_n_clusters)/Reduce(f = `*`, x = prev_stratum_pop_size)
-        } else {
-          prev_samp_fraction <- 1
+          # Get quadratic form at current stage
+          stratum_pop_size <- strata_pop_sizes[,stage,drop=TRUE][stratum_indices[1]]
+          n_clusters <- sampsize[,stage,drop=TRUE][stratum_indices[1]]
+
+          Q_current <- distribute_matrix_across_clusters(
+            cluster_level_matrix = make_srswor_matrix(n = n_clusters,
+                                                      f = (n_clusters/stratum_pop_size)),
+            cluster_ids = cluster_ids[stratum_indices, stage, drop = TRUE],
+            rows = TRUE, cols = TRUE
+          )
+          # Get product of sampling probabilities from previous stages
+          if (stage > 1) {
+            prev_n_clusters <- sampsize[stratum_indices[1],seq_len(stage-1),drop=TRUE]
+            prev_stratum_pop_size <- strata_pop_sizes[stratum_indices[1],seq_len(stage-1),drop=TRUE]
+            prev_samp_fraction <- (
+              Reduce(f = `*`, x = prev_n_clusters) / Reduce(f = `*`, x = prev_stratum_pop_size)
+            )
+          } else {
+            prev_samp_fraction <- 1
+          }
+          prev_stages_samp_prob <- prev_samp_fraction
+        }
+
+        if (variance_estimator %in% c("Deville-1", "Deville-2")) {
+
+          # Get quadratic form at current stage
+          cluster_probs <- tapply(X = probs, INDEX = clus_ids, FUN = getElement, 1)
+          Q_current <- distribute_matrix_across_clusters(
+            cluster_level_matrix = make_ppswor_approx_matrix(
+              probs = cluster_probs,
+              method = variance_estimator
+            ),
+            cluster_ids = cluster_ids[stratum_indices, stage, drop = TRUE],
+            rows = TRUE, cols = TRUE
+          )
+          # Get product of sampling probabilities from previous stages
+          if (stage > 1) {
+            probs_at_prev_stages <- probs[stratum_indices[1],seq_len(stage-1),drop=TRUE]
+            prev_stages_samp_prob <- Reduce(f = `*`, x = prev_stages_samp_probs)
+          } else {
+            prev_stages_samp_prob <- 1
+          }
+
         }
 
         # Add overall variance contribution from current stage/stratum sampling
-        quad_form_matrix[stratum_indices,stratum_indices] <- quad_form_matrix[stratum_indices,stratum_indices] +
-          (Q_current * prev_samp_fraction)
+        quad_form_matrix[stratum_indices,stratum_indices] <- (
+          quad_form_matrix[stratum_indices,stratum_indices] +
+            (Q_current * prev_stages_samp_prob)
+        )
 
       }
       stage <- stage + 1L
@@ -580,7 +675,7 @@ make_srswor_matrix <- function(n, f = 0) {
 #' @details
 #' These variance estimators have been shown to be effective
 #' for designs that use a fixed sample size with a high-entropy sampling method.
-#' This include most PPSWOR sampling methods,
+#' This includes most PPSWOR sampling methods,
 #' but unequal-probability systematic sampling is an important exception.
 #'
 #' These variance estimators generally take the following form:
@@ -604,8 +699,12 @@ make_srswor_matrix <- function(n, f = 0) {
 #'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
 #' }
 #' Both of the approximations \strong{"Deville-1"} and \strong{"Deville-2"} were shown
-#' in Matei and Tillé (2005) to perform much better in terms of MSE compared
-#' to the strictly-unbiased Horvitz-Thompson and Yates-Grundy variance estimators.
+#' in the simulation studies of Matei and Tillé (2005) to perform much better
+#' in terms of MSE compared to the strictly-unbiased
+#' Horvitz-Thompson and Yates-Grundy variance estimators.
+#' In the case of simple random sampling without replacement (SRSWOR),
+#' these estimators are identical to the usual Horvitz-Thompson variance estimator.
+#'
 #' @references
 #' Matei, Alina, and Yves Tillé. 2005.
 #' “Evaluation of Variance Approximations and Estimators
