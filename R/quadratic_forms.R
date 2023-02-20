@@ -158,7 +158,7 @@
 #'   \item{\strong{"Deville-1"}: }{
 #'     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
 #'   \item{\strong{"Deville-2"}: }{
-#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
+#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
 #' }
 #' In the case of simple random sampling without replacement (SRSWOR),
 #' these estimators are both identical to the usual stratified multistage SRS estimator
@@ -245,6 +245,19 @@
 #'   wtd_y[is.na(wtd_y)] <- 0
 #'
 #'   t(wtd_y) %*% sd1_quad_form %*% wtd_y
+#'
+#' # Example 4: Deville estimators ----
+#'
+#'  data('library_multistage_sample', package = 'svrep')
+#'
+#'  deville_quad_form <- make_quad_form_matrix(
+#'      variance_estimator = 'Deville-1',
+#'      cluster_ids = library_multistage_sample[,c("PSU_ID", "SSU_ID")],
+#'      strata_ids = cbind(rep(1, times = nrow(library_multistage_sample)),
+#'                         library_multistage_sample$PSU_ID),
+#'      probs = library_multistage_sample[,c("PSU_SAMPLING_PROB",
+#'                                           "SSU_SAMPLING_PROB")]
+#'  )
 #' }
 make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
                                   probs = NULL,
@@ -465,7 +478,10 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         if (variance_estimator %in% c("Deville-1", "Deville-2")) {
 
           # Get quadratic form at current stage
-          cluster_probs <- tapply(X = probs, INDEX = clus_ids, FUN = getElement, 1)
+          current_cluster_ids <- cluster_ids[stratum_indices, stage, drop = TRUE]
+          current_probs <- probs[stratum_indices, stage, drop = TRUE]
+          cluster_probs <- current_probs[!duplicated(current_cluster_ids)]
+
           Q_current <- distribute_matrix_across_clusters(
             cluster_level_matrix = make_ppswor_approx_matrix(
               probs = cluster_probs,
@@ -697,7 +713,7 @@ make_srswor_matrix <- function(n, f = 0) {
 #'   \item{\strong{"Deville-1"}: }{
 #'     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
 #'   \item{\strong{"Deville-2"}: }{
-#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
+#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
 #' }
 #' Both of the approximations \strong{"Deville-1"} and \strong{"Deville-2"} were shown
 #' in the simulation studies of Matei and Tillé (2005) to perform much better

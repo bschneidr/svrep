@@ -189,7 +189,7 @@ and \eqn{c_i} depend on the method used:
 \item{\strong{"Deville-1"}: }{
 \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
 \item{\strong{"Deville-2"}: }{
-\deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
+\deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
 }
 In the case of simple random sampling without replacement (SRSWOR),
 these estimators are both identical to the usual stratified multistage SRS estimator
@@ -260,6 +260,19 @@ within the first-stage unit.
   wtd_y[is.na(wtd_y)] <- 0
 
   t(wtd_y) \%*\% sd1_quad_form \%*\% wtd_y
+
+# Example 4: Deville estimators ----
+
+ data('library_multistage_sample', package = 'svrep')
+
+ deville_quad_form <- make_quad_form_matrix(
+     variance_estimator = 'Deville-1',
+     cluster_ids = library_multistage_sample[,c("PSU_ID", "SSU_ID")],
+     strata_ids = cbind(rep(1, times = nrow(library_multistage_sample)),
+                        library_multistage_sample$PSU_ID),
+     probs = library_multistage_sample[,c("PSU_SAMPLING_PROB",
+                                          "SSU_SAMPLING_PROB")]
+ )
 }
 }
 \references{

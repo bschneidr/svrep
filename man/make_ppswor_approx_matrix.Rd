@@ -55,7 +55,7 @@ with the names taken directly from Matei and Tillé (2005).
   \item{\strong{"Deville-1"}: }{
     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
   \item{\strong{"Deville-2"}: }{
-    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]}}
+    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
 }
 Both of the approximations \strong{"Deville-1"} and \strong{"Deville-2"} were shown
 in the simulation studies of Matei and Tillé (2005) to perform much better
