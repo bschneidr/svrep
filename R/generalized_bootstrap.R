@@ -375,6 +375,12 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #'   based on estimating the variance of cluster totals within strata at each stage.}
 #'   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
 #'   the variance of first-stage cluster totals within first-stage strata.}
+#'   \item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
+#'   sampling without replacement, described in Matei and Tillé (2005)
+#'   as "Deville 1".}
+#'   \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
+#'   sampling without replacement, described in Matei and Tillé (2005)
+#'   as "Deville 2".}
 #'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 #'   sometimes used for variance estimation for systematic sampling.}
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
@@ -410,7 +416,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #' @return
 #' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
-#' such as \code{svymean()} or \code{svyglm()}. \cr \cr
+#' such as \code{svymean()} or \code{svyglm()}. \cr
 #' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights. \cr
 #' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
 #' for the full-sample and replicate weights.
@@ -539,6 +545,39 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
 #' the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
 #' which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+#' \cr \cr
+#' The \strong{"Deville-1"} and \strong{"Deville-2"} variance estimators
+#' are clearly described in Matei and Tillé (2005),
+#' and are intended for designs that use
+#' fixed-size, unequal-probability random sampling without replacement.
+#' These variance estimators have been shown to be effective
+#' for designs that use a fixed sample size with a high-entropy sampling method.
+#' This includes most PPSWOR sampling methods,
+#' but unequal-probability systematic sampling is an important exception.
+#'
+#' These variance estimators take the following form:
+#' \deqn{
+#' \hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
+#' }
+#' where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
+#' and \eqn{c_i} depend on the method used:
+#' \itemize{
+#'   \item{\strong{"Deville-1"}: }{
+#'     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+#'   \item{\strong{"Deville-2"}: }{
+#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+#' }
+#' In the case of simple random sampling without replacement (SRSWOR),
+#' these estimators are both identical to the usual stratified multistage SRS estimator
+#' (which is itself a special case of the Horvitz-Thompson estimator).
+#'
+#' For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
+#' For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+#' of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+#' the variance estimate from a third-stage stratum is multiplied by \eqn{\pi_1 \times \pi_{(2 | 1)}},
+#' where \eqn{\pi_1} is the sampling probability of the first-stage unit
+#' and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
+#' within the first-stage unit.
 #' @section Two-Phase Designs:
 #' For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
 #' with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
@@ -569,7 +608,11 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto") {
 #' - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 #' \cr \cr
 #' - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
-#' \cr
+#' \cr \cr
+#' - Matei, Alina, and Yves Tillé. (2005).
+#' “\emph{Evaluation of Variance Approximations and Estimators
+#' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
+#' \strong{Journal of Official Statistics}, 21(4):543–70.
 #'
 #' @export
 #'
