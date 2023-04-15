@@ -822,67 +822,9 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 }
 
 #' @export
-as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
-                                         replicates = 500, tau = "auto",
-                                         exact_vcov = FALSE, psd_option = "warn",
-                                         mse = getOption("survey.replicates.mse"),
-                                         compress = TRUE) {
-
-  Sigma <- get_design_quad_form(design, variance_estimator)
-
-  if (!is_psd_matrix(Sigma)) {
-    problem_msg <- paste0(
-      "The sample quadratic form matrix",
-      " for this design and variance estimator",
-      " is not positive semidefinite."
-    )
-    if (psd_option == "warn") {
-
-      warning_msg <- paste0(
-        problem_msg,
-        " It will be approximated by the nearest",
-        " positive semidefinite matrix."
-      )
-      warning(warning_msg)
-      Sigma <- get_nearest_psd_matrix(Sigma)
-
-    } else {
-      error_msg <- paste0(
-        problem_msg,
-        " This can be handled using the `psd_option` argument."
-      )
-      stop(error_msg)
-    }
-  }
-
-  adjustment_factors <- make_gen_boot_factors(
-    Sigma = Sigma,
-    num_replicates = replicates,
-    tau = tau,
-    exact_vcov = exact_vcov
-  )
-
-  rep_design <- survey::svrepdesign(
-    variables = design$phase1$full$variables[design$subset,,drop=FALSE],
-    weights = stats::weights(design, type = "sampling"),
-    repweights = adjustment_factors,
-    combined.weights = FALSE,
-    compress = compress, mse = mse,
-    scale = attr(adjustment_factors, 'scale'),
-    rscales = attr(adjustment_factors, 'rscales'),
-    type = "other"
-  )
-
-  rep_design$tau <- attr(adjustment_factors, 'tau')
-
-  rep_design$call <- sys.call(which = -1)
-
-  return(rep_design)
-}
-
-#' @export
 as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              replicates = 500, tau = "auto", exact_vcov = FALSE,
+                                             psd_option = 'warn',
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
