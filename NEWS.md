@@ -1,5 +1,7 @@
 # svrep (development version)
 
+* Added new variance estimators ("Deville 1" and "Deville 2") available to use for the generalized bootstrap, which are particularly useful for single-stage PPSWOR designs or for multistage designs with one or more stages of PPSWOR sampling. See updated documentation for `as_gen_boot_design()` and `make_quad_form_matrix()`.
+
 # svrep 0.5.0
 
 * This release adds extensive new functionality for two-phase designs. The new vignette "Replication Methods for Two-phase Sampling" describes the new functionality as well as the underlying statistical methods.
