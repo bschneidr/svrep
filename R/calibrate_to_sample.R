@@ -55,6 +55,20 @@
 #' The element \code{degf} will be set to match that of the primary survey
 #' to ensure that the degrees of freedom are not erroneously inflated by
 #' potential increases in the number of columns of replicate weights.
+#' @section Syntax for Common Types of Calibration:
+#' For ratio estimation with an auxiliary variable \code{X},
+#' use the following options: \cr
+#'   - \code{cal_formula = ~ -1 + X} \cr
+#'   - \code{variance = 1}, \cr
+#'   - \code{cal.fun = survey::cal.linear}
+#'
+#' For post-stratification, use the following option:
+#'
+#'   - \code{cal.fun = survey::cal.linear}
+#'
+#' For raking, use the following option:
+#'
+#'   - \code{cal.fun = survey::cal.raking}
 #' @references
 #' Opsomer, J.D. and A. Erciulescu (2021).
 #' "Replication variance estimation after sample-based calibration."

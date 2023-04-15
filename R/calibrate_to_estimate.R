@@ -42,6 +42,20 @@
 #' and replicate weights adjusted to account for variance of the control totals.
 #' The element \code{col_selection} indicates, for each replicate column of the calibrated primary survey,
 #' which column of replicate weights it was matched to from the control survey.
+#' @section Syntax for Common Types of Calibration:
+#' For ratio estimation with an auxiliary variable \code{X},
+#' use the following options: \cr
+#'   - \code{cal_formula = ~ -1 + X} \cr
+#'   - \code{variance = 1}, \cr
+#'   - \code{cal.fun = survey::cal.linear}
+#'
+#' For post-stratification, use the following option:
+#'
+#'   - \code{cal.fun = survey::cal.linear}
+#'
+#' For raking, use the following option:
+#'
+#'   - \code{cal.fun = survey::cal.raking}
 #' @references
 #' Fuller, W.A. (1998).
 #' "Replication variance estimation for two-phase samples."
