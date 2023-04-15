@@ -1,6 +1,6 @@
 bibentry(
   bibtype="misc",
-  header = "To cite the survey package in publications use one or more of:",
+  header = "To cite the svrep package in publications use one or more of:",
   author="Benjamin Schneider",
   year=2023,
   title="svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights",
