@@ -83,6 +83,7 @@ This function constructs the \(n \times n\) matrix of the quadratic form, \(\mat
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">make_quad_form_matrix</span><span class="op">(</span></span>
 <span>  variance_estimator <span class="op">=</span> <span class="st">"Yates-Grundy"</span>,</span>
+<span>  probs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  joint_probs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cluster_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  strata_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -105,18 +106,34 @@ the argument <code>joint_probs</code> must also be used.</p></li>
 <li><p><strong>"Stratified Multistage SRS"</strong>: The usual stratified multistage variance estimator
 based on estimating the variance of cluster totals within strata at each stage.
 If this option is used, then it is necessary to also use the arguments
-<code>strata_ids</code>, <code>cluster_ids</code>, <code>strata_samp_sizes</code>, and <code>strata_pop_sizes</code>.</p></li>
+<code>strata_ids</code>, <code>cluster_ids</code>, <code>strata_pop_sizes</code>, and <code>strata_pop_sizes</code>.</p></li>
 <li><p><strong>"Ultimate Cluster"</strong>: The usual variance estimator based on estimating
 the variance of first-stage cluster totals within first-stage strata.
 If this option is used, then it is necessary to also use the arguments
-<code>strata_ids</code>, <code>cluster_ids</code>, <code>strata_samp_sizes</code>.
+<code>strata_ids</code>, <code>cluster_ids</code>, <code>strata_pop_sizes</code>.
 Optionally, to use finite population correction factors, one can also use the argument <code>strata_pop_sizes</code>.</p></li>
+<li><p><strong>"Deville-1"</strong>: A variance estimator for unequal-probability
+sampling without replacement, described in Matei and Tillé (2005)
+as "Deville 1". If this option is used, then it is necessary to also use the arguments
+<code>strata_ids</code>, <code>cluster_ids</code>, and <code>probs</code>.</p></li>
+<li><p><strong>"Deville-2"</strong>: A variance estimator for unequal-probability
+sampling without replacement, described in Matei and Tillé (2005)
+as "Deville 2". If this option is used, then it is necessary to also use the arguments
+<code>strata_ids</code>, <code>cluster_ids</code>, and <code>probs</code>.</p></li>
 <li><p><strong>"SD1"</strong>: The non-circular successive-differences variance estimator described by Ash (2014),
 sometimes used for variance estimation for systematic sampling.</p></li>
 <li><p><strong>"SD2"</strong>: The circular successive-differences variance estimator described by Ash (2014).
 This estimator is the basis of the "successive-differences replication" estimator commonly used
 for variance estimation for systematic sampling.</p></li>
 </ul></dd>
+
+
+<dt>probs</dt>
+<dd><p>Required if <code>variance_estimator</code> equals <code>"Deville-1"</code> or <code>"Deville-2"</code>.
+This should be a matrix or data frame of sampling probabilities.
+If there are multiple stages of sampling,
+then <code>probs</code> can have multiple columns,
+with one column for each level of sampling to be accounted for by the variance estimator.</p></dd>
 
 
 <dt>joint_probs</dt>
@@ -164,7 +181,7 @@ This should be a vector that orders the rows of data into the order used for sam
     <h2 id="arguments-required-for-each-variance-estimator">Arguments required for each variance estimator<a class="anchor" aria-label="anchor" href="#arguments-required-for-each-variance-estimator"></a></h2>
     
 
-<p>Below are the arguments that are required or optional for each variance estimator.</p><table class="table table"><tr><td>variance_estimator</td><td>joint_probs</td><td>cluster_ids</td><td>strata_ids</td><td>strata_pop_sizes</td><td>sort_order</td></tr><tr><td>Yates-Grundy</td><td>Required</td><td></td><td></td><td></td><td></td></tr><tr><td>Horvitz-Thompson</td><td>Required</td><td></td><td></td><td></td><td></td></tr><tr><td>Stratified Multistage SRS</td><td></td><td>Required</td><td>Required</td><td>Required</td><td></td></tr><tr><td>Ultimate Cluster</td><td></td><td>Required</td><td>Required</td><td>Optional</td><td></td></tr><tr><td>SD1</td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr><tr><td>SD2</td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr></table></div>
+<p>Below are the arguments that are required or optional for each variance estimator.</p><table class="table table"><tr><td>variance_estimator</td><td>probs</td><td>joint_probs</td><td>cluster_ids</td><td>strata_ids</td><td>strata_pop_sizes</td><td>sort_order</td></tr><tr><td>Stratified Multistage SRS</td><td></td><td></td><td>Required</td><td>Required</td><td>Required</td><td></td></tr><tr><td>Ultimate Cluster</td><td></td><td></td><td>Required</td><td>Required</td><td>Optional</td><td></td></tr><tr><td>SD1</td><td></td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr><tr><td>SD2</td><td></td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr><tr><td>Deville-1</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td></tr><tr><td>Deville-2</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td></tr><tr><td>Yates-Grundy</td><td></td><td>Required</td><td></td><td></td><td></td><td></td></tr><tr><td>Horvitz-Thompson</td><td></td><td>Required</td><td></td><td></td><td></td><td></td></tr></table></div>
     <div class="section level2">
     <h2 id="variance-estimators">Variance Estimators<a class="anchor" aria-label="anchor" href="#variance-estimators"></a></h2>
     
@@ -227,7 +244,35 @@ For multistage samples, SD1 and SD2 are applied to the clusters at each stage, s
 For later stages of sampling, the variance estimate from a stratum is multiplied by the product
 of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
 the variance estimate from a third-stage stratum is multiplied by \(\frac{n_1}{N_1}\frac{n_2}{N_2}\),
-which is the product of sampling fractions from the first-stage stratum and second-stage stratum.</p>
+which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+<br><br>
+The <strong>"Deville-1"</strong> and <strong>"Deville-2"</strong> variance estimators
+are clearly described in Matei and Tillé (2005),
+and are intended for designs that use
+fixed-size, unequal-probability random sampling without replacement.
+These variance estimators have been shown to be effective
+for designs that use a fixed sample size with a high-entropy sampling method.
+This includes most PPSWOR sampling methods,
+but unequal-probability systematic sampling is an important exception.</p>
+<p>These variance estimators take the following form:
+$$
+\hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
+$$
+where \(\breve{y}_i = y_i/\pi_i\) is the weighted value of the the variable of interest,
+and \(c_i\) depend on the method used:</p><ul><li><p><strong>"Deville-1"</strong>: 
+$$c_i=\left(1-\pi_i\right) \frac{n}{n-1}$$</p></li>
+<li><p><strong>"Deville-2"</strong>: 
+$$c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}$$</p></li>
+</ul><p>In the case of simple random sampling without replacement (SRSWOR),
+these estimators are both identical to the usual stratified multistage SRS estimator
+(which is itself a special case of the Horvitz-Thompson estimator).</p>
+<p>For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
+For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+the variance estimate from a third-stage stratum is multiplied by \(\pi_1 \times \pi_{(2 | 1)}\),
+where \(\pi_1\) is the sampling probability of the first-stage unit
+and \(\pi_{(2|1)}\) is the sampling probability of the second-stage unit
+within the first-stage unit.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -235,6 +280,10 @@ which is the product of sampling fractions from the first-stage stratum and seco
 <strong>Survey Methodology</strong>, Statistics Canada, 40(1), 47–59.</p>
 <p>Bellhouse, D.R. (1985). "<em>Computing Methods for Variance Estimation in Complex Surveys</em>."
 <strong>Journal of Official Statistics</strong>, Vol.1, No.3.</p>
+<p>Matei, Alina, and Yves Tillé. (2005).
+“<em>Evaluation of Variance Approximations and Estimators
+in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.</em>”
+<strong>Journal of Official Statistics</strong>, 21(4):543–70.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -280,6 +329,7 @@ the quadratic form matrix from each phase.</p></div>
 <span class="r-in"><span>  <span class="va">wtd_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/weights.html" class="external-link">weights</a></span><span class="op">(</span><span class="va">multistage_srswor_design</span><span class="op">)</span> <span class="op">*</span> <span class="va">mu284</span><span class="op">$</span><span class="va">y1</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">wtd_y</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">multistage_srs_quad_form</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">wtd_y</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">##_ Compare against result from 'survey' package</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">y1</span>, design <span class="op">=</span> <span class="va">multistage_srswor_design</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 3: Successive-differences estimator ----</span></span></span>
@@ -298,7 +348,20 @@ the quadratic form matrix from each phase.</p></div>
 <span class="r-in"><span>                      <span class="va">library_stsys_sample</span><span class="op">$</span><span class="va">SAMPLING_PROB</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">wtd_y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">wtd_y</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">wtd_y</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">sd1_quad_form</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">wtd_y</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">wtd_y</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">sd1_quad_form</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">wtd_y</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 4: Deville estimators ----</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'library_multistage_sample'</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span> <span class="va">deville_quad_form</span> <span class="op">&lt;-</span> <span class="fu">make_quad_form_matrix</span><span class="op">(</span></span></span>
+<span class="r-in"><span>     variance_estimator <span class="op">=</span> <span class="st">'Deville-1'</span>,</span></span>
+<span class="r-in"><span>     cluster_ids <span class="op">=</span> <span class="va">library_multistage_sample</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PSU_ID"</span>, <span class="st">"SSU_ID"</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>     strata_ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">library_multistage_sample</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        <span class="va">library_multistage_sample</span><span class="op">$</span><span class="va">PSU_ID</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>     probs <span class="op">=</span> <span class="va">library_multistage_sample</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PSU_SAMPLING_PROB"</span>,</span></span>
+<span class="r-in"><span>                                          <span class="st">"SSU_SAMPLING_PROB"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span> <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>

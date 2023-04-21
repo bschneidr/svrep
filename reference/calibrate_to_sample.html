@@ -185,6 +185,20 @@ The user can either call <a href="https://rdrr.io/r/base/Random.html" class="ext
 or supply a mapping to the argument <code>control_col_matches</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="syntax-for-common-types-of-calibration">Syntax for Common Types of Calibration<a class="anchor" aria-label="anchor" href="#syntax-for-common-types-of-calibration"></a></h2>
+    
+
+<p>For ratio estimation with an auxiliary variable <code>X</code>,
+use the following options: <br>
+  - <code>cal_formula = ~ -1 + X</code> <br>
+  - <code>variance = 1</code>, <br>
+  - <code>cal.fun = survey::cal.linear</code></p>
+<p>For post-stratification, use the following option:</p>
+<p>- <code>cal.fun = survey::cal.linear</code></p>
+<p>For raking, use the following option:</p>
+<p>- <code>cal.fun = survey::cal.raking</code></p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Opsomer, J.D. and A. Erciulescu (2021).
 "Replication variance estimation after sample-based calibration."

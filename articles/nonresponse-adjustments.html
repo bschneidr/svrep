@@ -99,16 +99,15 @@ Kentucky.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lou_vax_survey"</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lou_vax_survey</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 6</span></span></span>
-<span><span class="co">#&gt;   RESPONSE_STATUS RACE_ETHNICITY                   SEX   EDUC_…¹ VAX_S…² SAMPL…³</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Nonrespondent   White alone, not Hispanic or La… Fema… Less t… <span style="color: #BB0000;">NA</span>         597.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Nonrespondent   Black or African American alone… Fema… High s… <span style="color: #BB0000;">NA</span>         597.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Respondent      White alone, not Hispanic or La… Fema… Less t… Vaccin…    597.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Nonrespondent   White alone, not Hispanic or La… Fema… Less t… <span style="color: #BB0000;">NA</span>         597.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> Nonrespondent   White alone, not Hispanic or La… Fema… High s… <span style="color: #BB0000;">NA</span>         597.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> Respondent      White alone, not Hispanic or La… Fema… High s… Vaccin…    597.</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with abbreviated variable names ¹​EDUC_ATTAINMENT, ²​VAX_STATUS,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ³​SAMPLING_WEIGHT</span></span></span>
+<span><span class="co">#&gt;   RESPONSE_STATUS RACE_ETHNICITY                SEX   EDUC_ATTAINMENT VAX_STATUS</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Nonrespondent   White alone, not Hispanic or… Fema… Less than high… <span style="color: #BB0000;">NA</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Nonrespondent   Black or African American al… Fema… High school or… <span style="color: #BB0000;">NA</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Respondent      White alone, not Hispanic or… Fema… Less than high… Vaccinated</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Nonrespondent   White alone, not Hispanic or… Fema… Less than high… <span style="color: #BB0000;">NA</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> Nonrespondent   White alone, not Hispanic or… Fema… High school or… <span style="color: #BB0000;">NA</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> Respondent      White alone, not Hispanic or… Fema… High school or… Vaccinated</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: SAMPLING_WEIGHT &lt;dbl&gt;</span></span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">lou_vax_survey</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "RESPONSE_STATUS" "RACE_ETHNICITY"  "SEX"             "EDUC_ATTAINMENT"</span></span>
 <span><span class="co">#&gt; [5] "VAX_STATUS"      "SAMPLING_WEIGHT"</span></span></code></pre></div>
@@ -199,7 +198,7 @@ among nonrespondents} \\
 \\
 f_{NR_i} &amp;= \begin{cases}
      0 &amp; \textit{if case }i\textit{ is a nonrespondent} \\
-     1 + \frac{\sum_{i \in s_{nonresp}} w_i}{\sum_{i \in s_{resp}}}
+     1 + \frac{\sum_{i \in s_{nonresp}} w_i}{\sum_{i \in s_{resp}} w_i}
 &amp; \textit{if case }i\textit{ is a respondent}
            \end{cases}
 \end{aligned}\]</span>
@@ -261,26 +260,26 @@ nonrespondents has been redistributed to respondents.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    RESPONSE_STATUS Rep_Column   N N_NONZERO    SUM     MEAN        CV MIN</span></span>
 <span><span class="co">#&gt; 1    Nonrespondent          1 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 2       Respondent          1 502       322 596702 1188.649 0.9971304   0</span></span>
+<span><span class="co">#&gt; 2       Respondent          1 502       310 596702 1188.649 1.0424667   0</span></span>
 <span><span class="co">#&gt; 3    Nonrespondent          2 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 4       Respondent          2 502       324 596702 1188.649 0.9520946   0</span></span>
+<span><span class="co">#&gt; 4       Respondent          2 502       315 596702 1188.649 1.0396245   0</span></span>
 <span><span class="co">#&gt; 5    Nonrespondent          3 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 6       Respondent          3 502       310 596702 1188.649 1.0278452   0</span></span>
+<span><span class="co">#&gt; 6       Respondent          3 502       313 596702 1188.649 0.9950293   0</span></span>
 <span><span class="co">#&gt; 7    Nonrespondent          4 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 8       Respondent          4 502       309 596702 1188.649 1.0545462   0</span></span>
+<span><span class="co">#&gt; 8       Respondent          4 502       327 596702 1188.649 0.9685044   0</span></span>
 <span><span class="co">#&gt; 9    Nonrespondent          5 498         0      0    0.000       NaN   0</span></span>
-<span><span class="co">#&gt; 10      Respondent          5 502       315 596702 1188.649 1.0029895   0</span></span>
+<span><span class="co">#&gt; 10      Respondent          5 502       327 596702 1188.649 0.9792946   0</span></span>
 <span><span class="co">#&gt;         MAX</span></span>
 <span><span class="co">#&gt; 1     0.000</span></span>
-<span><span class="co">#&gt; 2  7321.497</span></span>
+<span><span class="co">#&gt; 2  7089.529</span></span>
 <span><span class="co">#&gt; 3     0.000</span></span>
-<span><span class="co">#&gt; 4  4689.210</span></span>
+<span><span class="co">#&gt; 4  7427.826</span></span>
 <span><span class="co">#&gt; 5     0.000</span></span>
-<span><span class="co">#&gt; 6  5978.978</span></span>
+<span><span class="co">#&gt; 6  5919.663</span></span>
 <span><span class="co">#&gt; 7     0.000</span></span>
-<span><span class="co">#&gt; 8  7321.497</span></span>
+<span><span class="co">#&gt; 8  5815.809</span></span>
 <span><span class="co">#&gt; 9     0.000</span></span>
-<span><span class="co">#&gt; 10 5943.247</span></span></code></pre></div>
+<span><span class="co">#&gt; 10 5804.494</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="conducting-weighting-class-adjustments">Conducting weighting class adjustments<a class="anchor" aria-label="anchor" href="#conducting-weighting-class-adjustments"></a>
@@ -298,14 +297,12 @@ groups.</p>
 <span>            Sample_Size <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>            n_Respondents <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">RESPONSE_STATUS</span> <span class="op">==</span> <span class="st">"Respondent"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
-<span><span class="co">#&gt;   RACE_ETHNICITY                                         Respo…¹ Sampl…² n_Res…³</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Black or African American alone, not Hispanic or Lati…   0.452     188      85</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Hispanic or Latino                                       0.378      45      17</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Other Race, not Hispanic or Latino                       0.492      59      29</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> White alone, not Hispanic or Latino                      0.524     708     371</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with abbreviated variable names ¹​Response_Rate, ²​Sample_Size,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ³​n_Respondents</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   RACE_ETHNICITY                         Response_Rate Sample_Size n_Respondents</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Black or African American alone, not …         0.452         188            85</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Hispanic or Latino                             0.378          45            17</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Other Race, not Hispanic or Latino             0.492          59            29</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> White alone, not Hispanic or Latino            0.524         708           371</span></span></code></pre></div>
 <p>Weighting adjustments may be able to help reduce nonresponse bias
 caused by these differences in response rates. One standard form of
 adjustment known as <strong>weighting class adjustment</strong> is to
@@ -386,16 +383,16 @@ adjustment</strong>) can also be used, for example by adding a variable
 <span>         <span class="va">N_NONZERO</span>, <span class="va">SUM</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    PROPENSITY_CELL Rep_Column N_NONZERO      SUM</span></span>
-<span><span class="co">#&gt; 1                1          1       135 132600.4</span></span>
-<span><span class="co">#&gt; 2                2          1       138 126627.5</span></span>
-<span><span class="co">#&gt; 3                3          1       119 102138.2</span></span>
-<span><span class="co">#&gt; 4                4          1       128 115876.1</span></span>
-<span><span class="co">#&gt; 5                5          1       127 119459.9</span></span>
-<span><span class="co">#&gt; 6                1          2       127 124238.3</span></span>
-<span><span class="co">#&gt; 7                2          2       131 118265.3</span></span>
-<span><span class="co">#&gt; 8                3          2       138 124835.6</span></span>
-<span><span class="co">#&gt; 9                4          2       116 106319.3</span></span>
-<span><span class="co">#&gt; 10               5          2       129 123043.7</span></span>
+<span><span class="co">#&gt; 1                1          1       125 117070.7</span></span>
+<span><span class="co">#&gt; 2                2          1       130 127822.1</span></span>
+<span><span class="co">#&gt; 3                3          1       106 103930.1</span></span>
+<span><span class="co">#&gt; 4                4          1       127 129016.6</span></span>
+<span><span class="co">#&gt; 5                5          1       126 118862.6</span></span>
+<span><span class="co">#&gt; 6                1          2       128 121251.8</span></span>
+<span><span class="co">#&gt; 7                2          2       126 112889.6</span></span>
+<span><span class="co">#&gt; 8                3          2       119 112292.3</span></span>
+<span><span class="co">#&gt; 9                4          2       127 120654.5</span></span>
+<span><span class="co">#&gt; 10               5          2       136 129613.9</span></span>
 <span></span>
 <span><span class="co"># Inspect weights after adjustment</span></span>
 <span><span class="va">nr_adjusted_survey</span> <span class="op">|&gt;</span></span>
@@ -407,15 +404,15 @@ adjustment</strong>) can also be used, for example by adding a variable
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    PROPENSITY_CELL RESPONSE_STATUS Rep_Column N_NONZERO      SUM</span></span>
 <span><span class="co">#&gt; 1                1   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 2                1      Respondent          1        58 132600.4</span></span>
+<span><span class="co">#&gt; 2                1      Respondent          1        50 117070.7</span></span>
 <span><span class="co">#&gt; 3                2   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 4                2      Respondent          1        61 126627.5</span></span>
+<span><span class="co">#&gt; 4                2      Respondent          1        64 127822.1</span></span>
 <span><span class="co">#&gt; 5                3   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 6                3      Respondent          1        60 102138.2</span></span>
+<span><span class="co">#&gt; 6                3      Respondent          1        49 103930.1</span></span>
 <span><span class="co">#&gt; 7                4   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 8                4      Respondent          1        70 115876.1</span></span>
+<span><span class="co">#&gt; 8                4      Respondent          1        67 129016.6</span></span>
 <span><span class="co">#&gt; 9                5   Nonrespondent          1         0      0.0</span></span>
-<span><span class="co">#&gt; 10               5      Respondent          1        73 119459.9</span></span></code></pre></div>
+<span><span class="co">#&gt; 10               5      Respondent          1        80 118862.6</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
