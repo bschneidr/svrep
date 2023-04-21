@@ -155,11 +155,6 @@ library_stsys_sample <- library_stsys_sample |>
     joint_probs = election_jointprob
   )
 
-  test_that(
-    "Generates correct quadratic form for Horvitz-Thompson", {
-    expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
-  })
-
   svy_pkg_result <- svydesign(
     data = election_pps,
     id = ~1, fpc = ~p,
@@ -171,9 +166,9 @@ library_stsys_sample <- library_stsys_sample |>
 
   test_that(
     "Generates correct quadratic form for Horvitz-Thompson", {
-      expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
-      expect_equal(object = quad_form_result, expected = svy_pkg_result)
-    })
+    expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
+    expect_equal(object = quad_form_result, expected = svy_pkg_result)
+  })
 
 # Check Sen-Yates-Grundy results ----
 
@@ -448,6 +443,64 @@ library_stsys_sample <- library_stsys_sample |>
       )
     })
 
+# Check "Deville-1" and "Deville-2" results ----
+
+  test_that(
+    "Correct results for Deville-1 and Deville-2", {
+
+      # Basic correct form for Deville-1
+
+      dev1_quad_form <- svrep:::make_ppswor_approx_matrix(
+        probs = c(1/3, 1/2, 1/4),
+        method = "Deville-1"
+      )
+
+      c_i <- (1 - c(1/3, 1/2, 1/4)) * (3/2)
+      exp_dev1_quad_form <- outer(
+        -c_i, c_i
+      ) / sum(c_i)
+      diag(exp_dev1_quad_form) <- c_i * (1 - c_i/sum(c_i))
+
+      expect_equal(object = dev1_quad_form, expected = exp_dev1_quad_form)
+
+      # Basic correct form for Deville-2
+
+      dev2_quad_form <- svrep:::make_ppswor_approx_matrix(
+        probs = c(1/3, 1/2, 1/4),
+        method = "Deville-2"
+      )
+      pi_i <- c(1/3, 1/2, 1/4)
+      c_i <- (1 - pi_i) / (
+        1 - sum(((1-pi_i)/sum(1-pi_i))^2)
+      )
+      exp_dev2_quad_form <- outer(
+        -c_i, c_i
+      ) / sum(c_i)
+      diag(exp_dev2_quad_form) <- c_i * (1 - c_i/sum(c_i))
+
+      expect_equal(object = dev2_quad_form, expected = exp_dev2_quad_form)
+
+      # Works as expected for clusters
+      dev1_quad_form <- make_quad_form_matrix(
+        variance_estimator = "Deville-1",
+        cluster_ids = c(3,3,1,1,2,2) |> as.matrix(),
+        strata_ids = c(1,1,1,1,1,1) |> as.matrix(),
+        probs = c(0.258064516129032, 0.258064516129032, 0.129032258064516,
+                  0.129032258064516, 0.193548387096774, 0.193548387096774) |>
+          as.matrix()
+      )
+      expect_equal(
+        object = dev1_quad_form,
+        expected = svrep:::make_ppswor_approx_matrix(
+          probs = c(0.258064516129032, 0.129032258064516, 0.193548387096774),
+          method = "Deville-1"
+        ) |> svrep:::distribute_matrix_across_clusters(
+          cluster_ids = c(3,3,1,1,2,2)
+        )
+      )
+
+  })
+
 # Ensure function checks inputs for issues ----
 
   test_that(
@@ -494,7 +547,13 @@ library_stsys_sample <- library_stsys_sample |>
                                        strata_ids = data.frame(STRATUM = c(1,1))),
         regexp = "matrix or data frame to `strata_pop_sizes`"
       )
-
+      # Deville-1 and Deville-2
+      expect_error(
+        object = make_quad_form_matrix(variance_estimator = "Deville-1",
+                                       cluster_ids = data.frame(ID = c(1,2)),
+                                       strata_ids = data.frame(STRATUM = c(1,1))),
+        regexp = "must supply a matrix or data frame to `probs`"
+      )
   })
 
 # Helper functions work ----

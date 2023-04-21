@@ -317,6 +317,53 @@ twophase_design <- twophase(
 
   })
 
+# Testing the `exact_vcov` option ----
+
+  test_that(
+    desc = "`exact_vcov = TRUE` gives exact variance estimate for totals", {
+      pps_design_yg <- svydesign(
+        data = election_pps,
+        id = ~1, fpc = ~p,
+        pps = ppsmat(election_jointprob),
+        variance = "YG"
+      )
+
+      gen_boot_est <- as_gen_boot_design(
+        pps_design_yg, "Yates-Grundy",
+        replicates = 40, exact_vcov = TRUE
+      ) |>
+        svytotal(x = ~ Bush + Kerry) |> vcov() |>
+        `attr<-`('means', NULL)
+
+      exact_est <- pps_design_yg |>
+        svytotal(x = ~ Bush + Kerry) |> vcov() |>
+        `attr<-`('means', NULL)
+
+      expect_equal(object = gen_boot_est, expected = exact_est)
+    }
+  )
+
+  test_that(
+    desc = "`exact_vcov = TRUE` throws informative error message if there too few replicates", {
+      expect_error(
+        regexp = "only works if.+39",
+        object = {
+          svydesign(
+            data = election_pps,
+            id = ~1, fpc = ~p,
+            pps = ppsmat(election_jointprob),
+            variance = "YG"
+          ) |> as_gen_boot_design(
+            variance_estimator = "Yates-Grundy",
+            exact_vcov = TRUE,
+            replicates = 39
+          )
+        }
+      )
+    }
+  )
+
+
 # Sanity check results ----
 
   test_that(

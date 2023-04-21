@@ -78,6 +78,23 @@ there are multiple ways to ensure that this matching is reproducible.
 The user can either call \link[base]{set.seed} before using the function,
 or supply a vector of randomly-selected column indices to the argument \code{col_selection}.
 }
+\section{Syntax for Common Types of Calibration}{
+
+For ratio estimation with an auxiliary variable \code{X},
+use the following options: \cr
+  - \code{cal_formula = ~ -1 + X} \cr
+  - \code{variance = 1}, \cr
+  - \code{cal.fun = survey::cal.linear}
+
+For post-stratification, use the following option:
+
+  - \code{cal.fun = survey::cal.linear}
+
+For raking, use the following option:
+
+  - \code{cal.fun = survey::cal.raking}
+}
+
 \examples{
 \dontrun{
 

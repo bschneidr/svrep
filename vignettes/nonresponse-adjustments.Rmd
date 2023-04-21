@@ -85,7 +85,7 @@ w_{NR, i} &= w_i \times f_{NR,i} = \textit{Weight for case }i \textit{ after non
 \\
 f_{NR_i} &= \begin{cases} 
      0 & \textit{if case }i\textit{ is a nonrespondent} \\
-     1 + \frac{\sum_{i \in s_{nonresp}} w_i}{\sum_{i \in s_{resp}}} & \textit{if case }i\textit{ is a respondent} 
+     1 + \frac{\sum_{i \in s_{nonresp}} w_i}{\sum_{i \in s_{resp}} w_i} & \textit{if case }i\textit{ is a respondent} 
            \end{cases}
 \end{aligned}
 ```

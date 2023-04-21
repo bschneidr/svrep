@@ -6,6 +6,7 @@
 \usage{
 make_quad_form_matrix(
   variance_estimator = "Yates-Grundy",
+  probs = NULL,
   joint_probs = NULL,
   cluster_ids = NULL,
   strata_ids = NULL,
@@ -27,18 +28,32 @@ the argument \code{joint_probs} must also be used.}
 \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
 based on estimating the variance of cluster totals within strata at each stage.
 If this option is used, then it is necessary to also use the arguments
-\code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}, and \code{strata_pop_sizes}.}
+\code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}, and \code{strata_pop_sizes}.}
 \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
 the variance of first-stage cluster totals within first-stage strata.
 If this option is used, then it is necessary to also use the arguments
-\code{strata_ids}, \code{cluster_ids}, \code{strata_samp_sizes}.
+\code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}.
 Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.}
+\item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
+sampling without replacement, described in Matei and Tillé (2005)
+as "Deville 1". If this option is used, then it is necessary to also use the arguments
+\code{strata_ids}, \code{cluster_ids}, and \code{probs}.}
+\item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
+sampling without replacement, described in Matei and Tillé (2005)
+as "Deville 2". If this option is used, then it is necessary to also use the arguments
+\code{strata_ids}, \code{cluster_ids}, and \code{probs}.}
 \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 sometimes used for variance estimation for systematic sampling.}
 \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 This estimator is the basis of the "successive-differences replication" estimator commonly used
 for variance estimation for systematic sampling.}
 }}
+
+\item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"} or \code{"Deville-2"}.
+This should be a matrix or data frame of sampling probabilities.
+If there are multiple stages of sampling,
+then \code{probs} can have multiple columns,
+with one column for each level of sampling to be accounted for by the variance estimator.}
 
 \item{joint_probs}{Only used if \code{variance_estimator = "Horvitz-Thompson"} or \code{variance_estimator = "Yates-Grundy"}.
 This should be a matrix of joint inclusion probabilities.
@@ -80,14 +95,16 @@ This function constructs the \eqn{n \times n} matrix of the quadratic form, \eqn
 }
 \section{Arguments required for each variance estimator}{
 
-Below are the arguments that are required or optional for each variance estimator.\tabular{lrrrrr}{
-   variance_estimator \tab joint_probs \tab cluster_ids \tab strata_ids \tab strata_pop_sizes \tab sort_order \cr
-   Yates-Grundy \tab Required \tab  \tab  \tab  \tab  \cr
-   Horvitz-Thompson \tab Required \tab  \tab  \tab  \tab  \cr
-   Stratified Multistage SRS \tab  \tab Required \tab Required \tab Required \tab  \cr
-   Ultimate Cluster \tab  \tab Required \tab Required \tab Optional \tab  \cr
-   SD1 \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
-   SD2 \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
+Below are the arguments that are required or optional for each variance estimator.\tabular{lrrrrrr}{
+   variance_estimator \tab probs \tab joint_probs \tab cluster_ids \tab strata_ids \tab strata_pop_sizes \tab sort_order \cr
+   Stratified Multistage SRS \tab  \tab  \tab Required \tab Required \tab Required \tab  \cr
+   Ultimate Cluster \tab  \tab  \tab Required \tab Required \tab Optional \tab  \cr
+   SD1 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
+   SD2 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
+   Deville-1 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \cr
+   Deville-2 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \cr
+   Yates-Grundy \tab  \tab Required \tab  \tab  \tab  \tab  \cr
+   Horvitz-Thompson \tab  \tab Required \tab  \tab  \tab  \tab  \cr
 }
 }
 
@@ -152,6 +169,39 @@ For later stages of sampling, the variance estimate from a stratum is multiplied
 of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
 the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
 which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+\cr \cr
+The \strong{"Deville-1"} and \strong{"Deville-2"} variance estimators
+are clearly described in Matei and Tillé (2005),
+and are intended for designs that use
+fixed-size, unequal-probability random sampling without replacement.
+These variance estimators have been shown to be effective
+for designs that use a fixed sample size with a high-entropy sampling method.
+This includes most PPSWOR sampling methods,
+but unequal-probability systematic sampling is an important exception.
+
+These variance estimators take the following form:
+\deqn{
+\hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
+}
+where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
+and \eqn{c_i} depend on the method used:
+\itemize{
+\item{\strong{"Deville-1"}: }{
+\deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+\item{\strong{"Deville-2"}: }{
+\deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+}
+In the case of simple random sampling without replacement (SRSWOR),
+these estimators are both identical to the usual stratified multistage SRS estimator
+(which is itself a special case of the Horvitz-Thompson estimator).
+
+For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
+For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+the variance estimate from a third-stage stratum is multiplied by \eqn{\pi_1 \times \pi_{(2 | 1)}},
+where \eqn{\pi_1} is the sampling probability of the first-stage unit
+and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
+within the first-stage unit.
 }
 
 \examples{
@@ -190,6 +240,7 @@ which is the product of sampling fractions from the first-stage stratum and seco
   wtd_y <- as.matrix(weights(multistage_srswor_design) * mu284$y1)
   t(wtd_y) \%*\% multistage_srs_quad_form \%*\% wtd_y
 
+  ##_ Compare against result from 'survey' package
   svytotal(x = ~ y1, design = multistage_srswor_design) |> vcov()
 
 # Example 3: Successive-differences estimator ----
@@ -208,7 +259,20 @@ which is the product of sampling fractions from the first-stage stratum and seco
                       library_stsys_sample$SAMPLING_PROB)
   wtd_y[is.na(wtd_y)] <- 0
 
-t(wtd_y) \%*\% sd1_quad_form \%*\% wtd_y
+  t(wtd_y) \%*\% sd1_quad_form \%*\% wtd_y
+
+# Example 4: Deville estimators ----
+
+ data('library_multistage_sample', package = 'svrep')
+
+ deville_quad_form <- make_quad_form_matrix(
+     variance_estimator = 'Deville-1',
+     cluster_ids = library_multistage_sample[,c("PSU_ID", "SSU_ID")],
+     strata_ids = cbind(rep(1, times = nrow(library_multistage_sample)),
+                        library_multistage_sample$PSU_ID),
+     probs = library_multistage_sample[,c("PSU_SAMPLING_PROB",
+                                          "SSU_SAMPLING_PROB")]
+ )
 }
 }
 \references{
@@ -217,6 +281,11 @@ Ash, S. (2014). "\emph{Using successive difference replication for estimating va
 
 Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
+
+Matei, Alina, and Yves Tillé. (2005).
+“\emph{Evaluation of Variance Approximations and Estimators
+in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
+\strong{Journal of Official Statistics}, 21(4):543–70.
 }
 \seealso{
 For a two-phase design, the function
