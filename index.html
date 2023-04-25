@@ -332,22 +332,22 @@
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compare demographic estimates from the two data sources</span></span>
 <span><span class="va">estimate_comparisons</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  <span class="st">'Vax_Survey'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">RACE_ETHNICITY</span>, design <span class="op">=</span> <span class="va">acs_benchmark_survey</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  <span class="st">'ACS_Benchmark'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">RACE_ETHNICITY</span>, design <span class="op">=</span> <span class="va">lou_vax_survey</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="st">'Vax_Survey'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">RACE_ETHNICITY</span>, design <span class="op">=</span> <span class="va">lou_vax_survey</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="st">'ACS_Benchmark'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">RACE_ETHNICITY</span>, design <span class="op">=</span> <span class="va">acs_benchmark_survey</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">estimate_comparisons</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">estimate_comparisons</span><span class="op">)</span>,</span>
 <span>                                       <span class="st">"RACE_ETHNICITY"</span>, <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">estimate_comparisons</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                                                         Vax_Survey</span></span>
-<span><span class="co">#&gt; Black or African American alone, not Hispanic or Latino 0.19949824</span></span>
-<span><span class="co">#&gt; Hispanic or Latino                                      0.04525039</span></span>
-<span><span class="co">#&gt; Other Race, not Hispanic or Latino                      0.04630955</span></span>
-<span><span class="co">#&gt; White alone, not Hispanic or Latino                     0.70894182</span></span>
+<span><span class="co">#&gt; Black or African American alone, not Hispanic or Latino 0.16932271</span></span>
+<span><span class="co">#&gt; Hispanic or Latino                                      0.03386454</span></span>
+<span><span class="co">#&gt; Other Race, not Hispanic or Latino                      0.05776892</span></span>
+<span><span class="co">#&gt; White alone, not Hispanic or Latino                     0.73904382</span></span>
 <span><span class="co">#&gt;                                                         ACS_Benchmark</span></span>
-<span><span class="co">#&gt; Black or African American alone, not Hispanic or Latino    0.16932271</span></span>
-<span><span class="co">#&gt; Hispanic or Latino                                         0.03386454</span></span>
-<span><span class="co">#&gt; Other Race, not Hispanic or Latino                         0.05776892</span></span>
-<span><span class="co">#&gt; White alone, not Hispanic or Latino                        0.73904382</span></span></code></pre></div>
+<span><span class="co">#&gt; Black or African American alone, not Hispanic or Latino    0.19949824</span></span>
+<span><span class="co">#&gt; Hispanic or Latino                                         0.04525039</span></span>
+<span><span class="co">#&gt; Other Race, not Hispanic or Latino                         0.04630955</span></span>
+<span><span class="co">#&gt; White alone, not Hispanic or Latino                        0.70894182</span></span></code></pre></div>
 <p>There are two options for calibrating the sample to the control totals from the benchmark survey. With the first approach, we supply point estimates and their variance-covariance matrix to the function <code><a href="reference/calibrate_to_estimate.html">calibrate_to_estimate()</a></code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Estimate control totals and their variance-covariance matrix</span></span>
