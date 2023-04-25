@@ -251,8 +251,8 @@ We can see that the distribution of race/ethnicity among respondents differs fro
 ```{r}
 # Compare demographic estimates from the two data sources
 estimate_comparisons <- data.frame(
-  'Vax_Survey' = svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey) |> coef(),
-  'ACS_Benchmark' = svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey) |> coef()
+  'Vax_Survey' = svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey) |> coef(),
+  'ACS_Benchmark' = svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey) |> coef()
 )
 rownames(estimate_comparisons) <- gsub(x = rownames(estimate_comparisons),
                                        "RACE_ETHNICITY", "")
