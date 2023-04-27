@@ -160,19 +160,34 @@ If the adjustment factors are rescaled in this manner, it is important to adjust
 When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
 }
 
+\section{Two-Phase Designs}{
+
+For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
+with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
+In two-phase designs, only the following estimators may be used for the second phase:
+\itemize{
+  \item "Ultimate Cluster"
+  \item "Stratified Multistage SRS"
+  \item "Poisson Horvitz-Thompson"
+}
+For statistical details on the handling of two-phase designs,
+see the documentation for \link[svrep]{make_twophase_quad_form}.
+}
+
 \section{Variance Estimators}{
 
 The \strong{Horvitz-Thompson} variance estimator:
 \deqn{
   v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
 }
-The \strong{Poisson Horvitz-Thompson} variance estimator
-is simply the Horvitz-Thompson variance estimator, but
-where \eqn{\pi_{ij}=\pi_i \times \pi_j}, which is the case for Poisson sampling. \cr \cr
 The \strong{Yates-Grundy} variance estimator:
 \deqn{
   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
 }
+The \strong{Poisson Horvitz-Thompson} variance estimator
+is simply the Horvitz-Thompson variance estimator, but
+where \eqn{\pi_{ij}=\pi_i \times \pi_j}, which is the case for Poisson sampling.
+\cr \cr
 The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
 proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
 The estimator can be used for any number of sampling stages. For illustration, we describe its use
@@ -241,10 +256,10 @@ These variance estimators take the following form:
 where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
 and \eqn{c_i} depend on the method used:
 \itemize{
-  \item{\strong{"Deville-1"}: }{
-    \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
-  \item{\strong{"Deville-2"}: }{
-    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+\item{\strong{"Deville-1"}: }{
+\deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+\item{\strong{"Deville-2"}: }{
+\deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
 }
 In the case of simple random sampling without replacement (SRSWOR),
 these estimators are both identical to the usual stratified multistage SRS estimator
@@ -257,20 +272,6 @@ the variance estimate from a third-stage stratum is multiplied by \eqn{\pi_1 \ti
 where \eqn{\pi_1} is the sampling probability of the first-stage unit
 and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
 within the first-stage unit.
-}
-
-\section{Two-Phase Designs}{
-
-For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
-with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
-In two-phase designs, only the following estimators may be used for the second phase:
-\itemize{
-  \item "Ultimate Cluster"
-  \item "Stratified Multistage SRS"
-  \item "Poisson Horvitz-Thompson"
-}
-For statistical details on the handling of two-phase designs,
-see the documentation for \link[svrep]{make_twophase_quad_form}.
 }
 
 \examples{

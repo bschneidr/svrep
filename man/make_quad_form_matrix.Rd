@@ -118,6 +118,10 @@ The \strong{Yates-Grundy} variance estimator:
 \deqn{
   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
 }
+The \strong{Poisson Horvitz-Thompson} variance estimator
+is simply the Horvitz-Thompson variance estimator, but
+where \eqn{\pi_{ij}=\pi_i \times \pi_j}, which is the case for Poisson sampling.
+\cr \cr
 The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
 proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
 The estimator can be used for any number of sampling stages. For illustration, we describe its use

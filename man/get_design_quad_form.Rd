@@ -39,17 +39,6 @@ Options include:
   This estimator is the basis of the "successive-differences replication" estimator commonly used
   for variance estimation for systematic sampling.}
 }}
-
-\item{ensure_psd}{A logical value, defaulting to \code{FALSE}.
-If \code{ensure_psd = TRUE} and the quadratic form is
-not already positive semidefinite,
-then the function \code{\link[svrep]{get_nearest_psd_matrix}()}
-is used to approximate the quadratic form matrix by the
-nearest positive semidefinite matrix.
-This is necessary if the quadratic form is used as an input for
-replication methods such as the generalized bootstrap
-and is also useful if the quadratic form is to be used directly
-for estimating covariance matrices.}
 }
 \value{
 A matrix representing the quadratic form of a specified variance estimator,
@@ -71,6 +60,10 @@ The \strong{Yates-Grundy} variance estimator:
 \deqn{
   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
 }
+The \strong{Poisson Horvitz-Thompson} variance estimator
+is simply the Horvitz-Thompson variance estimator, but
+where \eqn{\pi_{ij}=\pi_i \times \pi_j}, which is the case for Poisson sampling.
+\cr \cr
 The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
 proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
 The estimator can be used for any number of sampling stages. For illustration, we describe its use
@@ -139,10 +132,10 @@ These variance estimators take the following form:
 where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
 and \eqn{c_i} depend on the method used:
 \itemize{
-  \item{\strong{"Deville-1"}: }{
-    \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
-  \item{\strong{"Deville-2"}: }{
-    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+\item{\strong{"Deville-1"}: }{
+\deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+\item{\strong{"Deville-2"}: }{
+\deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
 }
 In the case of simple random sampling without replacement (SRSWOR),
 these estimators are both identical to the usual stratified multistage SRS estimator
@@ -159,7 +152,7 @@ within the first-stage unit.
 
 \section{Two-Phase Designs}{
 
-For a two-phase design, \code{variance_estimator} should be a list of variance estimators,
+For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
 with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
 In two-phase designs, only the following estimators may be used for the second phase:
 \itemize{
@@ -167,6 +160,8 @@ In two-phase designs, only the following estimators may be used for the second p
   \item "Stratified Multistage SRS"
   \item "Poisson Horvitz-Thompson"
 }
+For statistical details on the handling of two-phase designs,
+see the documentation for \link[svrep]{make_twophase_quad_form}.
 }
 
 \examples{
