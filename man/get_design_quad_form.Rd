@@ -27,6 +27,12 @@ Options include:
   based on estimating the variance of cluster totals within strata at each stage.}
   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
   the variance of first-stage cluster totals within first-stage strata.}
+  \item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
+  sampling without replacement, described in Matei and Tillé (2005)
+  as "Deville 1".}
+  \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
+  sampling without replacement, described in Matei and Tillé (2005)
+  as "Deville 2".}
   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
   sometimes used for variance estimation for systematic sampling.}
   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
@@ -116,6 +122,39 @@ For later stages of sampling, the variance estimate from a stratum is multiplied
 of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
 the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
 which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+\cr \cr
+The \strong{"Deville-1"} and \strong{"Deville-2"} variance estimators
+are clearly described in Matei and Tillé (2005),
+and are intended for designs that use
+fixed-size, unequal-probability random sampling without replacement.
+These variance estimators have been shown to be effective
+for designs that use a fixed sample size with a high-entropy sampling method.
+This includes most PPSWOR sampling methods,
+but unequal-probability systematic sampling is an important exception.
+
+These variance estimators take the following form:
+\deqn{
+\hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
+}
+where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
+and \eqn{c_i} depend on the method used:
+\itemize{
+  \item{\strong{"Deville-1"}: }{
+    \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+  \item{\strong{"Deville-2"}: }{
+    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+}
+In the case of simple random sampling without replacement (SRSWOR),
+these estimators are both identical to the usual stratified multistage SRS estimator
+(which is itself a special case of the Horvitz-Thompson estimator).
+
+For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
+For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+the variance estimate from a third-stage stratum is multiplied by \eqn{\pi_1 \times \pi_{(2 | 1)}},
+where \eqn{\pi_1} is the sampling probability of the first-stage unit
+and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
+within the first-stage unit.
 }
 
 \section{Two-Phase Designs}{

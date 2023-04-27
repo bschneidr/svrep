@@ -493,7 +493,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
           # Get product of sampling probabilities from previous stages
           if (stage > 1) {
             probs_at_prev_stages <- probs[stratum_indices[1],seq_len(stage-1),drop=TRUE]
-            prev_stages_samp_prob <- Reduce(f = `*`, x = prev_stages_samp_probs)
+            prev_stages_samp_prob <- Reduce(f = `*`, x = probs_at_prev_stages)
           } else {
             prev_stages_samp_prob <- 1
           }
