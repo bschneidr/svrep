@@ -215,7 +215,8 @@ as_bootstrap_design.survey.design <- function(design,
     rep_design <- survey::as.svrepdesign(design = design,
                                          type = type,
                                          compress = compress,
-                                         mse = mse)
+                                         mse = mse,
+                                         replicates = replicates)
   }
 
   rep_design$call <- sys.call(which = -1)

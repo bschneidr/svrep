@@ -29,31 +29,37 @@ set.seed(2014)
     "`as_bootstrap_design()` works with types other than RWYB", {
       expect_equal(
         object = withr::with_seed(2014, {
-          as_bootstrap_design(dclus1, type = "Canty-Davison") |>
+          as_bootstrap_design(dclus1, type = "Canty-Davison",
+                              replicates = 10) |>
             weights(type = "analysis")
         }),
         expected = withr::with_seed(2014, {
-          as.svrepdesign(dclus1, type = "bootstrap") |>
+          as.svrepdesign(dclus1, type = "bootstrap",
+                         replicates = 10) |>
             weights(type = "analysis")
         })
       )
       expect_equal(
         object = withr::with_seed(2014, {
-          as_bootstrap_design(dclus1, type = "Rao-Wu") |>
+          as_bootstrap_design(dclus1, type = "Rao-Wu",
+                              replicates = 10) |>
             weights(type = "analysis")
         }),
         expected = withr::with_seed(2014, {
-          as.svrepdesign(dclus1, type = "subbootstrap") |>
+          as.svrepdesign(dclus1, type = "subbootstrap",
+                         replicates = 10) |>
             weights(type = "analysis")
         })
       )
       expect_equal(
         object = withr::with_seed(2014, {
-          as_bootstrap_design(dclus1, type = "Preston") |>
+          as_bootstrap_design(dclus1, type = "Preston",
+                              replicates = 10) |>
             weights(type = "analysis")
         }),
         expected = withr::with_seed(2014, {
-          as.svrepdesign(dclus1, type = "mrbbootstrap") |>
+          as.svrepdesign(dclus1, type = "mrbbootstrap",
+                         replicates = 10) |>
             weights(type = "analysis")
         })
       )
