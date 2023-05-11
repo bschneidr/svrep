@@ -240,6 +240,18 @@ $$
 When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \(\frac{\tau^2}{B}\) rather than \(\frac{1}{B}\) when estimating sampling variances.</p>
     </div>
     <div class="section level2">
+    <h2 id="two-phase-designs">Two-Phase Designs<a class="anchor" aria-label="anchor" href="#two-phase-designs"></a></h2>
+    
+
+<p>For a two-phase design, <code>variance_estimator</code> should be a list of variance estimators' names,
+with two elements, such as <code>list('Ultimate Cluster', 'Poisson Horvitz-Thompson')</code>.
+In two-phase designs, only the following estimators may be used for the second phase:</p><ul><li><p>"Ultimate Cluster"</p></li>
+<li><p>"Stratified Multistage SRS"</p></li>
+<li><p>"Poisson Horvitz-Thompson"</p></li>
+</ul><p>For statistical details on the handling of two-phase designs,
+see the documentation for <a href="make_twophase_quad_form.html">make_twophase_quad_form</a>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="variance-estimators">Variance Estimators<a class="anchor" aria-label="anchor" href="#variance-estimators"></a></h2>
     
 
@@ -247,13 +259,14 @@ When sharing a dataset that uses rescaled weights from a generalized survey boot
 $$
   v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
 $$
-The <strong>Poisson Horvitz-Thompson</strong> variance estimator
-is simply the Horvitz-Thompson variance estimator, but
-where \(\pi_{ij}=\pi_i \times \pi_j\), which is the case for Poisson sampling. <br><br>
 The <strong>Yates-Grundy</strong> variance estimator:
 $$
   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
 $$
+The <strong>Poisson Horvitz-Thompson</strong> variance estimator
+is simply the Horvitz-Thompson variance estimator, but
+where \(\pi_{ij}=\pi_i \times \pi_j\), which is the case for Poisson sampling.
+<br><br>
 The <strong>Stratified Multistage SRS</strong> variance estimator is the recursive variance estimator
 proposed by Bellhouse (1985) and used in the 'survey' package's function <a href="https://rdrr.io/pkg/survey/man/svyrecvar.html" class="external-link">svyrecvar</a>.
 The estimator can be used for any number of sampling stages. For illustration, we describe its use
@@ -320,9 +333,9 @@ $$
 $$
 where \(\breve{y}_i = y_i/\pi_i\) is the weighted value of the the variable of interest,
 and \(c_i\) depend on the method used:</p><ul><li><p><strong>"Deville-1"</strong>: 
-    $$c_i=\left(1-\pi_i\right) \frac{n}{n-1}$$</p></li>
+$$c_i=\left(1-\pi_i\right) \frac{n}{n-1}$$</p></li>
 <li><p><strong>"Deville-2"</strong>: 
-    $$c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}$$</p></li>
+$$c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}$$</p></li>
 </ul><p>In the case of simple random sampling without replacement (SRSWOR),
 these estimators are both identical to the usual stratified multistage SRS estimator
 (which is itself a special case of the Horvitz-Thompson estimator).</p>
@@ -333,18 +346,6 @@ the variance estimate from a third-stage stratum is multiplied by \(\pi_1 \times
 where \(\pi_1\) is the sampling probability of the first-stage unit
 and \(\pi_{(2|1)}\) is the sampling probability of the second-stage unit
 within the first-stage unit.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="two-phase-designs">Two-Phase Designs<a class="anchor" aria-label="anchor" href="#two-phase-designs"></a></h2>
-    
-
-<p>For a two-phase design, <code>variance_estimator</code> should be a list of variance estimators' names,
-with two elements, such as <code>list('Ultimate Cluster', 'Poisson Horvitz-Thompson')</code>.
-In two-phase designs, only the following estimators may be used for the second phase:</p><ul><li><p>"Ultimate Cluster"</p></li>
-<li><p>"Stratified Multistage SRS"</p></li>
-<li><p>"Poisson Horvitz-Thompson"</p></li>
-</ul><p>For statistical details on the handling of two-phase designs,
-see the documentation for <a href="make_twophase_quad_form.html">make_twophase_quad_form</a>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
