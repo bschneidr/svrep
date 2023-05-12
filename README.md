@@ -38,7 +38,7 @@ devtools::install_github("bschneidr/svrep")
 
 ## Citation
 
-When using the ‘svrep’ package, please make sure to cite it any
+When using the ‘svrep’ package, please make sure to cite it in any
 resulting publications. This is appreciated by the package maintainer
 and helps to incentivize ongoing development, maintenance, and support.
 
