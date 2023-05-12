@@ -87,3 +87,9 @@ library(survey)
  )
  print(jk_design)
 }
+\references{
+See Chapter 4 of Wolter (2007) for an overview of the jackknife,
+including the method based on random groups.
+
+- Wolter, Kirk. 2007. "Introduction to Variance Estimation." New York, NY: Springer New York. https://doi.org/10.1007/978-0-387-35099-8.
+}

@@ -42,6 +42,11 @@
 #' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights. \cr
 #' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
 #' for the full-sample and replicate weights.
+#' @references
+#' See Chapter 4 of Wolter (2007) for an overview of the jackknife,
+#' including the method based on random groups.
+#'
+#' - Wolter, Kirk. 2007. "Introduction to Variance Estimation." New York, NY: Springer New York. https://doi.org/10.1007/978-0-387-35099-8.
 #' @export
 #'
 #' @examples
