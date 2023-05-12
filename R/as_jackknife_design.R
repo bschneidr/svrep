@@ -132,14 +132,18 @@ as_random_group_jackknife_design.survey.design <- function(
     stop("There is at least one stratum with fewer PSUs than the desired number of replicates")
   }
 
-  # Randomly shuffle the order of the PSUs in the data
+  # Randomly shuffle the order of the PSUs in the data, within strata
   # (implemented by randomly relabeling the PSUs,
   #  then sorting the data by the random PSU labels)
   psu_random_labels <- sample(x = n_psus, size = n_psus, replace = FALSE)
-  design_vars[['RAND_PSU_ID']] <- psu_random_labels[design_vars[['PSU']]]
-  design_vars <- design_vars[order(design_vars[['RAND_PSU_ID']]),,drop=FALSE]
+  design_vars[['RAND_PSU_ID']] <- interaction(
+    design_vars[['STRATUM']],
+    psu_random_labels[design_vars[['PSU']]],
+    drop = TRUE, lex.order = TRUE
+  )
 
-  # Order the data by stratum
+  # Order the data by stratum, then by PSU
+  design_vars <- design_vars[order(design_vars[['RAND_PSU_ID']]),,drop=FALSE]
   design_vars <- design_vars[order(design_vars[['STRATUM']]),]
 
   # Create random groups
