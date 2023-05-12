@@ -104,10 +104,10 @@ be used to adjust the overall replication scale factor through a finite populati
 
 
 <dt>group_var_name</dt>
-<dd><p>(Optional) The name of new variable created to save
+<dd><p>(Optional) The name of a new variable created to save
 identifiers for which random group each PSU was grouped into
 for the purpose of forming replicates.
-Specify <code>group_name = NULL</code> to avoid creating the variable in the data.</p></dd>
+Specify <code>group_var_name = NULL</code> to avoid creating the variable in the data.</p></dd>
 
 
 <dt>compress</dt>
@@ -170,7 +170,7 @@ the next PSU to the second group, and so on.</p>
 <span class="r-in"><span>   replicates <span class="op">=</span> <span class="fl">15</span></span></span>
 <span class="r-in"><span> <span class="op">)</span></span></span>
 <span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">jk_design</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Call: eval(expr, envir, enclos)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Call: as_random_group_jackknife_design(api_strat_design, replicates = 15)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> with 15 replicates.</span>
 </code></pre></div>
     </div>
