@@ -979,7 +979,7 @@ ht_matrix_to_joint_probs <- function(ht_quad_form) {
 #'   where \eqn{\pi_{bk}} is the conditional probability that unit \eqn{k}
 #'   is included in the second-phase sample, given the selected first-phase sample.
 #' }
-#' @section Ensuring the Result is Positive semidefinite:
+#' @section Ensuring the Result is Positive Semidefinite:
 #' Note that the matrix \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} may not be
 #' positive semidefinite, since the matrix \eqn{D_b} is not guaranteed to be positive semidefinite.
 #' If \eqn{(\boldsymbol{\Sigma}_{a^\prime} \circ D_b )} is found not to be positive semidefinite,

@@ -39,6 +39,16 @@ Options include:
   This estimator is the basis of the "successive-differences replication" estimator commonly used
   for variance estimation for systematic sampling.}
 }}
+
+\item{ensure_psd}{If \code{TRUE} (the default), ensures
+that the result is a positive semidefinite matrix. This
+is necessary if the quadratic form is used as an input for
+replication methods such as the generalized bootstrap.
+For mathematical details, please see the documentation for the function \code{get_nearest_psd_matrix()}.
+The approximation method is discussed by Beaumont and Patak (2012)
+in the context of forming replicate weights for two-phase samples.
+The authors argue that this approximation should
+lead to only a small overestimation of variance.}
 }
 \value{
 A matrix representing the quadratic form of a specified variance estimator,
@@ -244,6 +254,9 @@ see the documentation for \link[svrep]{make_twophase_quad_form}.
 \references{
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\cr \cr
+- Beaumont, Jean-François, and Zdenek Patak. (2012). "\emph{On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.}"
+\strong{International Statistical Review} 80 (1): 127–48.
 \cr \cr
 - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
