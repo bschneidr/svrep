@@ -105,6 +105,18 @@ Options include:</p><ul><li><p><strong>"Yates-Grundy"</strong>: The Yates-Grundy
   for variance estimation for systematic sampling.</p></li>
 </ul></dd>
 
+
+<dt>ensure_psd</dt>
+<dd><p>If <code>TRUE</code> (the default), ensures
+that the result is a positive semidefinite matrix. This
+is necessary if the quadratic form is used as an input for
+replication methods such as the generalized bootstrap.
+For mathematical details, please see the documentation for the function <code><a href="get_nearest_psd_matrix.html">get_nearest_psd_matrix()</a></code>.
+The approximation method is discussed by Beaumont and Patak (2012)
+in the context of forming replicate weights for two-phase samples.
+The authors argue that this approximation should
+lead to only a small overestimation of variance.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -226,6 +238,9 @@ see the documentation for <a href="make_twophase_quad_form.html">make_twophase_q
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>- Ash, S. (2014). "<em>Using successive difference replication for estimating variances</em>."
 <strong>Survey Methodology</strong>, Statistics Canada, 40(1), 47–59.
+<br><br>
+- Beaumont, Jean-François, and Zdenek Patak. (2012). "<em>On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.</em>"
+<strong>International Statistical Review</strong> 80 (1): 127–48.
 <br><br>
 - Bellhouse, D.R. (1985). "<em>Computing Methods for Variance Estimation in Complex Surveys</em>."
 <strong>Journal of Official Statistics</strong>, Vol.1, No.3.
