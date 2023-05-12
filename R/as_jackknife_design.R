@@ -138,11 +138,15 @@ as_random_group_jackknife_design.survey.design <- function(
   design_vars <- design_vars[order(design_vars[['STRATUM']]),]
 
   # Create random groups
-  group_size <- n / replicates
+  group_size <- n_psus / replicates
 
-  design_vars[['RANDOM_GROUP']] <- rep(
+  random_group_assignments <- rep(
     seq_len(replicates), times = ceiling(group_size)
-  )[seq_len(n)]
+  )[seq_len(n_psus)]
+
+  random_group_assignments[design_vars[['RAND_PSU_ID']]]
+
+  design_vars[['RANDOM_GROUP']] <- random_group_assignments[design_vars[['RAND_PSU_ID']]]
 
   # Reorder the data by the original order
 
