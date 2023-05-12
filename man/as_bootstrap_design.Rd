@@ -66,7 +66,8 @@ Each element should be one of the following: \cr
 }
 \value{
 A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
-such as \code{svymean()} or \code{svyglm()}. \cr \cr
+such as \code{svymean()} or \code{svyglm()}.
+
 Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights. \cr
 Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
 for the full-sample and replicate weights.
