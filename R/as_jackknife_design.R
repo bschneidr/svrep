@@ -43,7 +43,11 @@
 #' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
 #' for the full-sample and replicate weights.
 #' @references
-#' See Chapter 4 of Wolter (2007) for an overview of the jackknife,
+#' See Valliant, Brick, and Dever (2008) for an overview of the grouped jackknife.
+#'
+#' - Valliant, Richard, Michael Brick, and Jill Dever. 2008. "Weight Adjustments for the Grouped Jackknife Variance Estimator." \emph{Journal of Official Statistics}. 24: 469–88.
+#'
+#' See Chapter 4 of Wolter (2007) for additional details of the jackknife,
 #' including the method based on random groups.
 #'
 #' - Wolter, Kirk. 2007. "Introduction to Variance Estimation." New York, NY: Springer New York. https://doi.org/10.1007/978-0-387-35099-8.
