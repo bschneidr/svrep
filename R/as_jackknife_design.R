@@ -7,13 +7,13 @@
 #' is ignorable or is identical in every stratum.
 #' @details The data are sorted by first-stage sampling strata,
 #' and then the PSUs in each stratum are randomly arranged.
-#' Groups are then formed by sequentially placing PSUs
+#' Groups are then formed by serially placing PSUs
 #' into each group.
-#' The first PSU in the dataset is placed into the first group,
+#' The first PSU in the sorted dataset is placed into the first group,
 #' the second PSU into the second group, and so on.
 #' Once a PSU has been assigned to the last group,
 #' the process begins again by assigning the next PSU to the first group,
-#' the next PSU to the second group, and so on.
+#' the PSU after that to the second group, and so on.
 #'
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
