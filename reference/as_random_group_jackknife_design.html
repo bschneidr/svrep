@@ -139,17 +139,19 @@ for the full-sample and replicate weights.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The data are sorted by first-stage sampling strata,
 and then the PSUs in each stratum are randomly arranged.
-Groups are then formed by sequentially placing PSUs
+Groups are then formed by serially placing PSUs
 into each group.
-The first PSU in the dataset is placed into the first group,
+The first PSU in the sorted dataset is placed into the first group,
 the second PSU into the second group, and so on.
 Once a PSU has been assigned to the last group,
 the process begins again by assigning the next PSU to the first group,
-the next PSU to the second group, and so on.</p>
+the PSU after that to the second group, and so on.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>See Chapter 4 of Wolter (2007) for an overview of the jackknife,
+    <p>See Valliant, Brick, and Dever (2008) for an overview of the grouped jackknife.</p>
+<p>- Valliant, Richard, Michael Brick, and Jill Dever. 2008. "Weight Adjustments for the Grouped Jackknife Variance Estimator." <em>Journal of Official Statistics</em>. 24: 469–88.</p>
+<p>See Chapter 4 of Wolter (2007) for additional details of the jackknife,
 including the method based on random groups.</p>
 <p>- Wolter, Kirk. 2007. "Introduction to Variance Estimation." New York, NY: Springer New York. https://doi.org/10.1007/978-0-387-35099-8.</p>
     </div>
