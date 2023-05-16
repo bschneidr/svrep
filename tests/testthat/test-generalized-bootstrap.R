@@ -408,3 +408,17 @@ twophase_design <- twophase(
 
     })
 
+# Works for more specialized classes of survey designs ----
+
+  test_that(
+    desc = "Returns `tbl_svy` if the input is a `tbl_svy` and 'srvyr' is loaded", {
+      library(srvyr)
+      expect_true(
+        twophase_design |> as_survey() |>
+          as_gen_boot_design(variance_estimator = list(
+            'Ultimate Cluster', 'Ultimate Cluster'
+          ), replicates = 1, tau = 1) |>
+          inherits('tbl_svy')
+      )
+    }
+  )

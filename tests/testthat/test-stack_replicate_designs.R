@@ -82,3 +82,18 @@ test_that("Able to supply `mrbbootstrap` or `subbootstrap` designs", code = {
   expect_equal(object = stack_replicate_designs(subboot_design, subboot_design)$type,
                expected = 'bootstrap')
 })
+
+# Check that function works for more specialized classes ----
+
+test_that(
+  desc = "Returns `tbl_svy` if any input is a `tbl_svy` and 'srvyr' is loaded", {
+    library(srvyr)
+    expect_true(
+      stack_replicate_designs(
+        'orig' = orig_rep_design[1,],
+        'nr-adjusted' = nr_adjusted_design[1,] |> as_survey(),
+        .id = "Design_Name") |>
+      inherits('tbl_svy')
+    )
+  }
+)

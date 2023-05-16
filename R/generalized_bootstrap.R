@@ -721,6 +721,12 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 
   rep_design$tau <- attr(adjustment_factors, 'tau')
 
+  if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    rep_design <- srvyr::as_survey_rep(
+      rep_design
+    )
+  }
+
   rep_design$call <- sys.call(which = -1)
 
   return(rep_design)
@@ -773,6 +779,12 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
   )
 
   rep_design$tau <- attr(adjustment_factors, 'tau')
+
+  if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    rep_design <- srvyr::as_survey_rep(
+      rep_design
+    )
+  }
 
   rep_design$call <- sys.call(which = -1)
 

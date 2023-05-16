@@ -147,6 +147,8 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
     stop("`control_rep_design` must be a replicate survey design object, with class `svyrep.design`")
   }
 
+  is_tbl_svy <- inherits(primary_rep_design, 'tbl_svy')
+
   # Determine parameters describing replicate designs ----
   R_control <- ncol(control_rep_design$repweights)
   R_primary <- ncol(primary_rep_design$repweights)
@@ -396,6 +398,12 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
     fpctype = primary_rep_design$fpctype,
     mse = TRUE
   )
+
+  if (is_tbl_svy && ('package:srvyr' %in% search())) {
+    calibrated_rep_design <- srvyr::as_survey_rep(
+      calibrated_rep_design
+    )
+  }
 
   calibrated_rep_design$rho <- primary_rep_design$rho
 

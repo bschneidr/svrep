@@ -339,6 +339,12 @@ calibrate_to_estimate <- function(rep_design,
     mse = TRUE
   )
 
+  if (inherits(rep_design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    calibrated_rep_design <- srvyr::as_survey_rep(
+      rep_design
+    )
+  }
+
   calibrated_rep_design$rho <- rep_design$rho
 
   if (!rep_design$mse) {

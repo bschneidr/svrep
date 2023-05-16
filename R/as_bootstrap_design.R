@@ -220,6 +220,12 @@ as_bootstrap_design.survey.design <- function(design,
                                          replicates = replicates)
   }
 
+  if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    rep_design <- srvyr::as_survey_rep(
+      rep_design
+    )
+  }
+
   rep_design$call <- sys.call(which = -1)
 
   return(rep_design)

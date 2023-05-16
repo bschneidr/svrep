@@ -116,3 +116,16 @@ set.seed(2014)
                    expected = weights(boot_2_pps, type = "analysis"))
     }
   )
+
+# Works for survey design objects with special classes ----
+
+  test_that(
+    desc = "Returns `tbl_svy` if the input is a `tbl_svy` and 'srvyr' is loaded", {
+      library(srvyr)
+      expect_true(
+        dstrat |> as_survey() |>
+          as_bootstrap_design(replicates = 1) |>
+          inherits(what = "tbl_svy")
+      )
+    }
+  )
