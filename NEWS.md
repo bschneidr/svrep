@@ -5,8 +5,6 @@
 
   * Added new variance estimators ("Deville 1" and "Deville 2") available to use for the generalized bootstrap, which are particularly useful for single-stage PPSWOR designs or for multistage designs with one or more stages of PPSWOR sampling. See updated documentation for `as_gen_boot_design()` and `make_quad_form_matrix()`.
 
-  * Added the function `as_random_group_jackknife_design()` for creating random-group jackknife replicate designs.
-
   * If the 'srvyr' package is loaded, then functions from 'svrep' that return survey design objects will always return a `tbl_svy` if their input was a `tbl_svy`. This makes it easier to use functions such as `summarize()` or `mutate()`.
 
 * Bug Fixes:

@@ -18,9 +18,6 @@ reference:
   # - matches("srswor_matrix")
   # - matches("distribute_matrix")
   - matches("rescale_reps")
-- title: Other Types of Replicate Weights
-- contents:
-  - matches("jackknife")
 - subtitle: Helper Functions for Working with Quadratic Forms
   desc: >
     *These functions help the user specify the quadratic form representation of common variance estimators and, if necessary, adjust them so that they are positive semidefinite (a necessary prerequisite for using the generalized bootstrap).*
