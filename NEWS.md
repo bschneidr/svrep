@@ -1,4 +1,4 @@
-# svrep (development version)
+# svrep 0.5.1
 
 * New Features:
   * Added argument `exact_vcov = TRUE` to `as_gen_boot_design()` and `make_gen_boot_factors()`. This argument forces the generalized bootstrap variance-covariance estimates for totals to exactly match the target variance estimator. In other words, this eliminates bootstrap simulation error for variance estimates of totals. This is similar to how, for simple survey designs, the jackknife and BRR give variance estimates for totals that exactly match the Horvitz-Thompson estimates. Using `exact_vcov` requires that the number of replicates is strictly greater than the rank of the target variance estimator.
