@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.5.1" id="svrep-051">svrep 0.5.1<a class="anchor" aria-label="anchor" href="#svrep-051"></a></h2>
 <ul><li>New Features:
 <ul><li><p>Added argument <code>exact_vcov = TRUE</code> to <code><a href="../reference/as_gen_boot_design.html">as_gen_boot_design()</a></code> and <code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code>. This argument forces the generalized bootstrap variance-covariance estimates for totals to exactly match the target variance estimator. In other words, this eliminates bootstrap simulation error for variance estimates of totals. This is similar to how, for simple survey designs, the jackknife and BRR give variance estimates for totals that exactly match the Horvitz-Thompson estimates. Using <code>exact_vcov</code> requires that the number of replicates is strictly greater than the rank of the target variance estimator.</p></li>
 <li><p>Added new variance estimators (“Deville 1” and “Deville 2”) available to use for the generalized bootstrap, which are particularly useful for single-stage PPSWOR designs or for multistage designs with one or more stages of PPSWOR sampling. See updated documentation for <code><a href="../reference/as_gen_boot_design.html">as_gen_boot_design()</a></code> and <code><a href="../reference/make_quad_form_matrix.html">make_quad_form_matrix()</a></code>.</p></li>
