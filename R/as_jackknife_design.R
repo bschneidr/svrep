@@ -347,7 +347,7 @@ as_random_group_jackknife_design.survey.design <- function(
         var_unit_psu_counts$N_PSUS_IN_VAR_STRAT / (var_unit_psu_counts$N_PSUS_IN_VAR_STRAT - var_unit_psu_counts$N_PSUS_IN_VAR_UNIT)
       ),
       "variance-units" = (
-        var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT / (var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT - var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT)
+        var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT / (var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT - 1)
       )
     )
 
@@ -376,7 +376,7 @@ as_random_group_jackknife_design.survey.design <- function(
         var_unit_psu_counts$N_PSUS_IN_VAR_STRAT / (var_unit_psu_counts$N_PSUS_IN_VAR_STRAT - var_unit_psu_counts$N_PSUS_IN_VAR_UNIT)
       )^(-1),
       "variance-units" = (
-        var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT / (var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT - var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT)
+        var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT / (var_unit_psu_counts$N_VAR_UNITS_IN_VAR_STRAT - 1)
       )^(-1)
     )
 
