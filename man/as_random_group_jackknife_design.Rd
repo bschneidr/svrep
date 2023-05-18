@@ -9,8 +9,8 @@ as_random_group_jackknife_design(
   replicates = 50,
   var_strat = NULL,
   var_strat_frac = NULL,
-  adj_method = "design-stratum-psus",
-  scale_method = "psus",
+  adj_method = "variance-stratum-psus",
+  scale_method = "variance-stratum-psus",
   group_var_name = ".random_group",
   compress = TRUE,
   mse = getOption("survey.replicates.mse")
@@ -48,11 +48,7 @@ The options for \code{adj_method} differ in how
 \eqn{a_{h(\tilde{h} g)}} is calculated.
 Available options include:
 \itemize{
-  \item{"design-stratum-psus"}{ (the default):
-    The replicate weight adjustment for a unit
-    is based on the number of PSUs in its design stratum.
-  }
-  \item{"variance-stratum-psus"}{
+  \item{"variance-stratum-psus" (the default)}{
     The replicate weight adjustment for a unit
     is based on the number of PSUs in its variance stratum.
   }
@@ -61,26 +57,29 @@ Available options include:
     is based on the number of variance units
     in its variance stratum.
   }
-}
-The combination \code{adj_method = "design-stratum-psus"}}
+}}
 
 \item{scale_method}{Specifies how to calculate the
-scale factor for each variance stratum.
+scale factor for each replicate.
 Available options include:
 \itemize{
-  \item{"psus"}{
-    The scale factor for a variance stratum
-    is based on its number of PSUs.
+  \item{"variance-stratum-psus"}{
+    The scale factor for a variance unit
+    is based on its number of PSUs compared
+    to the number of PSUs in its variance stratum.
   }
   \item{"variance-units"}{
-    The scale factor for a variance stratum
-    is based on its number of variance units.
+    The scale factor for a variance unit is
+    based on the number of variance units in
+    its variance stratum.
   }
 }
-The combination \code{adj_method = "design-stratum-psus"}
+When variance units in a variance stratum
+have differing numbers of PSUs,
+the combination \code{adj_method = "variance-stratum-psus"}
 and \code{scale_method = "variance-units"} is
 recommended by Valliant, Brick, and Dever (2008),
-corresponding to their method \code{"GJ3"}.}
+corresponding to their method \code{"GJ2"}.}
 
 \item{group_var_name}{(Optional) The name of a new variable created to save
 identifiers for which random group each PSU was grouped into
@@ -118,6 +117,12 @@ the second PSU into the second group, and so on.
 Once a PSU has been assigned to the last group,
 the process begins again by assigning the next PSU to the first group,
 the PSU after that to the second group, and so on.
+
+The random-groups jackknife method often referred to as "DAGJK"
+corresponds to the options \code{var_strat = NULL},
+\code{adj_method = "variance-units"}, and \code{scale_method = "variance-units"}.
+The DAGJK method will yield upwardly-biased variance estimates for totals
+if the total number of PSUs is not a multiple of the total number of replicates (Valliant, Brick, and Dever 2008).
 }
 \examples{
 library(survey)
@@ -142,11 +147,9 @@ library(survey)
  print(jk_design)
 }
 \references{
-The available methods \code{"GJ2"} and \code{"GJ3"} implemented
-in this function correspond to the methods of the same name
-defined in Valliant, Brick, and Dever (2008).
-Note that the random-groups jackknife method often referred to as "DAGJK" is
-is simply \code{"GJ3"} with only one variance stratum.
+See Valliant, Brick, and Dever (2008) for an overview of the
+grouped jackknife and statistical details related to the
+\code{adj_method} and \code{scale_method} arguments.
 
 - Valliant, Richard, Michael Brick, and Jill Dever. 2008.
 "Weight Adjustments for the Grouped Jackknife Variance Estimator."
