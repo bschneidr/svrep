@@ -20,9 +20,11 @@ as_random_group_jackknife_design(
 \item{design}{A survey design object created using the 'survey' (or 'srvyr') package,
 with class \code{'survey.design'} or \code{'svyimputationList'}.}
 
-\item{replicates}{The number of replicates to create.
-Every stratum must have at least this many primary sampling units (PSUs),
-or else an error will occur.}
+\item{replicates}{The number of replicates to create
+for each variance stratum. The total number of replicates
+created is the number of variance strata times \code{replicates}.
+Every design stratum must have at least as many primary sampling units (PSUs),
+as \code{replicates}.}
 
 \item{var_strat}{Specifies the name of a variable
 in the data that defines variance strata to use
