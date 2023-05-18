@@ -535,7 +535,7 @@ make_sd_matrix <- function(n, f = 0, type = "SD1") {
 
 #' @title Create a quadratic form's matrix to represent the basic variance estimator
 #' for a total under simple random sampling without replacement
-#' @description The usual variance estimator simple random sampling without replacement
+#' @description The usual variance estimator for simple random sampling without replacement
 #' can be represented as a quadratic form.
 #' This function determines the matrix of the quadratic form.
 #' @param n Sample size

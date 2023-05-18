@@ -17,7 +17,7 @@ representing the sampling fraction. Default value is \code{0}.}
 A symmetric matrix of dimension \code{n}
 }
 \description{
-The usual variance estimator simple random sampling without replacement
+The usual variance estimator for simple random sampling without replacement
 can be represented as a quadratic form.
 This function determines the matrix of the quadratic form.
 }
