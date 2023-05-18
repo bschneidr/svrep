@@ -147,8 +147,15 @@ library(survey)
  print(jk_design)
 }
 \references{
-See Valliant, Brick, and Dever (2008) for an overview of the
-grouped jackknife and statistical details related to the
+See Section 15.5 of Valliant, Dever, and Kreuter (2018)
+for an introduction to the grouped jackknife and
+guidelines for creating the random groups.
+
+- Valliant, R., Dever, J., Kreuter, F. (2018).
+"Practical Tools for Designing and Weighting Survey Samples, 2nd edition." New York: Springer.
+
+See Valliant, Brick, and Dever (2008)
+for statistical details related to the
 \code{adj_method} and \code{scale_method} arguments.
 
 - Valliant, Richard, Michael Brick, and Jill Dever. 2008.

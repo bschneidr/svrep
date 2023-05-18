@@ -16,9 +16,11 @@
 #'
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
-#' @param replicates The number of replicates to create.
-#' Every stratum must have at least this many primary sampling units (PSUs),
-#' or else an error will occur.
+#' @param replicates The number of replicates to create
+#' for each variance stratum. The total number of replicates
+#' created is the number of variance strata times \code{replicates}.
+#' Every design stratum must have at least as many primary sampling units (PSUs),
+#' as \code{replicates}.
 #' @param adj_method Specifies how to calculate the
 #' replicate weight adjustment factor. These adjustment factors
 #' generally take the following form:
@@ -98,8 +100,15 @@
 #'
 #'
 #' @references
-#' See Valliant, Brick, and Dever (2008) for an overview of the
-#' grouped jackknife and statistical details related to the
+#' See Section 15.5 of Valliant, Dever, and Kreuter (2018)
+#' for an introduction to the grouped jackknife and
+#' guidelines for creating the random groups.
+#'
+#' - Valliant, R., Dever, J., Kreuter, F. (2018).
+#' "Practical Tools for Designing and Weighting Survey Samples, 2nd edition." New York: Springer.
+#'
+#' See Valliant, Brick, and Dever (2008)
+#' for statistical details related to the
 #' \code{adj_method} and \code{scale_method} arguments.
 #'
 #' - Valliant, Richard, Michael Brick, and Jill Dever. 2008.
@@ -276,7 +285,8 @@ as_random_group_jackknife_design.survey.design <- function(
 
     design_vars[['RANDOM_GROUP_VAR_UNIT']][row_indices] <- (
       random_group_assignments[
-        design_vars[['RAND_PSU_ID']][row_indices]
+        design_vars[['RAND_PSU_ID']][row_indices] |>
+          factor() |> as.numeric()
       ]
     )
   }
@@ -348,8 +358,11 @@ as_random_group_jackknife_design.survey.design <- function(
     )
 
     for (variance_stratum in unique(var_unit_psu_counts$VAR_STRAT)) {
-      indices <- (var_unit_psu_counts$VAR_STRAT == variance_stratum)
-      rep_factors[indices, indices] <- adj_factors[indices]
+      indices <- which(var_unit_psu_counts$VAR_STRAT == variance_stratum)
+      for (index in indices) {
+        rep_factors[indices, index] <- adj_factors[index]
+      }
+
     }
 
     diag(rep_factors) <- 0
