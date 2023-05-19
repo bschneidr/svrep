@@ -43,7 +43,7 @@ lou_vax_survey |> count(RESPONSE_STATUS) |> mutate(pct = n/sum(n))
 # Creating initial replicate weights
 
 To begin with, we'll create bootstrap replicate weights. 
-In most cases, we can do this simply by describing the survey design using the `svydesign()` function and then using a function to create appropriate appropriate replicate weights. The function `as.svrepdesign()` from the 'survey' package can be used to create several types of replicate weights, using the argument `type` (with options `'JK1'`, `'JKn'`, `'bootstrap'`, `'BRR'`, `'Fay'`, etc.) In addition, the function `as_bootstrap_design()` can be used to create bootstrap weights using additional methods not supported in the 'survey' package.
+In most cases, we can do this simply by describing the survey design using the `svydesign()` function and then using a function to create appropriate replicate weights. The function `as.svrepdesign()` from the 'survey' package can be used to create several types of replicate weights, using the argument `type` (with options `'JK1'`, `'JKn'`, `'bootstrap'`, `'BRR'`, `'Fay'`, etc.) In addition, the function `as_bootstrap_design()` can be used to create bootstrap weights using additional methods not supported in the 'survey' package.
 
 ```{r}
 # Describe the survey design
