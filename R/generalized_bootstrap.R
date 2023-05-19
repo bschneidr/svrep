@@ -464,17 +464,27 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #' @return
 #' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
-#' such as \code{svymean()} or \code{svyglm()}. \cr
-#' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights. \cr
+#' such as \code{svymean()} or \code{svyglm()}.
+#'
+#' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights.
+#'
 #' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
 #' for the full-sample and replicate weights.
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates. \cr
+#'
 #' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 #' represent several common variance estimators as a quadratic form's matrix,
 #' which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
 #' The function \code{\link[svrep]{rescale_reps}} is used to implement
 #' the rescaling of the bootstrap adjustment factors.
+#'
+#' See \link[svrep]{variance-estimators} for a
+#' description of each variance estimator.
+#' @section Variance Estimators:
+#' See \link[svrep]{variance-estimators} for a
+#' description of each variance estimator that can be used
+#' as a target for the generalized bootstrap.
 #' @section Statistical Details:
 #' Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
 #' The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
@@ -510,7 +520,6 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' While there are multiple ways to generate adjustment factors satisfying these conditions,
 #' the simplest general method is to simulate from a multivariate normal distribution: \eqn{\mathbf{a} \sim MVN(\mathbf{1}_n, \boldsymbol{\Sigma})}.
 #' This is the method used by this function.
-#'
 #' @section Details on Rescaling to Avoid Negative Adjustment Factors:
 #' Let \eqn{\mathbf{A} = \left[ \mathbf{a}^{(1)} \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]} denote the \eqn{(n \times B)} matrix of bootstrap adjustment factors.
 #' To eliminate negative adjustment factors, Beaumont and Patak (2012) propose forming a rescaled matrix of nonnegative replicate factors \eqn{\mathbf{A}^S} by rescaling each adjustment factor \eqn{a_k^{(b)}} as follows:
@@ -530,7 +539,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' }
 #' When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
 #'
-#' @inheritSection make_quad_form_matrix Variance Estimators
+
 #' @section Two-Phase Designs:
 #' For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
 #' with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
@@ -566,7 +575,6 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' “\emph{Evaluation of Variance Approximations and Estimators
 #' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
 #' \strong{Journal of Official Statistics}, 21(4):543–70.
-#'
 #' @export
 #'
 #' @examples
