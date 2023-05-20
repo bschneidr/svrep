@@ -403,7 +403,9 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
 #' @param variance_estimator The name of the variance estimator
-#' whose quadratic form matrix should be created. See the section "Variance Estimators" below.
+#' whose quadratic form matrix should be created.
+#' See \link[svrep]{variance-estimators} for a
+#' detailed description of each variance estimator.
 #' Options include:
 #' \itemize{
 #'   \item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
@@ -481,10 +483,6 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'
 #' See \link[svrep]{variance-estimators} for a
 #' description of each variance estimator.
-#' @section Variance Estimators:
-#' See \link[svrep]{variance-estimators} for a
-#' description of each variance estimator that can be used
-#' as a target for the generalized bootstrap.
 #' @section Statistical Details:
 #' Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
 #' The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.

@@ -20,7 +20,9 @@ as_gen_boot_design(
 with class \code{'survey.design'} or \code{'svyimputationList'}.}
 
 \item{variance_estimator}{The name of the variance estimator
-whose quadratic form matrix should be created. See the section "Variance Estimators" below.
+whose quadratic form matrix should be created.
+See \link[svrep]{variance-estimators} for a
+detailed description of each variance estimator.
 Options include:
 \itemize{
   \item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
@@ -103,13 +105,6 @@ from a textbook variance estimator, provided that the variance estimator
 can be represented as a quadratic form whose matrix is positive semidefinite
 (this covers a large class of variance estimators).
 }
-\section{Variance Estimators}{
-
-See \link[svrep]{variance-estimators} for a
-description of each variance estimator that can be used
-as a target for the generalized bootstrap.
-}
-
 \section{Statistical Details}{
 
 Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
