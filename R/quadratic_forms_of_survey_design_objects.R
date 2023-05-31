@@ -149,7 +149,7 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville 1", "Deville 2"
+    "SD1", "SD2", "Deville-1", "Deville-2"
   )
 
   if (is.null(variance_estimator)) {
@@ -211,6 +211,16 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       cluster_ids = design$cluster,
       strata_ids = design$strata,
       strata_pop_sizes = design$fpc$popsize,
+      sort_order = NULL
+    )
+  }
+  if (variance_estimator %in% c("Deville-1", "Deville-2")) {
+    Sigma <- make_quad_form_matrix(
+      variance_estimator = variance_estimator,
+      cluster_ids = design$cluster,
+      strata_ids = design$strata,
+      probs = design$allprob,
+      strata_pop_sizes = NULL,
       sort_order = NULL
     )
   }
