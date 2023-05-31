@@ -162,11 +162,11 @@ library_stsys_sample <- library_stsys_sample |>
     variance = "HT"
   ) |> svytotal(x = ~ Bush) |> vcov()
 
-  quad_form_result <- t(y_wtd) %*% ht_quad_form %*% y_wtd
+  quad_form_result <- as.matrix(t(y_wtd) %*% ht_quad_form %*% y_wtd)
 
   test_that(
     "Generates correct quadratic form for Horvitz-Thompson", {
-    expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
+    expect_equal(object = as.matrix(ht_quad_form), expected = horvitz_thompson_matrix)
     expect_equal(object = quad_form_result, expected = svy_pkg_result)
   })
 
@@ -188,7 +188,7 @@ library_stsys_sample <- library_stsys_sample |>
   yg_quad_form_matrix <- make_quad_form_matrix(variance_estimator = "Yates-Grundy",
                                                joint_probs = election_jointprob)
 
-  quad_form_result <- t(y_wtd) %*% yg_quad_form_matrix %*% y_wtd
+  quad_form_result <-  as.matrix(t(y_wtd) %*% yg_quad_form_matrix %*% y_wtd)
 
 
   svy_pkg_result <- svydesign(
@@ -319,7 +319,7 @@ library_stsys_sample <- library_stsys_sample |>
         strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE]
       )
       expect_equal(
-        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix),
         expected = svydesign(
           data = library_stsys_sample,
           ids = ~ FSCSKEY,
@@ -342,7 +342,7 @@ library_stsys_sample <- library_stsys_sample |>
         strata_pop_sizes = library_multistage_sample[,c("PSU_POP_SIZE", "SSU_POP_SIZE"),drop=FALSE]
       )
       expect_equal(
-        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix),
         expected = svydesign(
           data = library_multistage_sample |>
             mutate(SAMPLING_WEIGHT = 1/SAMPLING_PROB),
@@ -387,7 +387,7 @@ library_stsys_sample <- library_stsys_sample |>
         strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE]
       )
       expect_equal(
-        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix),
         expected = svydesign(
           data = library_stsys_sample,
           ids = ~ FSCSKEY,
@@ -436,7 +436,7 @@ library_stsys_sample <- library_stsys_sample |>
 
       # Compare to survey package
       expect_equal(
-        object = t(wtd_y_matrix) %*% qf_matrix %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% qf_matrix %*% wtd_y_matrix),
         expected = mu284_design |>
           svytotal(x = ~ y1, na.rm = TRUE) |>
           vcov()
@@ -461,7 +461,7 @@ library_stsys_sample <- library_stsys_sample |>
       ) / sum(c_i)
       diag(exp_dev1_quad_form) <- c_i * (1 - c_i/sum(c_i))
 
-      expect_equal(object = dev1_quad_form, expected = exp_dev1_quad_form)
+      expect_equal(object = as.matrix(dev1_quad_form), expected = exp_dev1_quad_form)
 
       # Basic correct form for Deville-2
 
@@ -490,7 +490,7 @@ library_stsys_sample <- library_stsys_sample |>
           as.matrix()
       )
       expect_equal(
-        object = dev1_quad_form,
+        object = as.matrix(dev1_quad_form),
         expected = svrep:::make_ppswor_approx_matrix(
           probs = c(0.258064516129032, 0.129032258064516, 0.193548387096774),
           method = "Deville-1"

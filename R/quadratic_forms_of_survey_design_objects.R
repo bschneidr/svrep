@@ -181,17 +181,18 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       sprintf("Must specify `variance='HT'` when creating the survey design object.`") |>
         stop()
     }
-    Sigma <- design[['dcheck']][[1]]$dcheck |> as.matrix()
+    Sigma <- design[['dcheck']][[1]]$dcheck |>
+      as("symmetricMatrix")
 
     if (variance_estimator == "Yates-Grundy") {
       Sigma <- - Sigma
-      diag(Sigma) <- diag(Sigma) - rowSums(Sigma)
+      diag(Sigma) <- Matrix::diag(Sigma) - Matrix::rowSums(Sigma)
       Sigma <- - Sigma
     }
   }
 
   if (variance_estimator %in% c("Poisson Horvitz-Thompson")) {
-    Sigma <- diag(1 - design$prob)
+    Sigma <- Matrix::diag(1 - design$prob)
   }
 
   if (variance_estimator %in% c("SD1", "SD2")) {

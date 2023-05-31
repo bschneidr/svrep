@@ -127,33 +127,33 @@ suppressWarnings({
       object = get_design_quad_form(
         yg_design,
         variance_estimator = "Yates-Grundy"
-      ) |> `dimnames<-`(NULL),
+      ) |> as.matrix() |> `dimnames<-`(NULL),
       expected = make_quad_form_matrix(
         variance_estimator = "Yates-Grundy",
         joint_probs = election_jointprob
-      )
+      ) |> as.matrix()
     )
     expect_equal(
       object = get_design_quad_form(
         ht_design,
         variance_estimator = "Horvitz-Thompson"
-      ) |> `dimnames<-`(NULL),
+      ) |> as.matrix() |> `dimnames<-`(NULL),
       expected = make_quad_form_matrix(
         variance_estimator = "Horvitz-Thompson",
         joint_probs = election_jointprob
-      )
+      ) |> as.matrix()
     )
     expect_equal(
       object = get_design_quad_form(
         ht_design,
         variance_estimator = "Poisson Horvitz-Thompson"
-      ) |> `dimnames<-`(NULL),
+      ) |> as.matrix() |> `dimnames<-`(NULL),
       expected = make_quad_form_matrix(
         variance_estimator = "Horvitz-Thompson",
         joint_probs = outer(diag(election_jointprob),
                             diag(election_jointprob)) |>
           `diag<-`(diag(election_jointprob))
-      )
+      ) |> as.matrix()
     )
   })
 

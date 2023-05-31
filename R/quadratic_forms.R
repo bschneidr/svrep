@@ -311,7 +311,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       }
     }
     quad_form_matrix[lower.tri(quad_form_matrix)] <- t(quad_form_matrix)[lower.tri(quad_form_matrix)]
-    diag(quad_form_matrix) <- diag(quad_form_matrix) - rowSums(quad_form_matrix)
+    diag(quad_form_matrix) <- Matrix::diag(quad_form_matrix) - Matrix::rowSums(quad_form_matrix)
     quad_form_matrix <- -1 * quad_form_matrix
   }
 
@@ -335,9 +335,10 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   }
 
   if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2")) {
-    quad_form_matrix <- matrix(data = 0,
-                               nrow = number_of_ultimate_units,
-                               ncol = number_of_ultimate_units)
+    quad_form_matrix <- Matrix::Matrix(data = 0,
+                                       nrow = number_of_ultimate_units,
+                                       ncol = number_of_ultimate_units) |>
+      as("symmetricMatrix")
     # Obtain matrix of cluster sample sizes by stage
     count <- function(x) sum(!duplicated(x))
     sampsize <- matrix(ncol = ncol(cluster_ids), nrow = nrow(cluster_ids))
@@ -417,7 +418,8 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   if (variance_estimator %in% c("SD1", "SD2")) {
     n <- number_of_ultimate_units
     # Initialize quadratic form matrix
-    quad_form_matrix <- matrix(data = 0, nrow = n, ncol = n)
+    quad_form_matrix <- Matrix::Matrix(data = 0, nrow = n, ncol = n) |>
+      as("symmetricMatrix")
     sorted_quad_form_matrix <- quad_form_matrix
     # Sort the inputs, compile into a dataframe
     sorted_df <- data.frame('Row_ID' = seq_len(n),
@@ -452,6 +454,10 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     # Arrange matrix rows/columns to match the original order of the input data
       quad_form_matrix <- sorted_quad_form_matrix[inverse_sort_map,inverse_sort_map]
   }
+
+
+    quad_form_matrix <- quad_form_matrix |>
+      as("CsparseMatrix")
 
   return(quad_form_matrix)
 }
@@ -735,7 +741,12 @@ distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids,
 #' eigen(X)$values
 #' @export
 is_psd_matrix <- function(X, tolerance = sqrt(.Machine$double.eps)) {
-  symmetric <- isSymmetric(X)
+  if (inherits(X, 'symmetricMatrix')) {
+    symmetric <- TRUE
+  } else {
+    symmetric <- Matrix::isSymmetric(X)
+  }
+
   if (!symmetric) {
     result <- FALSE
   } else {
@@ -806,7 +817,7 @@ get_nearest_psd_matrix <- function(X) {
 #' @return The matrix of joint inclusion probabilities
 #' @keywords internal
 ht_matrix_to_joint_probs <- function(ht_quad_form) {
-  first_order_probs <- 1 - diag(ht_quad_form)
+  first_order_probs <- 1 - Matrix::diag(ht_quad_form)
   joint_probs <- ((1 - ht_quad_form)^(-1)) * outer(first_order_probs, first_order_probs)
   return(joint_probs)
 }
@@ -1096,7 +1107,7 @@ make_twophase_quad_form <- function(sigma_1, sigma_2, phase_2_joint_probs,
                                     ensure_psd = TRUE) {
 
   # Diagonal matrix whose entries are second-phase first-order probabilities
-  phase2_prob_matrix <- diag(diag(phase_2_joint_probs))
+  phase2_prob_matrix <- Matrix::diag(Matrix::diag(phase_2_joint_probs))
 
   # Weighted version of `Sigma_1`
   wtd_sigma_1 <- sigma_1 / phase_2_joint_probs
