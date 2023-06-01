@@ -801,7 +801,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
   rscales <- attr(adjustment_factors, 'rscales')
 
   # Uncompress the adjustment factors
-  adjustment_factors <- svrep:::distribute_matrix_across_clusters(
+  adjustment_factors <- distribute_matrix_across_clusters(
     cluster_level_matrix = adjustment_factors,
     cluster_ids = compressed_design_structure$index,
     rows = TRUE, cols = FALSE
