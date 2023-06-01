@@ -166,7 +166,7 @@ data('library_multistage_sample', package = 'svrep')
   n <- twophase_design$phase2$fpc$sampsize[1,1]
   N <- twophase_design$phase2$fpc$popsize[1,1]
 
-  second_phase_joint_probs <- matrix((n/N)*((n-1)/(N-1)),
+  second_phase_joint_probs <- Matrix::Matrix((n/N)*((n-1)/(N-1)),
                                      nrow = n, ncol = n)
   diag(second_phase_joint_probs) <- rep(n/N, times = n)
 

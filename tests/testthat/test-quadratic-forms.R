@@ -41,36 +41,36 @@ library_stsys_sample <- library_stsys_sample |>
     "Helper function for successive difference quadratic forms works correctly", {
       # Basic results correct
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2") %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2") %*% wtd_y),
         expected = successive_diffs(wtd_y, type = "SD2") |> as.matrix()
       )
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1") %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1") %*% wtd_y),
         expected = successive_diffs(wtd_y, type = "SD1") |> as.matrix()
       )
       # Checks on FPC
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1",
-                                                     f = 0.9) %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1",
+                                                     f = 0.9) %*% wtd_y),
         expected = (1-0.9) * successive_diffs(wtd_y, type = "SD1") |> as.matrix()
       )
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2",
-                                                     f = 0.9) %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2",
+                                                     f = 0.9) %*% wtd_y),
         expected = (1-0.9) * successive_diffs(wtd_y, type = "SD2") |> as.matrix()
       )
       # Correct result for only a single unit
       expect_equal(
-        object = svrep:::make_sd_matrix(n = 1),
+        object = svrep:::make_sd_matrix(n = 1) |> as.matrix(),
         expected = matrix(0, nrow = 1, ncol = 1)
       )
       # Correct result for only two units
       expect_equal(
-        object = c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD1") %*% c(99,16),
+        object = as.matrix(c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD1") %*% c(99,16)),
         expected = as.matrix(successive_diffs(c(99,16), type = "SD1"))
       )
       expect_equal(
-        object = c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD2") %*% c(99,16),
+        object = as.matrix(c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD2") %*% c(99,16)),
         expected = as.matrix(successive_diffs(c(99,16), type = "SD2"))
       )
       # Checks on numeric arguments
@@ -97,12 +97,12 @@ library_stsys_sample <- library_stsys_sample |>
     "Helper function for SRSWOR quadratic forms works correctly", {
       # Basic results correct
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y),
         expected = n * cov(as.matrix(wtd_y))
       )
       # Matches 'survey' package
       expect_equal(
-        object = t(wtd_y_matrix) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y_matrix),
         expected = svyrecvar(
           x = wtd_y_matrix,
           clusters = as.matrix(seq_len(n)),
@@ -114,13 +114,13 @@ library_stsys_sample <- library_stsys_sample |>
       )
       # Checks on FPC
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y),
-                                                         f = 0.9) %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y),
+                                                         f = 0.9) %*% wtd_y),
         expected = (1-0.9) * n *  cov(as.matrix(wtd_y)) |> as.matrix()
       )
       # Correct result for only a single unit
       expect_equal(
-        object = svrep:::make_srswor_matrix(n = 1),
+        object = svrep:::make_srswor_matrix(n = 1) |> as.matrix(),
         expected = matrix(0, nrow = 1, ncol = 1)
       )
       # Checks on numeric arguments
