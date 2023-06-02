@@ -756,7 +756,12 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
     tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
     unique_elements <- !duplicated(design_structure)
     compressed_design_structure <- list(
-      design_subset = design[unique_elements,],
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
+        # Subset to only unique strata/cluster combos
+        design_obj[unique_elements,]
+      })(),
       index = match(tmp, tmp[unique_elements])
     )
   }
