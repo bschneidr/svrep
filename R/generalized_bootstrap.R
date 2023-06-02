@@ -746,7 +746,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  if ((!is.null(design$pps)) || (design$pps != FALSE)) {
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
     compressed_design_structure <- list(
       design_subset = design,
       index = seq_len(nrow(design))
