@@ -625,6 +625,9 @@ make_srswor_matrix <- function(n, f = 0) {
 #'   \sigma_{ii} = c_i (1 - \frac{c_i}{\sum_{k=1}^{n}c_k}) \textit{ when } i = j \\
 #'   \sigma_{ij}=\frac{-c_i c_j}{\sum_{k=1}^{n}c_k} \textit{ when } i \neq j \\
 #' }
+#' When \eqn{\pi_{i} = 1} for every unit, then \eqn{\sigma_{ij}=0} for all \eqn{i,j}.
+#' If there is only one sampling unit, then \eqn{\sigma_{11}=0}; that is, the unit is treated as if it was sampled with certainty.
+#'
 #' The constants \eqn{c_i} are defined for each approximation method as follows,
 #' with the names taken directly from Matei and Tillé (2005).
 #' \itemize{
@@ -649,10 +652,10 @@ make_srswor_matrix <- function(n, f = 0) {
 #' @keywords internal
 make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
 
+  n <- length(probs)
   one_minus_pi <- 1 - probs
 
   if (method == "Deville-1") {
-    n <- length(probs)
     c_k <- (1 - probs) * (n/(n-1))
   }
   if (method == "Deville-2") {
@@ -663,8 +666,13 @@ make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
 
   c_sum <- sum(c_k)
 
-  Sigma <- outer(c_k, -c_k) / c_sum
-  diag(Sigma) <- c_k*(1 - c_k/c_sum)
+  if ((n == 1) || (c_sum == 0)) {
+    Sigma <- Matrix::Matrix(0, nrow = length(c_k), ncol = length(c_k))
+  } else {
+    Sigma <- outer(c_k, -c_k) / c_sum
+    diag(Sigma) <- c_k*(1 - c_k/c_sum)
+    Sigma <- as(Sigma, "symmetricMatrix")
+  }
 
   return(Sigma)
 }
