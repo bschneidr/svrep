@@ -140,14 +140,35 @@ library(survey)
       check.names = FALSE
   )
 }
+\references{
+Beaumont, J.-F.; Émond, N. (2022).
+"A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
+\strong{Stats}, \emph{5}: 339–357.
+https://doi.org/10.3390/stats5020019
+
+Canty, A.J.; Davison, A.C. (1999).
+"Resampling-based variance estimation for labour force surveys."
+\strong{The Statistician}, \emph{48}: 379-391.
+
+Preston, J. (2009).
+"Rescaled bootstrap for stratified multistage sampling."
+\strong{Survey Methodology}, \emph{35}(2): 227-234.
+
+Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
+"Some recent work on resampling methods for complex surveys."
+\strong{Survey Methodology}, \emph{18}: 209–217.
+}
 \seealso{
 Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 
-         For some complex designs, one can use \code{\link[svrep]{make_rwyb_bootstrap_weights}} to create
-         Rao-Wu-Yue-Beaumont bootstrap weights or adjustment factors given information for each stage of sampling
-         (the type of sampling, strata IDs, cluster IDs, selection probabilities, etc.).
-         \cr
+The underlying function for the Rao-Wu-Yue-Beaumont bootstrap
+is \code{\link[svrep]{make_rwyb_bootstrap_weights}}.
+Other bootstrap methods are implemented using functions from the 'survey' package,
+including: \code{\link[survey]{bootweights}} (Canty-Davison),
+\code{\link[survey]{subbootweights}} (Rao-Wu),
+and \code{\link[survey]{mrbweights}} (Preston).
 
-         For systematic samples, one-PSU-per-stratum designs, or other especially complex sample designs,
-          one can use the generalized survey bootstrap method. See \code{\link[svrep]{as_gen_boot_design}} or \code{\link[svrep]{make_gen_boot_factors}}.
+
+For systematic samples, one-PSU-per-stratum designs, or other especially complex sample designs,
+one can use the generalized survey bootstrap method. See \code{\link[svrep]{as_gen_boot_design}} or \code{\link[svrep]{make_gen_boot_factors}}.
 }

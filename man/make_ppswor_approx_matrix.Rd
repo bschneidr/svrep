@@ -49,6 +49,9 @@ its \eqn{ij}-th entry defined as follows:
   \sigma_{ii} = c_i (1 - \frac{c_i}{\sum_{k=1}^{n}c_k}) \textit{ when } i = j \\
   \sigma_{ij}=\frac{-c_i c_j}{\sum_{k=1}^{n}c_k} \textit{ when } i \neq j \\
 }
+When \eqn{\pi_{i} = 1} for every unit, then \eqn{\sigma_{ij}=0} for all \eqn{i,j}.
+If there is only one sampling unit, then \eqn{\sigma_{11}=0}; that is, the unit is treated as if it was sampled with certainty.
+
 The constants \eqn{c_i} are defined for each approximation method as follows,
 with the names taken directly from Matei and Tillé (2005).
 \itemize{

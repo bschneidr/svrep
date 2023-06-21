@@ -149,7 +149,7 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville 1", "Deville 2"
+    "SD1", "SD2", "Deville-1", "Deville-2"
   )
 
   if (is.null(variance_estimator)) {
@@ -181,17 +181,18 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       sprintf("Must specify `variance='HT'` when creating the survey design object.`") |>
         stop()
     }
-    Sigma <- design[['dcheck']][[1]]$dcheck |> as.matrix()
+    Sigma <- design[['dcheck']][[1]]$dcheck |>
+      as("symmetricMatrix")
 
     if (variance_estimator == "Yates-Grundy") {
       Sigma <- - Sigma
-      diag(Sigma) <- diag(Sigma) - rowSums(Sigma)
+      diag(Sigma) <- Matrix::diag(Sigma) - Matrix::rowSums(Sigma)
       Sigma <- - Sigma
     }
   }
 
   if (variance_estimator %in% c("Poisson Horvitz-Thompson")) {
-    Sigma <- diag(1 - design$prob)
+    Sigma <- Matrix::diag(1 - design$prob)
   }
 
   if (variance_estimator %in% c("SD1", "SD2")) {
@@ -211,6 +212,16 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       cluster_ids = design$cluster,
       strata_ids = design$strata,
       strata_pop_sizes = design$fpc$popsize,
+      sort_order = NULL
+    )
+  }
+  if (variance_estimator %in% c("Deville-1", "Deville-2")) {
+    Sigma <- make_quad_form_matrix(
+      variance_estimator = variance_estimator,
+      cluster_ids = design$cluster,
+      strata_ids = design$strata,
+      probs = design$allprob,
+      strata_pop_sizes = NULL,
       sort_order = NULL
     )
   }

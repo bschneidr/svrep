@@ -194,11 +194,14 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       stop("`joint_probs` must be a matrix of values between 0 and 1, with no missing values.")
     }
     number_of_ultimate_units <- ncol(joint_probs)
+    use_sparse_matrix <- FALSE
   }
 
   # Check inputs and assemble all necessary information
   # for estimators of stratified/clustered designs
   if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2")) {
+
+    use_sparse_matrix <- TRUE
 
     # Ensure the minimal set of inputs is supplied
     if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2")) {
@@ -245,14 +248,14 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     if (is.null(cluster_ids) && !is.null(strata_ids)) {
       number_of_stages <- ncol(strata_ids)
       number_of_ultimate_units <- nrow(strata_ids)
-      cluster_ids <- matrix(data = rep(seq_len(number_of_ultimate_units),
+      cluster_ids <- Matrix::Matrix(data = rep(seq_len(number_of_ultimate_units),
                                        times = number_of_stages),
                             nrow = number_of_ultimate_units, ncol = number_of_stages,
                             byrow = FALSE)
     } else if (!is.null(cluster_ids) && is.null(strata_ids)) {
       number_of_stages <- ncol(cluster_ids)
       number_of_ultimate_units <- nrow(cluster_ids)
-      strata_ids <- matrix(1,
+      strata_ids <- Matrix::Matrix(1,
                            nrow = number_of_ultimate_units,
                            ncol = number_of_stages)
     } else {
@@ -283,9 +286,8 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       }
     }
 
-
     if (is.null(strata_pop_sizes)) {
-      strata_pop_sizes <- matrix(data = Inf,
+      strata_pop_sizes <- Matrix::Matrix(data = Inf,
                                  nrow = number_of_ultimate_units,
                                  ncol = number_of_stages)
     }
@@ -293,7 +295,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
   if (variance_estimator == "Horvitz-Thompson") {
     n <- number_of_ultimate_units
-    quad_form_matrix <- matrix(nrow = n, ncol = n)
+    quad_form_matrix <- Matrix::Matrix(nrow = n, ncol = n) |> as("symmetricMatrix")
     for (i in seq_len(n)) {
       for (j in seq(from = i, to = n, by = 1)) {
         quad_form_matrix[i,j] <- 1 - (joint_probs[i,i] * joint_probs[j,j])/joint_probs[i,j]
@@ -304,21 +306,25 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
   if (variance_estimator == "Yates-Grundy") {
     n <- number_of_ultimate_units
-    quad_form_matrix <- matrix(nrow = n, ncol = n)
+    quad_form_matrix <- Matrix::Matrix(nrow = n, ncol = n) |> as("symmetricMatrix")
     for (i in seq_len(n)) {
       for (j in seq(from = i, to = n, by = 1)) {
         quad_form_matrix[i,j] <- -(1 - (joint_probs[i,i] * joint_probs[j,j])/joint_probs[i,j])
       }
     }
     quad_form_matrix[lower.tri(quad_form_matrix)] <- t(quad_form_matrix)[lower.tri(quad_form_matrix)]
-    diag(quad_form_matrix) <- diag(quad_form_matrix) - rowSums(quad_form_matrix)
+    diag(quad_form_matrix) <- Matrix::diag(quad_form_matrix) - Matrix::rowSums(quad_form_matrix)
     quad_form_matrix <- -1 * quad_form_matrix
   }
 
   if (variance_estimator == "Ultimate Cluster") {
-    quad_form_matrix <- matrix(data = 0,
+    quad_form_matrix <- Matrix::Matrix(data = 0,
                                nrow = number_of_ultimate_units,
-                               ncol = number_of_ultimate_units)
+                               ncol = number_of_ultimate_units) |>
+      as("symmetricMatrix")
+    if (use_sparse_matrix) {
+      quad_form_matrix <- quad_form_matrix |> as("CsparseMatrix")
+    }
 
     # Generate quadratic form for each stratum
     for (stratum_id in unique(strata_ids[,1,drop=TRUE])) {
@@ -335,9 +341,15 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   }
 
   if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2")) {
-    quad_form_matrix <- matrix(data = 0,
-                               nrow = number_of_ultimate_units,
-                               ncol = number_of_ultimate_units)
+    quad_form_matrix <- Matrix::Matrix(data = 0,
+                                       nrow = number_of_ultimate_units,
+                                       ncol = number_of_ultimate_units) |>
+      as("symmetricMatrix")
+
+    if (use_sparse_matrix) {
+      quad_form_matrix <- quad_form_matrix |> as("CsparseMatrix")
+    }
+
     # Obtain matrix of cluster sample sizes by stage
     count <- function(x) sum(!duplicated(x))
     sampsize <- matrix(ncol = ncol(cluster_ids), nrow = nrow(cluster_ids))
@@ -417,7 +429,11 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   if (variance_estimator %in% c("SD1", "SD2")) {
     n <- number_of_ultimate_units
     # Initialize quadratic form matrix
-    quad_form_matrix <- matrix(data = 0, nrow = n, ncol = n)
+    quad_form_matrix <- Matrix::Matrix(data = 0, nrow = n, ncol = n) |>
+      as("symmetricMatrix")
+    if (use_sparse_matrix) {
+      quad_form_matrix <- quad_form_matrix |> as("CsparseMatrix")
+    }
     sorted_quad_form_matrix <- quad_form_matrix
     # Sort the inputs, compile into a dataframe
     sorted_df <- data.frame('Row_ID' = seq_len(n),
@@ -488,10 +504,10 @@ make_sd_matrix <- function(n, f = 0, type = "SD1") {
   }
 
   if (n == 1) {
-    C_matrix <- matrix(0, nrow = 1, ncol = 1)
+    C_matrix <- Matrix::Matrix(0, nrow = 1, ncol = 1)
   }
   if (type == "SD1" && (n > 1)) {
-    C_matrix <- diag(n) * 2
+    C_matrix <- as(Matrix::Diagonal(n) * 2, "symmetricMatrix")
     C_matrix[1,1] <- 1
     C_matrix[n,n] <- 1
     for (i in seq_len(n)) {
@@ -499,7 +515,7 @@ make_sd_matrix <- function(n, f = 0, type = "SD1") {
         C_matrix[i,i+1] <- -1
         C_matrix[i+1,i] <- -1
       }
-      if (i > 0) {
+      if (i > 1) {
         C_matrix[i,i-1] <- -1
         C_matrix[i-1,i] <- -1
       }
@@ -507,13 +523,13 @@ make_sd_matrix <- function(n, f = 0, type = "SD1") {
     C_matrix <- (n/(n-1)) * C_matrix
   }
   if (type == "SD2" && (n > 1)) {
-    C_matrix <- diag(n) * 2
+    C_matrix <- as(Matrix::Diagonal(n) * 2, "symmetricMatrix")
     for (i in seq_len(n)) {
       if (i < n) {
         C_matrix[i,i+1] <- -1
         C_matrix[i+1,i] <- -1
       }
-      if (i > 0) {
+      if (i > 1) {
         C_matrix[i,i-1] <- -1
         C_matrix[i-1,i] <- -1
       }
@@ -562,9 +578,9 @@ make_srswor_matrix <- function(n, f = 0) {
     stop("`f` must be a single number between 0 and 1")
   }
   if (n == 1) {
-    C_matrix <- matrix(0, nrow = 1, ncol = 1)
+    C_matrix <- Matrix::Matrix(0, nrow = 1, ncol = 1)
   } else {
-    C_matrix <- matrix(-1/(n-1), nrow = n, ncol = n)
+    C_matrix <- Matrix::Matrix(-1/(n-1), nrow = n, ncol = n)
     diag(C_matrix) <- 1
     C_matrix <- (1-f) * C_matrix
   }
@@ -609,6 +625,9 @@ make_srswor_matrix <- function(n, f = 0) {
 #'   \sigma_{ii} = c_i (1 - \frac{c_i}{\sum_{k=1}^{n}c_k}) \textit{ when } i = j \\
 #'   \sigma_{ij}=\frac{-c_i c_j}{\sum_{k=1}^{n}c_k} \textit{ when } i \neq j \\
 #' }
+#' When \eqn{\pi_{i} = 1} for every unit, then \eqn{\sigma_{ij}=0} for all \eqn{i,j}.
+#' If there is only one sampling unit, then \eqn{\sigma_{11}=0}; that is, the unit is treated as if it was sampled with certainty.
+#'
 #' The constants \eqn{c_i} are defined for each approximation method as follows,
 #' with the names taken directly from Matei and Tillé (2005).
 #' \itemize{
@@ -633,10 +652,10 @@ make_srswor_matrix <- function(n, f = 0) {
 #' @keywords internal
 make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
 
+  n <- length(probs)
   one_minus_pi <- 1 - probs
 
   if (method == "Deville-1") {
-    n <- length(probs)
     c_k <- (1 - probs) * (n/(n-1))
   }
   if (method == "Deville-2") {
@@ -647,8 +666,13 @@ make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
 
   c_sum <- sum(c_k)
 
-  Sigma <- outer(c_k, -c_k) / c_sum
-  diag(Sigma) <- c_k*(1 - c_k/c_sum)
+  if ((n == 1) || (c_sum == 0)) {
+    Sigma <- Matrix::Matrix(0, nrow = length(c_k), ncol = length(c_k))
+  } else {
+    Sigma <- outer(c_k, -c_k) / c_sum
+    diag(Sigma) <- c_k*(1 - c_k/c_sum)
+    Sigma <- as(Sigma, "symmetricMatrix")
+  }
 
   return(Sigma)
 }
@@ -735,7 +759,12 @@ distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids,
 #' eigen(X)$values
 #' @export
 is_psd_matrix <- function(X, tolerance = sqrt(.Machine$double.eps)) {
-  symmetric <- isSymmetric(X)
+  if (inherits(X, 'symmetricMatrix')) {
+    symmetric <- TRUE
+  } else {
+    symmetric <- Matrix::isSymmetric(X)
+  }
+
   if (!symmetric) {
     result <- FALSE
   } else {
@@ -806,7 +835,7 @@ get_nearest_psd_matrix <- function(X) {
 #' @return The matrix of joint inclusion probabilities
 #' @keywords internal
 ht_matrix_to_joint_probs <- function(ht_quad_form) {
-  first_order_probs <- 1 - diag(ht_quad_form)
+  first_order_probs <- 1 - Matrix::diag(ht_quad_form)
   joint_probs <- ((1 - ht_quad_form)^(-1)) * outer(first_order_probs, first_order_probs)
   return(joint_probs)
 }
@@ -977,7 +1006,7 @@ ht_matrix_to_joint_probs <- function(ht_quad_form) {
 #'   n <- twophase_design$phase2$fpc$sampsize[1,1]
 #'   N <- twophase_design$phase2$fpc$popsize[1,1]
 #'
-#'   second_phase_joint_probs <- matrix((n/N)*((n-1)/(N-1)),
+#'   second_phase_joint_probs <- Matrix::Matrix((n/N)*((n-1)/(N-1)),
 #'                                      nrow = n, ncol = n)
 #'   diag(second_phase_joint_probs) <- rep(n/N, times = n)
 #'
@@ -1096,7 +1125,7 @@ make_twophase_quad_form <- function(sigma_1, sigma_2, phase_2_joint_probs,
                                     ensure_psd = TRUE) {
 
   # Diagonal matrix whose entries are second-phase first-order probabilities
-  phase2_prob_matrix <- diag(diag(phase_2_joint_probs))
+  phase2_prob_matrix <- Matrix::diag(Matrix::diag(phase_2_joint_probs))
 
   # Weighted version of `Sigma_1`
   wtd_sigma_1 <- sigma_1 / phase_2_joint_probs

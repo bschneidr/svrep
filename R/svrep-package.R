@@ -2,6 +2,11 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom Matrix diag
+#' @importFrom Matrix isSymmetric
+#' @importFrom Matrix rowSums
+#' @importFrom Matrix t
+#' @importFrom methods as
 #' @importFrom stats as.formula
 #' @importFrom stats coef
 #' @importFrom stats model.frame

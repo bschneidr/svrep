@@ -7,6 +7,8 @@ suppressWarnings({
   })
 })
 
+options(survey.lonely.psu = 'certainty')
+
 data('library_stsys_sample', package = 'svrep')
 set.seed(2014)
 
@@ -41,36 +43,36 @@ library_stsys_sample <- library_stsys_sample |>
     "Helper function for successive difference quadratic forms works correctly", {
       # Basic results correct
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2") %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2") %*% wtd_y),
         expected = successive_diffs(wtd_y, type = "SD2") |> as.matrix()
       )
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1") %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1") %*% wtd_y),
         expected = successive_diffs(wtd_y, type = "SD1") |> as.matrix()
       )
       # Checks on FPC
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1",
-                                                     f = 0.9) %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD1",
+                                                     f = 0.9) %*% wtd_y),
         expected = (1-0.9) * successive_diffs(wtd_y, type = "SD1") |> as.matrix()
       )
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2",
-                                                     f = 0.9) %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_sd_matrix(n = length(wtd_y), type = "SD2",
+                                                     f = 0.9) %*% wtd_y),
         expected = (1-0.9) * successive_diffs(wtd_y, type = "SD2") |> as.matrix()
       )
       # Correct result for only a single unit
       expect_equal(
-        object = svrep:::make_sd_matrix(n = 1),
+        object = svrep:::make_sd_matrix(n = 1) |> as.matrix(),
         expected = matrix(0, nrow = 1, ncol = 1)
       )
       # Correct result for only two units
       expect_equal(
-        object = c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD1") %*% c(99,16),
+        object = as.matrix(c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD1") %*% c(99,16)),
         expected = as.matrix(successive_diffs(c(99,16), type = "SD1"))
       )
       expect_equal(
-        object = c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD2") %*% c(99,16),
+        object = as.matrix(c(99, 16) %*% svrep:::make_sd_matrix(n = 2, type = "SD2") %*% c(99,16)),
         expected = as.matrix(successive_diffs(c(99,16), type = "SD2"))
       )
       # Checks on numeric arguments
@@ -97,12 +99,12 @@ library_stsys_sample <- library_stsys_sample |>
     "Helper function for SRSWOR quadratic forms works correctly", {
       # Basic results correct
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y),
         expected = n * cov(as.matrix(wtd_y))
       )
       # Matches 'survey' package
       expect_equal(
-        object = t(wtd_y_matrix) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% svrep:::make_srswor_matrix(n = length(wtd_y)) %*% wtd_y_matrix),
         expected = svyrecvar(
           x = wtd_y_matrix,
           clusters = as.matrix(seq_len(n)),
@@ -114,13 +116,13 @@ library_stsys_sample <- library_stsys_sample |>
       )
       # Checks on FPC
       expect_equal(
-        object = t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y),
-                                                         f = 0.9) %*% wtd_y,
+        object = as.matrix(t(wtd_y) %*% svrep:::make_srswor_matrix(n = length(wtd_y),
+                                                         f = 0.9) %*% wtd_y),
         expected = (1-0.9) * n *  cov(as.matrix(wtd_y)) |> as.matrix()
       )
       # Correct result for only a single unit
       expect_equal(
-        object = svrep:::make_srswor_matrix(n = 1),
+        object = svrep:::make_srswor_matrix(n = 1) |> as.matrix(),
         expected = matrix(0, nrow = 1, ncol = 1)
       )
       # Checks on numeric arguments
@@ -141,6 +143,7 @@ library_stsys_sample <- library_stsys_sample |>
   y_wtd <- election_pps$Bush/diag(election_jointprob)
 
   ## Create matrix to represent the Horvitz-Thompson estimator as a quadratic form
+  ## This is the correct result that we expect the 'svrep' package to match
   n <- nrow(election_pps)
   pi <- election_jointprob
   horvitz_thompson_matrix <- matrix(nrow = n, ncol = n)
@@ -150,11 +153,19 @@ library_stsys_sample <- library_stsys_sample |>
     }
   }
 
+  ## Get the quadratic form using the 'svrep' pacakge
   ht_quad_form <- make_quad_form_matrix(
     variance_estimator = "Horvitz-Thompson",
     joint_probs = election_jointprob
   )
 
+  ## Compare quadratic form matrix from 'svrep' to the correct result
+  test_that(
+    "Generates correct quadratic form for Horvitz-Thompson", {
+     expect_equal(object = as.matrix(ht_quad_form), expected = horvitz_thompson_matrix)
+  })
+
+  ## Use the 'survey' package to obtain the Horvitz-Thompson estimate
   svy_pkg_result <- svydesign(
     data = election_pps,
     id = ~1, fpc = ~p,
@@ -162,12 +173,12 @@ library_stsys_sample <- library_stsys_sample |>
     variance = "HT"
   ) |> svytotal(x = ~ Bush) |> vcov()
 
+  ## Use the 'svrep' package to obtain the Horvitz-Thompson estimate
   quad_form_result <- t(y_wtd) %*% ht_quad_form %*% y_wtd
 
   test_that(
-    "Generates correct quadratic form for Horvitz-Thompson", {
-    expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
-    expect_equal(object = quad_form_result, expected = svy_pkg_result)
+    "Horvitz-Thompson estimate matches the 'survey' package", {
+    expect_equal(object = as.matrix(quad_form_result), expected = svy_pkg_result)
   })
 
 # Check Sen-Yates-Grundy results ----
@@ -188,7 +199,7 @@ library_stsys_sample <- library_stsys_sample |>
   yg_quad_form_matrix <- make_quad_form_matrix(variance_estimator = "Yates-Grundy",
                                                joint_probs = election_jointprob)
 
-  quad_form_result <- t(y_wtd) %*% yg_quad_form_matrix %*% y_wtd
+  quad_form_result <-  as.matrix(t(y_wtd) %*% yg_quad_form_matrix %*% y_wtd)
 
 
   svy_pkg_result <- svydesign(
@@ -319,7 +330,7 @@ library_stsys_sample <- library_stsys_sample |>
         strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE]
       )
       expect_equal(
-        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix),
         expected = svydesign(
           data = library_stsys_sample,
           ids = ~ FSCSKEY,
@@ -342,7 +353,7 @@ library_stsys_sample <- library_stsys_sample |>
         strata_pop_sizes = library_multistage_sample[,c("PSU_POP_SIZE", "SSU_POP_SIZE"),drop=FALSE]
       )
       expect_equal(
-        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix),
         expected = svydesign(
           data = library_multistage_sample |>
             mutate(SAMPLING_WEIGHT = 1/SAMPLING_PROB),
@@ -387,7 +398,7 @@ library_stsys_sample <- library_stsys_sample |>
         strata_pop_sizes = library_stsys_sample[,'STRATUM_POP_SIZE',drop=FALSE]
       )
       expect_equal(
-        object = t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% quad_UC %*% wtd_y_matrix),
         expected = svydesign(
           data = library_stsys_sample,
           ids = ~ FSCSKEY,
@@ -436,7 +447,7 @@ library_stsys_sample <- library_stsys_sample |>
 
       # Compare to survey package
       expect_equal(
-        object = t(wtd_y_matrix) %*% qf_matrix %*% wtd_y_matrix,
+        object = as.matrix(t(wtd_y_matrix) %*% qf_matrix %*% wtd_y_matrix),
         expected = mu284_design |>
           svytotal(x = ~ y1, na.rm = TRUE) |>
           vcov()
@@ -461,7 +472,7 @@ library_stsys_sample <- library_stsys_sample |>
       ) / sum(c_i)
       diag(exp_dev1_quad_form) <- c_i * (1 - c_i/sum(c_i))
 
-      expect_equal(object = dev1_quad_form, expected = exp_dev1_quad_form)
+      expect_equal(object = as.matrix(dev1_quad_form), expected = exp_dev1_quad_form)
 
       # Basic correct form for Deville-2
 
@@ -478,7 +489,7 @@ library_stsys_sample <- library_stsys_sample |>
       ) / sum(c_i)
       diag(exp_dev2_quad_form) <- c_i * (1 - c_i/sum(c_i))
 
-      expect_equal(object = dev2_quad_form, expected = exp_dev2_quad_form)
+      expect_equal(object = as.matrix(dev2_quad_form), expected = exp_dev2_quad_form)
 
       # Works as expected for clusters
       dev1_quad_form <- make_quad_form_matrix(
@@ -490,13 +501,13 @@ library_stsys_sample <- library_stsys_sample |>
           as.matrix()
       )
       expect_equal(
-        object = dev1_quad_form,
+        object = as.matrix(dev1_quad_form),
         expected = svrep:::make_ppswor_approx_matrix(
           probs = c(0.258064516129032, 0.129032258064516, 0.193548387096774),
           method = "Deville-1"
         ) |> svrep:::distribute_matrix_across_clusters(
           cluster_ids = c(3,3,1,1,2,2)
-        )
+        ) |> as.matrix()
       )
 
   })

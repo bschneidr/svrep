@@ -338,7 +338,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
       mvtnorm::rmvnorm(n = num_replicates,
                        mean = rep(1, times = n),
                        sigma = Sigma,
-                       checkSymmetry = TRUE,
+                       checkSymmetry = FALSE,
                        method = "eigen")
     )
   }
@@ -666,10 +666,10 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
-                                replicates = 500, tau = "auto", exact_vcov = FALSE,
-                                psd_option = "warn",
-                                mse = getOption("survey.replicates.mse"),
-                                compress = TRUE) {
+                               replicates = 500, tau = "auto", exact_vcov = FALSE,
+                               psd_option = "warn",
+                               mse = getOption("survey.replicates.mse"),
+                               compress = TRUE) {
   UseMethod("as_gen_boot_design", design)
 }
 
@@ -717,7 +717,7 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
   rep_design <- survey::svrepdesign(
     variables = design$phase1$full$variables[design$subset,,drop=FALSE],
     weights = stats::weights(design, type = "sampling"),
-    repweights = adjustment_factors,
+    repweights = as.matrix(adjustment_factors),
     combined.weights = FALSE,
     compress = compress, mse = mse,
     scale = attr(adjustment_factors, 'scale'),
@@ -745,8 +745,35 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
-  Sigma <- get_design_quad_form(design, variance_estimator)
+  # Produce a (potentially) compressed survey design object
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(design$strata, design$cluster)
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
+        # Subset to only unique strata/cluster combos
+        design_obj[unique_elements,]
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
+  }
 
+  # Get the quadratic form of the variance estimator,
+  # for the compressed design object
+  Sigma <- get_design_quad_form(
+    compressed_design_structure$design_subset,
+    variance_estimator
+  )
+
+  # Check that the matrix is positive semidefinite
   if (!is_psd_matrix(Sigma)) {
     problem_msg <- "The sample quadratic form matrix for this design and variance estimator is not positive semidefinite."
     if (psd_option == "warn") {
@@ -766,6 +793,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
     }
   }
 
+  # Generate adjustment factors for the compressed design object
   adjustment_factors <- make_gen_boot_factors(
     Sigma = Sigma,
     num_replicates = replicates,
@@ -773,18 +801,34 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
     exact_vcov = exact_vcov
   )
 
+  tau <- attr(adjustment_factors, 'tau')
+  scale <- attr(adjustment_factors, 'scale')
+  rscales <- attr(adjustment_factors, 'rscales')
+
+  # Uncompress the adjustment factors
+  adjustment_factors <- distribute_matrix_across_clusters(
+    cluster_level_matrix = adjustment_factors,
+    cluster_ids = compressed_design_structure$index,
+    rows = TRUE, cols = FALSE
+  )
+
+  attr(adjustment_factors, 'tau') <- tau
+  attr(adjustment_factors, 'scale') <- scale
+  attr(adjustment_factors, 'rscales') <- rscales
+
+  # Create the survey design object
   rep_design <- survey::svrepdesign(
     variables = design$variables,
     weights = stats::weights(design, type = "sampling"),
-    repweights = adjustment_factors,
+    repweights = as.matrix(adjustment_factors),
     combined.weights = FALSE,
     compress = compress, mse = mse,
-    scale = attr(adjustment_factors, 'scale'),
-    rscales = attr(adjustment_factors, 'rscales'),
+    scale = scale,
+    rscales = rscales,
     type = "other"
   )
 
-  rep_design$tau <- attr(adjustment_factors, 'tau')
+  rep_design$tau <- tau
 
   if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
     rep_design <- srvyr::as_survey_rep(
