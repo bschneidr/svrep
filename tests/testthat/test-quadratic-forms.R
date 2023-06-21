@@ -7,6 +7,8 @@ suppressWarnings({
   })
 })
 
+options(survey.lonely.psu = 'certainty')
+
 data('library_stsys_sample', package = 'svrep')
 set.seed(2014)
 
@@ -141,6 +143,7 @@ library_stsys_sample <- library_stsys_sample |>
   y_wtd <- election_pps$Bush/diag(election_jointprob)
 
   ## Create matrix to represent the Horvitz-Thompson estimator as a quadratic form
+  ## This is the correct result that we expect the 'svrep' package to match
   n <- nrow(election_pps)
   pi <- election_jointprob
   horvitz_thompson_matrix <- matrix(nrow = n, ncol = n)
@@ -150,11 +153,19 @@ library_stsys_sample <- library_stsys_sample |>
     }
   }
 
+  ## Get the quadratic form using the 'svrep' pacakge
   ht_quad_form <- make_quad_form_matrix(
     variance_estimator = "Horvitz-Thompson",
     joint_probs = election_jointprob
   )
 
+  ## Compare quadratic form matrix from 'svrep' to the correct result
+  test_that(
+    "Generates correct quadratic form for Horvitz-Thompson", {
+     expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
+  })
+
+  ## Use the 'survey' package to obtain the Horvitz-Thompson estimate
   svy_pkg_result <- svydesign(
     data = election_pps,
     id = ~1, fpc = ~p,
@@ -162,11 +173,11 @@ library_stsys_sample <- library_stsys_sample |>
     variance = "HT"
   ) |> svytotal(x = ~ Bush) |> vcov()
 
+  ## Use the 'svrep' package to obtain the Horvitz-Thompson estimate
   quad_form_result <- t(y_wtd) %*% ht_quad_form %*% y_wtd
 
   test_that(
-    "Generates correct quadratic form for Horvitz-Thompson", {
-    expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
+    "Horvitz-Thompson estimate matches the 'survey' package", {
     expect_equal(object = quad_form_result, expected = svy_pkg_result)
   })
 
