@@ -147,6 +147,12 @@ as_bootstrap_design.survey.design <- function(design,
                                               samp_method_by_stage = NULL) {
 
   type <- tolower(type)
+  permissible_types <- c("rao-wu-yue-beaumont", "preston", "rao-wu",
+                         "canty-davison")
+
+  if (is.null(type) || is.na(type) || (length(type) != 1) || !all(type %in% permissible_types)) {
+    stop("Invalid value of `type`. Must use either 'Rao-Wu-Yue-Beaumont', 'Preston', 'Rao-Wu', or 'Canty-Davison'.")
+  }
 
   if (type == "rao-wu-yue-beaumont") {
     # Extract information from the survey design object

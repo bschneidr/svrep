@@ -1,5 +1,8 @@
 # svrep (development version)
 
+* Minor updates and bug fixes:
+  * The function `as_bootstrap_design()` now throws an informative error message when you supply an invalid value for the `type` argument.
+
 # svrep 0.5.1
 
 * New Features:
