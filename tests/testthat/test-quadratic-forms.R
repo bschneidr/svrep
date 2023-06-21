@@ -162,7 +162,7 @@ library_stsys_sample <- library_stsys_sample |>
   ## Compare quadratic form matrix from 'svrep' to the correct result
   test_that(
     "Generates correct quadratic form for Horvitz-Thompson", {
-     expect_equal(object = ht_quad_form, expected = horvitz_thompson_matrix)
+     expect_equal(object = as.matrix(ht_quad_form), expected = horvitz_thompson_matrix)
   })
 
   ## Use the 'survey' package to obtain the Horvitz-Thompson estimate
@@ -178,7 +178,7 @@ library_stsys_sample <- library_stsys_sample |>
 
   test_that(
     "Horvitz-Thompson estimate matches the 'survey' package", {
-    expect_equal(object = quad_form_result, expected = svy_pkg_result)
+    expect_equal(object = as.matrix(quad_form_result), expected = svy_pkg_result)
   })
 
 # Check Sen-Yates-Grundy results ----
@@ -489,7 +489,7 @@ library_stsys_sample <- library_stsys_sample |>
       ) / sum(c_i)
       diag(exp_dev2_quad_form) <- c_i * (1 - c_i/sum(c_i))
 
-      expect_equal(object = dev2_quad_form, expected = exp_dev2_quad_form)
+      expect_equal(object = as.matrix(dev2_quad_form), expected = exp_dev2_quad_form)
 
       # Works as expected for clusters
       dev1_quad_form <- make_quad_form_matrix(
@@ -507,7 +507,7 @@ library_stsys_sample <- library_stsys_sample |>
           method = "Deville-1"
         ) |> svrep:::distribute_matrix_across_clusters(
           cluster_ids = c(3,3,1,1,2,2)
-        )
+        ) |> as.matrix()
       )
 
   })
