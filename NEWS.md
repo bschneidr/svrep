@@ -1,7 +1,15 @@
 # svrep (development version)
 
+* **The creation of generalized bootstrap replicates for designs with many observations but few degrees of freedom (e.g., stratified cluster samples) is now much faster and more efficient.** This is based on using the 'Matrix' package--particularly its efficient representation of sparse matrices which arise for stratified designs--as well as using a compressed representation of designs that use cluster sampling.
+
+* Now using the 'Matrix' package to improve speed and memory usage for large quadratic forms. This is primarily helpful for making the generalized bootstrap computationally feasible for larger datasets.
+
 * Minor updates and bug fixes:
   * The function `as_bootstrap_design()` now throws an informative error message when you supply an invalid value for the `type` argument.
+  
+  * Bug Fix: The "Deville-1" and "Deville-2" estimators threw errors for strata where one or more units were selected with certainty (i.e., had sampling probabilities of 1). This has now been fixed.
+  
+  * Bug Fix: The function `as_gen_boot_design()` could sometimes fail to detect that the input design is a PPS design, which caused it to give the user an unnecessary error message.
 
 # svrep 0.5.1
 
