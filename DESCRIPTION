@@ -43,7 +43,8 @@ Suggests:
     srvyr,
     withr,
     sampling,
-    prettydoc
+    prettydoc,
+    torch
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
