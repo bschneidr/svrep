@@ -7,9 +7,9 @@
 make_optim_boot_factors(
   Sigma,
   num_replicates = Matrix::rankMatrix(Sigma) + 1,
-  max_iter = 15000,
-  max_loss = 0.005,
-  torch_optimizer = function(params, ...) torch::optim_adam(params, lr = 0.01, ...),
+  max_iter = 20000,
+  max_loss = 1e-04,
+  torch_optimizer = function(params, ...) torch::optim_adam(params, lr = 5e-04, ...),
   ...,
   .verbose = TRUE
 )
@@ -30,17 +30,19 @@ such as \code{optim_adam}.}
 supplied by \code{torch_optimizer}.}
 
 \item{.verbose}{Whether to periodically show the value of the loss function
-every several iterations.}
+every several iterations of the optimization algorithm.}
 }
 \value{
 A matrix with the same number of rows as \code{Sigma},
 and the number of columns equal to \code{num_replicates}.
 }
 \description{
-Create bootstrap relpicate weights
+Create bootstrap replicate weights
 using an optimization algorithm.
 }
 \examples{
+library(survey)
+
 ## Load example data
 data('library_stsys_sample', package = 'svrep')
 
