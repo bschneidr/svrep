@@ -4,6 +4,10 @@
 
 * Now using the 'Matrix' package to improve speed and memory usage for large quadratic forms. This is primarily helpful for making the generalized bootstrap computationally feasible for larger datasets.
 
+* Better documentation for the bootstrap methods covered by `as_bootstrap_design()`.
+
+* The function `as_gen_boot_design()` now works for database-backed survey design objects (i.e., objects with the class `DBIsvydesign`).
+
 * Minor updates and bug fixes:
   * The function `as_bootstrap_design()` now throws an informative error message when you supply an invalid value for the `type` argument.
   

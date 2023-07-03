@@ -840,3 +840,137 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
 
   return(rep_design)
 }
+
+#' @export
+as_gen_boot_design.DBIsvydesign <- function(design, variance_estimator = NULL,
+                                            replicates = 500, tau = "auto",
+                                            exact_vcov = FALSE, psd_option = "warn",
+                                            mse = getOption("survey.replicates.mse"),
+                                            compress = TRUE) {
+
+  # Produce a (potentially) compressed survey design object
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(design$strata, design$cluster)
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        if (!is.null(design_obj$variables)) {
+          design_obj$variables <- design_obj$variables[unique_elements,0,drop=FALSE]
+        }
+        # Subset to only unique strata/cluster/weight/fpc combos
+        design_obj$strata <- design_obj$strata[unique_elements,, drop = FALSE]
+        design_obj$cluster <- design_obj$cluster[unique_elements,, drop = FALSE]
+        if (!is.null(design_obj$allprob)) {
+          design_obj$allprob <- design_obj$allprob[unique_elements,, drop = FALSE]
+        }
+        if (!is.null(design_obj$fpc$sampsize)) {
+          design_obj$fpc$sampsize <- design_obj$fpc$sampsize[unique_elements,, drop = FALSE]
+        }
+        if (!is.null(design_obj$fpc$popsize)) {
+          design_obj$fpc$popsize <- design_obj$fpc$popsize[unique_elements,, drop = FALSE]
+        }
+        design_obj$prob <- design_obj$prob[unique_elements]
+        return(design_obj)
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
+  }
+
+  # Get the quadratic form of the variance estimator,
+  # for the compressed design object
+  Sigma <- get_design_quad_form(
+    compressed_design_structure$design_subset,
+    variance_estimator
+  )
+
+  # Check that the matrix is positive semidefinite
+  if (!is_psd_matrix(Sigma)) {
+    problem_msg <- "The sample quadratic form matrix for this design and variance estimator is not positive semidefinite."
+    if (psd_option == "warn") {
+
+      warning_msg <- paste0(
+        problem_msg,
+        " It will be approximated by the nearest positive semidefinite matrix."
+      )
+      warning(warning_msg)
+      Sigma <- get_nearest_psd_matrix(Sigma)
+
+    } else {
+      error_msg <- paste0(
+        problem_msg, " This can be handled using the `psd_option` argument."
+      )
+      stop(error_msg)
+    }
+  }
+
+  # Generate adjustment factors for the compressed design object
+  adjustment_factors <- make_gen_boot_factors(
+    Sigma = Sigma,
+    num_replicates = replicates,
+    tau = tau,
+    exact_vcov = exact_vcov
+  )
+
+  tau <- attr(adjustment_factors, 'tau')
+  scale <- attr(adjustment_factors, 'scale')
+  rscales <- attr(adjustment_factors, 'rscales')
+
+  # Uncompress the adjustment factors
+  adjustment_factors <- distribute_matrix_across_clusters(
+    cluster_level_matrix = adjustment_factors,
+    cluster_ids = compressed_design_structure$index,
+    rows = TRUE, cols = FALSE
+  )
+
+  attr(adjustment_factors, 'tau') <- tau
+  attr(adjustment_factors, 'scale') <- scale
+  attr(adjustment_factors, 'rscales') <- rscales
+
+  # Create the survey design object
+  rep_design <- survey::svrepdesign(
+    data = data.frame(DUMMY = seq_len(nrow(adjustment_factors))),
+    weights = stats::weights(design, type = "sampling"),
+    repweights = as.matrix(adjustment_factors),
+    combined.weights = FALSE,
+    compress = compress, mse = mse,
+    scale = scale,
+    rscales = rscales,
+    type = "other"
+  )
+  rep_design$tau <- tau
+
+  # Replace 'variables' with a database connection
+  # and make the object have the appropriate class
+  rep_design$variables <- NULL
+  if (design$db$dbtype == "ODBC") {
+    stop("'RODBC' no longer supported. Use the odbc package")
+  }
+  else {
+    db <- DBI::dbDriver(design$db$dbtype)
+    dbconn <- DBI::dbConnect(db, design$db$dbname)
+  }
+  rep_design$db <- list(
+    dbname = design$db$dbname, tablename = design$db$tablename,
+    connection = dbconn,
+    dbtype = design$db$dbtype
+  )
+  class(rep_design) <- c("DBIrepdesign", "DBIsvydesign", class(rep_design))
+
+  if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    rep_design <- srvyr::as_survey_rep(
+      rep_design
+    )
+  }
+
+  rep_design$call <- sys.call(which = -1)
+
+  return(rep_design)
+
+}

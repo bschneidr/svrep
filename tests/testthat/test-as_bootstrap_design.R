@@ -4,6 +4,7 @@ suppressWarnings({
     library(dplyr)
     library(svrep)
     library(testthat)
+    library(srvyr)
   })
 })
 
@@ -121,7 +122,6 @@ set.seed(2014)
 
   test_that(
     desc = "Returns `tbl_svy` if the input is a `tbl_svy` and 'srvyr' is loaded", {
-      library(srvyr)
       expect_true(
         dstrat |> as_survey() |>
           as_bootstrap_design(replicates = 1) |>
