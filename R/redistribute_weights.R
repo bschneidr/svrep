@@ -12,19 +12,19 @@
 
 shift_weight <- function(wt_set, is_upweight_case, is_downweight_case) {
 
-                                adj_factors <- rep(1, length(wt_set))
-                                upweight_sum <- sum(wt_set[is_upweight_case])
-                                downweight_sum <- sum(wt_set[is_downweight_case])
+  adj_factors <- rep(1, length(wt_set))
+  upweight_sum <- sum(wt_set[is_upweight_case])
+  downweight_sum <- sum(wt_set[is_downweight_case])
 
-                                if (upweight_sum != 0) {
-                                  upweight_factor <- 1 + (downweight_sum/upweight_sum)
-                                } else {
-                                  upweight_factor <- 1
-                                }
-                                downweight_factor <- 0
+  if (upweight_sum != 0) {
+    upweight_factor <- 1 + (downweight_sum/upweight_sum)
+  } else {
+    upweight_factor <- 1
+  }
+  downweight_factor <- 0
 
-                                adj_factors[is_upweight_case] <- upweight_factor
-                                adj_factors[is_downweight_case] <- downweight_factor
+  adj_factors[is_upweight_case] <- upweight_factor
+  adj_factors[is_downweight_case] <- downweight_factor
 
   return(wt_set * adj_factors)
 }
