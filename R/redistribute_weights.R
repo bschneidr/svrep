@@ -228,3 +228,44 @@ redistribute_weights.svyrep.design <- function(design, reduce_if, increase_if, b
 
   return(result)
 }
+
+#' @export
+redistribute_weights.DBIrepdesign <- function(design, reduce_if, increase_if, by) {
+
+  # Get a list of all the variables needed
+  # to conduct the necessary weight redistribution
+  if (missing(by) || is.null(by)) {
+    by <- NULL
+  }
+
+  reduce_if_vars <- all.vars(substitute(reduce_if))
+  increase_if_vars <- all.vars(substitute(increase_if))
+  by_vars <- by
+
+  required_vars <- c(reduce_if_vars, increase_if_vars, by_vars) |> unique()
+
+  # Get all of the required variables into a dataframe
+  design$variables <- getvars(formula = required_vars,
+                              dbconnection = design$db$connection,
+                              tables = design$db$tablename,
+                              updates = design$updates,
+                              subset = design$subset)
+
+  # Use the regular S3 method for redistributing weights
+  result <- eval(substitute(
+
+    redistribute_weights.svyrep.design(
+      design = design,
+      reduce_if = reduce_if,
+      increase_if = increase_if,
+      by = by
+    )
+
+  ))
+
+  # Remove the data frame of variables which are no longer needed
+  # (since the variables are still available in the database)
+  result$variables <- NULL
+
+  return(result)
+}
