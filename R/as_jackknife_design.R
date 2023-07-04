@@ -3,7 +3,8 @@
 #' Forms a specified number of jackknife replicates
 #' based on grouping primary sampling units (PSUs)
 #' into random, (approximately) equal-sized groups.
-#' @details Within each value of \code{VAR_STRAT},
+#' @section Formation of Random Groups:
+#' Within each value of \code{VAR_STRAT},
 #' the data are sorted by first-stage sampling strata,
 #' and then the PSUs in each stratum are randomly arranged.
 #' Groups are then formed by serially placing PSUs
@@ -14,6 +15,10 @@
 #' the process begins again by assigning the next PSU to the first group,
 #' the PSU after that to the second group, and so on.
 #'
+#'
+#' The random group that each observation is assigned to
+#' can be saved as a variable in the data
+#' by using the function argument \code{group_var_name}.
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
 #' @param replicates The number of replicates to create
@@ -22,18 +27,8 @@
 #' Every design stratum must have at least as many primary sampling units (PSUs),
 #' as \code{replicates}.
 #' @param adj_method Specifies how to calculate the
-#' replicate weight adjustment factor. These adjustment factors
-#' generally take the following form:
-#' \deqn{
-#'  w_{h i(\tilde{h} g)} =
-#'  \begin{cases} w_{h i} & (h i) \notin S_{\tilde{h}} \\
-#'  a_{h(\tilde{h} g)} w_{h i} & (h i) \in S_{\tilde{h}},(h i) \notin S_{\tilde{h} h g} \\
-#'  0 & (h i) \in S_{\tilde{h} h g}
-#'  \end{cases}
-#' }
-#' The options for \code{adj_method} differ in how
-#' \eqn{a_{h(\tilde{h} g)}} is calculated.
-#' Available options include:
+#' replicate weight adjustment factor.
+#' Available options for \code{adj_method} include:
 #' \itemize{
 #'   \item{"variance-stratum-psus" (the default)}{
 #'     The replicate weight adjustment for a unit
@@ -45,9 +40,10 @@
 #'     in its variance stratum.
 #'   }
 #' }
+#' See the section "Adjustment and Scale Methods" for details.
 #' @param scale_method Specifies how to calculate the
 #' scale factor for each replicate.
-#' Available options include:
+#' Available options for \code{scale_method} include:
 #' \itemize{
 #'   \item{"variance-stratum-psus"}{
 #'     The scale factor for a variance unit
@@ -60,12 +56,7 @@
 #'     its variance stratum.
 #'   }
 #' }
-#' When variance units in a variance stratum
-#' have differing numbers of PSUs,
-#' the combination \code{adj_method = "variance-stratum-psus"}
-#' and \code{scale_method = "variance-units"} is
-#' recommended by Valliant, Brick, and Dever (2008),
-#' corresponding to their method \code{"GJ2"}.
+#' See the section "Adjustment and Scale Methods" for details.
 #' @param var_strat Specifies the name of a variable
 #' in the data that defines variance strata to use
 #' for the grouped jackknife. If \code{var_strat = NULL},
@@ -91,14 +82,77 @@
 #' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights. \cr
 #' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
 #' for the full-sample and replicate weights.
-#' @details
+#' @section Adjustment and Scale Methods:
+#'
+#' The jackknife replication variance estimator based on \eqn{R} replicates takes the following form:
+#' \deqn{
+#'   v(\hat{\theta}) = \sum_{r=1}^{R} (1 - f_r) \times c_r \times \left(\hat{\theta}_r - \hat{\theta}\right)^2
+#' }
+#' where \eqn{r} indexes one of the \eqn{R} sets of replicate weights,
+#' \eqn{c_r} is a corresponding scale factor for the \eqn{r}-th replicate,
+#' and \eqn{1 - f_r} is an optional finite population correction factor
+#' that can potentially differ across variance strata.
+#'
+#' To form the replicate weights, the PSUs are divided into \eqn{\tilde{H}} variance strata,
+#' and the \eqn{\tilde{h}}-th variance stratum contains \eqn{G_{\tilde{h}}}
+#' random groups. The number of replicates \eqn{R} equals the total number
+#' of random groups across all variance strata:
+#' \eqn{R = \sum_{\tilde{h}}^{\tilde{H}} G_{\tilde{h}}}. In other words,
+#' each replicate corresponds to one of the random groups from one of the variance strata.
+#'
+#' The weights for replicate \eqn{r} corresponding to random group \eqn{g} within
+#' variance stratum \eqn{\tilde{h}} is defined as follows.
+#' \deqn{
+#'  w_{i}^{(r)} =
+#'  \begin{cases}
+#'  w_{i} & \textit{if } i \textit{ not in variance stratum } \tilde{h} \\
+#'  a_{\tilde{h} g} w_{i} & \textit{if } i \textit{ in random group } g \textit{ of } \tilde{h} \\
+#'  0 & \textit{if } i \textit{ in } \tilde{h} \textit{ but not in random group } g
+#'  \end{cases}
+#' }
+#' The R function argument \code{adj_method} determines how
+#' the adjustment factor \eqn{a_{\tilde{h} g}} is calculated.
+#' When \code{adj_method = "variance-units"}, then
+#' \eqn{a_{\tilde{h} g}} is calculated based on \eqn{G_{\tilde{h}}},
+#' which is the number of random groups in variance stratum \eqn{\tilde{h}}.
+#' When \code{adj_method = "variance-stratum-psus"}, then
+#' \eqn{a_{\tilde{h} g}} is calculated based on \eqn{n_{\tilde{h}g}},
+#' which is the number of PSUs in random group \eqn{g} in variance stratum \eqn{\tilde{h}},
+#' as well as \eqn{n_{\tilde{h}}}, the total number of PSUs in variance stratum \eqn{\tilde{h}}.
+#' \deqn{
+#'  a_{\tilde{h} g} =
+#'  \begin{cases}
+#'  \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} & \textit{ if adj\_method = ``variance-units''} \\
+#'  \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} & \textit{ if adj\_method = ``variance-stratum-psus''} \\
+#'  \end{cases}
+#' }
+#' The scale factor \eqn{c_r} for replicate \eqn{r}
+#' corresponding to random group \eqn{g} within variance stratum \eqn{\tilde{h}} is
+#' calculated according to the function argument \code{scale_method}.
+#' \deqn{
+#'  c_{r} =
+#'  \begin{cases}
+#'  \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} & \textit{ if scale\_method = ``variance-units''} \\
+#'  \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} & \textit{ if scale\_method = ``variance-stratum-psus''} \\
+#'  \end{cases}
+#' }
+#'
+#' The sampling fraction \eqn{f_r} used for finite population correction \eqn{1 - f_r}
+#' is by default assumed to equal 0. However, the user can supply a sampling fraction
+#' for each variance stratum using the argument \code{var_strat_frac}.
+#'
+#' When variance units in a variance stratum
+#' have differing numbers of PSUs,
+#' the combination \code{adj_method = "variance-stratum-psus"}
+#' and \code{scale_method = "variance-units"} is
+#' recommended by Valliant, Brick, and Dever (2008),
+#' corresponding to their method \code{"GJ2"}.
+#'
 #' The random-groups jackknife method often referred to as "DAGJK"
 #' corresponds to the options \code{var_strat = NULL},
 #' \code{adj_method = "variance-units"}, and \code{scale_method = "variance-units"}.
 #' The DAGJK method will yield upwardly-biased variance estimates for totals
 #' if the total number of PSUs is not a multiple of the total number of replicates (Valliant, Brick, and Dever 2008).
-#'
-#'
 #' @references
 #' See Section 15.5 of Valliant, Dever, and Kreuter (2018)
 #' for an introduction to the grouped jackknife and

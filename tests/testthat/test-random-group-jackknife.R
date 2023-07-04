@@ -67,7 +67,9 @@ set.seed(2014)
   test_that(desc = "Replicates formed correctly, given random groups", {
 
     jk_design <- as_random_group_jackknife_design(
-      design = dstrat_nofpc, replicates = 10
+      design = dstrat_nofpc, replicates = 10,
+      adj_method = "variance-units",
+      scale_method = "variance-units"
     )
 
     apistrat_grouped <- apistrat
@@ -92,7 +94,7 @@ set.seed(2014)
 
     expect_equal(
       object = as_random_group_jackknife_design(
-        design = dstrat_nofpc, sampling_fraction = 0.75,
+        design = dstrat_nofpc, var_strat_frac = 0.75,
         replicates = 5
       ) |> getElement("scale"),
       expected = ((5-1)/5) * (1 - 0.75)
@@ -102,14 +104,14 @@ set.seed(2014)
       as_random_group_jackknife_design(
         design = dstrat_fpc, replicates = 5
       )
-    }, regexp = "Ignoring.+Instead using"
+    }, regexp = "Ignoring finite"
     )
 
     expect_error(object = {
       as_random_group_jackknife_design(
         design = dstrat_nofpc,
         replicates = 5,
-        sampling_fraction = 2
+        var_strat_frac = 2
       )
     }, regexp = "between 0 and 1"
     )
@@ -118,9 +120,9 @@ set.seed(2014)
       as_random_group_jackknife_design(
         design = dstrat_nofpc,
         replicates = 5,
-        sampling_fraction = c(0.5, 0.2)
+        var_strat_frac = c(0.5, 0.2)
       )
-    }, regexp = "must be a single number"
+    }, regexp = "must be either a single number"
     )
 
   })
