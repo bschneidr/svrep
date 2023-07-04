@@ -24,6 +24,9 @@ reference:
 - contents:
   - matches("quad_form")
   - matches("psd_matrix")
+- title: Creating Jackknife Replicate Weights
+- contents:
+  - matches("jack")
 - title: Calibrating to Estimated Control Totals
 - contents:
   - starts_with("calibrate_to")
