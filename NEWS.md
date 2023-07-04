@@ -1,5 +1,7 @@
 # svrep (development version)
 
+* Added a function `as_random_group_jackknife_design()` to create random-group jackknife replicates.
+
 * **The creation of generalized bootstrap replicates for designs with many observations but few degrees of freedom (e.g., stratified cluster samples) is now much faster and more efficient.** This is based on using the 'Matrix' package--particularly its efficient representation of sparse matrices which arise for stratified designs--as well as using a compressed representation of designs that use cluster sampling.
 
 * Now using the 'Matrix' package to improve speed and memory usage for large quadratic forms. This is primarily helpful for making the generalized bootstrap computationally feasible for larger datasets.
