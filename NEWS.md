@@ -13,6 +13,8 @@
   * `as_gen_boot_design()`
   * `as_bootstrap_design()`
   * `redistribute_weights()`
+  * `calibrate_to_sample()`
+  * `calibrate_to_estimate()`
 
 * Minor updates and bug fixes:
   * The function `as_bootstrap_design()` now throws an informative error message when you supply an invalid value for the `type` argument.

@@ -1,15 +1,21 @@
-library(survey)
-library(RSQLite)
+suppressPackageStartupMessages({
+  suppressWarnings({
+    library(survey)
+    library(RSQLite)
+  })
+})
 
 # Load example data
 data('api', package = 'survey')
 
-dbclus1 <- svydesign(
-  id = ~dnum, weights = ~pw, fpc = ~fpc,
-  data = "apiclus1",
-  dbtype = "SQLite",
-  dbname = system.file("api.db",package="survey")
-)
+suppressWarnings({
+  dbclus1 <- svydesign(
+    id = ~dnum, weights = ~pw, fpc = ~fpc,
+    data = "apiclus1",
+    dbtype = "SQLite",
+    dbname = system.file("api.db",package="survey")
+  )
+})
 
 dclus1 <- svydesign(
   data = apiclus1,
@@ -88,7 +94,7 @@ test_that(
   }
 )
 
-# Test weight adjustment functionality ----
+# Test weight redistribution functionality ----
 
 test_that(
   desc = "Weight adjustments work for database-backed designs", {
@@ -132,5 +138,100 @@ test_that(
     expect_true(
       object = inherits(db_result, "DBIrepdesign")
     )
+  }
+)
+
+# Test sample-based calibration methods ----
+
+test_that(
+  "`calibrate_to_sample()` works for database-backed designs", {
+
+    set.seed(2023)
+    db_primary_survey <- dbclus1 |> as_bootstrap_design(
+      replicates = 5, mse = TRUE
+    )
+    set.seed(2023)
+    nondb_primary_survey <- dclus1 |> as_bootstrap_design(
+      replicates = 5, mse = TRUE
+    )
+
+    # Load example data for control survey
+
+    control_survey <- svydesign(id = ~ 1, fpc = ~fpc, data = apisrs) |>
+      as_bootstrap_design(replicates = 5)
+
+    # Calibrate DB-backed and regular designs
+    suppressMessages({
+      set.seed(2023)
+      calibrated_db_rep_design <- calibrate_to_sample(
+        primary_rep_design = db_primary_survey,
+        control_rep_design = control_survey,
+        cal_formula = ~ stype + enroll,
+      )
+      set.seed(2023)
+      calibrated_nondb_rep_design <- calibrate_to_sample(
+        primary_rep_design = nondb_primary_survey,
+        control_rep_design = control_survey,
+        cal_formula = ~ stype + enroll,
+      )
+    })
+
+    # Compare calibrated-estimates
+    expect_equal(
+      object = calibrated_db_rep_design |>
+        svytotal(x = ~ api00),
+      expected = calibrated_nondb_rep_design |>
+        svytotal(x = ~ api00)
+    )
+
+  }
+)
+
+test_that(
+  "`calibrate_to_estimate()` works for database-backed designs", {
+
+    set.seed(2023)
+    db_primary_survey <- dbclus1 |> as_bootstrap_design(
+      replicates = 10, mse = TRUE
+    )
+    set.seed(2023)
+    nondb_primary_survey <- dclus1 |> as_bootstrap_design(
+      replicates = 10, mse = TRUE
+    )
+
+    # Load example estimates from control survey
+    estimated_controls <- svytotal(
+      x = ~ stype,
+      design = svydesign(id = ~ 1, fpc = ~fpc, data = apisrs)
+    )
+    control_point_estimates <- coef(estimated_controls)
+    control_vcov_estimate <- vcov(estimated_controls)
+
+    # Calibrate DB-backed and regular designs
+    suppressMessages({
+      set.seed(2023)
+      calibrated_db_rep_design <- calibrate_to_estimate(
+        rep_design = db_primary_survey,
+        estimate = control_point_estimates,
+        vcov_estimate = control_vcov_estimate,
+        cal_formula = ~ stype
+      )
+      set.seed(2023)
+      calibrated_nondb_rep_design <- calibrate_to_estimate(
+        rep_design = nondb_primary_survey,
+        estimate = control_point_estimates,
+        vcov_estimate = control_vcov_estimate,
+        cal_formula = ~ stype
+      )
+    })
+
+    # Compare calibrated-estimates
+    expect_equal(
+      object = calibrated_db_rep_design |>
+        svytotal(x = ~ api00),
+      expected = calibrated_nondb_rep_design |>
+        svytotal(x = ~ api00)
+    )
+
   }
 )

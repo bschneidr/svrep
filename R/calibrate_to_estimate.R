@@ -165,6 +165,22 @@ calibrate_to_estimate <- function(rep_design,
     }
   }
 
+  # For database-backed design, obtain calibration variables ----
+  is_db_backed_design <- inherits(rep_design, 'DBIrepdesign')
+
+  if (is_db_backed_design) {
+    rep_design$variables <- getvars(
+      formula = cal_formula,
+      dbconnection = rep_design$db$connection,
+      tables = rep_design$db$tablename,
+      updates = rep_design$updates,
+      subset = rep_design$subset
+    )
+    db_info <- rep_design$db
+  } else {
+    db_info <- NULL
+  }
+
   # Determine parameters describing replicate designs ----
   R_primary <- ncol(rep_design$repweights)
 
@@ -338,6 +354,26 @@ calibrate_to_estimate <- function(rep_design,
     fpctype = rep_design$fpctype,
     mse = TRUE
   )
+
+  if (is_db_backed_design) {
+    # Replace 'variables' with a database connection
+    # and make the object have the appropriate class
+    calibrated_rep_design$variables <- NULL
+    if (db_info$dbtype == "ODBC") {
+      stop("'RODBC' no longer supported. Use the odbc package")
+    } else {
+      db <- DBI::dbDriver(db_info$dbtype)
+      dbconn <- DBI::dbConnect(db, db_info$dbname)
+    }
+    calibrated_rep_design$db <- list(
+      dbname = db_info$dbname, tablename = db_info$tablename,
+      connection = dbconn,
+      dbtype = db_info$dbtype
+    )
+    class(calibrated_rep_design) <- c(
+      "DBIrepdesign", "DBIsvydesign", class(calibrated_rep_design)
+    )
+  }
 
   if (inherits(rep_design, 'tbl_svy') && ('package:srvyr' %in% search())) {
     calibrated_rep_design <- srvyr::as_survey_rep(

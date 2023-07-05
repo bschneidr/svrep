@@ -149,6 +149,22 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
 
   is_tbl_svy <- inherits(primary_rep_design, 'tbl_svy')
 
+  # For database-backed design, obtain calibration variables ----
+  is_db_backed_design <- inherits(primary_rep_design, 'DBIrepdesign')
+
+  if (is_db_backed_design) {
+    primary_rep_design$variables <- getvars(
+      formula = cal_formula,
+      dbconnection = primary_rep_design$db$connection,
+      tables = primary_rep_design$db$tablename,
+      updates = primary_rep_design$updates,
+      subset = primary_rep_design$subset
+    )
+    db_info <- primary_rep_design$db
+  } else {
+    db_info <- NULL
+  }
+
   # Determine parameters describing replicate designs ----
   R_control <- ncol(control_rep_design$repweights)
   R_primary <- ncol(primary_rep_design$repweights)
@@ -398,6 +414,26 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
     fpctype = primary_rep_design$fpctype,
     mse = TRUE
   )
+
+  if (is_db_backed_design) {
+    # Replace 'variables' with a database connection
+    # and make the object have the appropriate class
+    calibrated_rep_design$variables <- NULL
+    if (db_info$dbtype == "ODBC") {
+      stop("'RODBC' no longer supported. Use the odbc package")
+    } else {
+      db <- DBI::dbDriver(db_info$dbtype)
+      dbconn <- DBI::dbConnect(db, db_info$dbname)
+    }
+    calibrated_rep_design$db <- list(
+      dbname = db_info$dbname, tablename = db_info$tablename,
+      connection = dbconn,
+      dbtype = db_info$dbtype
+    )
+    class(calibrated_rep_design) <- c(
+      "DBIrepdesign", "DBIsvydesign", class(calibrated_rep_design)
+    )
+  }
 
   if (is_tbl_svy && ('package:srvyr' %in% search())) {
     calibrated_rep_design <- srvyr::as_survey_rep(
