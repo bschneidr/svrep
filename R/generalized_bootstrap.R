@@ -951,8 +951,7 @@ as_gen_boot_design.DBIsvydesign <- function(design, variance_estimator = NULL,
   rep_design$variables <- NULL
   if (design$db$dbtype == "ODBC") {
     stop("'RODBC' no longer supported. Use the odbc package")
-  }
-  else {
+  } else {
     db <- DBI::dbDriver(design$db$dbtype)
     dbconn <- DBI::dbConnect(db, design$db$dbname)
   }

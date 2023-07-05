@@ -44,6 +44,50 @@ test_that(
   }
 )
 
+# Test the basic bootstrap functionality ----
+
+test_that(
+  desc = "`as_bootstrap_design()` works for database-backed designs", {
+
+    # Create bootstrap replicates for database-backed design
+    set.seed(2023)
+    db_rwyb_result <- dbclus1 |> as_bootstrap_design(
+      replicates = 5,
+      type = "Rao-Wu-Yue-Beaumont"
+    )
+    set.seed(2023)
+    db_survey_pkg_boot_result <- dbclus1 |> as_bootstrap_design(
+      replicates = 5, type = "Preston"
+    )
+
+    # Create replicates for design in local memory
+    set.seed(2023)
+    nondb_rwyb_result <- dclus1 |> as_bootstrap_design(
+      replicates = 5,
+      type = "Rao-Wu-Yue-Beaumont"
+    )
+    set.seed(2023)
+    nondb_survey_pkg_boot_result <- dclus1 |> as_bootstrap_design(
+      replicates = 5, type = "Preston"
+    )
+
+    # Compare two sets of replicate weights
+    expect_equal(
+      db_rwyb_result$repweights,
+      nondb_rwyb_result$repweights
+    )
+    expect_equal(
+      db_survey_pkg_boot_result$repweights,
+      nondb_survey_pkg_boot_result$repweights
+    )
+    # Compare estimates
+    expect_equal(
+      svytotal(x = ~ api00, db_rwyb_result) |> SE(),
+      svytotal(x = ~ api00, nondb_rwyb_result) |> SE()
+    )
+  }
+)
+
 # Test weight adjustment functionality ----
 
 test_that(

@@ -11,6 +11,7 @@
 * The following functions now work for database-backed survey design objects (i.e., objects with the class `DBIsvydesign`):
 
   * `as_gen_boot_design()`
+  * `as_bootstrap_design()`
   * `redistribute_weights()`
 
 * Minor updates and bug fixes:
