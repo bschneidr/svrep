@@ -7,7 +7,8 @@
 as_data_frame_with_weights(
   design,
   full_wgt_name = "FULL_SAMPLE_WGT",
-  rep_wgt_prefix = "REP_WGT_"
+  rep_wgt_prefix = "REP_WGT_",
+  vars_to_keep = NULL
 )
 }
 \arguments{
@@ -18,6 +19,10 @@ as_data_frame_with_weights(
 \item{rep_wgt_prefix}{For replicate design objects, a prefix to use for the column names
 of the replicate weights. The column names will be created by appending
 the replicate number after the prefix.}
+
+\item{vars_to_keep}{By default, all variables in the data will be kept.
+To select only a subset of the non-weight variables,
+you can supply a character vector of variable names to keep.}
 }
 \value{
 A data frame, with new columns containing the weights from the survey design object

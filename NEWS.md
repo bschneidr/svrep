@@ -10,11 +10,14 @@
 
 * The following functions now work for database-backed survey design objects (i.e., objects with the class `DBIsvydesign`):
 
+  * `as_data_frame_with_weights()`
   * `as_gen_boot_design()`
   * `as_bootstrap_design()`
   * `redistribute_weights()`
   * `calibrate_to_sample()`
   * `calibrate_to_estimate()`
+  
+* The function `as_data_frame_with_weights()` has gained an argument `vars_to_keep` which allows the user to indicate that they only want to keep a specific list of variables from the data. This can be useful, for example, if you only want to keep the weights and unique identifiers.
 
 * Minor updates and bug fixes:
   * The function `as_bootstrap_design()` now throws an informative error message when you supply an invalid value for the `type` argument.
