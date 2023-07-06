@@ -157,14 +157,33 @@ such as <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class=
 for the full-sample and replicate weights.</p>
     </div>
     <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Beaumont, J.-F.; Émond, N. (2022).
+"A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
+<strong>Stats</strong>, <em>5</em>: 339–357.
+https://doi.org/10.3390/stats5020019</p>
+<p>Canty, A.J.; Davison, A.C. (1999).
+"Resampling-based variance estimation for labour force surveys."
+<strong>The Statistician</strong>, <em>48</em>: 379-391.</p>
+<p>Preston, J. (2009).
+"Rescaled bootstrap for stratified multistage sampling."
+<strong>Survey Methodology</strong>, <em>35</em>(2): 227-234.</p>
+<p>Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
+"Some recent work on resampling methods for complex surveys."
+<strong>Survey Methodology</strong>, <em>18</em>: 209–217.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Use <code><a href="estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv</a></code> to help choose the number of bootstrap replicates.</p>
-<p>For some complex designs, one can use <code><a href="make_rwyb_bootstrap_weights.html">make_rwyb_bootstrap_weights</a></code> to create
-         Rao-Wu-Yue-Beaumont bootstrap weights or adjustment factors given information for each stage of sampling
-         (the type of sampling, strata IDs, cluster IDs, selection probabilities, etc.).
-         <br></p>
+<p>The underlying function for the Rao-Wu-Yue-Beaumont bootstrap
+is <code><a href="make_rwyb_bootstrap_weights.html">make_rwyb_bootstrap_weights</a></code>.
+Other bootstrap methods are implemented using functions from the 'survey' package,
+including: <code><a href="https://rdrr.io/pkg/survey/man/bootweights.html" class="external-link">bootweights</a></code> (Canty-Davison),
+<code><a href="https://rdrr.io/pkg/survey/man/bootweights.html" class="external-link">subbootweights</a></code> (Rao-Wu),
+and <code><a href="https://rdrr.io/pkg/survey/man/bootweights.html" class="external-link">mrbweights</a></code> (Preston).</p>
+
 <p>For systematic samples, one-PSU-per-stratum designs, or other especially complex sample designs,
-          one can use the generalized survey bootstrap method. See <code><a href="as_gen_boot_design.html">as_gen_boot_design</a></code> or <code><a href="make_gen_boot_factors.html">make_gen_boot_factors</a></code>.</p></div>
+one can use the generalized survey bootstrap method. See <code><a href="as_gen_boot_design.html">as_gen_boot_design</a></code> or <code><a href="make_gen_boot_factors.html">make_gen_boot_factors</a></code>.</p></div>
     </div>
 
     <div class="section level2">

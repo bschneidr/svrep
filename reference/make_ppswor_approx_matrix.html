@@ -125,7 +125,9 @@ $$
   \sigma_{ii} = c_i (1 - \frac{c_i}{\sum_{k=1}^{n}c_k}) \textit{ when } i = j \\
   \sigma_{ij}=\frac{-c_i c_j}{\sum_{k=1}^{n}c_k} \textit{ when } i \neq j \\
 $$
-The constants \(c_i\) are defined for each approximation method as follows,
+When \(\pi_{i} = 1\) for every unit, then \(\sigma_{ij}=0\) for all \(i,j\).
+If there is only one sampling unit, then \(\sigma_{11}=0\); that is, the unit is treated as if it was sampled with certainty.</p>
+<p>The constants \(c_i\) are defined for each approximation method as follows,
 with the names taken directly from Matei and Tillé (2005).</p><ul><li><p><strong>"Deville-1"</strong>: 
     $$c_i=\left(1-\pi_i\right) \frac{n}{n-1}$$</p></li>
 <li><p><strong>"Deville-2"</strong>: 

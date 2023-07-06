@@ -40,6 +40,9 @@
     <loc>https://bschneidr.github.io/svrep/reference/as_gen_boot_design.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/reference/as_random_group_jackknife_design.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.html</loc>
   </url>
   <url>
@@ -59,6 +62,9 @@
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/get_nearest_psd_matrix.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/getvars.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/ht_matrix_to_joint_probs.html</loc>
@@ -122,5 +128,8 @@
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/svyby_repwts.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/variance-estimators.html</loc>
   </url>
 </urlset>

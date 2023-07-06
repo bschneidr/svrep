@@ -508,12 +508,13 @@ matrix of the “SD2” variance estimator we saw earlier.</p>
 <span>    strata_ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    sort_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">4</span>,<span class="fl">5</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5]</span></span>
-<span><span class="co">#&gt; [1,]  1.0 -0.5  0.0  0.0 -0.5</span></span>
-<span><span class="co">#&gt; [2,] -0.5  1.0 -0.5  0.0  0.0</span></span>
-<span><span class="co">#&gt; [3,]  0.0 -0.5  1.0 -0.5  0.0</span></span>
-<span><span class="co">#&gt; [4,]  0.0  0.0 -0.5  1.0 -0.5</span></span>
-<span><span class="co">#&gt; [5,] -0.5  0.0  0.0 -0.5  1.0</span></span></code></pre></div>
+<span><span class="co">#&gt; 5 x 5 sparse Matrix of class "dsCMatrix"</span></span>
+<span><span class="co">#&gt;                              </span></span>
+<span><span class="co">#&gt; [1,]  1.0 -0.5  .    .   -0.5</span></span>
+<span><span class="co">#&gt; [2,] -0.5  1.0 -0.5  .    .  </span></span>
+<span><span class="co">#&gt; [3,]  .   -0.5  1.0 -0.5  .  </span></span>
+<span><span class="co">#&gt; [4,]  .    .   -0.5  1.0 -0.5</span></span>
+<span><span class="co">#&gt; [5,] -0.5  .    .   -0.5  1.0</span></span></code></pre></div>
 <p>In the following example, we use this method to estimate the variance
 for a stratified systematic sample of U.S. public libraries. First, we
 create a quadratic form matrix to represent the SD2
@@ -545,7 +546,9 @@ for a specified variance estimator.</p>
 <span><span class="co">#&gt; For `variance_estimator='SD2', assumes rows of data are sorted in the same order used in sampling.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">sd2_quad_form</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "matrix" "array"</span></span>
+<span><span class="co">#&gt; [1] "dsCMatrix"</span></span>
+<span><span class="co">#&gt; attr(,"package")</span></span>
+<span><span class="co">#&gt; [1] "Matrix"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">sd2_quad_form</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 219 219</span></span></code></pre></div>
 <p>Next, we estimate the sampling variance of the estimated total for

@@ -178,120 +178,22 @@ This should be a vector that orders the rows of data into the order used for sam
 <p>The matrix of the quadratic form representing the variance estimator.</p>
     </div>
     <div class="section level2">
+    <h2 id="variance-estimators">Variance Estimators<a class="anchor" aria-label="anchor" href="#variance-estimators"></a></h2>
+    
+
+<p>See <a href="variance-estimators.html">variance-estimators</a> for a
+description of each variance estimator.</p>
+    </div>
+    <div class="section level2">
     <h2 id="arguments-required-for-each-variance-estimator">Arguments required for each variance estimator<a class="anchor" aria-label="anchor" href="#arguments-required-for-each-variance-estimator"></a></h2>
     
 
 <p>Below are the arguments that are required or optional for each variance estimator.</p><table class="table table"><tr><td>variance_estimator</td><td>probs</td><td>joint_probs</td><td>cluster_ids</td><td>strata_ids</td><td>strata_pop_sizes</td><td>sort_order</td></tr><tr><td>Stratified Multistage SRS</td><td></td><td></td><td>Required</td><td>Required</td><td>Required</td><td></td></tr><tr><td>Ultimate Cluster</td><td></td><td></td><td>Required</td><td>Required</td><td>Optional</td><td></td></tr><tr><td>SD1</td><td></td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr><tr><td>SD2</td><td></td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr><tr><td>Deville-1</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td></tr><tr><td>Deville-2</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td></tr><tr><td>Yates-Grundy</td><td></td><td>Required</td><td></td><td></td><td></td><td></td></tr><tr><td>Horvitz-Thompson</td><td></td><td>Required</td><td></td><td></td><td></td><td></td></tr></table></div>
     <div class="section level2">
-    <h2 id="variance-estimators">Variance Estimators<a class="anchor" aria-label="anchor" href="#variance-estimators"></a></h2>
-    
-
-<p>The <strong>Horvitz-Thompson</strong> variance estimator:
-$$
-  v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
-$$
-The <strong>Yates-Grundy</strong> variance estimator:
-$$
-  v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
-$$
-The <strong>Poisson Horvitz-Thompson</strong> variance estimator
-is simply the Horvitz-Thompson variance estimator, but
-where \(\pi_{ij}=\pi_i \times \pi_j\), which is the case for Poisson sampling.
-<br><br>
-The <strong>Stratified Multistage SRS</strong> variance estimator is the recursive variance estimator
-proposed by Bellhouse (1985) and used in the 'survey' package's function <a href="https://rdrr.io/pkg/survey/man/svyrecvar.html" class="external-link">svyrecvar</a>.
-The estimator can be used for any number of sampling stages. For illustration, we describe its use
-for two sampling stages.
-$$
-  v(\hat{Y}) = \hat{V}_1 + \hat{V}_2
-$$
-where
-$$
-  \hat{V}_1 = \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2
-$$
-and
-$$
-  \hat{V}_2 = \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.})
-$$
-where \(n_h\) is the number of sampled clusters in stratum \(h\),
-\(N_h\) is the number of population clusters in stratum \(h\),
-\(y_{hi.}\) is the weighted cluster total in cluster \(i\) of stratum \(h\),
-\(\bar{y}_{hi.}\) is the mean weighted cluster total of stratum \(h\),
-(\(\bar{y}_{hi.} = \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.}\)), and
-\(v_{hi}(y_{hi.})\) is the estimated sampling variance of \(y_{hi.}\).
-<br><br>
-The <strong>Ultimate Cluster</strong> variance estimator is simply the stratified multistage SRS
-variance estimator, but ignoring variances from later stages of sampling.
-$$
-  v(\hat{Y}) = \hat{V}_1
-$$
-This is the variance estimator used in the 'survey' package when the user specifies
-<code>option(survey.ultimate.cluster = TRUE)</code> or uses <code>svyrecvar(..., one.stage = TRUE)</code>.
-When the first-stage sampling fractions are small, analysts often omit the finite population corrections \((1-\frac{n_h}{N_h})\)
-when using the ultimate cluster estimator.
-<br><br>
-The <strong>SD1</strong> and <strong>SD2</strong> variance estimators are "successive difference"
-estimators sometimes used for systematic sampling designs.
-Ash (2014) describes each estimator as follows:
-$$
-  \hat{v}_{S D 1}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2
-$$
-$$
-  \hat{v}_{S D 2}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right]
-$$
-where \(\breve{y}_k = y_k/\pi_k\) is the weighted value of unit \(k\)
-with selection probability \(\pi_k\). The SD1 estimator is recommended by Wolter (1984).
-The SD2 estimator is the basis of the successive difference replication estimator commonly
-used for systematic sampling designs. See Ash (2014) for details.
-<br><br>
-For multistage samples, SD1 and SD2 are applied to the clusters at each stage, separately by stratum.
-For later stages of sampling, the variance estimate from a stratum is multiplied by the product
-of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
-the variance estimate from a third-stage stratum is multiplied by \(\frac{n_1}{N_1}\frac{n_2}{N_2}\),
-which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
-<br><br>
-The <strong>"Deville-1"</strong> and <strong>"Deville-2"</strong> variance estimators
-are clearly described in Matei and Tillé (2005),
-and are intended for designs that use
-fixed-size, unequal-probability random sampling without replacement.
-These variance estimators have been shown to be effective
-for designs that use a fixed sample size with a high-entropy sampling method.
-This includes most PPSWOR sampling methods,
-but unequal-probability systematic sampling is an important exception.</p>
-<p>These variance estimators take the following form:
-$$
-\hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
-$$
-where \(\breve{y}_i = y_i/\pi_i\) is the weighted value of the the variable of interest,
-and \(c_i\) depend on the method used:</p><ul><li><p><strong>"Deville-1"</strong>: 
-$$c_i=\left(1-\pi_i\right) \frac{n}{n-1}$$</p></li>
-<li><p><strong>"Deville-2"</strong>: 
-$$c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}$$</p></li>
-</ul><p>In the case of simple random sampling without replacement (SRSWOR),
-these estimators are both identical to the usual stratified multistage SRS estimator
-(which is itself a special case of the Horvitz-Thompson estimator).</p>
-<p>For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
-For later stages of sampling, the variance estimate from a stratum is multiplied by the product
-of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
-the variance estimate from a third-stage stratum is multiplied by \(\pi_1 \times \pi_{(2 | 1)}\),
-where \(\pi_1\) is the sampling probability of the first-stage unit
-and \(\pi_{(2|1)}\) is the sampling probability of the second-stage unit
-within the first-stage unit.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Ash, S. (2014). "<em>Using successive difference replication for estimating variances</em>."
-<strong>Survey Methodology</strong>, Statistics Canada, 40(1), 47–59.</p>
-<p>Bellhouse, D.R. (1985). "<em>Computing Methods for Variance Estimation in Complex Surveys</em>."
-<strong>Journal of Official Statistics</strong>, Vol.1, No.3.</p>
-<p>Matei, Alina, and Yves Tillé. (2005).
-“<em>Evaluation of Variance Approximations and Estimators
-in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.</em>”
-<strong>Journal of Official Statistics</strong>, 21(4):543–70.</p>
-    </div>
-    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>For a two-phase design, the function
+    <div class="dont-index"><p>See <a href="variance-estimators.html">variance-estimators</a> for a
+description of each variance estimator.</p>
+<p>For a two-phase design, the function
 <a href="make_twophase_quad_form.html">make_twophase_quad_form</a> combines
 the quadratic form matrix from each phase.</p></div>
     </div>

@@ -63,7 +63,8 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">as_data_frame_with_weights</span><span class="op">(</span></span>
 <span>  <span class="va">design</span>,</span>
 <span>  full_wgt_name <span class="op">=</span> <span class="st">"FULL_SAMPLE_WGT"</span>,</span>
-<span>  rep_wgt_prefix <span class="op">=</span> <span class="st">"REP_WGT_"</span></span>
+<span>  rep_wgt_prefix <span class="op">=</span> <span class="st">"REP_WGT_"</span>,</span>
+<span>  vars_to_keep <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -81,6 +82,12 @@
 <dd><p>For replicate design objects, a prefix to use for the column names
 of the replicate weights. The column names will be created by appending
 the replicate number after the prefix.</p></dd>
+
+
+<dt>vars_to_keep</dt>
+<dd><p>By default, all variables in the data will be kept.
+To select only a subset of the non-weight variables,
+you can supply a character vector of variable names to keep.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -120,48 +127,48 @@ the replicate number after the prefix.</p></dd>
 <span class="r-in"><span>  rep_wgt_prefix <span class="op">=</span> <span class="st">"NR_ADJUSTED_REP_WGT_"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">nr_adjusted_data</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      RESPONSE_STATUS                                          RACE_ETHNICITY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1     Nonrespondent                     White alone, not Hispanic or Latino</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.1   Nonrespondent Black or African American alone, not Hispanic or Latino</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X3        Respondent                     White alone, not Hispanic or Latino</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.2   Nonrespondent                     White alone, not Hispanic or Latino</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.3   Nonrespondent                     White alone, not Hispanic or Latino</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X6        Respondent                     White alone, not Hispanic or Latino</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         SEX       EDUC_ATTAINMENT VAX_STATUS SAMPLING_WEIGHT NR_ADJUSTED_WGT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1   Female Less than high school       &lt;NA&gt;         596.702           0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.1 Female High school or beyond       &lt;NA&gt;         596.702           0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X3   Female Less than high school Vaccinated         596.702        1223.239</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.2 Female Less than high school       &lt;NA&gt;         596.702           0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.3 Female High school or beyond       &lt;NA&gt;         596.702           0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X6   Female High school or beyond Vaccinated         596.702        1059.068</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      NR_ADJUSTED_REP_WGT_1 NR_ADJUSTED_REP_WGT_2 NR_ADJUSTED_REP_WGT_3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1                       0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.1                     0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X3                       0              2572.449                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.2                     0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.3                     0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X6                       0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      NR_ADJUSTED_REP_WGT_4 NR_ADJUSTED_REP_WGT_5 NR_ADJUSTED_REP_WGT_6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1                   0.000                 0.000                 0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.1                 0.000                 0.000                 0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X3                1260.888                 0.000                 0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.2                 0.000                 0.000                 0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.3                 0.000                 0.000                 0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X6                2058.492              3243.364              1056.924</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      NR_ADJUSTED_REP_WGT_7 NR_ADJUSTED_REP_WGT_8 NR_ADJUSTED_REP_WGT_9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1                       0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.1                     0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X3                       0              1219.633                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.2                     0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.3                     0                 0.000                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X6                       0              1024.285                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      NR_ADJUSTED_REP_WGT_10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1                    0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.1                  0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X3                 1202.584</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.2                  0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1.3                  0.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X6                 2074.098</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RESPONSE_STATUS                                          RACE_ETHNICITY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   Nonrespondent                     White alone, not Hispanic or Latino</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   Nonrespondent Black or African American alone, not Hispanic or Latino</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      Respondent                     White alone, not Hispanic or Latino</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   Nonrespondent                     White alone, not Hispanic or Latino</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   Nonrespondent                     White alone, not Hispanic or Latino</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      Respondent                     White alone, not Hispanic or Latino</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      SEX       EDUC_ATTAINMENT VAX_STATUS SAMPLING_WEIGHT NR_ADJUSTED_WGT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Female Less than high school       &lt;NA&gt;         596.702           0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Female High school or beyond       &lt;NA&gt;         596.702           0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Female Less than high school Vaccinated         596.702        1223.239</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Female Less than high school       &lt;NA&gt;         596.702           0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Female High school or beyond       &lt;NA&gt;         596.702           0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 Female High school or beyond Vaccinated         596.702        1059.068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   NR_ADJUSTED_REP_WGT_1 NR_ADJUSTED_REP_WGT_2 NR_ADJUSTED_REP_WGT_3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                     0              2572.449                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   NR_ADJUSTED_REP_WGT_4 NR_ADJUSTED_REP_WGT_5 NR_ADJUSTED_REP_WGT_6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 0.000                 0.000                 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                 0.000                 0.000                 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3              1260.888                 0.000                 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                 0.000                 0.000                 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 0.000                 0.000                 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6              2058.492              3243.364              1056.924</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   NR_ADJUSTED_REP_WGT_7 NR_ADJUSTED_REP_WGT_8 NR_ADJUSTED_REP_WGT_9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                     0              1219.633                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                     0                 0.000                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                     0              1024.285                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   NR_ADJUSTED_REP_WGT_10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                  0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3               1202.584</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                  0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                  0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6               2074.098</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check the column names of the result</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">nr_adjusted_data</span><span class="op">)</span></span></span>
