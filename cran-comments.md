@@ -9,4 +9,4 @@ these DOI links.
 
 ## Downstream dependencies
 
-* Check OK for the one downstream dependency: 'nrba'
+* Check OK for downstream dependencies: 'nrba' (direct dependency) and 'idcnrba' (indirect dependency)
