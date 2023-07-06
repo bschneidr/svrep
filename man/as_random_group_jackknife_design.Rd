@@ -138,8 +138,8 @@ variance stratum \eqn{\tilde{h}} is defined as follows.
  w_{i}^{(r)} =
  \begin{cases}
  w_{i} & \textit{if } i \textit{ not in variance stratum } \tilde{h} \\
- a_{\tilde{h} g} w_{i} & \textit{if } i \textit{ in random group } g \textit{ of } \tilde{h} \\
- 0 & \textit{if } i \textit{ in } \tilde{h} \textit{ but not in random group } g
+ a_{\tilde{h} g} w_{i} & \textit{if } i \textit{ in } \tilde{h} \textit{ but not in random group } g \\
+ 0 & \textit{if } i \textit{ in random group } g \textit{ of } \tilde{h}
  \end{cases}
 }
 The R function argument \code{adj_method} determines how
