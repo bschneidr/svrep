@@ -29,7 +29,7 @@ set.seed(2014)
     weights = ~pw
   )
 
-# Test for expected group sizes ----
+# Test for expected formation of random groups ----
 
   test_that(desc = "Random groups formed correctly", {
 
