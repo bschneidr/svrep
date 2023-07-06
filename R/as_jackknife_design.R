@@ -488,3 +488,42 @@ as_random_group_jackknife_design.survey.design <- function(
   jk_design$call <- sys.call(which = -1)
   return(jk_design)
 }
+
+#' @export
+as_random_group_jackknife_design.DBIsvydesign <- function(
+    design,
+    replicates = 50,
+    var_strat = NULL,
+    var_strat_frac = NULL,
+    adj_method = "variance-stratum-psus",
+    scale_method = "variance-stratum-psus",
+    group_var_name = ".random_group",
+    compress = TRUE,
+    mse = getOption("survey.replicates.mse")
+) {
+
+  rep_design <- NextMethod(design)
+
+  # Replace 'variables' with a database connection
+  # and make the object have the appropriate class
+  rep_design$variables <- NULL
+  if (design$db$dbtype == "ODBC") {
+    stop("'RODBC' no longer supported. Use the odbc package")
+  } else {
+    db <- DBI::dbDriver(design$db$dbtype)
+    dbconn <- DBI::dbConnect(db, design$db$dbname)
+  }
+  rep_design$db <- list(
+    dbname = design$db$dbname, tablename = design$db$tablename,
+    connection = dbconn,
+    dbtype = design$db$dbtype
+  )
+  class(rep_design) <- c(
+    "DBIrepdesign", "DBIsvydesign",
+    setdiff(class(rep_design), c("DBIrepdesign", "DBIsvydesign"))
+  )
+
+  rep_design$call <- sys.call(which = -1)
+
+  return(rep_design)
+}

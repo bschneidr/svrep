@@ -94,6 +94,35 @@ test_that(
   }
 )
 
+# Test jackknife functionality ----
+
+test_that(
+  desc = "`as_random_group_jackknife_design()` works for database-backed designs", {
+
+    suppressWarnings({
+      # Create bootstrap replicates for database-backed design
+      set.seed(2023)
+      db_jk_result <- dbclus1 |>
+        as_random_group_jackknife_design(
+          replicates = 5
+        )
+
+      # Create replicates for design in local memory
+      set.seed(2023)
+      nondb_jk_result <- dclus1 |>
+        as_random_group_jackknife_design(
+          replicates = 5
+        )
+    })
+
+    # Compare estimates
+    expect_equal(
+      svytotal(x = ~ api00, db_jk_result) |> SE(),
+      svytotal(x = ~ api00, nondb_jk_result) |> SE()
+    )
+  }
+)
+
 # Test weight redistribution functionality ----
 
 test_that(
