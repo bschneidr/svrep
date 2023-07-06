@@ -21,6 +21,8 @@ reference:
 - subtitle: Variance Estimators Available for the Generalized Bootstrap
   desc: >
     *The generalized bootstrap works by "mimicking" a target variance estimator, such as the Horvitz-Thompson estimator. This help page describes the variance estimators that can be used as the target for the generalized boostrap.*
+- contents:
+  - matches("variance-estimators")
 - subtitle: Helper Functions for Working with Quadratic Forms
   desc: >
     *These functions help the user specify the quadratic form representation of common variance estimators and, if necessary, adjust them so that they are positive semidefinite (a necessary prerequisite for using the generalized bootstrap).*
