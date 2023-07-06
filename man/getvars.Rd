@@ -32,3 +32,4 @@ A data frame
 \description{
 A database helper function copied from the 'survey' package
 }
+\keyword{internal}

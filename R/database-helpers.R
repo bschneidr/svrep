@@ -61,7 +61,7 @@ checkConnection <- function(dbconnection, error = TRUE) {
 #' @param subset Optional indices of data to subset when returning result
 #'
 #' @return A data frame
-#'
+#' @keywords internal
 getvars <- function(formula,
                     dbconnection,
                     tables,
