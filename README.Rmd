@@ -101,6 +101,18 @@ gen_boot_design_sd2 <- as_gen_boot_design(
 )
 ```
 
+For relatively simple designs, we can also use the random-groups jackknife.
+
+```{r}
+# Create random-group jackknife replicates
+# for a single-stage survey with many first-stage sampling units
+rand_grp_jk_design <- apisrs |>
+  svydesign(data = _, ids = ~ 1, weights = ~ pw) |>
+  as_random_group_jackknife_design(
+    replicates = 20
+  )
+```
+
 
 ### Adjusting for non-response or unknown eligibility
 

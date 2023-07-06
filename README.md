@@ -117,6 +117,19 @@ gen_boot_design_sd2 <- as_gen_boot_design(
 #> For `variance_estimator='SD2', assumes rows of data are sorted in the same order used in sampling.
 ```
 
+For relatively simple designs, we can also use the random-groups
+jackknife.
+
+``` r
+# Create random-group jackknife replicates
+# for a single-stage survey with many first-stage sampling units
+rand_grp_jk_design <- apisrs |>
+  svydesign(data = _, ids = ~ 1, weights = ~ pw) |>
+  as_random_group_jackknife_design(
+    replicates = 20
+  )
+```
+
 ### Adjusting for non-response or unknown eligibility
 
 In social surveys, unit nonresponse is extremely common. It is also
@@ -138,7 +151,7 @@ orig_rep_design$variables[['response_status']] <- sample(
 table(orig_rep_design$variables$response_status)
 #> 
 #>          Ineligible       Nonrespondent          Respondent Unknown eligibility 
-#>                  26                  30                 111                  16
+#>                  16                  32                 119                  16
 ```
 
 It is common practice to adjust weights when there is non-response or
@@ -190,7 +203,7 @@ overall_estimates <- svyby_repwts(
 )
 print(overall_estimates, row.names = FALSE)
 #>           Design_Name    api00       se
-#>  nonresponse-adjusted 636.0485 23.74044
+#>  nonresponse-adjusted 641.2030 25.54368
 #>              original 644.1694 23.06284
 
 # Estimate domain means (and their standard errors) from each design
@@ -201,11 +214,11 @@ domain_estimates <- svyby_repwts(
 )
 print(domain_estimates, row.names = FALSE)
 #>           Design_Name stype    api00       se
-#>  nonresponse-adjusted     E 634.0529 24.16837
+#>  nonresponse-adjusted     E 649.9188 25.56366
 #>              original     E 648.8681 22.31347
-#>  nonresponse-adjusted     H 654.9667 25.25871
+#>  nonresponse-adjusted     H 603.5390 45.26079
 #>              original     H 618.5714 37.39448
-#>  nonresponse-adjusted     M 637.7941 32.72545
+#>  nonresponse-adjusted     M 616.3260 36.27983
 #>              original     M 631.4400 31.03957
 ```
 
@@ -221,8 +234,8 @@ estimates <- svyby_repwts(
 
 vcov(estimates)
 #>                      nonresponse-adjusted original
-#> nonresponse-adjusted             563.6085 527.2104
-#> original                         527.2104 531.8947
+#> nonresponse-adjusted             652.4793 585.5253
+#> original                         585.5253 531.8947
 
 diff_between_ests <- svycontrast(stat = estimates,
                                  contrasts = list(
@@ -230,10 +243,10 @@ diff_between_ests <- svycontrast(stat = estimates,
                                  ))
 print(diff_between_ests)
 #>                       contrast     SE
-#> Original vs. Adjusted   8.1209 6.4096
+#> Original vs. Adjusted   2.9664 3.6501
 confint(diff_between_ests)
 #>                           2.5 %   97.5 %
-#> Original vs. Adjusted -4.441618 20.68336
+#> Original vs. Adjusted -4.187705 10.12056
 ```
 
 ### Diagnosing potential issues with weights
@@ -257,22 +270,22 @@ summarize_rep_weights(
   by = "response_status"
 ) |> 
   subset(Rep_Column %in% 1:2)
-#>          response_status Rep_Column   N N_NONZERO      SUM     MEAN        CV
-#> 1             Ineligible          1  26        26 1107.164 42.58325 0.8568075
-#> 2             Ineligible          2  26        26 1343.087 51.65720 0.7022211
-#> 501        Nonrespondent          1  30         0    0.000  0.00000       NaN
-#> 502        Nonrespondent          2  30         0    0.000  0.00000       NaN
-#> 1001          Respondent          1 111       111 5737.029 51.68495 1.1101252
-#> 1002          Respondent          2 111       111 5822.631 52.45613 0.8325374
-#> 1501 Unknown eligibility          1  16         0    0.000  0.00000       NaN
-#> 1502 Unknown eligibility          2  16         0    0.000  0.00000       NaN
+#>          response_status Rep_Column   N N_NONZERO       SUM     MEAN        CV
+#> 1             Ineligible          1  16        16  608.1360 38.00850 1.2415437
+#> 2             Ineligible          2  16        16  739.2634 46.20397 0.7578107
+#> 501        Nonrespondent          1  32         0    0.0000  0.00000       NaN
+#> 502        Nonrespondent          2  32         0    0.0000  0.00000       NaN
+#> 1001          Respondent          1 119       119 6236.0577 52.40385 1.0431318
+#> 1002          Respondent          2 119       119 6426.4544 54.00382 0.8345243
+#> 1501 Unknown eligibility          1  16         0    0.0000  0.00000       NaN
+#> 1502 Unknown eligibility          2  16         0    0.0000  0.00000       NaN
 #>            MIN       MAX
-#> 1    0.5503606 117.64198
-#> 2    0.5510743  78.71338
+#> 1    0.5632079 120.38814
+#> 2    0.5422029  77.44622
 #> 501  0.0000000   0.00000
 #> 502  0.0000000   0.00000
-#> 1001 0.6608875 148.85960
-#> 1002 0.5585803 100.33251
+#> 1001 0.6072282 151.10496
+#> 1002 0.5971008 102.40567
 #> 1501 0.0000000   0.00000
 #> 1502 0.0000000   0.00000
 ```
@@ -288,7 +301,7 @@ nr_adjusted_design |>
     type = 'overall'
   )
 #>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
-#> 1   111   500           27   28    5234.807    1221.695   0.5329224    348.5783
+#> 1   119   500           29   30    5625.555    1257.982   0.5305136     367.826
 ```
 
 ### Sample-based calibration
@@ -420,13 +433,13 @@ svyby_repwts(
   keep.names = FALSE
 )
 #>         Design_Name VAX_STATUSUnvaccinated VAX_STATUSVaccinated        se1
-#> 1       NR-adjusted              0.4621514            0.5378486 0.02088585
-#> 2 Raked to estimate              0.4732623            0.5267377 0.02119417
-#> 3   Raked to sample              0.4732623            0.5267377 0.02117422
+#> 1       NR-adjusted              0.4621514            0.5378486 0.01863299
+#> 2 Raked to estimate              0.4732623            0.5267377 0.01895171
+#> 3   Raked to sample              0.4732623            0.5267377 0.01893093
 #>          se2
-#> 1 0.02088585
-#> 2 0.02119417
-#> 3 0.02117422
+#> 1 0.01863299
+#> 2 0.01895171
+#> 3 0.01893093
 ```
 
 ### Saving results to a data file
