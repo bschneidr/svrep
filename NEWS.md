@@ -1,3 +1,5 @@
+# svrep (development version)
+
 # svrep 0.6.0
 
 * Added a function `as_random_group_jackknife_design()` to create random-group jackknife replicates.

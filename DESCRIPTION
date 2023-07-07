@@ -1,7 +1,7 @@
 Package: svrep
 Type: Package
 Title: Tools for Creating, Updating, and Analyzing Survey Replicate Weights
-Version: 0.6.0
+Version: 0.6.0.9000
 Authors@R:
     c(person(given = "Ben",
              family = "Schneider",
