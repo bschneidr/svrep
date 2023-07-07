@@ -54,7 +54,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.6.0" id="svrep-060">svrep 0.6.0<a class="anchor" aria-label="anchor" href="#svrep-060"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.6.0" id="svrep-060">svrep 0.6.0<a class="anchor" aria-label="anchor" href="#svrep-060"></a></h2><p class="text-muted">CRAN release: 2023-07-06</p>
 <ul><li><p>Added a function <code><a href="../reference/as_random_group_jackknife_design.html">as_random_group_jackknife_design()</a></code> to create random-group jackknife replicates.</p></li>
 <li><p><strong>The creation of generalized bootstrap replicates for designs with many observations but few degrees of freedom (e.g., stratified cluster samples) is now much faster and more efficient.</strong> This is based on using the ‘Matrix’ package–particularly its efficient representation of sparse matrices which arise for stratified designs–as well as using a compressed representation of designs that use cluster sampling.</p></li>
 <li><p>Now using the ‘Matrix’ package to improve speed and memory usage for large quadratic forms. This is primarily helpful for making the generalized bootstrap computationally feasible for larger datasets.</p></li>
