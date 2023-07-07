@@ -212,5 +212,15 @@ stack_replicate_designs <- function(..., .id = "Design_Name") {
   class(combined_svrepdesign) <- append(x = class(combined_svrepdesign), "svyrep.stacked")
 
   combined_svrepdesign <- `attr<-`(combined_svrepdesign, 'variable_for_source_design', .id)
+
+  # Check whether the object should be a `tbl_svy` from the 'srvyr' package
+  if (any(sapply(design_list, function(design) inherits(design, 'tbl_svy')))) {
+    if ('package:srvyr' %in% search()) {
+      combined_svrepdesign <- srvyr::as_survey_rep(
+        combined_svrepdesign
+      )
+    }
+  }
+
   return(combined_svrepdesign)
 }

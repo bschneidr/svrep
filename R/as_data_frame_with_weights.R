@@ -5,6 +5,9 @@
 #' @param rep_wgt_prefix For replicate design objects, a prefix to use for the column names
 #' of the replicate weights. The column names will be created by appending
 #' the replicate number after the prefix.
+#' @param vars_to_keep By default, all variables in the data will be kept.
+#' To select only a subset of the non-weight variables,
+#' you can supply a character vector of variable names to keep.
 #'
 #' @return A data frame, with new columns containing the weights from the survey design object
 #' @export
@@ -43,7 +46,8 @@
 #' colnames(nr_adjusted_data)
 #'
 as_data_frame_with_weights <- function(design, full_wgt_name = "FULL_SAMPLE_WGT",
-                                       rep_wgt_prefix = "REP_WGT_") {
+                                       rep_wgt_prefix = "REP_WGT_",
+                                       vars_to_keep = NULL) {
 
   # Extract weights from the design object
   if (inherits(design, 'svyrep.design')) {
@@ -54,7 +58,26 @@ as_data_frame_with_weights <- function(design, full_wgt_name = "FULL_SAMPLE_WGT"
   sampling_weights <- stats::weights(design, type = "sampling")
 
   # Extract variables from the design
-  survey_data <- design[['variables']]
+  if (inherits(design, "DBIsvydesign")) {
+    if (is.null(vars_to_keep)) {
+      vars_to_keep <- dimnames(design)[[2]]
+    }
+    survey_data <- getvars(
+      formula = vars_to_keep,
+      dbconnection = design$db$connection,
+      tables = design$db$tablename,
+      updates = design$updates,
+      subset = design$subset
+    )
+  }
+
+  if (!inherits(design, "DBIsvydesign")) {
+    if (!is.null(vars_to_keep)) {
+      survey_data <- design[['variables']][,vars_to_keep]
+    } else {
+      survey_data <- design[['variables']]
+    }
+  }
 
   # Add full-sample weights to the data frame
 
@@ -100,6 +123,9 @@ as_data_frame_with_weights <- function(design, full_wgt_name = "FULL_SAMPLE_WGT"
     colnames(replicate_weights) <- rep_col_names
     survey_data <- cbind(survey_data, replicate_weights)
   }
+
+  # Drop rownames
+  rownames(survey_data) <- NULL
 
   # Return the result
   return(survey_data)

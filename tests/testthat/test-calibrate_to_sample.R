@@ -7,7 +7,7 @@
   set.seed(1999)
 
   primary_survey <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc) |>
-    as.svrepdesign(type = "JK1")
+    as.svrepdesign(type = "JK1") |> srvyr::as_survey()
 
   control_survey <- svydesign(id = ~ 1, fpc = ~fpc, data = apisrs) |>
     as.svrepdesign(type = "JK1")
@@ -251,3 +251,22 @@ test_that("Throws error if convergence is not achieved", {
   )
 
 })
+
+# Check that function works for more specialized classes ----
+
+test_that(
+  desc = "Returns `tbl_svy` if any input is a `tbl_svy` and 'srvyr' is loaded", {
+    library(srvyr)
+    expect_true(
+      suppressMessages({
+        suppressWarnings({
+          calibrate_to_sample(
+            primary_rep_design = primary_survey |> as_survey(),
+            control_rep_design = control_survey,
+            cal_formula = ~ stype
+          ) |> inherits('tbl_svy')
+        })
+      })
+    )
+  }
+)

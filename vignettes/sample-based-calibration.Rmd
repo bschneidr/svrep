@@ -1,7 +1,9 @@
 ---
 title: "Calibrating to Estimated Control Totals"
 output: 
-  rmarkdown::html_vignette:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
     toc: true
     toc_depth: 4
 bibliography: vignette-references.bib  
@@ -9,6 +11,7 @@ vignette: >
   %\VignetteIndexEntry{Calibrating to Estimated Control Totals}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r, include = FALSE}
@@ -18,7 +21,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Sample-based Calibration: An Introduction
+# Sample-based Calibration: An Introduction
 Calibration weighting adjustments such as post-stratification or raking
 are often helpful for reducing sampling variance or non-sampling errors such as
 nonresponse bias. Typically, the benchmark data used for these calibration
@@ -35,7 +38,7 @@ A handful of statistical methods have been developed for the problem of conducti
 
 These statistical methods differ in the way that they generate different control totals for each column of replicate weights and in the type of data they require the analyst to use. The method of @10.2307/24306529 requires the analyst to have a variance-covariance matrix for the estimated control totals, while the method of @opsomerReplicationVarianceEstimation2021 requires the analyst to use the full dataset for the control survey along with associated replicate weights.
 
-## Functions for Implementing Sample-Based Calibration
+# Functions for Implementing Sample-Based Calibration
 
 The 'svrep' package provides two functions to implement sample-based calibration.
 
@@ -62,7 +65,7 @@ calibrate_to_sample(
 
 For both functions, it is possible to use a variety of calibration options from the `survey` package's `calibrate()` function. For example, the user can specify a specific calibration function to use, such as `calfun = survey::cal.linear` to implement post-stratification or `calfun = survey::cal.raking` to implement raking. The `bounds` argument can be used to specify bounds for the calibration weights, and the arguments such as `maxit` or `epsilon` allow finer control over the Newton-Raphson algorithm used to implement calibration.
 
-## An Example Using a Vaccination Survey
+# An Example Using a Vaccination Survey
 
 To illustrate the different methods for conducting sample-based calibration, we'll use an example survey measuring Covid-19 vaccination status and a handful of demographic variables, based on a simple random sample of 1,000 residents of Louisville, Kentucky.
 
@@ -181,7 +184,7 @@ svymean(
 )
 ```
 
-### Raking to estimated control totals
+## Raking to estimated control totals
 
 We'll start by raking to estimates from the ACS for race/ethnicity, sex, and educational attainment, first using the `calibrate_to_sample()` method and then using the `calibrate_to_estimate()` method. For the `calibrate_to_sample()` method, we need to obtain a vector of point estimates for the control totals, and an accompanying variance-covariance matrix for the estimates.
 
@@ -284,7 +287,7 @@ t(estimates_by_design[,-1]) |>
 ```
 
 
-### Post-stratification 
+## Post-stratification 
 
 The primary difference between post-stratification and raking is that post-stratification essentially involves only a single calibration variable, with population benchmarks provided for each value of that variable. In the Louisville vaccination survey, that variable is called `POSTSTRATUM` and is based on combinations of race/ethnicity, sex, and educational attainment.
 
@@ -360,7 +363,7 @@ t(estimates_by_design[,-1]) |>
   knitr::kable()
 ```
 
-## Reproducibility
+# Reproducibility
 
 The calibration methods for `calibrate_to_estimate()` and `calibrate_to_sample()` involve one element of randomization: determining which columns of replicate weights are assigned to a given perturbation of the control totals. In the `calibrate_to_sample()` method of @10.2307/24306529, if the control totals are a vector of dimension $p$, then $p$ columns of replicate weights will be calibrated to $p$ different vectors of perturbed control totals, formed using the $p$ scaled eigenvectors from a spectral decomposition of the control totals' variance-covariance matrix (sorted in order by the largest to smallest eigenvalues). To control which columns of replicate weights will be calibrated to each set of perturbed control totals, we can use the function argument `col_selection`.
 

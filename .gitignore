@@ -8,3 +8,5 @@ inst/doc
 /Meta/
 census-api-key
 successive-differences-replication.R
+docs
+revdep

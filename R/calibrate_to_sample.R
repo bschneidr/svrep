@@ -55,6 +55,20 @@
 #' The element \code{degf} will be set to match that of the primary survey
 #' to ensure that the degrees of freedom are not erroneously inflated by
 #' potential increases in the number of columns of replicate weights.
+#' @section Syntax for Common Types of Calibration:
+#' For ratio estimation with an auxiliary variable \code{X},
+#' use the following options: \cr
+#'   - \code{cal_formula = ~ -1 + X} \cr
+#'   - \code{variance = 1}, \cr
+#'   - \code{cal.fun = survey::cal.linear}
+#'
+#' For post-stratification, use the following option:
+#'
+#'   - \code{cal.fun = survey::cal.linear}
+#'
+#' For raking, use the following option:
+#'
+#'   - \code{cal.fun = survey::cal.raking}
 #' @references
 #' Opsomer, J.D. and A. Erciulescu (2021).
 #' "Replication variance estimation after sample-based calibration."
@@ -62,6 +76,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #'
 #' # Load example data for primary survey ----
 #'
@@ -115,6 +130,7 @@
 #'     cal_formula = ~ stype + enroll,
 #'     control_col_matches = column_matching
 #'   )
+#' }
 
 calibrate_to_sample <- function(primary_rep_design, control_rep_design,
                                 cal_formula,
@@ -129,6 +145,24 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
   }
   if (!inherits(control_rep_design, "svyrep.design")) {
     stop("`control_rep_design` must be a replicate survey design object, with class `svyrep.design`")
+  }
+
+  is_tbl_svy <- inherits(primary_rep_design, 'tbl_svy')
+
+  # For database-backed design, obtain calibration variables ----
+  is_db_backed_design <- inherits(primary_rep_design, 'DBIrepdesign')
+
+  if (is_db_backed_design) {
+    primary_rep_design$variables <- getvars(
+      formula = cal_formula,
+      dbconnection = primary_rep_design$db$connection,
+      tables = primary_rep_design$db$tablename,
+      updates = primary_rep_design$updates,
+      subset = primary_rep_design$subset
+    )
+    db_info <- primary_rep_design$db
+  } else {
+    db_info <- NULL
   }
 
   # Determine parameters describing replicate designs ----
@@ -270,7 +304,7 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
 
   unadjusted_control_totals <- list(
     'full-sample' = coef(unadjusted_control_totals),
-    'replicate-specific' = unadjusted_control_totals$replicates
+    'replicate-specific' = as.matrix(unadjusted_control_totals$replicates)
   )
 
   replicate_control_totals <- matrix(data = unadjusted_control_totals[['full-sample']],
@@ -380,6 +414,32 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
     fpctype = primary_rep_design$fpctype,
     mse = TRUE
   )
+
+  if (is_db_backed_design) {
+    # Replace 'variables' with a database connection
+    # and make the object have the appropriate class
+    calibrated_rep_design$variables <- NULL
+    if (db_info$dbtype == "ODBC") {
+      stop("'RODBC' no longer supported. Use the odbc package")
+    } else {
+      db <- DBI::dbDriver(db_info$dbtype)
+      dbconn <- DBI::dbConnect(db, db_info$dbname)
+    }
+    calibrated_rep_design$db <- list(
+      dbname = db_info$dbname, tablename = db_info$tablename,
+      connection = dbconn,
+      dbtype = db_info$dbtype
+    )
+    class(calibrated_rep_design) <- c(
+      "DBIrepdesign", "DBIsvydesign", class(calibrated_rep_design)
+    )
+  }
+
+  if (is_tbl_svy && ('package:srvyr' %in% search())) {
+    calibrated_rep_design <- srvyr::as_survey_rep(
+      calibrated_rep_design
+    )
+  }
 
   calibrated_rep_design$rho <- primary_rep_design$rho
 

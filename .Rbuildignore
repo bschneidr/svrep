@@ -9,3 +9,8 @@
 ^doc$
 ^Meta$
 data-raw
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^revdep
+^tests/testthat/_snaps

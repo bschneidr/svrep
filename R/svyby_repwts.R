@@ -31,6 +31,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' suppressPackageStartupMessages(library(survey))
 #' data(api)
 #'
@@ -92,6 +93,7 @@
 #' print(differences_in_estimates)
 #'
 #' confint(differences_in_estimates, level = 0.95)
+#' }
 svyby_repwts <- function(rep_designs,
                          formula, by, FUN, ...,
                          deff = FALSE,

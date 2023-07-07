@@ -1,0 +1,947 @@
+---
+title: "Replication Methods for Two-phase Sampling"
+output: 
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Replication Methods for Two-phase Sampling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE, echo=FALSE}
+library(dplyr) # For data manipulation
+library(survey) # For complex survey analysis
+library(srvyr) # For complex survey analysis with dplyr syntax
+library(svrep)
+```
+
+This vignette provides an overview of two-phase sampling and how the 'svrep' package can be used to estimate sampling variances for estimators that are commonly-used in two-phase sampling. Readers who are already familiar with two-phase sampling and its applications are encouraged to skip to Section 3 of this vignette for a description of variance estimators and their implementation in the 'svrep' package.
+
+# Two-phase Sampling vs. Multistage Sampling
+
+Two-phase sampling (also known as "double sampling") is a common feature in surveys. In a two-phase sample, a large first-phase sample is selected, and a smaller second-phase sample is selected from the first-phase sample. Multistage cluster sampling is a special case of two-phase sampling, where a second-phase sample of secondary sampling units (SSUs) are selected from a first-phase sample of primary sampling units (PSUs). In the specific case of multistage sampling, the second-phase sampling of SSUs must sample at least one SSU from within each PSU and must sample independently across PSUs (in other words, each PSU is treated as a stratum in second-phase sampling). Two-phase sampling in general does not have these restrictions: the second-phase sample design can be arbitrary, and some primary sampling units might not appear at all in the second-phase sample. 
+
+# Applications of Two-Phase Sampling
+
+The flexibility of two-phase sampling can be quite valuable, and for this reason two-phase samples are commonly-used in practice. We highlight two common applications of two-phase sampling below:
+
+- Any given survey conducted using an online panel is necessarily a two-phase sample, where the panel recruitment represents the first phase of sampling and the process of requesting panelists to participate in a specific survey represents the second phase of sampling. Often, the recruitment sampling is quite complex (e.g., three-stage stratified cluster sampling), but the sampling of panelists for a given survey is conducted using simple random sampling or stratified simple random sampling from the list of panelists.
+
+- Statistical agencies often reduce the cost of a small survey by drawing its sample from respondents to a larger survey that's already being conducted. For example, the U.S. Census Bureau conducts the [National Survey of College Graduates (NSCG)](https://www.nsf.gov/statistics/srvygrads) by sampling from households that responded to the [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs/). Similarly, the [National Study of Caregiving (NSOC)](https://nhats.org/researcher/nsoc) is conducted by sampling respondents to the [National Health and Aging Trends Study (NHATS)](https://nhats.org/researcher/nhats).
+
+The information from the first-phase sample is useful for both design and analysis of the second-phase sample. From a design standpoint, information collected in the first-phase sample can be used to stratify units or assign unequal sampling probabilities for the second-phase sampling, which can result in more precise estimates relative to using simple random sampling. From an analysis standpoint, the information collected in the first-phase sample can also be used to improve estimators, by using raking, post-stratification, or generalized regression (GREG) to calibrate the small second-phase sample to the large first-phase sample.
+
+<!-- ## Application 2: Reducing Sampling Variances -->
+
+<!-- Two-phase sampling is useful when some variables are expensive to measure and thus can only be measured in a small sample, but some closely-correlated variables can be measured inexpensively through a larger survey. For example, highly-accurate blood tests for Covid-19 infection are expensive and can only be measured using a small survey, whereas self-reported Covid-19 infection can be inexpensively measured using a large questionnaire-based survey. **By drawing our small sample from the larger sample and using the auxiliary data from the large sample to help select the small sample and produce estimates from it, we can produce estimates using the small sample which are more precise than if we had simply drawn a small, single-phase simple random sample.** -->
+
+# Replicate Variance Estimation with the 'svrep' Package
+
+In this vignette, we'll show how to use the generalized bootstrap to estimate sampling variances for estimates based on two-phase sample designs. Other types of replication such as the jackknife or balanced repeated replication (BRR) can theoretically be used, but the 'svrep' package only implements the generalized bootstrap method, because it is relatively simple and is applicable to a much larger variety of sample designs than the jackknife or BRR.
+
+## Overview of the Generalized Bootstrap
+
+The basic idea of the generalized bootstrap is to "mimic" a target variance estimator for population totals, where the target variance estimator is appropriate to the particular sampling design and can be written down as a quadratic form. For example, the generalized bootstrap can mimic the Horvitz-Thompson estimator or the usual variance estimator used for simple random sampling. To be more precise, by "mimic", we mean that the generalized bootstrap variance estimate for a population total on average exactly matches the variance estimate produced by the target variance estimator.
+
+In order to mimic a target variance estimator, we have to specify the target variance estimator for a population total $\hat{Y}=\sum_{i=1}^{n}(y_i/\pi_i)$ as a quadratic form. That is, we have to specify a variance estimator $v(\hat{Y})$ as $v(\hat{Y})=\sum_{i=1}^{n}\sum_{i=1}^{n} \sigma_{ij}(w_iy_i)(w_jy_j)$, for some set of values $\sigma_{ij},i,j \in \{1,\dots,n\}$. In matrix notation, we write $v(\hat{Y})=\breve{y}^{\prime}\Sigma\breve{y}$, where $\Sigma$ is the symmetric, positive semi-definite matrix of dimension $n \times n$, with element $ij$ equal to $\sigma_{ij}$, and $\breve{y}$ is a vector whose $i$-th element is $w_iy_i$.
+
+When using the generalized bootstrap, the difficult part of the variance estimation process is simply identifying the quadratic form. Once the quadratic form has been written down, it is easy to create replicate weights using the generalized bootstrap. Fortunately, the 'svrep' package can automatically identify the appropriate quadratic form to use for variance estimators for many single-phase and two-phase sample designs. The user simply needs to supply the necessary data, describe the survey design, and select a target variance estimator to use for each phase of sampling.
+
+For a broad overview of the generalized survey bootstrap and its use in the 'svrep' package, the reader is encouraged to read the 'svrep' package vignette titled "Bootstrap Methods for Surveys". For a thorough overview of the generalized survey bootstrap and its theory, @beaumont2012 provide a clear introduction and several useful suggestions for its implementation in practice. The present vignette simply describes the application of the generalized bootstrap to two-phase samples and how it can be implemented with the 'svrep' package.
+
+
+## Creating Example Data
+
+In the example below, we create a two-phase survey design:
+
+  - The first phase is a stratified multistage sample, where the first stage sample of PSUs was selected using unequal probability sampling without replacement (PPSWOR) and the second stage sample was selected using simple random sampling without replacement (SRSWOR). 
+  
+  - The second phase sample is a simple random sample without replacement from the first phase sample.
+
+This type of design would be fairly typical for a survey conducted on an online panel, where the panel recruitment uses a complex design but the sampling of panelists for a given survey uses simple random sampling of panelists.
+
+The particular dataset we'll use comes from the Public Libraries Survey (PLS), an annual survey of public libraries in the U.S, with data from FY2020.
+
+```{r}
+data('library_multistage_sample', package = 'svrep')
+
+# Load first-phase sample
+  twophase_sample <- library_multistage_sample
+
+# Select second-phase sample
+  set.seed(2020)
+  
+  twophase_sample[['SECOND_PHASE_SELECTION']] <- sampling::srswor(
+    n = 100,
+    N = nrow(twophase_sample)
+  ) |> as.logical()
+```
+
+## Describing the Two-phase Survey Design
+
+Next, we use the 'survey' package's function `twophase()` to describe the sample design at each phase, in terms of stratification, clustering, probabilities, and population sizes. Note that we use a `list()` for most arguments, where the first element of the list describes the first phase of sampling, and the second element of the list describes the second phase of sampling.
+
+```{r}
+# Declare survey design
+  twophase_design <- twophase(
+    method = "full",
+    data = twophase_sample,
+    # Identify the subset of first-phase elements
+    # which were selected into the second-phase sample
+    subset = ~ SECOND_PHASE_SELECTION,
+    # Describe clusters, probabilities, and population sizes
+    # at each phase of sampling
+    id = list(~ PSU_ID + SSU_ID,
+              ~ 1),
+    probs = list(~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
+                 NULL),
+    fpc = list(~ PSU_POP_SIZE + SSU_POP_SIZE,
+               NULL)
+  )
+```
+
+## Creating Generalized Bootstrap Replicates
+
+Once the two-phase design has been described, we can use the `as_gen_boot_design()` function to create generalized bootstrap replicate weights. This requires us to specify the desired number of replicates and the target variance estimator for each phase of sampling. Note that different target variance estimators may be used for each phase, since each phase might have a very different design.
+
+```{r, warning=FALSE}
+# Obtain a generalized bootstrap replicates
+# based on 
+#   - The phase 1 estimator is the usual variance estimator
+#     for stratified multistage simple random sampling
+#   - The phase 2 estimator is the usual variance estimator
+#     for single-stage simple random sampling
+
+twophase_boot_design <- as_gen_boot_design(
+  design = twophase_design,
+  variance_estimator = list(
+    "Phase 1" = "Stratified Multistage SRS",
+    "Phase 2" = "Ultimate Cluster"
+  ),
+  replicates = 1000
+)
+```
+
+The result is a replicate survey design object which can be used for estimation with the usual functions from the 'survey' and 'srvyr' packages.
+
+```{r}
+twophase_boot_design |> svymean(x = ~ LIBRARIA, na.rm = TRUE)
+```
+
+When using `as_gen_boot_design()` for two-phase designs, it's useful to know that you will often see a warning message about needing to approximate the first-phase variance estimator's quadratic form.
+
+```{r}
+twophase_boot_design <- as_gen_boot_design(
+  design = twophase_design,
+  variance_estimator = list(
+    "Phase 1" = "Stratified Multistage SRS",
+    "Phase 2" = "Ultimate Cluster"
+  )
+)
+```
+
+As you can see from the output above, the function emitted a warning message. The generalized bootstrap works by mimicking a variance estimator but requires that variance estimator to be represented as a positive semidefinite qudratic form. In two-phase designs, however, it is often the case that the usual variance estimator cannot be represented exactly as a positive semidefinite quadratic form. In such cases, @beaumont2012 suggest using an approximation of the actual quadratic form matrix by the most similar positive semidefinite matrix. This approximation will in general never lead to an underestimation of variance, and @beaumont2012 argue that this should only produce a small overestimate of variance in practice. Section 5 of this vignette provides more details of this approximation.
+
+## Calibrating Second-phase Weights to First-phase Estimates
+
+In two-phase sampling, it can be helpful to calibrate the weights from the small second-phase sample using estimates produced from the larger, more reliable first-phase sample. The main reason for doing this is to produce more precise estimates for variables only measured in the second-phase sample, and calibration is effective at this if the calibration variables are associated with the second-phase variables of interest. But calibration is also nice because it forces second-phase estimates for calibration variables to match the first-phase estimates, thus improving the consistency of the two sets of estimates.
+
+Calibrating the weights for the second-phase sample is straightforward and can be done using usual software and methods. However, care is needed to ensure that resulting variance estimates appropriately reflect the fact that we are calibrating to *estimates* rather than to known population values. This is fairly easy when replication methods are used for variance estimation, but requires the use of the appropriate functions from the 'svrep' package. Section 4.3.1 of this memo discusses the theory of replicate variance estimation for two-phase calibration, based on more detailed treatments of this topic by @Fuller1998 and @lohrSamplingDesignAnalysis2022.
+
+Below is a general process for using the 'svrep' package to calibrate a second-phase sample to first-phase estimates while ensuring that replicate weights are adjusted appropriately for the purpose of variance estimation. There are two useful functions from the 'svrep' package for this purpose, which we present as "Option 1" and "Option 2" in the following overview.
+
+### Preliminaries
+
+**Ensure that the calibration variables do not have any missing values**
+
+First, we need to ensure that the variables we want to use for calibration do not have any missing values in either the first-phase or second-phase sample. Some imputation might be necessary.
+
+```{r}
+# Impute missing values (if necessary)
+twophase_sample <- twophase_sample |>
+  mutate(
+    TOTCIR = ifelse(
+      is.na(TOTCIR),
+      stats::weighted.mean(TOTCIR, na.rm = TRUE,
+                           w = 1/SAMPLING_PROB),
+      TOTCIR
+    ),
+    TOTSTAFF = ifelse(
+      is.na(TOTSTAFF),
+      stats::weighted.mean(TOTSTAFF, na.rm = TRUE,
+                           w = 1/SAMPLING_PROB),
+      TOTSTAFF
+    )
+  )
+```
+
+**(If you haven't already) Create replicate weights for the second-phase sample**
+
+Before calibration, we need to create replicate weights for the second-phase sample that appropriately reflect the sampling variance of the entire two-phase design. We did that already in this document, but we'll repeat that code again below.
+
+```{r, warning=FALSE}
+# Describe the two-phase survey design
+  twophase_design <- twophase(
+    method = "full",
+    data = twophase_sample,
+    # Identify the subset of first-phase elements
+    # which were selected into the second-phase sample
+    subset = ~ SECOND_PHASE_SELECTION,
+    # Describe clusters, probabilities, and population sizes
+    # at each phase of sampling
+    id = list(~ PSU_ID + SSU_ID,
+              ~ 1),
+    probs = list(~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
+                 NULL),
+    fpc = list(~ PSU_POP_SIZE + SSU_POP_SIZE,
+               NULL)
+  )
+
+# Create replicate weights for the second-phase sample
+# (meant to reflect variance of the entire two-phase design)
+  twophase_boot_design <- as_gen_boot_design(
+    design = twophase_design,
+    variance_estimator = list(
+      "Phase 1" = "Stratified Multistage SRS",
+      "Phase 2" = "Ultimate Cluster"
+    ),
+    replicates = 1000,
+    mse = TRUE
+  )
+```
+
+### Option 1: Calibrate to a set of estimates and their variance-covariance matrix
+
+In this approach, we use data from the first-phase sample to produce estimated totals to use for calibration of the second-phase sample. To ensure that the calibration of the second-phase sample appropriately reflects the variance of the first-phase estimated totals, we also need to estimate the variance of the first-phase totals.
+
+There are many ways to estimate the first-phase variance, but for convenience we'll use the generalized bootstrap.
+
+```{r}
+# Extract a survey design object representing the first phase sample
+  first_phase_design <- twophase_design$phase1$full
+
+# Create replicate weights for the first-phase sample
+  first_phase_gen_boot <- as_gen_boot_design(
+    design = first_phase_design,
+    variance_estimator = "Stratified Multistage SRS",
+    replicates = 1000
+  )
+  
+# Estimate first-phase totals and their sampling-covariance
+  first_phase_estimates <- svytotal(
+    x = ~ TOTCIR + TOTSTAFF,
+    design = first_phase_gen_boot
+  )
+  
+  first_phase_totals <- coef(first_phase_estimates)
+  first_phase_vcov <- vcov(first_phase_estimates)
+  
+  print(first_phase_totals)
+  print(first_phase_vcov)
+```
+
+After we've estimated the first-phase totals, we can use the function `calibrate_to_estimate()` to calibrate the two-phase survey design object to the first-phase totals. This function is discussed in more detail in the vignette titled "Sample-based Calibration", and the underlying method is described in @Fuller1998.
+
+```{r}
+calibrated_twophase_design <- calibrate_to_estimate(
+  rep_design = twophase_boot_design,
+  # Specify the variables in the data to use for calibration
+  cal_formula = ~ TOTCIR + TOTSTAFF,
+  # Supply the first-phase estimates and their variance
+  estimate = first_phase_totals,
+  vcov_estimate = first_phase_vcov,
+)
+```
+
+Let's examine the results from calibration. First, we'll check that the calibrated second-phase estimates match the first-phase estimates.
+
+```{r}
+# Display second-phase estimates for calibration variables
+svytotal(
+  x = ~ TOTCIR + TOTSTAFF,
+  design = calibrated_twophase_design
+)
+
+# Display the original first-phase estimates (which are identical!)
+print(first_phase_estimates)
+```
+
+Next, we'll inspect an estimate for a variable that wasn't used in calibration.
+
+```{r}
+# Inspect calibrated second-phase estimate
+svytotal(
+  x = ~ LIBRARIA, na.rm = TRUE,
+  design = calibrated_twophase_design
+)
+
+# Compare to uncalibrated second-phase estimate
+svytotal(
+  x = ~ LIBRARIA, na.rm = TRUE,
+  design = twophase_boot_design
+)
+
+# Compare to first-phase estimate
+svytotal(
+  x = ~ LIBRARIA, na.rm = TRUE,
+  design = first_phase_gen_boot
+)
+```
+
+### Option 2: Calibrate to independently-generated first-phase replicates
+
+If we have the data for the first-phase sample available and there are replicate weights created for the first-phase sample, then we have an arguably better method available to handle calibration. We can simply produce replicate estimates of the first-phase totals using each first-phase replicate, and then we can calibrate each second-phase replicate to one of the first-phase replicate totals.
+
+To do this, we first create replicate weights for the first-phase design using the generalized bootstrap (or any other replication method).
+
+```{r}
+# Extract a survey design object representing the first phase sample
+  first_phase_design <- twophase_design$phase1$full
+
+# Create replicate weights for the first-phase sample
+  first_phase_gen_boot <- as_gen_boot_design(
+    design = first_phase_design,
+    variance_estimator = "Stratified Multistage SRS",
+    replicates = 1000
+  )
+```
+
+After we've created the first-phase replicates, we can use the function `calibrate_to_sample()` to calibrate the two-phase survey design object to replicate estimates created using the first-phase replicate design. This function is discussed in more detail in the vignette titled "Sample-based Calibration". See Section 4.3.1 of this vignette for the underlying theory, which is based on @Fuller1998 and @opsomerReplicationVarianceEstimation2021.^[This method is justified by the arguments made in @Fuller1998, although the idea of using one sample's replicate estimates as control totals for another survey's replicate estimates appears to have first been proposed by  @opsomerReplicationVarianceEstimation2021, in the context of two independent samples.]
+
+```{r}
+calibrated_twophase_design <- calibrate_to_sample(
+  primary_rep_design = twophase_boot_design,
+  # Supply the first-phase replicate design
+  control_rep_design = first_phase_gen_boot,
+  # Specify the variables in the data to use for calibration
+  cal_formula = ~ TOTCIR + TOTSTAFF
+)
+```
+
+Let's examine the results from calibration. First, we'll check that the calibrated second-phase estimates match the first-phase estimates.
+
+```{r}
+# Display second-phase estimates for calibration variables
+calibrated_ests <- svytotal(
+  x = ~ TOTCIR + TOTSTAFF,
+  design = calibrated_twophase_design
+)
+
+print(calibrated_ests)
+
+# Display the original first-phase estimates (which are identical!)
+first_phase_ests <- svytotal(
+  x = ~ TOTCIR + TOTSTAFF,
+  design = first_phase_gen_boot
+)
+
+print(first_phase_ests)
+```
+
+As expected, the variance estimate for the calibrated second-phase estimate is the same as the variance estimate for the first-phase estimate, allowing a small tolerance for numeric differences.
+
+```{r}
+ratio_of_variances <- vcov(calibrated_ests)/vcov(first_phase_ests)
+ratio_of_variances
+```
+
+Next, we'll inspect an estimate for a variable that wasn't used in calibration.
+
+```{r}
+# Inspect calibrated second-phase estimate
+svytotal(
+  x = ~ LIBRARIA, na.rm = TRUE,
+  design = calibrated_twophase_design
+)
+
+# Compare to uncalibrated second-phase estimate
+svytotal(
+  x = ~ LIBRARIA, na.rm = TRUE,
+  design = twophase_boot_design
+)
+
+# Compare to first-phase estimate
+svytotal(
+  x = ~ LIBRARIA, na.rm = TRUE,
+  design = first_phase_gen_boot
+)
+```
+
+## Ratio Estimation
+
+A special case of calibration that is commonly used in two-phase samples is ratio estimation. Whether you use the function `calibrate_to_sample()` or `calibrate_to_estimate()`, the syntax is very similar.
+
+```{r}
+ratio_calib_design <- calibrate_to_sample(
+  primary_rep_design = twophase_boot_design,
+  # Supply the first-phase replicate design
+  control_rep_design = first_phase_gen_boot,
+  # Specify the GREG formula.
+  # For ratio estimation, we add `-1` to the formula 
+  # (i.e., we remove the intercept from the working model)
+  # and specify only a single variable
+  cal_formula = ~ -1 + TOTSTAFF,
+  variance = 1
+)
+```
+
+Note that for ratio estimation, the calibration formula includes `-1` to ensure that ratio estimation is used instead of regression estimation. This is similar to how, when fitting a regression model in R, we use `lm(y ~ -1 + x)` to fit a linear model without an intercept. Specifying the parameter `variance = 1` indicates that the working model used in calibration is homoskedastic, and so the same adjustment factor will be used for every case's weights. This can be seen when we compare the adjusted weights to the unadjusted weights.
+
+```{r}
+ratio_adjusted_weights <- weights(ratio_calib_design, type = "sampling")
+unadjusted_weights <- weights(twophase_boot_design, type = "sampling")
+
+adjustment_factors <- ratio_adjusted_weights/unadjusted_weights
+head(adjustment_factors)
+```
+
+Note that the adjustment factor for the weights is simply the ratio of the first-phase estimated total to the second-phase estimated total.
+
+```{r}
+phase1_total <- svytotal(
+  x = ~ TOTSTAFF,
+  first_phase_design
+) |> coef()
+phase2_total <- svytotal(
+  x = ~ TOTSTAFF,
+  twophase_boot_design
+) |> coef()
+
+phase1_total/phase2_total
+```
+
+# Design-based Estimators for Two-phase Sampling
+
+In the section below, we first describe the double expansion estimator (DEE) which produces unbiased estimates for two-phase samples, using only information about the sampling design in both phases. Next, we describe calibration estimators which adjust the weights from the double-expansion estimator so that sampling variances can be reduced using information from the first-phase sample. We'll examine both the theoretical sampling variance of each estimator as well as approaches for estimating variance using replication methods.
+
+The interested reader is encouraged to consult chapter 9.3 of @sarndalModelAssistedSurvey1992 or chapter 12 of @lohrSamplingDesignAnalysis2022 for a more detailed discussion of two-phase sampling.
+
+## Notation
+
+We use the following notation to denote each sample and its size.
+
+### Notation for Samples and Sample Size
+
+$$
+\begin{aligned}
+s_a &: \text{The set of units in the first-phase sample} \\
+s_b &: \text{The set of units in the second-phase sample} \\
+& \space \space \space \text{Note that }s_b \text{ is a subset of } s_a \\
+n_a &: \text{The number of units in }s_1 \\
+n_b &: \text{The number of units in }s_2 \\
+\end{aligned}
+$$
+
+### Notation for Probabilities and Weights
+
+We use the following notation to denote the **inclusion probability** of each unit, for each phase:
+
+$$
+\begin{aligned}
+\pi^{(a)}_{i} &: \text{The probability unit }i \text{ is included in } s_a \\
+\pi^{(b|s_a)}_{i} &: \text{The conditional probability unit }i \text{ is included in } s_b, \\
+& \text{ given the realized first-phase sample }s_a \\
+\pi_i &: \text{The } \textbf{unconditional} \text{ probability unit }i \text{ is included in }s_b \\
+\end{aligned}
+$$
+
+In practice, the probability $\pi_i$ is prohibitively difficult to calculate, because it requires us to figure out $\pi^{(b|s_a)}_{i}$ for every possible first-phase sample $s_a$, not just the particular $s_a$ that we actually selected. So instead, we define the useful quantity $\pi^{*}$, which depends only on the particular first-phase sample $s_a$ that we actually selected.
+
+$$
+\pi_i^{*} := \pi^{(b|s_a)}_{i} \times \pi^{(a)}_{i}
+$$
+
+For variance estimation, it's also necessary to consider the **joint inclusion probability** (sometimes referred to as "second order probability"), which is simply the probability that a pair of units $i$ and $j$ are both included in a sample.
+
+$$
+\begin{aligned}
+\pi^{(a)}_{ij} &: \text{The probability units }i \text{ and } j \text{ are both included in } s_a \\
+\pi^{(b|s_a)}_{ij} &: \text{The conditional probability units }i \text{ and } j \text{ are both included in } s_b, \\
+& \text{ given the realized first-phase sample }s_a \\
+\end{aligned}
+$$
+
+We also define the quantity $\pi^{*}_{ij}$ similar to $\pi^{*}_i$.
+
+$$
+\pi_{ij}^{*} := \pi^{(b|s_a)}_{ij} \times \pi^{(a)}_{ij}
+$$
+
+The probabilities and the $\pi_{i}^{*}$ values are used to define sampling weights for the survey.
+
+$$
+\begin{aligned}
+w^{(a)}_i &:= 1/\pi^{(a)}_i \\
+w^{(b|s_a)}_i &:= 1/\pi^{(b|s_a)}_{i} \\
+w^{*}_i &:= 1/\pi^{*}_i = w^{(b|s_a)}_i \times w^{(a)}_i
+\end{aligned}
+$$
+
+## The Double Expansion Estimator
+
+Suppose we wish to estimate a population total $Y$, using observed values $y_i$ in our second-phase sample, $s_b$. @sarndalModelAssistedSurvey1992 show that we can produce an unbiased estimate of $Y$ using the second-phase sample $s_b$, as follows:
+
+$$
+\begin{aligned}
+\hat{Y}^{(b)} &= \sum_{i=1}^{n_{(b)}} w^{*}_i \times y_i  \\
+&= \sum_{i=1}^{n_{(b)}} w^{(b|s_a)}_i \times w^{(a)}_i \times y_i
+\end{aligned}
+$$
+
+This estimator has been dubbed the "double expansion estimator", using the sampling jargon that refers to weighting a sample value $y_i$ as "expanding" $y_i$ from the sample to the population. The name "double expansion" is used because the weight $w^{*}_i$ can be thought of as first using the weight $w^{(b|s_a)}_i$ to "expand" the quantity $y_i$ and then using the weight $w^{(a)}_i$ to expand the quantity $w^{(b|s_a)}_i \times y_i$.
+
+### Variance of the Double Expansion Estimator
+
+The sampling variance of the double expansion estimator is the sum of two different components.
+
+$$
+\begin{aligned}
+V\left(\hat{Y}^{(b)}\right) &= V\left(\hat{Y}^{(a)}\right)+E\left(V\left[\hat{Y}^{(b)} \mid s_a \right]\right) \\
+\\
+\text{where: }& \hat{Y}^{(a)} = \sum_{i=1}^{n_{(a)}} w^{(a)}_i \times y_i \\
+\text{and }& V\left[\hat{Y}^{(b)} \mid s_a \right] \text{ is the variance of } \hat{Y}^{(b)} \\
+&\text{ across all samples } s_b \\
+&\text{ drawn from a given } s_a
+\end{aligned}
+$$
+
+The first component is the variance of the estimate $\hat{Y}^{(a)}$ that we would obtain if we used the entire first-phase sample $s_a$ for our estimate, rather than using the subset $s_b$. 
+
+The second component is the additional variance caused by using the subset $s_b$ instead of $s_a$. It is equal to the expected value (across all samples $s_a$) of the conditional variance of $\hat{Y}^{(b)}$ across all samples $s_b$ (conditioning on a given first-phase sample $s_a$).
+
+#### Estimating the Variance of the Double Expansion Estimator
+
+Both variance components can be estimated using only the values $y_i$ observed in $s_b$. For the second component, we simply estimate $V\left[\hat{Y}^{(b)} \mid s_a \right]$, which is an unbiased estimate for its expectation, $E\left(V\left[\hat{Y}^{(b)} \mid s_a \right]\right)$. 
+
+Thus, our variance estimate for the double expansion estimator takes the following form:
+
+$$
+\hat{V}\left(\hat{Y}^{(b)}\right) = \hat{V}\left[\hat{Y}^{(a)} \right] + \hat{V}\left[\hat{Y}^{(b)} \mid s_a \right]
+$$
+
+##### Estimating the second-phase variance component 
+
+For estimating $\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right]$, we simply choose a variance estimator for the second-phase design, taking the first-phase sample as a given. We assume that this variance estimator can be written as a quadratic form.
+
+$$
+\begin{aligned}
+\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right] &= \sum_{i=1}^{n_b} \sum_{i=1}^{n_b} \sigma^{(b)}_{ij} (w^{*}_i y_i) (w^{*}_j y_j) \\
+\end{aligned}
+$$
+
+For the Horvitz-Thompson estimator, for instance, we would use $\sigma^{(b)}_{ij}=\left(1 - \frac{\pi^{b|s_a}_i\pi^{b|s_a}_j}{\pi^{b|s_a}_{ij}}\right)$.
+
+This quadratic form can also be written in matrix notation:
+
+$$
+\begin{aligned}
+\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right] &= {(W^{*} y)}^{\prime} \Sigma_b {(W^{*} y)} \\
+\text{where }& \Sigma_b \text{ is an } n_b \times n_b \text{ symmetric matrix} \\
+& \text{ with entry } ij \text{ equal to } \sigma^{(b)}_{ij} \\
+\text{and } & W^{*} \text{ is the } n_b \times n_b \text{ diagonal matrix} \\
+& \text{ with entry } ii \text{ equal to } w^{*}_i  \\
+& y \text{ is the } n_b \times 1 \text{ vector of values} \\
+& \text{for the variable of interest}
+\end{aligned}
+$$
+
+##### Estimating the first-phase variance component
+
+Estimating the first variance component, $V\left(\hat{Y}^{(a)}\right)$, is only slightly trickier. First, we need to choose a variance estimator appropriate to the first-phase design, which we would use if we had $y_i$ observed for the entire sample $s_a$. We'll denote that variance estimator $\tilde{V}\left[\hat{Y}^{(a)}\right]$.
+
+$$
+\begin{aligned}
+\tilde{V}\left[\hat{Y}^{(a)} \right] &= \sum_{i=1}^{n_a} \sum_{i=1}^{n_a} \sigma^{(a)}_{ij} (w^{(a)}_i y_i) (w^{(a)}_i y_j) \\
+\end{aligned}
+$$
+
+In matrix notation, we can write:
+
+$$
+\begin{aligned}
+\tilde{V}\left[\hat{Y}^{(a)} \right] &= {(W^{(a)} y)}^{\prime} (\Sigma_{a} ) {(W^{(a)} y)} \\
+\text{where }& \Sigma_{a} \text{ is an } n_a \times n_a \text{ symmetric matrix} \\
+& \text{ with entry } ij \text{ equal to } \sigma_{ij} \\
+\text{and } & W^{(a)} \text{ is the } n_a \times n_a \text{ diagonal matrix} \\
+& \text{ with entry } ii \text{ equal to } w^{(a)}_i 
+\end{aligned}
+$$
+
+However, since we're working with the subsample $s_b$ instead of $s_a$, we need to estimate $\tilde{V}\left[\hat{Y}^{(a)} \right]$ using only the data from $s_b$. We can use the second-phase joint inclusion probabilities $\pi^{(b \mid s_a)}_{ij}$ to produce an unbiased estimate of $\tilde{V}\left[\hat{Y}^{(a)} \right]$ using only the data from $s_b$.
+
+$$
+\begin{aligned}
+\hat{V}\left[\hat{Y}^{(a)} \right] &=  \sum_{i=1}^{n_b} \sum_{i=1}^{n_b} \frac{1}{\pi^{(b \mid s_a)}_{ij}} \sigma^{(a)}_{ij} (w^{(a)}_i y_i) (w^{(a)}_i y_j) \\
+\end{aligned}
+$$
+
+We can also write this in matrix notation:
+
+$$
+\begin{aligned}
+\hat{V}\left[\hat{Y}^{(a)} \right] &= {(W^{(a)} y)}^{\prime} (\Sigma_{a^{\prime}} \circ D_b ) {(W^{(a)} y)} \\
+\text{where }& \Sigma_{a^{\prime}} \text{ is an } n_b \times n_b \text{ symmetric matrix} \\
+& \text{ with entry } ij \text{ equal to } \sigma_{ij} \\
+\text{and } & W^{(a)} \text{ is the } n_b \times n_b \text{ diagonal matrix} \\
+& \text{ with entry } ii \text{ equal to } w^{(a)}_i 
+\\
+\text{ and }& D_b \text{ is an } n_b \times n_b \text{ symmetric matrix} \\
+& \text{ with entry } ij \text{ equal to } \frac{1}{\pi^{(b \mid s_a)}_{ij}}\\
+\end{aligned}
+$$
+
+As a sidenote, that matrix $D_b$ is very likely the source of any warning messages you'll see about a two-phase variance estimator not being positive semidefinite. [^2]
+
+[^2]: When a two-phase variance estimator is not positive semidefinite, the culprit is usually the matrix $D_b$. The matrix $D_b$ is frequently not positive semidefinite and as a result causes the whole quadratic form not to be positive semidefinite. The matrices $\Sigma_{a}$ and $\Sigma_{b}$ are positive semidefinite for the usual single-phase variance estimators for most single-phase designs in practice, and so $\Sigma_{a^{\prime}}$ is too (since it is a principal submatrix of $\Sigma_{a}$). But when $D_b$ isn't also positive semidefinite, then $(\Sigma_{a^{\prime}} \circ D_b)$ generally won't be either. For one simple example of a $D_b$ which is not positive semidefinite, consider a simple random sample without replacement of size $n=2$ from a population of $N=4$. The matrix $D_b= \bigl( \begin{smallmatrix}(1/2)^{-1} & (1/6)^{-1} \\ (1/6)^{-1} & (1/2)^{-1} \end{smallmatrix}\bigr) =\bigl( \begin{smallmatrix}2 & 6\\ 6 & 2\end{smallmatrix}\bigr)$ is not positive semidefinite, since it has eigenvalues $8$ and $-4$.
+
+##### Combining the two estimated variance components
+
+Putting the two estimated variance components together, we thus obtain the following unbiased variance estimator for the double expansion estimator.
+
+$$
+\begin{aligned}
+\hat{V}\left(\hat{Y}^{(b)}\right) &= \hat{V}\left(\hat{Y}^{(a)}\right)+\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right] \\
+&= \sum_{i=1}^{n_b} \sum_{i=1}^{n_b} \frac{1}{\pi^{(b \mid s_a)}_{ij}} \sigma^{(a)}_{ij} (w^{(a)}_i y_i) (w^{(a)}_i y_j) \\
+&+ \sum_{i=1}^{n_b} \sum_{i=1}^{n_b} \sigma^{(b)}_{ij} (w^{*}_i y_i) (w^{*}_j y_j) \\
+\end{aligned}
+$$
+
+In matrix notation, we can write this as follows:
+
+$$
+\begin{aligned}
+\hat{V}\left(\hat{Y}^{(b)}\right) &= \hat{V}\left(\hat{Y}^{(a)}\right)+\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right] \\
+&= {(W^{(a)} y)}^{\prime} (\Sigma_{a^{\prime}} \circ D_b ) {(W^{(a)} y)} \\
+&+ {(W^{*} y)}^{\prime} \Sigma_b {(W^{*} y)} \\
+\end{aligned}
+$$
+
+Because quadratic forms are additive and because $W^{*}=W^{(a)}W^{(b \mid s_a)}$, we can more compactly write the estimator as follows:
+
+$$
+\begin{aligned}
+\hat{V}\left(\hat{Y}^{(b)}\right) &= (W^{*}y)^{\prime} \Sigma_{ab} (W^{*}y) \\
+\text{where } & \\
+\Sigma_{ab} &=  {W^{(b)}}^{-1} (\Sigma_{a^{\prime}} \circ D_b ) {W^{(b)}}^{-1} + \Sigma_b \\
+\text{where } & W^{(b)} \text{ is the } n_b \times n_b \text{ diagonal matrix} \\
+& \text{ with entry } ii \text{ equal to } w^{(b \mid s_a)}_i 
+\end{aligned}
+$$
+
+In the 'svrep' package, $\Sigma_{ab}$ can be constructed with the inputs $\Sigma_{a^{\prime}}$, $\Sigma_b$, and $(1/D_b)$, using the function `make_twophase_quad_form()`.
+
+<details>
+<summary>
+Click to show/hide example of using `make_twophase_quad_form()`
+</summary>
+
+```{r}
+set.seed(2022)
+y <- rnorm(n = 100)
+
+# Select first phase sample, SRS without replacement
+  phase_1_sample_indicators <- sampling::srswor(n = 50, N = 100) |>
+    as.logical()
+  
+  phase_1_sample <- y[phase_1_sample_indicators]
+  
+# Make variance estimator for first-phase variance component
+  Sigma_a <- make_quad_form_matrix(
+    variance_estimator = "Ultimate Cluster",
+    cluster_ids = as.matrix(1:50),
+    strata_ids = rep(1, times = 50) |> as.matrix(),
+    strata_pop_sizes = rep(100, times = 50) |> as.matrix()
+  )
+
+# Select second stage sample, SRS without replacment
+  phase_2_sample_indicators <- sampling::srswor(n = 5, N = 50) |>
+    as.logical()
+  
+  phase_2_sample <- phase_1_sample[phase_2_sample_indicators]
+  
+# Estimate two-phase variance
+  Sigma_a_prime <- Sigma_a[phase_2_sample_indicators,
+                           phase_2_sample_indicators]
+  
+  phase_2_joint_probs <- outer(rep(5/50, times = 5),
+                               rep(4/49, times = 5))
+  diag(phase_2_joint_probs) <- rep(5/50, times = 5)
+
+  Sigma_b <- make_quad_form_matrix(
+    variance_estimator = "Ultimate Cluster",
+    cluster_ids = as.matrix(1:5),
+    strata_ids = rep(1, times = 5) |> as.matrix(),
+    strata_pop_sizes = rep(50, times = 5) |> as.matrix()
+  )
+  
+  sigma_ab <- make_twophase_quad_form(
+    sigma_1 = Sigma_a_prime,
+    sigma_2 = Sigma_b,
+    phase_2_joint_probs = phase_2_joint_probs
+  )
+  
+  wts <- rep(
+    (50/100)^(-1) * (5/50)^(-1),
+    times = 5
+  )
+  W_star <- diag(wts)
+  
+  W_star_y <- W_star %*% phase_2_sample
+  t(W_star_y) %*% sigma_ab %*% (W_star_y)
+  
+# Since both phases are SRS without replacement,
+# variance estimate for a total should be similar to the following
+  5 * var(W_star_y)
+
+```
+
+</details>
+
+<br>
+
+The matrix notation is useful for understanding replication methods of variance estimation for two-phase samples. Any unbiased replication variance estimator for two-phase samples should generate each set of adjustment factors so that the sets of replicate weights have expectation $\mathbf{1}_{n_b}$ and variance-covariance matrix $\boldsymbol{\Sigma}_{ab}$. 
+
+The generalized bootstrap does this by generating draws from a multivariate normal distribution with those parameters. For some specific combinations of simple first-phase and second-phase designs, there are jackknife and BRR methods which have been developed to accomplish this same goal (see @lohrSamplingDesignAnalysis2022 for some examples). The generalized bootstrap however is much easier to use for the complex designs actually encountered in most settings and also enjoys other advantages ^[See the vignette "Bootstrap Methods for Surveys"].
+
+## Calibration Estimators
+
+This section describes calibration estimators (such as raking, post-stratification, or ratio estimators) commonly used for two-phase designs. For a more detailed treatment of such estimators, see Chapter 11 of @lohrSamplingDesignAnalysis2022 or Chapter 6 of @sarndalModelAssistedSurvey1992.
+
+In two-phase sampling, it can be helpful to calibrate the weights from the small second-phase sample $s_b$ so that estimates for variables $x_1, \dots, x_p$ measured in both phases match the estimates produced using the larger, more reliable sample $s_a$. For a variable $y$ measured only in the second-phase sample, this can lead to more precise estimates if the calibration variables $x_1, \dots, x_p$ are associated with $y$.
+
+If generalized regression (GREG) is used, the two-phase GREG estimator can be written as follows:
+
+$$
+\hat{Y}^{(b)}_{\text{GREG}} = \hat{Y}^{(a)} + \left(\hat{\mathbf{X}}^{(a)} - \hat{\mathbf{X}}^{(b)}\right)\hat{\mathbf{B}}^{(b)}
+$$
+
+where $\hat{\mathbf{X}}^{(a)}$ is the $p$-length vector of estimated population totals for variables $x_1, \dots, x_p$ estimates using the first-phase data, $\hat{\mathbf{X}}^{(b)}$ is the vector of estimated population totals using the second-phase data, and $\hat{\mathbf{B}}^{(b)}$ is estimated using the following:
+
+$$
+\hat{\mathbf{B}}^{(b)} = \left(\sum_{i=1}^{n_{(b)}} w^{*}_i \frac{1}{\sigma_i^2} \mathbf{x}_i \mathbf{x}_i^T\right)^{-1} \sum_{i=1}^{n_{(b)}} w^{*}_i \frac{1}{\sigma_i^2} \mathbf{x}_i y_i
+$$
+
+where the constants $\sigma_i$ are chosen based on the specific type of calibration desired.^[ The specific type of calibration used depends both on the number and nature of the variables available and on the "working model" chosen to characterize the relationship between the variables $y$ and $x_1,\dots,x_p$. The choice of calibration method affects the choice of predictors $x_1, ..., x_p$ as well as the choice of constants $\sigma_i$ used in the GREG model.]
+
+The GREG estimator can also be expressed as a weighted estimator based on modified weights $\tilde{w}^{*}_i := g_i w^{*}_i$ where the modification factor $g$ is suitably chosen for the specific method of calibration used (post-stratification, raking, etc.)
+
+$$
+\begin{aligned}
+\hat{Y}^{(b)}_{\text{GREG}} &= \sum_{i=1}^{n_{(b)}} \tilde{w}^{*}_i y_i = \sum_{i=1}^{n_{(b)}} (g_i w^{*}_i) y_i
+\end{aligned}
+$$
+
+The modification factors $g_i$ (commonly referred to as "g-weights") can be expressed as:
+
+$$
+g_i = 1+ \left(\hat{\mathbf{X}}^{(a)} - \hat{\mathbf{X}}^{(b)}\right)^{\prime} \left(\sum_{i=1}^{n_{(b)}} w^{*}_i \frac{1}{\sigma_i^2} \mathbf{x}_i \mathbf{x}_i^T\right)^{-1} \sum_{i=1}^{n_{(b)}} w^{*}_i \frac{1}{\sigma_i^2} \mathbf{x}_i 
+$$
+
+The calibrated second-phase weights $\tilde{w}^{*}_i = g_i w^{*}_i$ from the GREG estimator ensure that the second-phase estimates for the variables $x_1, \dots, x_p$ match the first-phase estimates.
+
+$$
+\sum_{i=1}^{n_{(b)}} \tilde{w}^{*}_ix_i = \sum_{i=1}^{n_{(a)}} w^{(a)}x_i
+$$
+
+### Variance of the Calibration Estimator
+
+If we assume that the second-phase calibration estimator $\hat{Y}_{\mathrm{GREG}}^{(b)}$ is unbiased for the first-phase estimate $\hat{Y}^{(a)}$ (which should at least approximately the case), then we can decompose the calibration estimator's variance into a first-phase component and a second-phase component as follows:
+
+$$
+\begin{aligned}
+V\left(\hat{Y}_{\mathrm{GREG}}^{(b)}\right) &= V\left[E\left(\hat{Y}_{\mathrm{GREG}}^{(b)} \mid \mathbf{Z}\right)\right]+E\left[V\left(\hat{Y}_{\mathrm{GREG}}^{(b)} \mid \mathbf{Z}\right)\right]
+\\
+&= V\left[\hat{Y}^{(a)}\right]+E\left[V\left(\hat{Y}_{\mathrm{GREG}}^{(b)} \mid \mathbf{Z}\right)\right]
+\end{aligned}
+$$
+
+where the first term is the first-phase variance component and the second term is the second-phase variance component.
+
+Using only the second-phase sample, the variance of the calibration estimator can thus be estimated unbiasedly by the following estimator:
+
+$$
+V\left(\hat{Y}_{\mathrm{GREG}}^{(b)}\right) =\hat{V}\left[\hat{Y}^{(a)}\right] + \hat{V}\left[\hat{E}^{(b)} \mid s_a\right]
+$$
+
+where $\hat{E}^{(b)} = \sum_{i=1}^{n_{(b)}} w^{*}e_i$ and $e_i= y_i - \mathbf{x}^{\prime}_i\hat{\mathbf{B}}^{(b)}$ is the "residual" of the GREG model.
+
+This is the same as the variance estimator we saw earlier for the uncalibrated estimator, $\hat{Y}^{(b)}$, except that the second-phase component for the GREG estimator uses $\hat{E}^{(b)}$ in place of $\hat{Y}^{(b)}$
+
+$$
+\hat{V}\left(\hat{Y}^{(b)}\right) = \hat{V}\left[\hat{Y}^{(a)} \right] + \hat{V}\left[\hat{Y}^{(b)} \mid s_a \right]
+$$
+
+This decomposition is useful for understanding the theoretical variance of the calibration estimator and how it can be estimated in general.
+
+### Replication Variance Estimation
+
+For variance estimation using replication methods, another (approximate) decomposition proves to be more useful. @Fuller1998 decomposes the two-phase calibration estimator's variance as follows.
+
+$$
+V\left(\hat{Y}_{\mathrm{GREG}}^{(b)}\right) \approx E \left[ V \left( \tilde{E}^{(b)} \mid s_a \right) \right] + \mathbf{B}^{\prime} \mathbf{V}\left(\hat{\mathbf{X}}^{(a)}\right)\mathbf{B}
+$$
+
+where $\mathbf{B}$ is the finite-population version of $\hat{\mathbf{B}}^{(b)}$ that we could calculate if we had data from the entire population rather than just the second-phase sample $s_b$, and $\tilde{E}^{(b)}=\sum_{i=1}^{n_{(b)}} w^{*}_i\left(y_i - \mathbf{x}_i^{\prime}\mathbf{B}\right)$ is the weighted sum of second-phase residuals based on using $\mathbf{B}$. 
+
+This decomposition of the variance suggests the following estimator:
+
+$$
+\hat{V}\left(\hat{Y}_{\mathrm{GREG}}^{(b)}\right) := \hat{V} \left( \hat{E}^{(b)} \mid s_a \right) + (\hat{\mathbf{B}}^{(b)})^{\prime} \hat{\mathbf{V}}\left(\hat{\mathbf{X}}^{(a)}\right)(\hat{\mathbf{B}}^{(b)})
+$$
+
+The first component is estimated using only the second-phase data and a conditional variance estimator for the second-phase design (taking the selected first-phase sample as given). The second component depends on the first-phase estimates $\hat{\mathbf{X}}^{(a)}$ as well as the first-phase variance estimate $\hat{V}(\hat{\mathbf{X}}^{(a)})$ and the values $\mathbf{B}^{(b)}$ used in the calibration.
+
+@Fuller1998 proposed a replication-based version of this estimator. To describe this estimator, first we suppose that we have developed two-phase replicate weights appropriate for the double-expansion estimator.
+
+$$
+\begin{aligned}
+\hat{V}\left(\hat{Y}^{(b)}\right) &= K_{(b)}\sum_{r=1}^{R_{(b)}} \left( \hat{Y}^{(b)}_{(r)} - \hat{Y}^{(b)} \right)^2 \\
+\text{where }& \hat{Y}^{(b)}_{(r)}= \sum_{i=1}^{n_{(b)}}w_{r,i} y_i \\
+& \text{is the }r\text{-th} \text{ replicate estimate} \\
+& \text{for the second-phase sample } \\
+\text{and }& K_{(b)}\text{ is a constant specific} \\
+&\text{to the replication method}
+\end{aligned}
+$$
+
+Now suppose that we have a $k$-length vector of estimated first-phase totals, $\hat{\mathbf{X}}^{(a)}$, which will be used in calibration of the second phase weights. And we suppose that these estimated totals also have an estimated variance-covariance matrix, denoted $\hat{\mathbf{V}}\left(\hat{\mathbf{X}}^{(a)}\right)$, which is a $k \times k$ matrix.
+
+Then we can decompose the variance-covariance matrix as follows:
+
+$$
+\hat{\mathbf{V}}\left(\hat{\mathbf{X}}^{(a)}\right) = K_{(b)} \sum_{i=1}^{R_{(b)}} \boldsymbol{\delta}_i^{\prime} \boldsymbol{\delta}_i
+$$
+
+where $\boldsymbol{\delta}_i$ is a vector of dimension $k$, and $K_{(b)}$ is the constant mentioned earlier. There are multiple ways to do this decomposition. Two particularly useful methods are to either use an eigendecomposition, as suggested by @Fuller1998, or instead use replicate estimates from the first-phase survey, as suggested by @opsomerReplicationVarianceEstimation2021.
+
+Fuller demonstrates that we can obtain a reasonable variance estimator for the two-phase calibration estimator by using these $R_{(b)}$ vectors $\boldsymbol{\delta}_{r}$ to form $R_{(b)}$ different control totals to use as the calibration targets for the $R_{(b)}$ second-phase replicates. In other words, we simply calibrate the $r$-th set of replicate weights to the $r$-th control total $\hat{\mathbf{X}}^{(a)} + \boldsymbol{\delta}_{r}$. Crucially, the order of the vectors $\boldsymbol{\delta}_{r}$ should be totally random, so that the vectors $\boldsymbol{\delta}_{r}$ are independent of the sets of replicate weights $\mathbf{w}_{r}$.
+
+@Fuller1998 shows that calibrating the second-phase replicates to the random calibration targets described above results in a variance estimator that is consistent for the variance of the two-phase calibration estimator.
+
+This is the underlying estimator described in R code earlier in this vignette through the use of the functions `calibrate_to_estimate()` or `calibrate_to_sample()`. The essential difference between the two functions is in how they form the vectors $\boldsymbol{\delta}_r$.
+
+The function `calibrate_to_estimate()` forms the vectors $\boldsymbol{\delta}_{r}$ using an eigen-decomposition of a specified variance-covariance matrix.
+
+```{r}
+# Print first phase estimates and their variance-covariance
+print(first_phase_totals)
+print(first_phase_vcov)
+
+# Calibrate the two-phase replicate design
+# to the totals estimated from the first-phase sample
+calibrated_twophase_design <- calibrate_to_estimate(
+  rep_design = twophase_boot_design,
+  # Specify the variables in the data to use for calibration
+  cal_formula = ~ TOTCIR + TOTSTAFF,
+  # Supply the first-phase estimates and their variance
+  estimate = first_phase_totals,
+  vcov_estimate = first_phase_vcov,
+)
+```
+
+In contrast, the function `calibrate_to_sample()` forms the vectors $\boldsymbol{\delta}_{r}$ by using replicate estimates from the first-phase sample.
+
+```{r}
+calibrated_twophase_design <- calibrate_to_sample(
+  primary_rep_design = twophase_boot_design,
+  # Supply the first-phase replicate design
+  control_rep_design = first_phase_gen_boot,
+  # Specify the variables in the data to use for calibration
+  cal_formula = ~ TOTCIR + TOTSTAFF
+)
+```
+
+# Ensuring the Variance Estimator is Positive Semidefinite
+
+If you've made it this far in the vignette, then you're probably now well-aware that variance estimators for two-phase designs are often not the positive semidefinite quadratic form we'd like them to be. Instead, they're usually close to but not quite a positive semidefinite quadratic form, owing to the difficulty of estimating the first-phase variance component.[^4]
+
+[^4]: Recall that the first-phase variance component is estimated by an estimator of an estimator. To be precise, $\hat{V}\left[\hat{Y}^{(a)} \right]$ is an estimate using the second-phase sample $s_b$ of the variance estimator $\tilde{V}\left[\hat{Y}^{(a)}\right]$ based on $s_a$ that we would have used if we had observed values of $y$ for the entire first-phase sample.
+
+One solution for handling a quadratic form matrix $\Sigma_{ab}$ which is not positive semidefinite is to approximate it by $\tilde{\Sigma}_{ab} = \Gamma \Lambda^{*} \Gamma^{\prime}$, where $\Gamma$ is a matrix of eigenvalues of $\Sigma_{ab}$, $\Lambda$ is the diagonal matrix of eigenvalues of $\Sigma_{ab}$, and $\Lambda^{*}$ is an updated version of $\Lambda$ where negative eigenvalues have been replaced by $0$. This solution is suggested by @beaumont2012 as a general-purpose solution for implementing the generalized bootstrap when the target variance estimator that it's mimicking isn't positive semidefinite. @beaumont2012 argue that using $\tilde{\Sigma}_{ab}$ instead of $\Sigma_{ab}$ should only result in a small overestimation.
+
+## Usage with the Generalized Bootstrap
+
+When the function `as_gen_boot_design()` is used to create generalized bootstrap replicate weights, it will warn you if the target variance estimator is not positive semidefinite and will let you know that it will therefore approximate the target variance estimator using the method described above.
+
+```{r}
+gen_boot_design <- as_gen_boot_design(
+  design = twophase_design,
+  variance_estimator = list(
+    'Phase 1' = "Ultimate Cluster",
+    'Phase 2' = "Ultimate Cluster"
+  )
+)
+```
+
+## Helper Functions for Ensuring an Estimator is Positive Semidefinite
+
+The 'svrep' package has two functions which can be helpful for dealing with matrices which we hope are positive semidefinite but which might not be.
+
+The function `is_psd_matrix()` simply checks whether a matrix is positive semidefinite. It works by estimating the matrix's eigenvalues and determining whether any of them are negative.
+
+```{r}
+twophase_quad_form_matrix <- get_design_quad_form(
+  design = twophase_design,
+  variance_estimator = list(
+    'Phase 1' = "Ultimate Cluster",
+    'Phase 2' = "Ultimate Cluster"
+  )
+)
+
+twophase_quad_form_matrix |> is_psd_matrix()
+```
+
+If the matrix isn't positive semidefinite (but is at least symmetric), then the function `get_nearest_psd_matrix()` will implement the approximation method described earlier.
+
+Approximating this quadratic form by one which *is* positive semidefinite leads to a very similar (but slightly larger) estimated standard error.
+
+```{r}
+approx_quad_form <- get_nearest_psd_matrix(twophase_quad_form_matrix)
+```
+
+In the example two-phase design based on the library survey from earlier, we can see that this approximation results in a standard error estimate which is only slightly larger than the standard error estimate based on the quadratic form which wasn't quite positive semidefinite.
+
+```{r}
+# Extract weights and a single variable from the second-phase sample
+## NOTE: To get second-phase data,
+##       we use `my_design$phase1$sample$variables`.
+##       To get first-phase data,
+##       we use `my_design$phase1$full$variables
+
+wts <- weights(twophase_design, type = "sampling")
+y <- twophase_design$phase1$sample$variables$TOTSTAFF
+wtd_y <- as.matrix(wts * y)
+
+# Estimate standard errors
+std_error <- as.numeric(
+  t(wtd_y) %*% twophase_quad_form_matrix %*% wtd_y
+) |> sqrt()
+
+approx_std_error <- as.numeric(
+  t(wtd_y) %*% approx_quad_form %*% wtd_y
+) |> sqrt()
+
+print(approx_std_error)
+print(std_error)
+
+approx_std_error / std_error
+```
+
+# References
+
+
+
+

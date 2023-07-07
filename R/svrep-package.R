@@ -2,6 +2,14 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom DBI dbGetQuery
+#' @importFrom DBI dbIsValid
+#' @importFrom Matrix diag
+#' @importFrom Matrix isSymmetric
+#' @importFrom Matrix rowSums
+#' @importFrom Matrix t
+#' @importFrom methods as
+#' @importFrom methods is
 #' @importFrom stats as.formula
 #' @importFrom stats coef
 #' @importFrom stats model.frame

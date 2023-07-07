@@ -52,6 +52,7 @@
 #' @name lou_pums_microdata
 #' @usage data(lou_pums_microdata)
 #' @examples
+#' \dontrun{
 #' data(lou_pums_microdata)
 #'
 #' # Prepare the data for analysis with the survey package
@@ -67,6 +68,7 @@
 #'
 #' # Estimate population proportions
 #'   svymean(~ SEX, design = lou_pums_rep_design)
+#' }
 "lou_pums_microdata"
 
 #' @title Control totals for the Louisville Vaccination Survey

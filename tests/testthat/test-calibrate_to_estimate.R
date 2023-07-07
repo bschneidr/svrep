@@ -154,3 +154,29 @@ test_that("Throws error if convergence is not achieved", {
   )
 
 })
+
+# Works for more specialized classes of survey design ----
+
+test_that("Returns `tbl_svy` if the input is a `tbl_svy` and 'srvyr' is loaded", {
+  estimated_controls <- svytotal(x = ~ stype,
+                                 design = control_survey)
+  control_point_estimates <- coef(estimated_controls)
+  control_vcov_estimate <- vcov(estimated_controls)
+
+  library(srvyr)
+
+  suppressMessages({
+    suppressWarnings({
+      calibrated_rep_design <- calibrate_to_estimate(
+        rep_design = primary_survey |> as_survey(),
+        estimate = control_point_estimates,
+        vcov_estimate = control_vcov_estimate,
+        cal_formula = ~ stype
+      )
+    })
+  })
+
+  expect_true({
+    calibrated_rep_design |> inherits(what = 'tbl_svy')
+  })
+})

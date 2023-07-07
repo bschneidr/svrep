@@ -1,0 +1,123 @@
+#' @title Variance Estimators
+#' @description This help page describes variance estimators
+#' which are commonly-used for survey samples. These variance estimators
+#' can be used as the basis of the generalized bootstrap, implemented
+#' with the function \code{as_gen_boot_design()}.
+#' @rdname variance-estimators
+#' @name variance-estimators
+#' @section Horvitz-Thompson:
+#' The \strong{Horvitz-Thompson} variance estimator:
+#' \deqn{
+#'   v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
+#' }
+#' @section Yates-Grundy:
+#' The \strong{Yates-Grundy} variance estimator:
+#' \deqn{
+#'   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
+#' }
+#' @section Poisson Horvitz-Thompson:
+#' The \strong{Poisson Horvitz-Thompson} variance estimator
+#' is simply the Horvitz-Thompson variance estimator, but
+#' where \eqn{\pi_{ij}=\pi_i \times \pi_j}, which is the case for Poisson sampling.
+#' \cr \cr
+#' @section Stratified Multistage SRS:
+#' The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
+#' proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
+#' In the case of simple random sampling without replacement (with one or more stages),
+#' this estimator exactly matches the Horvitz-Thompson estimator.
+#'
+#' The estimator can be used for any number of sampling stages. For illustration, we describe its use
+#' for two sampling stages.
+#' \deqn{
+#'   v(\hat{Y}) = \hat{V}_1 + \hat{V}_2
+#' }
+#' where
+#' \deqn{
+#'   \hat{V}_1 = \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2
+#' }
+#' and
+#' \deqn{
+#'   \hat{V}_2 = \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.})
+#' }
+#' where \eqn{n_h} is the number of sampled clusters in stratum \eqn{h},
+#' \eqn{N_h} is the number of population clusters in stratum \eqn{h},
+#' \eqn{y_{hi.}} is the weighted cluster total in cluster \eqn{i} of stratum \eqn{h},
+#' \eqn{\bar{y}_{hi.}} is the mean weighted cluster total of stratum \eqn{h},
+#' (\eqn{\bar{y}_{hi.} = \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.}}), and
+#' \eqn{v_{hi}(y_{hi.})} is the estimated sampling variance of \eqn{y_{hi.}}.
+#' \cr \cr
+#' @section Ultimate Cluster:
+#' The \strong{Ultimate Cluster} variance estimator is simply the stratified multistage SRS
+#' variance estimator, but ignoring variances from later stages of sampling.
+#' \deqn{
+#'   v(\hat{Y}) = \hat{V}_1
+#' }
+#' This is the variance estimator used in the 'survey' package when the user specifies
+#' \code{option(survey.ultimate.cluster = TRUE)} or uses \code{svyrecvar(..., one.stage = TRUE)}.
+#' When the first-stage sampling fractions are small, analysts often omit the finite population corrections \eqn{(1-\frac{n_h}{N_h})}
+#' when using the ultimate cluster estimator.
+#' @section SD1 and SD2 (Successive Difference Estimators):
+#' The \strong{SD1} and \strong{SD2} variance estimators are "successive difference"
+#' estimators sometimes used for systematic sampling designs.
+#' Ash (2014) describes each estimator as follows:
+#' \deqn{
+#'   \hat{v}_{S D 1}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2
+#' }
+#' \deqn{
+#'   \hat{v}_{S D 2}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right]
+#' }
+#' where \eqn{\breve{y}_k = y_k/\pi_k} is the weighted value of unit \eqn{k}
+#' with selection probability \eqn{\pi_k}. The SD1 estimator is recommended by Wolter (1984).
+#' The SD2 estimator is the basis of the successive difference replication estimator commonly
+#' used for systematic sampling designs and is more conservative. See Ash (2014) for details.
+#' \cr \cr
+#' For multistage samples, SD1 and SD2 are applied to the clusters at each stage, separately by stratum.
+#' For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+#' of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
+#' the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
+#' which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+#' @section Deville 1 and Deville 2:
+#' The \strong{"Deville-1"} and \strong{"Deville-2"} variance estimators
+#' are clearly described in Matei and Tillé (2005),
+#' and are intended for designs that use
+#' fixed-size, unequal-probability random sampling without replacement.
+#' These variance estimators have been shown to be effective
+#' for designs that use a fixed sample size with a high-entropy sampling method.
+#' This includes most PPSWOR sampling methods,
+#' but unequal-probability systematic sampling is an important exception.
+#'
+#' These variance estimators take the following form:
+#' \deqn{
+#' \hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
+#' }
+#' where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
+#' and \eqn{c_i} depend on the method used:
+#' \itemize{
+#'   \item{\strong{"Deville-1"}: }{
+#'     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+#'   \item{\strong{"Deville-2"}: }{
+#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+#' }
+#' In the case of simple random sampling without replacement (SRSWOR),
+#' these estimators are both identical to the usual stratified multistage SRS estimator
+#' (which is itself a special case of the Horvitz-Thompson estimator).
+#'
+#' For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
+#' For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+#' of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+#' the variance estimate from a third-stage stratum is multiplied by \eqn{\pi_1 \times \pi_{(2 | 1)}},
+#' where \eqn{\pi_1} is the sampling probability of the first-stage unit
+#' and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
+#' within the first-stage unit.
+#' @references
+#' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#'
+#' Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
+#' \strong{Journal of Official Statistics}, Vol.1, No.3.
+#'
+#' Matei, Alina, and Yves Tillé. (2005).
+#' “\emph{Evaluation of Variance Approximations and Estimators
+#' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
+#' \strong{Journal of Official Statistics}, 21(4):543–70.
+NULL
