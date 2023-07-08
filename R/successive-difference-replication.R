@@ -1,5 +1,7 @@
-#' Create a row-assignment matrix for Successive Difference Replication-Method
-#'
+#' @title Create a row-assignment matrix for Successive Difference Replication-Method
+#' @description Creates a row assignment matrix:
+#' for each row of a dataset of size \eqn{n}, assigns two rows
+#' of a Hadamard matrix.
 #' @param n The sample size of the data.
 #' @param hadamard_order The order of the Hadamard matrix
 #' @param number_of_cycles The number of cycles to use in the row assignment.
@@ -12,9 +14,20 @@
 #' even if it is valid for the purpose of variance estimation.
 #' @return A matrix with \code{n} rows and two columns. Each row
 #' gives the assignment of two rows of a Hadamard matrix to the row of data.
+#' @references
+#' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 #' @export
 #'
 #' @examples
+#' # Assign rows of a 4x4 Hadamard matrix
+#' # to 9 observations, using two cycles
+#' assign_hadamard_rows(
+#'   n = 9,
+#'   hadamard_order = 4,
+#'   number_of_cycles = 2
+#' )
+#'
 assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n/hadamard_order), use_first_row = TRUE) {
 
   if ((hadamard_order %% 4) > 0) {
@@ -105,17 +118,37 @@ assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n
 
 #' Create matrix of replicate factors to use for Successive Difference Replication Method
 #'
-#' @param n The sample size of the data.
+#' @param n The number of sampling units
 #' @param target_number_of_replicates The target number of replicates to create.
 #' This will determine the order of the Hadamard matrix to use when
 #' creating replicate factors. The actual number of replicates will
 #' be a power of four.
-#'
+#' @param use_normal_hadamard Whether to use a normal Hadamard matrix:
+#' that is, a matrix whose first row and first column only have entries
+#' equal to 1.
 #' @return
+#' A matrix of replicate factors, with \code{n} rows
+#' and the number of columns corresponding to the order of the Hadamard matrix used
+#' (which is greater than or equal to \code{target_number_of_replicates}).
 #' @export
 #'
 #' @examples
-create_sdr_replicate_factors <- function(n, target_number_of_replicates, use_normal_hadamard = FALSE) {
+#' rep_factors <- make_sdr_replicate_factors(
+#'   n = 5,
+#'   target_number_of_replicates = 4,
+#'   use_normal_hadamard = FALSE
+#' )
+#'
+#' # Note that one of the replicates has every factor equal to 1
+#' # Also note that this matches Table 1 in Ash (2014)
+#' make_sdr_replicate_factors(
+#'   n = 4,
+#'   target_number_of_replicates = 4,
+#'   use_normal_hadamard = TRUE
+#' )
+#'
+#' svrep:::make_sd_matrix(n = 3, type = "SD2")
+make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_normal_hadamard = FALSE) {
 
   # Create Hadamard matrix to use for replicate factors
   if (!use_normal_hadamard) {
@@ -161,60 +194,149 @@ create_sdr_replicate_factors <- function(n, target_number_of_replicates, use_nor
   return(replicate_factors)
 }
 
-sd_circular_estimator <- function(y, N) {
+#' Title
+#'
+#' @param design A survey design object created using the 'survey' (or 'srvyr') package,
+#' with class \code{'survey.design'} or \code{'svyimputationList'}.
+#' @param replicates The number of replicates to form.
+#' Must be a power of 4.
+#' @param use_normal_hadamard Whether to use a normal Hadamard matrix:
+#' that is, a matrix whose first row and first column only have entries
+#' equal to 1.
+#' @param by_stratum Whether to form replicates separately for each stratum,
+#' or form replicates for all strata at the same time.
+#' @param compress Use a compressed representation of the replicate weights matrix.
+#' This reduces the computer memory required to represent the replicate weights and has no
+#' impact on estimates.
+#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+#' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
+#'
+#' @return
+#' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
+#' such as \code{svymean()} or \code{svyglm()}.
+#'
+#' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights. \cr
+#' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
+#' for the full-sample and replicate weights.
+#' @export
+#' @export
+#'
+#' @examples
+#'
+#' # Load example stratified systematic sample
+#' data('library_stsys_sample', package = 'svrep')
+#'
+#' ## First, ensure data are sorted in same order as was used in sampling
+#' library_stsys_sample <- library_stsys_sample[
+#'   order(library_stsys_sample$SAMPLING_SORT_ORDER),
+#' ]
+#'
+#' ## Create a survey design object
+#' design_obj <- svydesign(
+#'   data = library_stsys_sample,
+#'   strata = ~ SAMPLING_STRATUM,
+#'   ids = ~ 1,
+#'   fpc = ~ STRATUM_POP_SIZE
+#' )
+#'
+#' ## Convert to SDR replicate design
+#' sdr_design <- as_sdr_design(
+#'   design = design_obj,
+#'   replicates = 64
+#' )
+#'
+#' ## Compare to generalized bootstrap
+#' gen_boot_design <- as_gen_boot_design(
+#'   design = design_obj,
+#'   variance_estimator = "SD2",
+#'   replicates = 180,
+#'   exact_vcov = TRUE
+#' )
+#'
+#' ## Estimate sampling variances
+#' svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = sdr_design)
+#' svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design)
+#' svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
 
-  # Finite population correction
-    n <- length(y)
-    f <- n/N
-
-  # Contrast matrix described by Ash (2011)
-
-    C_matrix <- diag(n) * 2
-    for (i in seq_len(n)) {
-      if (i < n) {
-        C_matrix[i,i+1] <- -1
-        C_matrix[i+1,i] <- -1
-      }
-      if (i > 0) {
-        C_matrix[i,i-1] <- -1
-        C_matrix[i-1,i] <- -1
-      }
-    }
-    C_matrix[1,n] <- -1
-    C_matrix[n,1] <- -1
-
-  # Estimate sampling variance
-    wtd_y <- y * (N/n)
-
-    variance_estimate <- 0.5 * (1-f) * (t(wtd_y) %*% C_matrix %*% wtd_y)
-    return(variance_estimate)
+as_sdr_design <- function(
+  design,
+  replicates,
+  use_normal_hadamard = FALSE,
+  by_stratum = FALSE,
+  compress = TRUE,
+  mse = getOption("survey.replicates.mse")
+) {
+  UseMethod("as_sdr_design", design)
 }
 
-sd_noncircular_estimator <- function(y, N) {
+#' @export
+as_sdr_design.survey.design <- function(
+    design,
+    replicates,
+    use_normal_hadamard = FALSE,
+    by_stratum = FALSE,
+    compress = TRUE,
+    mse = getOption("survey.replicates.mse")
+) {
 
-  # Finite population correction
-  n <- length(y)
-  f <- n/N
-
-  # Contrast matrix described by Ash (2011)
-
-  C_matrix <- diag(n) * 2
-  C_matrix[1,1] <- 1
-  C_matrix[n,n] <- 1
-  for (i in seq_len(n)) {
-    if (i < n) {
-      C_matrix[i,i+1] <- -1
-      C_matrix[i+1,i] <- -1
-    }
-    if (i > 0) {
-      C_matrix[i,i-1] <- -1
-      C_matrix[i-1,i] <- -1
-    }
+  # Produce a (potentially) compressed survey design object
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(
+      design$strata[, 1, drop=FALSE],
+      design$cluster[, 1, drop=FALSE]
+    )
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
+        # Subset to only unique strata/cluster combos
+        design_obj[unique_elements,]
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
   }
 
-  # Estimate sampling variance
-  wtd_y <- y * (N/n)
+  # Create adjustment factors for the compressed design structure
+  if (!by_stratum) {
+    adjustment_factors <- make_sdr_replicate_factors(
+      n = nrow(compressed_design_structure$design_subset),
+      target_number_of_replicates = replicates,
+      use_normal_hadamard = use_normal_hadamard
+    )
+  }
 
-  variance_estimate <- 0.5 * (1-f) * (n/(n-1)) * (t(wtd_y) %*% C_matrix %*% wtd_y)
-  return(variance_estimate)
+  # Uncompress the adjustment factors
+  adjustment_factors <- distribute_matrix_across_clusters(
+    cluster_level_matrix = adjustment_factors,
+    cluster_ids = compressed_design_structure$index,
+    rows = TRUE, cols = FALSE
+  )
+
+  # Create a replicate survey design object
+  rep_design <- survey::svrepdesign(
+    variables = design$variables,
+    weights = weights(design, type = "sampling"),
+    repweights = adjustment_factors, combined.weights = FALSE,
+    compress = compress, mse = mse,
+    scale = 4/replicates, rscales = rep(1, times = replicates),
+    type = "successive-difference"
+  )
+
+  # Return the result
+  if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    rep_design <- srvyr::as_survey_rep(
+      rep_design
+    )
+  }
+
+  rep_design$call <- sys.call(which = -1)
+
+  return(rep_design)
 }
