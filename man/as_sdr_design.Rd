@@ -7,6 +7,7 @@
 as_sdr_design(
   design,
   replicates,
+  sort_variable = NULL,
   use_normal_hadamard = FALSE,
   compress = TRUE,
   mse = getOption("survey.replicates.mse")
@@ -21,8 +22,13 @@ This will determine the order of the Hadamard matrix to use when
 creating replicate factors.
 If \code{use_normal_hadamard = TRUE}, then the actual number of replicates will be the
 smallest \emph{multiple} of 4 that is greater or equal to the specified value of \code{replicates}.
-If \code{use_normal_hadamard = FALSE}, then the actual number of replicates
+If \code{use_normal_hadamard = FALSE}, then the actual number of replicates will be the
 smallest \emph{power} of 4 that is greater or equal to the specified value of \code{replicates}.}
+
+\item{sort_variable}{To create SDR replicates, the data must
+be sorted in the order used in sampling. The name of a sorting variable
+can be supplied as a character string. If no variable name is supplied,
+then this function assumes that the data are already sorted into the correct order.}
 
 \item{use_normal_hadamard}{Whether to use a normal Hadamard matrix:
 that is, a matrix whose first row and first column only have entries
