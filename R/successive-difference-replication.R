@@ -136,11 +136,6 @@ assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n
 #' @export
 #'
 #' @examples
-#' rep_factors <- make_sdr_replicate_factors(
-#'   n = 5,
-#'   target_number_of_replicates = 4,
-#'   use_normal_hadamard = FALSE
-#' )
 #'
 #' # Note that one of the replicates has every factor equal to 1
 #' # Also note that this matches Table 1 in Ash (2014)
@@ -150,7 +145,33 @@ assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n
 #'   use_normal_hadamard = TRUE
 #' )
 #'
-#' svrep:::make_sd_matrix(n = 3, type = "SD2")
+#' # Note the difference when using a non-normal Hadamard matrix
+#' rep_factors <- make_sdr_replicate_factors(
+#'   n = 4,
+#'   target_number_of_replicates = 4,
+#'   use_normal_hadamard = FALSE
+#' )
+#'
+#' # These replicate factors are nearly equivalent
+#' # to the SD1 variance estimator
+#' vcov_of_rep_factors <- make_sdr_replicate_factors(
+#'   n = 4,
+#'   target_number_of_replicates = 4,
+#'   use_normal_hadamard = TRUE
+#' ) |> t() |> cov() |> Matrix::Matrix()
+#'
+#' sdr_quad_form <- (3/4) * 4 * vcov_of_rep_factors
+#'
+#' sdr_quad_form |> image()
+#'
+#' # Compare to the quadratic form of the SD1 estimator
+#' sd1_quad_form <- make_quad_form_matrix(
+#'   variance_estimator = "SD1",
+#'   cluster_ids = matrix(1:4, ncol = 1),
+#'   sort_order = matrix(1:4, ncol = 1)
+#' )
+#'
+#' sd1_quad_form |> image()
 make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_normal_hadamard = FALSE) {
 
   # Create Hadamard matrix to use for replicate factors
