@@ -2,13 +2,12 @@
 % Please edit documentation in R/successive-difference-replication.R
 \name{as_sdr_design}
 \alias{as_sdr_design}
-\title{Title}
+\title{Convert a survey design object to a successive differences replicate design}
 \usage{
 as_sdr_design(
   design,
   replicates,
   use_normal_hadamard = FALSE,
-  by_stratum = FALSE,
   compress = TRUE,
   mse = getOption("survey.replicates.mse")
 )
@@ -17,15 +16,17 @@ as_sdr_design(
 \item{design}{A survey design object created using the 'survey' (or 'srvyr') package,
 with class \code{'survey.design'} or \code{'svyimputationList'}.}
 
-\item{replicates}{The number of replicates to form.
-Must be a power of 4.}
+\item{replicates}{The target number of replicates to create.
+This will determine the order of the Hadamard matrix to use when
+creating replicate factors.
+If \code{use_normal_hadamard = TRUE}, then the actual number of replicates will be the
+smallest \emph{multiple} of 4 that is greater or equal to the specified value of \code{replicates}.
+If \code{use_normal_hadamard = FALSE}, then the actual number of replicates
+smallest \emph{power} of 4 that is greater or equal to the specified value of \code{replicates}.}
 
 \item{use_normal_hadamard}{Whether to use a normal Hadamard matrix:
 that is, a matrix whose first row and first column only have entries
 equal to 1.}
-
-\item{by_stratum}{Whether to form replicates separately for each stratum,
-or form replicates for all strata at the same time.}
 
 \item{compress}{Use a compressed representation of the replicate weights matrix.
 This reduces the computer memory required to represent the replicate weights and has no
@@ -43,7 +44,12 @@ Use \code{as_data_frame_with_weights()} to convert the design object to a data f
 for the full-sample and replicate weights.
 }
 \description{
-Title
+Converts a survey design object to a replicate design object
+with replicate weights formed using the successive differences replication (SDR) method.
+The SDR method is suitable for designs that use
+systematic sampling or finely-stratified sampling designs.
+The rows of data in the survey design should be sorted
+in the same order that was used for sampling.
 }
 \examples{
 
@@ -66,10 +72,12 @@ design_obj <- svydesign(
 ## Convert to SDR replicate design
 sdr_design <- as_sdr_design(
   design = design_obj,
-  replicates = 64
+  replicates = 180,
+  use_normal_hadamard = TRUE
 )
 
 ## Compare to generalized bootstrap
+## based on the SD2 estimator that SDR approximates
 gen_boot_design <- as_gen_boot_design(
   design = design_obj,
   variance_estimator = "SD2",
@@ -80,5 +88,12 @@ gen_boot_design <- as_gen_boot_design(
 ## Estimate sampling variances
 svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = sdr_design)
 svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design)
-svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
+}
+\references{
+Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
+\strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+
+Fay, R.E. and Train, G.F. (1995). "\emph{Aspects of Survey and Model-Based Postcensal Estimation of
+Income and Poverty Characteristics for States and Counties}." Joint Statistical Meetings,
+Proceedings of the Section on Government Statistics, 154-159.
 }

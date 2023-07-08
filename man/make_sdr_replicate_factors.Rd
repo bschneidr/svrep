@@ -16,7 +16,10 @@ make_sdr_replicate_factors(
 \item{target_number_of_replicates}{The target number of replicates to create.
 This will determine the order of the Hadamard matrix to use when
 creating replicate factors. The actual number of replicates will
-be a power of four.}
+be a multiple of 4.
+If \code{use_normal_hadamard = FALSE}, then the actual number of replicates
+will be a power of 4, which means that the actual number of
+replicates might be much larger than the target.}
 
 \item{use_normal_hadamard}{Whether to use a normal Hadamard matrix:
 that is, a matrix whose first row and first column only have entries
