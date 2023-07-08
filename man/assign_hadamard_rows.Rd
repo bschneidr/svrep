@@ -14,7 +14,7 @@ assign_hadamard_rows(
 \arguments{
 \item{n}{The sample size of the data.}
 
-\item{hadamard_order}{The order of the Hadamard matrix}
+\item{hadamard_order}{The order of the Hadamard matrix (i.e., the number of rows/columns)}
 
 \item{number_of_cycles}{The number of cycles to use in the row assignment.
 Must be at least as large as \code{n/hadamard_order}.}

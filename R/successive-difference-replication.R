@@ -3,7 +3,7 @@
 #' for each row of a dataset of size \eqn{n}, assigns two rows
 #' of a Hadamard matrix.
 #' @param n The sample size of the data.
-#' @param hadamard_order The order of the Hadamard matrix
+#' @param hadamard_order The order of the Hadamard matrix (i.e., the number of rows/columns)
 #' @param number_of_cycles The number of cycles to use in the row assignment.
 #' Must be at least as large as \code{n/hadamard_order}.
 #' @param use_first_row Whether to use the first row of the Hadamard matrix.
@@ -233,8 +233,12 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' creating replicate factors.
 #' If \code{use_normal_hadamard = TRUE}, then the actual number of replicates will be the
 #' smallest \emph{multiple} of 4 that is greater or equal to the specified value of \code{replicates}.
-#' If \code{use_normal_hadamard = FALSE}, then the actual number of replicates
+#' If \code{use_normal_hadamard = FALSE}, then the actual number of replicates will be the
 #' smallest \emph{power} of 4 that is greater or equal to the specified value of \code{replicates}.
+#' @param sort_variable To create SDR replicates, the data must
+#' be sorted in the order used in sampling. The name of a sorting variable
+#' can be supplied as a character string. If no variable name is supplied,
+#' then this function assumes that the data are already sorted into the correct order.
 #' @param use_normal_hadamard Whether to use a normal Hadamard matrix:
 #' that is, a matrix whose first row and first column only have entries
 #' equal to 1.
@@ -282,6 +286,7 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' sdr_design <- as_sdr_design(
 #'   design = design_obj,
 #'   replicates = 180,
+#'   sort_variable = "SAMPLING_SORT_ORDER",
 #'   use_normal_hadamard = TRUE
 #' )
 #'
@@ -301,6 +306,7 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 as_sdr_design <- function(
   design,
   replicates,
+  sort_variable = NULL,
   use_normal_hadamard = FALSE,
   compress = TRUE,
   mse = getOption("survey.replicates.mse")
@@ -312,14 +318,17 @@ as_sdr_design <- function(
 as_sdr_design.survey.design <- function(
     design,
     replicates,
+    sort_variable = NULL,
     use_normal_hadamard = FALSE,
     compress = TRUE,
     mse = getOption("survey.replicates.mse")
 ) {
 
-  message(
-    "`as_sdr_design()` assumes rows of data are sorted in the same order used in sampling."
-  )
+  if (is.null(sort_variable)) {
+    message(
+      "Since `sort_variable = NULL`, assuming rows of data are sorted in the same order used in sampling."
+    )
+  }
 
   # Produce a (potentially) compressed survey design object
   if ((!is.null(design$pps)) && (design$pps != FALSE)) {
@@ -337,7 +346,11 @@ as_sdr_design.survey.design <- function(
     compressed_design_structure <- list(
       design_subset = design |> (\(design_obj) {
         # Reduce memory usage by dropping variables
-        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
+        if (!is.null(sort_variable)) {
+          design_obj$variables <- design_obj$variables[, sort_variable, drop=FALSE]
+        } else {
+          design_obj$variables <- design_obj$variables[, 0, drop = FALSE]
+        }
         # Subset to only unique strata/cluster combos
         design_obj[unique_elements,]
       })(),
@@ -351,6 +364,11 @@ as_sdr_design.survey.design <- function(
     target_number_of_replicates = replicates,
     use_normal_hadamard = use_normal_hadamard
   )
+
+  if (!is.null(sort_variable)) {
+    sort_order <- rank(design$variables[[sort_variable]], ties.method = 'first')
+    adjustment_factors <- adjustment_factors[sort_order, , drop = FALSE]
+  }
 
   # Uncompress the adjustment factors
   adjustment_factors <- distribute_matrix_across_clusters(
