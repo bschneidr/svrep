@@ -122,7 +122,10 @@ assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n
 #' @param target_number_of_replicates The target number of replicates to create.
 #' This will determine the order of the Hadamard matrix to use when
 #' creating replicate factors. The actual number of replicates will
-#' be a power of four.
+#' be a multiple of 4.
+#' If \code{use_normal_hadamard = FALSE}, then the actual number of replicates
+#' will be a power of 4, which means that the actual number of
+#' replicates might be much larger than the target.
 #' @param use_normal_hadamard Whether to use a normal Hadamard matrix:
 #' that is, a matrix whose first row and first column only have entries
 #' equal to 1.
@@ -194,23 +197,38 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
   return(replicate_factors)
 }
 
-#' Title
-#'
+#' @title Convert a survey design object to a successive differences replicate design
+#' @description
+#' Converts a survey design object to a replicate design object
+#' with replicate weights formed using the successive differences replication (SDR) method.
+#' The SDR method is suitable for designs that use
+#' systematic sampling or finely-stratified sampling designs.
+#' The rows of data in the survey design should be sorted
+#' in the same order that was used for sampling.
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
-#' @param replicates The number of replicates to form.
-#' Must be a power of 4.
+#' @param replicates The target number of replicates to create.
+#' This will determine the order of the Hadamard matrix to use when
+#' creating replicate factors.
+#' If \code{use_normal_hadamard = TRUE}, then the actual number of replicates will be the
+#' smallest \emph{multiple} of 4 that is greater or equal to the specified value of \code{replicates}.
+#' If \code{use_normal_hadamard = FALSE}, then the actual number of replicates
+#' smallest \emph{power} of 4 that is greater or equal to the specified value of \code{replicates}.
 #' @param use_normal_hadamard Whether to use a normal Hadamard matrix:
 #' that is, a matrix whose first row and first column only have entries
 #' equal to 1.
-#' @param by_stratum Whether to form replicates separately for each stratum,
-#' or form replicates for all strata at the same time.
 #' @param compress Use a compressed representation of the replicate weights matrix.
 #' This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
 #' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
+#' @references
+#' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 #'
+#' Fay, R.E. and Train, G.F. (1995). "\emph{Aspects of Survey and Model-Based Postcensal Estimation of
+#' Income and Poverty Characteristics for States and Counties}." Joint Statistical Meetings,
+#' Proceedings of the Section on Government Statistics, 154-159.
 #' @return
 #' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
 #' such as \code{svymean()} or \code{svyglm()}.
@@ -242,10 +260,12 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' ## Convert to SDR replicate design
 #' sdr_design <- as_sdr_design(
 #'   design = design_obj,
-#'   replicates = 64
+#'   replicates = 180,
+#'   use_normal_hadamard = TRUE
 #' )
 #'
 #' ## Compare to generalized bootstrap
+#' ## based on the SD2 estimator that SDR approximates
 #' gen_boot_design <- as_gen_boot_design(
 #'   design = design_obj,
 #'   variance_estimator = "SD2",
@@ -256,13 +276,11 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' ## Estimate sampling variances
 #' svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = sdr_design)
 #' svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design)
-#' svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = design_obj)
 
 as_sdr_design <- function(
   design,
   replicates,
   use_normal_hadamard = FALSE,
-  by_stratum = FALSE,
   compress = TRUE,
   mse = getOption("survey.replicates.mse")
 ) {
@@ -274,10 +292,13 @@ as_sdr_design.survey.design <- function(
     design,
     replicates,
     use_normal_hadamard = FALSE,
-    by_stratum = FALSE,
     compress = TRUE,
     mse = getOption("survey.replicates.mse")
 ) {
+
+  message(
+    "`as_sdr_design()` assumes rows of data are sorted in the same order used in sampling."
+  )
 
   # Produce a (potentially) compressed survey design object
   if ((!is.null(design$pps)) && (design$pps != FALSE)) {
@@ -304,13 +325,11 @@ as_sdr_design.survey.design <- function(
   }
 
   # Create adjustment factors for the compressed design structure
-  if (!by_stratum) {
-    adjustment_factors <- make_sdr_replicate_factors(
-      n = nrow(compressed_design_structure$design_subset),
-      target_number_of_replicates = replicates,
-      use_normal_hadamard = use_normal_hadamard
-    )
-  }
+  adjustment_factors <- make_sdr_replicate_factors(
+    n = nrow(compressed_design_structure$design_subset),
+    target_number_of_replicates = replicates,
+    use_normal_hadamard = use_normal_hadamard
+  )
 
   # Uncompress the adjustment factors
   adjustment_factors <- distribute_matrix_across_clusters(
@@ -325,7 +344,6 @@ as_sdr_design.survey.design <- function(
     weights = weights(design, type = "sampling"),
     repweights = adjustment_factors, combined.weights = FALSE,
     compress = compress, mse = mse,
-    scale = 4/replicates, rscales = rep(1, times = replicates),
     type = "successive-difference"
   )
 
