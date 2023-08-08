@@ -43,7 +43,7 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 
   # Calculate spectral decomposition ----
   eigen_decomposition <- eigen(x = Sigma, symmetric = TRUE)
-  matrix_rank <- Matrix::rankMatrix(Sigma, method = "qr")
+  Sigma_rank <- Matrix::rankMatrix(Sigma, method = "qr")
 
   # Obtain eigenvectors scaled by square roots of eigenvalues ----
   v <- sapply(X = seq_along(eigen_decomposition$values),
@@ -52,17 +52,18 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
                                                0, eigen_decomposition$values[k])
                 sqrt(truncated_eigenvalue) * eigen_decomposition$vectors[,k]
               })
-  v <- v[, seq_len(matrix_rank), drop=FALSE]
+  v <- v[, seq_len(Sigma_rank), drop=FALSE]
 
   # Generate Hadamard matrix
-  k <- matrix_rank
-  H <- (2*survey::hadamard(k) - 1)
+  H <- (2*survey::hadamard(Sigma_rank) - 1)
   k_prime <- ncol(H)
   shuffle_order <- sample(x = k_prime, size = k_prime)
   H <- H[shuffle_order, shuffle_order]
 
   # Construct replicate factors
-  replicate_factors <- (v[,seq_len(k),drop=FALSE] %*% H[seq_len(k),,drop=FALSE])
+  replicate_factors <- (
+    v[,seq_len(Sigma_rank),drop=FALSE] %*% H[seq_len(Sigma_rank),,drop=FALSE]
+  )
 
   max_flipped_value <- max(-replicate_factors)
   if (max_flipped_value > 0) {
@@ -84,7 +85,7 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
     scale <- scale * (k_prime/num_replicates)
     replicate_factors <- replicate_factors[,sample(num_replicates),drop=FALSE]
 
-    if (max_replicates < matrix_rank) {
+    if (max_replicates < Sigma_rank) {
       sprintf(
         "The number of replicates needed for balanced, fully-efficient replication is %s, but `max_replicates` is set to %s",
         k_prime, max_replicates
@@ -293,7 +294,7 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 #' svyquantile(x = ~ LIBRARIA, quantiles = 0.5, na.rm = TRUE,
 #'             design = gen_boot_design_sd2, interval.type = "quantile")
 #' svyquantile(x = ~ LIBRARIA, quantiles = 0.5, na.rm = TRUE,
-#'             design = gen_rep_design_sd2, interval.type = "quantile")
+#'             design = gen_rep_design_sd2)
 #' @export
 as_fays_gen_rep_design <- function(design, variance_estimator = NULL,
                                    max_replicates = 500,
