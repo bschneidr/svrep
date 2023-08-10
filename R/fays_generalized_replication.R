@@ -1,11 +1,71 @@
 #' @title Form replication factors using Fay's generalized replication method
-#' @param Sigma A quadratic form matrix
-#' @param max_replicates The maximum number of replicates to allow (should be as large as possible, given computer memory/storage limitations).
-#' A commonly-recommended default is 500. If the number of replicates needed
-#' for a balanced, fully-efficient estimator is less than \code{max_replicates},
-#' then only the number of replicates needed will be created.
+#' @description Generate a matrix of replication factors
+#' using Fay's generalized replication method. The replication
+#' factors are guaranteed to be nonnegative. This method yields
+#' a fully efficient variance estimator if a sufficient number of
+#' replicates is used.
+#' @param Sigma A quadratic form matrix corresponding to
+#' a target variance estimator. Must be positive semidefinite.
+#' @param max_replicates The maximum number of replicates to allow.
+#' The function will attempt to create the minimum number of replicates
+#' needed to produce a fully-efficient variance estimator.
 #' If more replicates are needed than \code{max_replicates}, then the full number of replicates
 #' needed will be created, but only a random subsample will be retained.
+#' @return A matrix of replicate factors,
+#' with the number of rows matching the number of rows of \code{Sigma}
+#' and the number of columns less than or equal to \code{max_replicates}.
+#' To calculate variance estimates using these factors,
+#' use the overall scale factor given by calling
+#' \code{attr(x, "scale")} on the result.
+#' @section Statistical Details:
+#' See Fay (1989) for a full explanation of Fay's generalized replication method.
+#' This documentation provides a brief overview.
+#'
+#' Let \eqn{\boldsymbol{\Sigma}} be the quadratic form matrix for a target variance estimator,
+#' which is assumed to be positive semidefinite.
+#' Suppose the rank of \eqn{\boldsymbol{\Sigma}} is \eqn{k},
+#' and so \eqn{\boldsymbol{\Sigma}} can be represented by the spectral decomposition
+#' of \eqn{k} eigenvectors and eigenvalues, where the \eqn{r}-th eigenvector and eigenvalue
+#' are denoted \eqn{\mathbf{v}_{(r)}} and \eqn{\lambda_r}, respectively.
+#' \deqn{
+#' \boldsymbol{\Sigma} = \sum_{r=1}^k \lambda_r \mathbf{v}_{(r)} \mathbf{v^{\prime}}_{(r)}
+#' }
+#' Let \eqn{\mathbf{H}} be a Hadamard matrix (with all entries equal to \eqn{1} or \eqn{-1}),
+#' of order \eqn{k^{\prime} \geq k}. Let \eqn{\mathbf{H}_{mr}} denote the entry in row
+#' \eqn{m} and column \eqn{r} of \eqn{\mathbf{H}}.
+#'
+#' Then \eqn{k^{\prime}} replicates are formed as follows.
+#' Let \eqn{r} denote a given replicate, with \eqn{r = 1, ..., k^{\prime}},
+#' and let \eqn{c} denote some positive constant (yet to be specified).
+#'
+#' For now, let \eqn{c=1} and create the \eqn{r}-th replicate's adjustment factor \eqn{\mathbf{f}_{r}} as:
+#' \deqn{
+#'   \mathbf{f}_{r} = 1 + c \sum_{m=1}^k H_{m r} \lambda^{\frac{1}{2}} v_{(m)}
+#' }
+#' It's possible that one or more of the replicates will have a negative adjustment factor.
+#' This can easily be eliminated by an appropriate choice of the constant \eqn{c}.
+#' If there are any negative adjustment factors,
+#' then set \eqn{c^{-1}} equal to some value just larger than the
+#' absolute value of the minimum replicate adjustment factor (from across all the replicates).
+#' Then recalculate \eqn{\mathbf{f}_{r}} using the updated value of \eqn{c}.
+#'
+#' If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
+#' \deqn{
+#'   v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{k^{\prime}} \sum_{r=1}^{k^{\prime}}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
+#' }
+#' For population totals, this replication variance estimator
+#' will \emph{exactly} match the target variance estimator.
+#'
+#' If the number of replicates \eqn{k^{\prime}} is too large for practical purposes,
+#' then one can simply retain only a random subset of \eqn{R} of the \eqn{k^{\prime}} replicates.
+#' In this case, variances are calculated as follows:
+#' \deqn{
+#'   v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{R} \sum_{r=1}^{R}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
+#' }
+#' This is what happens if \code{max_replicates} is less than the
+#' matrix rank of \code{Sigma}: only a random subset
+#' of the created replicates will be retained.
+#'
 #' @export
 #' @examples
 #'   library(survey)
@@ -30,13 +90,36 @@
 #'     joint_probs = election_jointprob
 #'   )
 #'
-#' # Make generalized bootstrap adjustment factors ----
+#' # Make generalized replication adjustment factors ----
 #'
 #'   adjustment_factors <- make_fay_gen_rep_factors(
 #'     Sigma = horvitz_thompson_matrix,
-#'     max_replicates = 80
+#'     max_replicates = 50
 #'   )
 #'   attr(adjustment_factors, 'scale')
+#'
+#' # Compute the Horvitz-Thompson estimate and the replication estimate
+#'
+#' ht_estimate <- svydesign(data = election_pps, ids = ~ 1,
+#'                          prob = diag(election_jointprob),
+#'                          pps = ppsmat(election_jointprob)) |>
+#'   svytotal(x = ~ Kerry)
+#'
+#' rep_estimate <- svrepdesign(
+#'   data = election_pps,
+#'   weights = ~ wt,
+#'   repweights = adjustment_factors,
+#'   combined.weights = FALSE,
+#'   scale = attr(adjustment_factors, 'scale'),
+#'   rscales = rep(1, times = ncol(adjustment_factors)),
+#'   type = "other"
+#' ) |>
+#'   svytotal(x = ~ Kerry)
+#'
+#' SE(rep_estimate)
+#' SE(ht_estimate)
+#' SE(rep_estimate) / SE(ht_estimate)
+
 make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 
   n <- nrow(Sigma)
@@ -57,7 +140,7 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
   # Generate Hadamard matrix
   H <- (2*survey::hadamard(Sigma_rank) - 1)
   k_prime <- ncol(H)
-  shuffle_order <- sample(x = k_prime, size = k_prime)
+  shuffle_order <- sample(x = k_prime, size = k_prime, replace = FALSE)
   H <- H[shuffle_order, shuffle_order]
 
   # Construct replicate factors
@@ -67,7 +150,7 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 
   max_flipped_value <- max(-replicate_factors)
   if (max_flipped_value > 0) {
-    scale_factor <- 1/max_flipped_value
+    scale_factor <- 1/(max_flipped_value*1.001)
   } else {
     scale_factor <- 1
   }
@@ -184,6 +267,9 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 #' See \link[svrep]{variance-estimators} for a
 #' description of each variance estimator.
 #' @section Statistical Details:
+#' See Fay (1989) for a full description of this replication method,
+#' or see the documentation in \link[svrep]{make_fay_gen_rep_factors} for implementation details.
+#'
 #' Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
 #' The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
 #' Suppose we can represent our textbook variance estimator as a quadratic form: \eqn{v(\hat{T}_y) = \breve{y}\Sigma\breve{y}^T},
@@ -197,7 +283,7 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 #'   v_B\left(\hat{T}_y\right)=\frac{\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2}{B}
 #' }
 #'
-#' This bootstrap variance estimator can be written as a quadratic form:
+#' This replicate variance estimator can be written as a quadratic form:
 #'
 #'   \deqn{
 #'     v_B\left(\hat{T}_y\right) =\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}
@@ -217,12 +303,7 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 #' \cr \cr
 #' With this function, the matrix \eqn{\boldsymbol{\Sigma}} undergoes a spectral decomposition,
 #' and the eigenvectors and eigenvalues are combined using a Hadamard matrix (see Fay (1984)),
-#' which produces 'balanced' replicates.
-#' @section Details on Rescaling to Avoid Negative Adjustment Factors:
-#' If there are any negative replicates, then all of the replicate factors are adjusted
-#' by dividing the replicate factor by the absolute value of the negative factor with the largest absolute value.
-#' The overall scale factor for computing variances is then
-#' multiplied by the squared value of the negative factor with the largest absolute value.
+#' which produces 'balanced' replicates. See
 #' @section Two-Phase Designs:
 #' For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
 #' with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
@@ -235,14 +316,16 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 #' For statistical details on the handling of two-phase designs,
 #' see the documentation for \link[svrep]{make_twophase_quad_form}.
 #' @references
-#' The generalized replication method was proposed by
-#' Fay (1984) and Dippo, Fay, and Morganstein (1984).
-#' \cr \cr
+#' The generalized replication method was first proposed in
+#' Fay (1984). Fay (1989) refined the generalized replication method
+#' to produce "balanced" replicates, in the sense that
+#' each replicate contributes equally to variance estimates.
+#' The advantage of balanced replicates is that one can
+#' still obtain a reasonable variance estimate
+#' by using only a random subset of the replicates.
+#'
 #' - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
-#' \cr \cr
-#' - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
-#' \strong{Journal of Official Statistics}, Vol.1, No.3.
 #' \cr \cr
 #' - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 #' \cr \cr
@@ -251,6 +334,8 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 #' - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 #' \cr \cr
 #' - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
+#' \cr \cr
+#' - Fay, Robert. 1989. “Theory And Application Of Replicate Weighting For Variance Calculations.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 #' \cr \cr
 #' - Matei, Alina, and Yves Tillé. (2005).
 #' “\emph{Evaluation of Variance Approximations and Estimators

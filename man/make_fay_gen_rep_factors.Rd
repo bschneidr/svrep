@@ -7,18 +7,81 @@
 make_fay_gen_rep_factors(Sigma, max_replicates)
 }
 \arguments{
-\item{Sigma}{A quadratic form matrix}
+\item{Sigma}{A quadratic form matrix corresponding to
+a target variance estimator. Must be positive semidefinite.}
 
-\item{max_replicates}{The maximum number of replicates to allow (should be as large as possible, given computer memory/storage limitations).
-A commonly-recommended default is 500. If the number of replicates needed
-for a balanced, fully-efficient estimator is less than \code{max_replicates},
-then only the number of replicates needed will be created.
+\item{max_replicates}{The maximum number of replicates to allow.
+The function will attempt to create the minimum number of replicates
+needed to produce a fully-efficient variance estimator.
 If more replicates are needed than \code{max_replicates}, then the full number of replicates
 needed will be created, but only a random subsample will be retained.}
 }
-\description{
-Form replication factors using Fay's generalized replication method
+\value{
+A matrix of replicate factors,
+with the number of rows matching the number of rows of \code{Sigma}
+and the number of columns less than or equal to \code{max_replicates}.
+To calculate variance estimates using these factors,
+use the overall scale factor given by calling
+\code{attr(x, "scale")} on the result.
 }
+\description{
+Generate a matrix of replication factors
+using Fay's generalized replication method. The replication
+factors are guaranteed to be nonnegative. This method yields
+a fully efficient variance estimator if a sufficient number of
+replicates is used.
+}
+\section{Statistical Details}{
+
+See Fay (1989) for a full explanation of Fay's generalized replication method.
+This documentation provides a brief overview.
+
+Let \eqn{\boldsymbol{\Sigma}} be the quadratic form matrix for a target variance estimator,
+which is assumed to be positive semidefinite.
+Suppose the rank of \eqn{\boldsymbol{\Sigma}} is \eqn{k},
+and so \eqn{\boldsymbol{\Sigma}} can be represented by the spectral decomposition
+of \eqn{k} eigenvectors and eigenvalues, where the \eqn{r}-th eigenvector and eigenvalue
+are denoted \eqn{\mathbf{v}_{(r)}} and \eqn{\lambda_r}, respectively.
+\deqn{
+\boldsymbol{\Sigma} = \sum_{r=1}^k \lambda_r \mathbf{v}_{(r)} \mathbf{v^{\prime}}_{(r)}
+}
+Let \eqn{\mathbf{H}} be a Hadamard matrix (with all entries equal to \eqn{1} or \eqn{-1}),
+of order \eqn{k^{\prime} \geq k}. Let \eqn{\mathbf{H}_{mr}} denote the entry in row
+\eqn{m} and column \eqn{r} of \eqn{\mathbf{H}}.
+
+Then \eqn{k^{\prime}} replicates are formed as follows.
+Let \eqn{r} denote a given replicate, with \eqn{r = 1, ..., k^{\prime}},
+and let \eqn{c} denote some positive constant (yet to be specified).
+
+For now, let \eqn{c=1} and create the \eqn{r}-th replicate's adjustment factor \eqn{\mathbf{f}_{r}} as:
+\deqn{
+  \mathbf{f}_{r} = 1 + c \sum_{m=1}^k H_{m r} \lambda^{\frac{1}{2}} v_{(m)}
+}
+It's possible that one or more of the replicates will have a negative adjustment factor.
+This can easily be eliminated by an appropriate choice of the constant \eqn{c}.
+If there are any negative adjustment factors,
+then set \eqn{c^{-1}} equal to some value just larger than the
+absolute value of the minimum replicate adjustment factor (from across all the replicates).
+Then recalculate \eqn{\mathbf{f}_{r}} using the updated value of \eqn{c}.
+
+If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
+\deqn{
+  v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{k^{\prime}} \sum_{r=1}^{k^{\prime}}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
+}
+For population totals, this replication variance estimator
+will \emph{exactly} match the target variance estimator.
+
+If the number of replicates \eqn{k^{\prime}} is too large for practical purposes,
+then one can simply retain only a random subset of \eqn{R} of the \eqn{k^{\prime}} replicates.
+In this case, variances are calculated as follows:
+\deqn{
+  v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{R} \sum_{r=1}^{R}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
+}
+This is what happens if \code{max_replicates} is less than the
+matrix rank of \code{Sigma}: only a random subset
+of the created replicates will be retained.
+}
+
 \examples{
   library(survey)
 
@@ -42,11 +105,33 @@ Form replication factors using Fay's generalized replication method
     joint_probs = election_jointprob
   )
 
-# Make generalized bootstrap adjustment factors ----
+# Make generalized replication adjustment factors ----
 
   adjustment_factors <- make_fay_gen_rep_factors(
     Sigma = horvitz_thompson_matrix,
-    max_replicates = 80
+    max_replicates = 50
   )
   attr(adjustment_factors, 'scale')
+
+# Compute the Horvitz-Thompson estimate and the replication estimate
+
+ht_estimate <- svydesign(data = election_pps, ids = ~ 1,
+                         prob = diag(election_jointprob),
+                         pps = ppsmat(election_jointprob)) |>
+  svytotal(x = ~ Kerry)
+
+rep_estimate <- svrepdesign(
+  data = election_pps,
+  weights = ~ wt,
+  repweights = adjustment_factors,
+  combined.weights = FALSE,
+  scale = attr(adjustment_factors, 'scale'),
+  rscales = rep(1, times = ncol(adjustment_factors)),
+  type = "other"
+) |>
+  svytotal(x = ~ Kerry)
+
+SE(rep_estimate)
+SE(ht_estimate)
+SE(rep_estimate) / SE(ht_estimate)
 }

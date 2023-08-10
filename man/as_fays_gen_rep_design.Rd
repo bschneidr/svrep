@@ -94,6 +94,9 @@ can be represented as a quadratic form whose matrix is positive semidefinite
 }
 \section{Statistical Details}{
 
+See Fay (1989) for a full description of this replication method,
+or see the documentation in \link[svrep]{make_fay_gen_rep_factors} for implementation details.
+
 Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
 The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
 Suppose we can represent our textbook variance estimator as a quadratic form: \eqn{v(\hat{T}_y) = \breve{y}\Sigma\breve{y}^T},
@@ -107,7 +110,7 @@ This yields \eqn{B} replicate estimates of the population total, \eqn{\hat{T}_y^
   v_B\left(\hat{T}_y\right)=\frac{\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2}{B}
 }
 
-This bootstrap variance estimator can be written as a quadratic form:
+This replicate variance estimator can be written as a quadratic form:
 
   \deqn{
     v_B\left(\hat{T}_y\right) =\mathbf{\breve{y}}^{\prime}\Sigma_B \mathbf{\breve{y}}
@@ -127,15 +130,7 @@ Thus, we can produce a replication variance estimator with the same expectation 
 \cr \cr
 With this function, the matrix \eqn{\boldsymbol{\Sigma}} undergoes a spectral decomposition,
 and the eigenvectors and eigenvalues are combined using a Hadamard matrix (see Fay (1984)),
-which produces 'balanced' replicates.
-}
-
-\section{Details on Rescaling to Avoid Negative Adjustment Factors}{
-
-If there are any negative replicates, then all of the replicate factors are adjusted
-by dividing the replicate factor by the absolute value of the negative factor with the largest absolute value.
-The overall scale factor for computing variances is then
-multiplied by the squared value of the negative factor with the largest absolute value.
+which produces 'balanced' replicates. See
 }
 
 \section{Two-Phase Designs}{
@@ -190,17 +185,19 @@ svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_rep_design_sd2)
 svyquantile(x = ~ LIBRARIA, quantiles = 0.5, na.rm = TRUE,
             design = gen_boot_design_sd2, interval.type = "quantile")
 svyquantile(x = ~ LIBRARIA, quantiles = 0.5, na.rm = TRUE,
-            design = gen_rep_design_sd2, interval.type = "quantile")
+            design = gen_rep_design_sd2)
 }
 \references{
-The generalized replication method was proposed by
-Fay (1984) and Dippo, Fay, and Morganstein (1984).
-\cr \cr
+The generalized replication method was first proposed in
+Fay (1984). Fay (1989) refined the generalized replication method
+to produce "balanced" replicates, in the sense that
+each replicate contributes equally to variance estimates.
+The advantage of balanced replicates is that one can
+still obtain a reasonable variance estimate
+by using only a random subset of the replicates.
+
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
-\cr \cr
-- Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
-\strong{Journal of Official Statistics}, Vol.1, No.3.
 \cr \cr
 - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 \cr \cr
@@ -209,6 +206,8 @@ Fay (1984) and Dippo, Fay, and Morganstein (1984).
 - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 \cr \cr
 - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
+\cr \cr
+- Fay, Robert. 1989. “Theory And Application Of Replicate Weighting For Variance Calculations.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 \cr \cr
 - Matei, Alina, and Yves Tillé. (2005).
 “\emph{Evaluation of Variance Approximations and Estimators
