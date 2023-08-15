@@ -92,7 +92,7 @@
 #'
 #' # Make generalized replication adjustment factors ----
 #'
-#'   adjustment_factors <- make_fay_gen_rep_factors(
+#'   adjustment_factors <- make_fays_gen_rep_factors(
 #'     Sigma = horvitz_thompson_matrix,
 #'     max_replicates = 50
 #'   )
@@ -120,7 +120,7 @@
 #' SE(ht_estimate)
 #' SE(rep_estimate) / SE(ht_estimate)
 
-make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
+make_fays_gen_rep_factors <- function(Sigma, max_replicates) {
 
   n <- nrow(Sigma)
 
@@ -175,8 +175,6 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
       ) |> message()
     }
   }
-
-  replicate_factors |> rowMeans()
 
   attr(replicate_factors, 'scale') <- scale
   attr(replicate_factors, 'rscales') <- rep(1, times = num_replicates)
@@ -262,13 +260,13 @@ make_fay_gen_rep_factors <- function(Sigma, max_replicates) {
 #' @seealso
 #' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 #' represent several common variance estimators as a quadratic form's matrix,
-#' which can then be used as an input to \code{\link[svrep]{make_fay_gen_rep_factors}}.
+#' which can then be used as an input to \code{\link[svrep]{make_fays_gen_rep_factors}}.
 #'
 #' See \link[svrep]{variance-estimators} for a
 #' description of each variance estimator.
 #' @section Statistical Details:
 #' See Fay (1989) for a full description of this replication method,
-#' or see the documentation in \link[svrep]{make_fay_gen_rep_factors} for implementation details.
+#' or see the documentation in \link[svrep]{make_fays_gen_rep_factors} for implementation details.
 #'
 #' Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
 #' The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
@@ -423,7 +421,7 @@ as_fays_gen_rep_design.twophase2 <- function(design, variance_estimator = NULL,
     }
   }
 
-  adjustment_factors <- make_fay_gen_rep_factors(
+  adjustment_factors <- make_fays_gen_rep_factors(
     Sigma = Sigma,
     max_replicates = max_replicates
   )
@@ -506,7 +504,7 @@ as_fays_gen_rep_design.survey.design <- function(design, variance_estimator = NU
   }
 
   # Generate adjustment factors for the compressed design object
-  adjustment_factors <- make_fay_gen_rep_factors(
+  adjustment_factors <- make_fays_gen_rep_factors(
     Sigma = Sigma,
     max_replicates = max_replicates
   )

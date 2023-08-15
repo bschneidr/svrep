@@ -95,7 +95,7 @@ can be represented as a quadratic form whose matrix is positive semidefinite
 \section{Statistical Details}{
 
 See Fay (1989) for a full description of this replication method,
-or see the documentation in \link[svrep]{make_fay_gen_rep_factors} for implementation details.
+or see the documentation in \link[svrep]{make_fays_gen_rep_factors} for implementation details.
 
 Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
 The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
@@ -217,7 +217,7 @@ in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
 \seealso{
 For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 represent several common variance estimators as a quadratic form's matrix,
-which can then be used as an input to \code{\link[svrep]{make_fay_gen_rep_factors}}.
+which can then be used as an input to \code{\link[svrep]{make_fays_gen_rep_factors}}.
 
 See \link[svrep]{variance-estimators} for a
 description of each variance estimator.
