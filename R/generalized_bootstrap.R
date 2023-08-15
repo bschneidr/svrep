@@ -112,6 +112,12 @@ rescale_reps <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
   if ((tau == "auto") && (min_wgt < 0 || min_wgt > 1)) {
     stop("When `tau='auto'`, the argument `min_wgt` must be at least 0 and less than 1.")
   }
+  if (!is.numeric(digits) || (digits < 1)) {
+    stop("`digits` must be an integer greater than or equal to 1.")
+  }
+  if ((min_wgt != 0) & (round(min_wgt, digits) == 0)) {
+    stop("round(min_wgt, digits) equals 0; increase either `min_wgt` or `digits`.")
+  }
 
   UseMethod("rescale_reps", x)
 }
@@ -123,7 +129,7 @@ rescale_reps.matrix <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
     if (tau == "auto") {
       rescaling_constant <- min((1-rep_weights)/(min_wgt-1))
       rescaling_constant <- abs(rescaling_constant)
-      rescaling_constant <- ceiling(rescaling_constant * 100)/100
+      rescaling_constant <- ceiling(rescaling_constant * 10^(digits))/(10^(digits))
     } else {
       rescaling_constant <- tau
     }
