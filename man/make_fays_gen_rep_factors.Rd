@@ -26,10 +26,9 @@ use the overall scale factor given by calling
 }
 \description{
 Generate a matrix of replication factors
-using Fay's generalized replication method. The replication
-factors are guaranteed to be nonnegative. This method yields
-a fully efficient variance estimator if a sufficient number of
-replicates is used.
+using Fay's generalized replication method.
+This method yields a fully efficient variance estimator
+if a sufficient number of replicates is used.
 }
 \section{Statistical Details}{
 
@@ -53,16 +52,21 @@ Then \eqn{k^{\prime}} replicates are formed as follows.
 Let \eqn{r} denote a given replicate, with \eqn{r = 1, ..., k^{\prime}},
 and let \eqn{c} denote some positive constant (yet to be specified).
 
+
 For now, let \eqn{c=1} and create the \eqn{r}-th replicate's adjustment factor \eqn{\mathbf{f}_{r}} as:
 \deqn{
   \mathbf{f}_{r} = 1 + c \sum_{m=1}^k H_{m r} \lambda^{\frac{1}{2}} v_{(m)}
 }
+
 It's possible that one or more of the replicates will have a negative adjustment factor.
 This can easily be eliminated by an appropriate choice of the constant \eqn{c}.
 If there are any negative adjustment factors,
 then set \eqn{c^{-1}} equal to some value just larger than the
 absolute value of the minimum replicate adjustment factor (from across all the replicates).
 Then recalculate \eqn{\mathbf{f}_{r}} using the updated value of \eqn{c}.
+This function uses a value of \eqn{c=1}. You can update the value
+of \eqn{c} after creating replicate factors
+by using the function \code{\link[svrep]{rescale_reps}}.
 
 If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
 \deqn{
@@ -134,4 +138,13 @@ rep_estimate <- svrepdesign(
 SE(rep_estimate)
 SE(ht_estimate)
 SE(rep_estimate) / SE(ht_estimate)
+}
+\references{
+Fay, Robert. 1989.
+"Theory And Application Of Replicate Weighting For Variance Calculations."
+In, 495–500. Alexandria, VA: American Statistical Association.
+http://www.asasrms.org/Proceedings/papers/1989_033.pdf
+}
+\seealso{
+Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
 }
