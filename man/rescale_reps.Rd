@@ -36,7 +36,9 @@ a matrix of replicate weights (which are the product of replicate factors and sa
 If the design object has \code{combined.weights=FALSE},
 then the replication factors are adjusted.
 If the design object has \code{combined.weights=TRUE},
-then the replicate weights are adjusted.
+then the replicate weights are adjusted. It is strongly
+recommended to only use the rescaling method for replication factors
+rather than the weights.
 
 For a replicate survey design object, the \code{scale} element
 of the design object will be updated appropriately,
@@ -116,4 +118,20 @@ For example, for bootstrap replicates, the adjustment factor becomes \eqn{\frac{
 
  print(boot_wgts)
  print(rescaled_boot_wgts)
+}
+\references{
+This method was suggested by Fay (1989) for the specific application
+of creating replicate factors using his generalized replication method.
+Beaumont and Patak (2012) provided an extended discussion on this rescaling
+method in the context of creating generalized bootstrap weights.
+The notation used in this documentation is taken from Beaumont and Patak (2012).
+
+- Beaumont, Jean-François, and Zdenek Patak. 2012.
+"On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys."
+International Statistical Review 80 (1): 127–48.
+https://doi.org/10.1111/j.1751-5823.2011.00166.x.
+\cr \cr
+- Fay, Robert. 1989. "Theory And Application Of Replicate Weighting For Variance Calculations."
+In, 495–500. Alexandria, VA: American Statistical Association.
+http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 }
