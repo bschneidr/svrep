@@ -84,6 +84,13 @@ In this case, variances are calculated as follows:
 This is what happens if \code{max_replicates} is less than the
 matrix rank of \code{Sigma}: only a random subset
 of the created replicates will be retained.
+
+The Hadamard matrix used in the construction of replicates
+is deterministically created using the function
+\code{\link[survey]{hadamard}} from the 'survey' package.
+However, the order of rows/columns is randomly permuted.
+To ensure exact reproducibility, it is recommended to call
+\code{\link[base]{set.seed}} before using this function.
 }
 
 \examples{

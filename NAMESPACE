@@ -2,6 +2,7 @@
 
 S3method(as_bootstrap_design,DBIsvydesign)
 S3method(as_bootstrap_design,survey.design)
+S3method(as_fays_gen_rep_design,DBIsvydesign)
 S3method(as_fays_gen_rep_design,survey.design)
 S3method(as_fays_gen_rep_design,twophase2)
 S3method(as_gen_boot_design,DBIsvydesign)

@@ -314,3 +314,80 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
 
   return(Sigma)
 }
+
+#' @title Produce a compressed representation of a survey design object
+#'
+#' @param design A survey design object
+#'
+#' @return A list with two elements. The \code{design_subset}
+#' element is a a design object with only the minimal rows
+#' needed to represent the survey design.
+#' The \code{index} element links each row of the original design
+#' to a row of \code{design_subset}, so that the design can be "uncompressed."
+#'
+compress_design <- function(design) {
+  UseMethod("compress_design", design)
+}
+
+compress_design.survey.design <- function(design) {
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(design$strata, design$cluster)
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
+        # Subset to only unique strata/cluster combos
+        design_obj[unique_elements,]
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
+  }
+
+  return(compressed_design_structure)
+}
+
+compress_design.DBIsvydesign <- function(design) {
+  # Produce a (potentially) compressed survey design object
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(design$strata, design$cluster)
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        if (!is.null(design_obj$variables)) {
+          design_obj$variables <- design_obj$variables[unique_elements,0,drop=FALSE]
+        }
+        # Subset to only unique strata/cluster/weight/fpc combos
+        design_obj$strata <- design_obj$strata[unique_elements,, drop = FALSE]
+        design_obj$cluster <- design_obj$cluster[unique_elements,, drop = FALSE]
+        if (!is.null(design_obj$allprob)) {
+          design_obj$allprob <- design_obj$allprob[unique_elements,, drop = FALSE]
+        }
+        if (!is.null(design_obj$fpc$sampsize)) {
+          design_obj$fpc$sampsize <- design_obj$fpc$sampsize[unique_elements,, drop = FALSE]
+        }
+        if (!is.null(design_obj$fpc$popsize)) {
+          design_obj$fpc$popsize <- design_obj$fpc$popsize[unique_elements,, drop = FALSE]
+        }
+        design_obj$prob <- design_obj$prob[unique_elements]
+        return(design_obj)
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
+  }
+
+  return(compressed_design_structure)
+}

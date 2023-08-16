@@ -769,25 +769,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
-    compressed_design_structure <- list(
-      design_subset = design,
-      index = seq_len(nrow(design))
-    )
-  } else {
-    design_structure <- cbind(design$strata, design$cluster)
-    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
-    unique_elements <- !duplicated(design_structure)
-    compressed_design_structure <- list(
-      design_subset = design |> (\(design_obj) {
-        # Reduce memory usage by dropping variables
-        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
-        # Subset to only unique strata/cluster combos
-        design_obj[unique_elements,]
-      })(),
-      index = match(tmp, tmp[unique_elements])
-    )
-  }
+  compressed_design_structure <- compress_design(design)
 
   # Get the quadratic form of the variance estimator,
   # for the compressed design object
@@ -872,39 +854,7 @@ as_gen_boot_design.DBIsvydesign <- function(design, variance_estimator = NULL,
                                             compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
-    compressed_design_structure <- list(
-      design_subset = design,
-      index = seq_len(nrow(design))
-    )
-  } else {
-    design_structure <- cbind(design$strata, design$cluster)
-    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
-    unique_elements <- !duplicated(design_structure)
-    compressed_design_structure <- list(
-      design_subset = design |> (\(design_obj) {
-        # Reduce memory usage by dropping variables
-        if (!is.null(design_obj$variables)) {
-          design_obj$variables <- design_obj$variables[unique_elements,0,drop=FALSE]
-        }
-        # Subset to only unique strata/cluster/weight/fpc combos
-        design_obj$strata <- design_obj$strata[unique_elements,, drop = FALSE]
-        design_obj$cluster <- design_obj$cluster[unique_elements,, drop = FALSE]
-        if (!is.null(design_obj$allprob)) {
-          design_obj$allprob <- design_obj$allprob[unique_elements,, drop = FALSE]
-        }
-        if (!is.null(design_obj$fpc$sampsize)) {
-          design_obj$fpc$sampsize <- design_obj$fpc$sampsize[unique_elements,, drop = FALSE]
-        }
-        if (!is.null(design_obj$fpc$popsize)) {
-          design_obj$fpc$popsize <- design_obj$fpc$popsize[unique_elements,, drop = FALSE]
-        }
-        design_obj$prob <- design_obj$prob[unique_elements]
-        return(design_obj)
-      })(),
-      index = match(tmp, tmp[unique_elements])
-    )
-  }
+  compressed_design_structure <- compress_design(design)
 
   # Get the quadratic form of the variance estimator,
   # for the compressed design object
