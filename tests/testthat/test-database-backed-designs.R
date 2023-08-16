@@ -69,6 +69,33 @@ test_that(
   }
 )
 
+# Test Fay's generalized replication functionality ----
+test_that(
+  desc = "Generalized replication works for database-backed designs", {
+
+    # Create Fay's generalized replication replicates for database-backed design
+
+    set.seed(2023)
+    db_result <- dbclus1 |> as_fays_gen_rep_design(
+      max_replicates = 16, variance_estimator = "Ultimate Cluster"
+    )
+
+    # Create replicates for design in local memory
+    set.seed(2023)
+    non_db_result <- dclus1 |> as_fays_gen_rep_design(
+      max_replicates = 16, variance_estimator = "Ultimate Cluster"
+    )
+
+    # Compare two sets of replicate weights
+    expect_equal(db_result$repweights, non_db_result$repweights)
+    # Compare estimates
+    expect_equal(
+      svytotal(x = ~ api00, db_result) |> SE(),
+      svytotal(x = ~ api00, non_db_result) |> SE()
+    )
+  }
+)
+
 # Test the basic bootstrap functionality ----
 
 test_that(

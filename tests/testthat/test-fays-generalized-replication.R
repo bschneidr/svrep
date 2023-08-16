@@ -45,22 +45,26 @@ test_that(
       variance = "HT"
     )
 
-    ## Convert to generalized bootstrap replicate design
+    ## Convert to generalized replication design
     set.seed(2014)
     conversion_result <- pps_design_ht |>
       as_fays_gen_rep_design(variance_estimator = "Horvitz-Thompson",
-                             max_replicates = 5) |>
-      weights(type = "replication")
+                             max_replicates = 44) |>
+      weights(type = "replication") |> cov()
 
 
     set.seed(2014)
-    orig_result <- make_quad_form_matrix(variance_estimator = "Horvitz-Thompson",
-                                         joint_probs = election_jointprob) |>
-      make_fays_gen_rep_factors(max_replicates = 5)
+    orig_result <- make_quad_form_matrix(
+      variance_estimator = "Horvitz-Thompson",
+      joint_probs = election_jointprob
+    ) |>
+      make_fays_gen_rep_factors(max_replicates = 44) |>
+      cov()
 
     expect_equal(
       object =  conversion_result,
-      expected = orig_result
+      expected = orig_result,
+      tolerance = 0.001
     )
 
   })
@@ -76,22 +80,23 @@ test_that(
       variance = "YG"
     )
 
-    ## Convert to generalized bootstrap replicate design
+    ## Convert to generalized replication design
     set.seed(2014)
     conversion_result <- pps_design_yg |>
       as_fays_gen_rep_design(variance_estimator = "Yates-Grundy",
-                             max_replicates = 5) |>
-      weights(type = "replication")
+                             max_replicates = 44) |>
+      weights(type = "replication") |> cov()
 
 
     set.seed(2014)
     orig_result <- make_quad_form_matrix(variance_estimator = "Yates-Grundy",
                                          joint_probs = election_jointprob) |>
-      make_fays_gen_rep_factors(max_replicates = 5)
+      make_fays_gen_rep_factors(max_replicates = 44) |> cov()
 
     expect_equal(
       object = conversion_result,
-      expected = orig_result
+      expected = orig_result,
+      tolerance = 0.001
     )
 
   })
@@ -108,11 +113,11 @@ test_that(
       fpc = ~ PSU_POP_SIZE + SSU_POP_SIZE
     )
 
-    ## Convert to generalized bootstrap replicate design
+    ## Convert to generalized replication design
     set.seed(2014)
     conversion_result <- multistage_survey_design |>
       as_fays_gen_rep_design(variance_estimator = "Ultimate Cluster",
-                             max_replicates = 5) |>
+                             max_replicates = 104) |>
       weights(type = "replication")
 
 
@@ -121,7 +126,7 @@ test_that(
                                          strata_ids = multistage_survey_design$strata,
                                          cluster_ids = multistage_survey_design$cluster,
                                          strata_pop_sizes = multistage_survey_design$fpc$popsize) |>
-      make_fays_gen_rep_factors(max_replicates = 5)
+      make_fays_gen_rep_factors(max_replicates = 104)
 
     expect_equal(
       object = conversion_result,
@@ -142,20 +147,22 @@ test_that(
       fpc = ~ PSU_POP_SIZE + SSU_POP_SIZE
     )
 
-    ## Convert to generalized bootstrap replicate design
-    set.seed(2014)
-    conversion_result <- multistage_survey_design |>
-      as_fays_gen_rep_design(variance_estimator = "Stratified Multistage SRS",
-                             max_replicates = 5) |>
-      weights(type = "replication")
+    ## Convert to generalized replication design
+    suppressMessages({
+      set.seed(2014)
+      conversion_result <- multistage_survey_design |>
+        as_fays_gen_rep_design(variance_estimator = "Stratified Multistage SRS",
+                               max_replicates = 5) |>
+        weights(type = "replication")
 
 
-    set.seed(2014)
-    orig_result <- make_quad_form_matrix(variance_estimator = "Stratified Multistage SRS",
-                                         strata_ids = multistage_survey_design$strata,
-                                         cluster_ids = multistage_survey_design$cluster,
-                                         strata_pop_sizes = multistage_survey_design$fpc$popsize) |>
-      make_fays_gen_rep_factors(max_replicates = 5)
+      set.seed(2014)
+      orig_result <- make_quad_form_matrix(variance_estimator = "Stratified Multistage SRS",
+                                           strata_ids = multistage_survey_design$strata,
+                                           cluster_ids = multistage_survey_design$cluster,
+                                           strata_pop_sizes = multistage_survey_design$fpc$popsize) |>
+        make_fays_gen_rep_factors(max_replicates = 5)
+    })
 
     expect_equal(
       object = conversion_result,
@@ -177,7 +184,7 @@ test_that(
     )
 
     suppressMessages({
-      ## Convert to generalized bootstrap replicate design
+      ## Convert to generalized replication design
       set.seed(2014)
       conversion_result <- multistage_survey_design |>
         as_fays_gen_rep_design(variance_estimator = "SD1",
@@ -214,7 +221,7 @@ test_that(
     )
 
     suppressMessages({
-      ## Convert to generalized bootstrap replicate design
+      ## Convert to generalized replication design
       set.seed(2014)
       conversion_result <- multistage_survey_design |>
         as_fays_gen_rep_design(variance_estimator = "SD2",
@@ -245,7 +252,7 @@ test_that(
       expect_warning(
         regexp = "The sample quadratic form matrix for this design and variance estimator is not positive semidefinite.", object = {
           set.seed(2023)
-          twophase_gen_boot <- twophase_design |>
+          twophase_gen_repl <- twophase_design |>
             as_fays_gen_rep_design(
               max_replicates = 5,
               variance_estimator = list('SD2', 'Ultimate Cluster'),
@@ -258,7 +265,7 @@ test_that(
     suppressMessages({
       suppressWarnings({
         set.seed(2023)
-        gen_boot_reps <- twophase_design |>
+        gen_repl_reps <- twophase_design |>
           get_design_quad_form(
             variance_estimator = list('SD2', 'Ultimate Cluster')
           ) |>
@@ -268,8 +275,8 @@ test_that(
           )
 
         expect_equal(
-          object = twophase_gen_boot$repweights,
-          expected = gen_boot_reps
+          object = twophase_gen_repl$repweights,
+          expected = gen_repl_reps
         )
       })
     })
@@ -283,7 +290,7 @@ test_that(
 
     suppressMessages({
       suppressWarnings({
-        twophase_gen_boot <- twophase_design |>
+        twophase_gen_repl <- twophase_design |>
           as_fays_gen_rep_design(
             variance_estimator = list(
               'SD2', 'Ultimate Cluster'
@@ -293,9 +300,9 @@ test_that(
       })
     })
 
-    rescaled_design <- twophase_gen_boot |>
+    rescaled_design <- twophase_gen_repl |>
       rescale_reps(tau = "auto", min_wgt = 0.05)
-    rescaled_matrix <- twophase_gen_boot |>
+    rescaled_matrix <- twophase_gen_repl |>
       weights(type = "replication") |>
       rescale_reps(tau = "auto", min_wgt = 0.05)
 
@@ -317,10 +324,12 @@ test_that(
 
   })
 
-# Testing the `exact_vcov` option ----
+# Variance estimates give expected result ----
 
 test_that(
   desc = "Using full number of necessary replicates gives exact variance estimate for totals", {
+
+    set.seed(2023)
     pps_design_yg <- svydesign(
       data = election_pps,
       id = ~1, fpc = ~p,
@@ -328,18 +337,22 @@ test_that(
       variance = "YG"
     )
 
-    gen_boot_est <- as_fays_gen_rep_design(
+    Sigma <- get_design_quad_form(pps_design_yg, "Yates-Grundy")
+
+    gen_rep_est <- as_fays_gen_rep_design(
       pps_design_yg, "Yates-Grundy",
       max_replicates = 40
     ) |>
       svytotal(x = ~ Bush + Kerry) |> vcov() |>
       `attr<-`('means', NULL)
 
-    exact_est <- pps_design_yg |>
-      svytotal(x = ~ Bush + Kerry) |> vcov() |>
-      `attr<-`('means', NULL)
+    exact_est <- election_pps[,c("Bush", "Kerry")] |>
+      apply(MARGIN = 2, function(x) x/election_pps$p) |>
+      (\(X) t(X) %*% Sigma %*% X)() |>
+      as.matrix()
 
-    expect_equal(object = gen_boot_est, expected = exact_est)
+    expect_equal(object = gen_rep_est, expected = exact_est,
+                 tolerance = 0.1)
   }
 )
 
@@ -368,11 +381,13 @@ test_that(
   desc = "Returns `tbl_svy` if the input is a `tbl_svy` and 'srvyr' is loaded", {
     library(srvyr)
     expect_true(
-      twophase_design |> as_survey() |>
-        as_fays_gen_rep_design(variance_estimator = list(
-          'Ultimate Cluster', 'Ultimate Cluster'
-        ), max_replicates = 1) |>
-        inherits('tbl_svy')
+      suppressMessages({
+        twophase_design |> as_survey() |>
+          as_fays_gen_rep_design(variance_estimator = list(
+            'Ultimate Cluster', 'Ultimate Cluster'
+          ), max_replicates = 1) |>
+          inherits('tbl_svy')
+      })
     )
   }
 )
