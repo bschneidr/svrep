@@ -42,6 +42,9 @@
 #' in the context of forming replicate weights for two-phase samples.
 #' The authors argue that this approximation should
 #' lead to only a small overestimation of variance.
+#' @param aux_var_names Only required if \code{variance_estimator = "Breidt-Chauvet"}.
+#' Should be a character vector of variable names for auxiliary variables
+#' to be used in the Breidt and Chauvet (2011) variance estimator.
 #' @return A matrix representing the quadratic form of a specified variance estimator,
 #' based on extracting information about clustering, stratification,
 #' and selection probabilities from the survey design object.
@@ -137,19 +140,21 @@
 #' @export
 
 get_design_quad_form <- function(design, variance_estimator,
-                                 ensure_psd = FALSE) {
+                                 ensure_psd = FALSE,
+                                 aux_var_names = NULL) {
   UseMethod("get_design_quad_form", design)
 }
 
 #' @export
 get_design_quad_form.survey.design <- function(design, variance_estimator,
-                                               ensure_psd = FALSE) {
+                                               ensure_psd = FALSE,
+                                               aux_var_names = NULL) {
 
   accepted_variance_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet"
   )
 
   if (is.null(variance_estimator)) {
@@ -225,6 +230,26 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       sort_order = NULL
     )
   }
+  if (variance_estimator %in% c("Breidt-Chauvet")) {
+
+    if (is.null(aux_var_names)) {
+      stop("For `variance_estimator='Breidt-Chavuet', must supply a vector of variable names to `aux_var_names`.")
+    }
+
+    if (!all(aux_var_names %in% colnames(design$variables))) {
+      stop("Some of `aux_var_names` do not show up as columns in the design object.")
+    }
+
+    Sigma <- make_quad_form_matrix(
+      variance_estimator = variance_estimator,
+      cluster_ids = design$cluster,
+      strata_ids = design$strata,
+      probs = design$allprob,
+      aux_vars = design$variables[,aux_var_names,drop=FALSE],
+      strata_pop_sizes = NULL,
+      sort_order = NULL
+    )
+  }
 
   if (ensure_psd && !is_psd_matrix(Sigma)) {
     informative_msg <- paste0(
@@ -240,14 +265,15 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
 
 #' @export
 get_design_quad_form.twophase2 <- function(design, variance_estimator,
-                                           ensure_psd = FALSE) {
+                                           ensure_psd = FALSE,
+                                           aux_var_names = NULL) {
 
   # Check that `variance_estimator` is correctly specified
   accepted_phase1_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet"
   )
   accepted_phase2_estimators <- c(
     "Ultimate Cluster", "Stratified Multistage SRS",
@@ -279,7 +305,8 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
   # and subset to only cases selected in the second phase sample
   Sigma_phase1 <- get_design_quad_form(
     design = design$phase1$full,
-    variance_estimator = variance_estimator[[1]]
+    variance_estimator = variance_estimator[[1]],
+    aux_var_names = aux_var_names
   )
   Sigma_phase1 <- Sigma_phase1[design$subset, design$subset]
 
@@ -287,7 +314,8 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
   # (conditional on first phase sample)
   Sigma_phase2 <- get_design_quad_form(
     design = design$phase2,
-    variance_estimator = variance_estimator[[2]]
+    variance_estimator = variance_estimator[[2]],
+    aux_var_names = NULL
   )
 
   # Obtain phase 2 conditional joint inclusion probabilities
@@ -318,18 +346,26 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
 #' @title Produce a compressed representation of a survey design object
 #'
 #' @param design A survey design object
-#'
+#' @param vars_to_keep (Optional) A character vector
+#' of variables in the design to keep in the compressed design.
+#' By default, none of the variables are retained.
 #' @return A list with two elements. The \code{design_subset}
 #' element is a a design object with only the minimal rows
 #' needed to represent the survey design.
 #' The \code{index} element links each row of the original design
 #' to a row of \code{design_subset}, so that the design can be "uncompressed."
 #'
-compress_design <- function(design) {
+compress_design <- function(design, vars_to_keep = NULL) {
+
   UseMethod("compress_design", design)
 }
 
-compress_design.survey.design <- function(design) {
+compress_design.survey.design <- function(design, vars_to_keep = NULL) {
+
+  if (is.null(vars_to_keep)) {
+    vars_to_keep <- 0
+  }
+
   if ((!is.null(design$pps)) && (design$pps != FALSE)) {
     compressed_design_structure <- list(
       design_subset = design,
@@ -342,7 +378,7 @@ compress_design.survey.design <- function(design) {
     compressed_design_structure <- list(
       design_subset = design |> (\(design_obj) {
         # Reduce memory usage by dropping variables
-        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
+        design_obj$variables <- design_obj$variables[,vars_to_keep,drop=FALSE]
         # Subset to only unique strata/cluster combos
         design_obj[unique_elements,]
       })(),
@@ -353,7 +389,7 @@ compress_design.survey.design <- function(design) {
   return(compressed_design_structure)
 }
 
-compress_design.DBIsvydesign <- function(design) {
+compress_design.DBIsvydesign <- function(design, vars_to_keep = NULL) {
   # Produce a (potentially) compressed survey design object
   if ((!is.null(design$pps)) && (design$pps != FALSE)) {
     compressed_design_structure <- list(
@@ -368,7 +404,7 @@ compress_design.DBIsvydesign <- function(design) {
       design_subset = design |> (\(design_obj) {
         # Reduce memory usage by dropping variables
         if (!is.null(design_obj$variables)) {
-          design_obj$variables <- design_obj$variables[unique_elements,0,drop=FALSE]
+          design_obj$variables <- design_obj$variables[unique_elements,vars_to_keep,drop=FALSE]
         }
         # Subset to only unique strata/cluster/weight/fpc combos
         design_obj$strata <- design_obj$strata[unique_elements,, drop = FALSE]

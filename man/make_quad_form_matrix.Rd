@@ -11,7 +11,8 @@ make_quad_form_matrix(
   cluster_ids = NULL,
   strata_ids = NULL,
   strata_pop_sizes = NULL,
-  sort_order = NULL
+  sort_order = NULL,
+  aux_vars = NULL
 )
 }
 \arguments{
@@ -47,6 +48,9 @@ sometimes used for variance estimation for systematic sampling.}
 \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 This estimator is the basis of the "successive-differences replication" estimator commonly used
 for variance estimation for systematic sampling.}
+\item{\strong{"Breidt-Chauvet"}: }{The estimator of Breidt and Chauvet (2011),
+developed for balanced sampling using the cube method.
+}
 }}
 
 \item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"} or \code{"Deville-2"}.
@@ -79,6 +83,9 @@ with one column for each level of sampling to be accounted for by the variance e
 
 \item{sort_order}{Required if \code{variance_estimator} equals \code{"SD1"} or \code{"SD2"}.
 This should be a vector that orders the rows of data into the order used for sampling.}
+
+\item{aux_vars}{Required if \code{variance_estimator} equals \code{"Breidt-Chauvet"}.
+A matrix of auxiliary variables.}
 }
 \value{
 The matrix of the quadratic form representing the variance estimator.
@@ -101,16 +108,17 @@ description of each variance estimator.
 
 \section{Arguments required for each variance estimator}{
 
-Below are the arguments that are required or optional for each variance estimator.\tabular{lrrrrrr}{
-   variance_estimator \tab probs \tab joint_probs \tab cluster_ids \tab strata_ids \tab strata_pop_sizes \tab sort_order \cr
-   Stratified Multistage SRS \tab  \tab  \tab Required \tab Required \tab Required \tab  \cr
-   Ultimate Cluster \tab  \tab  \tab Required \tab Required \tab Optional \tab  \cr
-   SD1 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
-   SD2 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \cr
-   Deville-1 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \cr
-   Deville-2 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \cr
-   Yates-Grundy \tab  \tab Required \tab  \tab  \tab  \tab  \cr
-   Horvitz-Thompson \tab  \tab Required \tab  \tab  \tab  \tab  \cr
+Below are the arguments that are required or optional for each variance estimator.\tabular{lrrrrrrr}{
+   variance_estimator \tab probs \tab joint_probs \tab cluster_ids \tab strata_ids \tab strata_pop_sizes \tab sort_order \tab aux_vars \cr
+   Stratified Multistage SRS \tab  \tab  \tab Required \tab Required \tab Required \tab  \tab  \cr
+   Ultimate Cluster \tab  \tab  \tab Required \tab Required \tab Optional \tab  \tab  \cr
+   SD1 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \tab  \cr
+   SD2 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \tab  \cr
+   Deville-1 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
+   Deville-2 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
+   Breidt-Chauvet \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab Required \cr
+   Yates-Grundy \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
+   Horvitz-Thompson \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
 }
 }
 

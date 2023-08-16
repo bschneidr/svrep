@@ -39,8 +39,11 @@
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 #'   This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'   for variance estimation for systematic sampling.}
+#'   \item{\strong{"Breidt-Chauvet"}: }{The estimator of Breidt and Chauvet (2011),
+#'   developed for balanced sampling using the cube method.
+#'   }
 #' }
-#' @param probs Required if \code{variance_estimator} equals \code{"Deville-1"} or \code{"Deville-2"}.
+#' @param probs Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
 #' This should be a matrix or data frame of sampling probabilities.
 #' If there are multiple stages of sampling,
 #' then \code{probs} can have multiple columns,
@@ -65,22 +68,25 @@
 #' with one column for each level of sampling to be accounted for by the variance estimator.
 #' @param sort_order Required if \code{variance_estimator} equals \code{"SD1"} or \code{"SD2"}.
 #' This should be a vector that orders the rows of data into the order used for sampling.
+#' @param aux_vars Required if \code{variance_estimator} equals \code{"Breidt-Chauvet"}.
+#' A matrix of auxiliary variables.
 #' @section Variance Estimators:
 #' See \link[svrep]{variance-estimators} for a
 #' description of each variance estimator.
 #' @section Arguments required for each variance estimator:
 #' Below are the arguments that are required or optional for each variance estimator.
 #'
-#' | variance_estimator       | probs      | joint_probs | cluster_ids | strata_ids  | strata_pop_sizes | sort_order |
-#' | ------------------------ |-----------:| -----------:| -----------:| -----------:| ----------------:|-----------:|
-#' | Stratified Multistage SRS|            |             | Required    | Required    | Required         |            |
-#' | Ultimate Cluster         |            |             | Required    | Required    | Optional         |            |
-#' | SD1                      |            |             | Required    | Optional    | Optional         | Required   |
-#' | SD2                      |            |             | Required    | Optional    | Optional         | Required   |
-#' | Deville-1                | Required   |             | Required    | Optional    |                  |            |
-#' | Deville-2                | Required   |             | Required    | Optional    |                  |            |
-#' | Yates-Grundy             |            | Required    |             |             |                  |            |
-#' | Horvitz-Thompson         |            | Required    |             |             |                  |            |
+#' | variance_estimator       | probs      | joint_probs | cluster_ids | strata_ids  | strata_pop_sizes | sort_order | aux_vars |
+#' | ------------------------ |-----------:| -----------:| -----------:| -----------:| ----------------:|-----------:|---------:|
+#' | Stratified Multistage SRS|            |             | Required    | Required    | Required         |            |          |
+#' | Ultimate Cluster         |            |             | Required    | Required    | Optional         |            |          |
+#' | SD1                      |            |             | Required    | Optional    | Optional         | Required   |          |
+#' | SD2                      |            |             | Required    | Optional    | Optional         | Required   |          |
+#' | Deville-1                | Required   |             | Required    | Optional    |                  |            |          |
+#' | Deville-2                | Required   |             | Required    | Optional    |                  |            |          |
+#' | Breidt-Chauvet           | Required   |             | Required    | Optional    |                  |            | Required |
+#' | Yates-Grundy             |            | Required    |             |             |                  |            |          |
+#' | Horvitz-Thompson         |            | Required    |             |             |                  |            |          |
 #' @md
 #' @return The matrix of the quadratic form representing the variance estimator.
 #' @export
@@ -167,12 +173,13 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
                                   cluster_ids = NULL,
                                   strata_ids = NULL,
                                   strata_pop_sizes = NULL,
-                                  sort_order = NULL) {
+                                  sort_order = NULL,
+                                  aux_vars = NULL) {
 
   accepted_variance_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet"
   )
 
   if (length(variance_estimator) > 1) {
@@ -199,12 +206,12 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
   # Check inputs and assemble all necessary information
   # for estimators of stratified/clustered designs
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet")) {
 
     use_sparse_matrix <- TRUE
 
     # Ensure the minimal set of inputs is supplied
-    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2")) {
+    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2", "Breidt-Chauvet")) {
       if (is.null(cluster_ids) || is.null(strata_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to both `strata_ids` and `cluster_ids`",
@@ -212,7 +219,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         ) |> stop()
       }
     }
-    if (variance_estimator %in% c("Deville-1", "Deville-2")) {
+    if (variance_estimator %in% c("Deville-1", "Deville-2", "Breidt-Chauvet")) {
       if (is.null(probs)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to `probs`.",
@@ -226,7 +233,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes`.")
       }
     }
-    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2")) {
+    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet")) {
       if (is.null(cluster_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to `cluster_ids`",
@@ -240,6 +247,17 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
           "For `variance_estimator='%s'`, must supply a vector to `sort_order`",
           variance_estimator
         ) |> stop()
+      }
+    }
+    if (variance_estimator == "Breidt-Chauvet") {
+      if (missing(aux_vars) || is.null(aux_vars)) {
+        sprintf(
+          "For `variance_estimator='%s', must supply a matrix to `aux_vars`",
+          variance_estimator
+        ) |> stop()
+      }
+      if (!is.matrix(aux_vars)) {
+        stop("`aux_vars` must be a matrix.")
       }
     }
 
@@ -261,6 +279,10 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     } else {
       number_of_stages <- ncol(strata_ids)
       number_of_ultimate_units <- nrow(strata_ids)
+    }
+
+    if ((variance_estimator == "Breidt-Chauvet") && (number_of_stages > 1)) {
+      message("For `variance_estimator = 'Breidt-Chauvet', the quadratic form only takes into account the first stage of sampling.")
     }
 
     # Make sure each stage's sampling units are nested within strata
@@ -288,8 +310,8 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
     if (is.null(strata_pop_sizes)) {
       strata_pop_sizes <- Matrix::Matrix(data = Inf,
-                                 nrow = number_of_ultimate_units,
-                                 ncol = number_of_stages)
+                                         nrow = number_of_ultimate_units,
+                                         ncol = number_of_stages)
     }
   }
 
@@ -319,8 +341,8 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
   if (variance_estimator == "Ultimate Cluster") {
     quad_form_matrix <- Matrix::Matrix(data = 0,
-                               nrow = number_of_ultimate_units,
-                               ncol = number_of_ultimate_units) |>
+                                       nrow = number_of_ultimate_units,
+                                       ncol = number_of_ultimate_units) |>
       as("symmetricMatrix")
     if (use_sparse_matrix) {
       quad_form_matrix <- quad_form_matrix |> as("CsparseMatrix")
@@ -340,7 +362,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     }
   }
 
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2", "Breidt-Chauvet")) {
     quad_form_matrix <- Matrix::Matrix(data = 0,
                                        nrow = number_of_ultimate_units,
                                        ncol = number_of_ultimate_units) |>
@@ -401,7 +423,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
               probs = cluster_probs,
               method = variance_estimator
             ),
-            cluster_ids = cluster_ids[stratum_indices, stage, drop = TRUE],
+            cluster_ids = current_cluster_ids,
             rows = TRUE, cols = TRUE
           )
           # Get product of sampling probabilities from previous stages
@@ -412,6 +434,26 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
             prev_stages_samp_prob <- 1
           }
 
+        }
+
+        if ((variance_estimator == "Breidt-Chauvet") && (stage == 1)) {
+          # Get quadratic form at current stage
+          current_cluster_ids <- cluster_ids[stratum_indices, stage, drop = TRUE]
+          current_probs <- probs[stratum_indices, stage, drop = TRUE]
+          cluster_probs <- current_probs[!duplicated(current_cluster_ids)]
+          current_aux_vars <- aux_vars[stratum_indices, stage, drop = FALSE]
+          cluster_aux_vars <- current_aux_vars[!duplicated(current_cluster_ids), , drop = FALSE]
+
+          Q_current <- distribute_matrix_across_clusters(
+            cluster_level_matrix = make_breidt_chauvet_matrix(
+              probs = cluster_probs,
+              aux_vars = cluster_aux_vars
+            ),
+            cluster_ids = current_cluster_ids,
+            rows = TRUE, cols = TRUE
+          )
+
+          prev_stages_samp_prob <- 1
         }
 
         # Add overall variance contribution from current stage/stratum sampling
@@ -677,22 +719,39 @@ make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
   return(Sigma)
 }
 
-#' Title
-#'
+#' @title Create a quadratic form's matrix
+#' for the Breidt-Chauvet variance estimator
+#' @description Creates the quadratic form matrix for the
+#' variance estimator of Breidt and Chauvet (2011),
+#' intended to be used in variance estimation for balanced
+#' samples selected using the cube method. See Li, Chen, and Krenzke (2014)
+#' for an explanation of the quadratic form for this estimator
+#' and an example of its use as the basis for a generalized replication
+#' estimator.
 #' @param probs A vector of first-order inclusion probabilities
 #' @param aux_vars A matrix of auxiliary variables,
 #' with the number of rows matching the number of elements of \code{probs}.
 #'
-#' @return
-#' @export
+#' @return A symmetric matrix whose dimension matches the length of \code{probs}.
+#' @keywords internal
+#' @references
+#' - Breidt, F.J. and Chauvet, G. (2011).
+#' "Improved variance estimation for balanced samples drawn via the cube method."
+#' Journal of Statistical Planning and Inference, 141, 411-425.
 #'
-#' @examples
+#' - Li, J., Chen, S., and Krenzke, T. (2014).
+#' "Replication Variance Estimation for Balanced Sampling: An Application to the PIAAC Study."
+#' Proceedings of the Survey Research Methods Section, 2014: 985–994. Alexandria, VA: American Statistical Association.
+#' http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 make_breidt_chauvet_matrix <- function(probs, aux_vars) {
 
   n <- length(probs)
 
   q <- ncol(aux_vars)
 
+  if (is.null(q) || (q < 1)) {
+    stop("`aux_vars` must be a matrix with at least one column")
+  }
   if (q >= n) {
     error_msg <- paste(
       "The number of columns of `aux_vars` exceeds the number of observations:",
