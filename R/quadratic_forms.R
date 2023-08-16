@@ -677,6 +677,68 @@ make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
   return(Sigma)
 }
 
+#' Title
+#'
+#' @param probs A vector of first-order inclusion probabilities
+#' @param aux_vars A matrix of auxiliary variables,
+#' with the number of rows matching the number of elements of \code{probs}.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+make_breidt_chauvet_matrix <- function(probs, aux_vars) {
+
+  n <- length(probs)
+
+  q <- ncol(aux_vars)
+
+  if (q >= n) {
+    error_msg <- paste(
+      "The number of columns of `aux_vars` exceeds the number of observations:",
+      "the estimator is undefined in this case."
+    )
+    stop(error_msg)
+  }
+
+  c_k <- (1 - probs) * (n/(n-q))
+
+  a_k <- apply(aux_vars, MARGIN = 2,
+               FUN = function(x_k) {
+                 x_k/probs
+               })
+
+  B <- matrix(0, q, q)
+  for (i in seq_len(n)) {
+    B <- B + (c_k[i] * (a_k[i,] %*% t(a_k[i,])))
+  }
+
+  B_inv <- solve(B)
+
+  Sigma <- matrix(0, n, n)
+  i <- 1
+  while (i <= n) {
+    j <- 1
+    while (j <= i) {
+
+      Sigma[i,j] <- (
+        -c_k[i] * (t(a_k[i,]) %*% B_inv %*% a_k[j,]) * c_k[j]
+      )
+
+      if (i == j) {
+        Sigma[i,j] <- c_k[i] + Sigma[i,j]
+      }
+
+      j <- j + 1
+    }
+    i <- i + 1
+  }
+
+  Sigma[upper.tri(Sigma)] <- Sigma[lower.tri(Sigma)]
+
+  return(Sigma)
+}
+
 #' @title Helper function to turn a cluster-level matrix into an element-level matrix
 #' by duplicating rows or columns of the matrix
 #' @description Turns a cluster-level matrix into an element-level matrix
