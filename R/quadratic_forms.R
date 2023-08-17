@@ -39,7 +39,7 @@
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 #'   This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'   for variance estimation for systematic sampling.}
-#'   \item{\strong{"Breidt-Chauvet"}: }{The estimator of Breidt and Chauvet (2011),
+#'   \item{\strong{"Deville-Tille"}: }{The estimator of Deville and Tillé (2005),
 #'   developed for balanced sampling using the cube method.
 #'   }
 #' }
@@ -68,7 +68,7 @@
 #' with one column for each level of sampling to be accounted for by the variance estimator.
 #' @param sort_order Required if \code{variance_estimator} equals \code{"SD1"} or \code{"SD2"}.
 #' This should be a vector that orders the rows of data into the order used for sampling.
-#' @param aux_vars Required if \code{variance_estimator} equals \code{"Breidt-Chauvet"}.
+#' @param aux_vars Required if \code{variance_estimator} equals \code{"Deville-Tille"}.
 #' A matrix of auxiliary variables.
 #' @section Variance Estimators:
 #' See \link[svrep]{variance-estimators} for a
@@ -84,7 +84,7 @@
 #' | SD2                      |            |             | Required    | Optional    | Optional         | Required   |          |
 #' | Deville-1                | Required   |             | Required    | Optional    |                  |            |          |
 #' | Deville-2                | Required   |             | Required    | Optional    |                  |            |          |
-#' | Breidt-Chauvet           | Required   |             | Required    | Optional    |                  |            | Required |
+#' | Deville-Tille            | Required   |             | Required    | Optional    |                  |            | Required |
 #' | Yates-Grundy             |            | Required    |             |             |                  |            |          |
 #' | Horvitz-Thompson         |            | Required    |             |             |                  |            |          |
 #' @md
@@ -179,11 +179,15 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   accepted_variance_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
   )
 
   if (length(variance_estimator) > 1) {
     stop("Can only specify one estimator for `variance_estimator`.")
+  }
+
+  if (variance_estimator == "Deville-Tillé") {
+    variance_estimator <- "Deville-Tille"
   }
 
   if (!variance_estimator %in% accepted_variance_estimators) {
@@ -206,12 +210,12 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
   # Check inputs and assemble all necessary information
   # for estimators of stratified/clustered designs
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille")) {
 
     use_sparse_matrix <- TRUE
 
     # Ensure the minimal set of inputs is supplied
-    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2", "Breidt-Chauvet")) {
+    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2", "Deville-Tille")) {
       if (is.null(cluster_ids) || is.null(strata_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to both `strata_ids` and `cluster_ids`",
@@ -219,7 +223,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         ) |> stop()
       }
     }
-    if (variance_estimator %in% c("Deville-1", "Deville-2", "Breidt-Chauvet")) {
+    if (variance_estimator %in% c("Deville-1", "Deville-2", "Deville-Tille")) {
       if (is.null(probs)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to `probs`.",
@@ -233,7 +237,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes`.")
       }
     }
-    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet")) {
+    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille")) {
       if (is.null(cluster_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to `cluster_ids`",
@@ -249,7 +253,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         ) |> stop()
       }
     }
-    if (variance_estimator == "Breidt-Chauvet") {
+    if (variance_estimator == "Deville-Tille") {
       if (missing(aux_vars) || is.null(aux_vars)) {
         sprintf(
           "For `variance_estimator='%s', must supply a matrix to `aux_vars`",
@@ -281,8 +285,8 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       number_of_ultimate_units <- nrow(strata_ids)
     }
 
-    if ((variance_estimator == "Breidt-Chauvet") && (number_of_stages > 1)) {
-      message("For `variance_estimator = 'Breidt-Chauvet', the quadratic form only takes into account the first stage of sampling.")
+    if ((variance_estimator == "Deville-Tille") && (number_of_stages > 1)) {
+      message("For `variance_estimator = 'Deville-Tille', the quadratic form only takes into account the first stage of sampling.")
     }
 
     # Make sure each stage's sampling units are nested within strata
@@ -362,7 +366,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     }
   }
 
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2", "Breidt-Chauvet")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2", "Deville-Tille")) {
     quad_form_matrix <- Matrix::Matrix(data = 0,
                                        nrow = number_of_ultimate_units,
                                        ncol = number_of_ultimate_units) |>
@@ -436,7 +440,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
         }
 
-        if ((variance_estimator == "Breidt-Chauvet") && (stage == 1)) {
+        if ((variance_estimator == "Deville-Tille") && (stage == 1)) {
           # Get quadratic form at current stage
           current_cluster_ids <- cluster_ids[stratum_indices, stage, drop = TRUE]
           current_probs <- probs[stratum_indices, stage, drop = TRUE]
@@ -445,7 +449,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
           cluster_aux_vars <- current_aux_vars[!duplicated(current_cluster_ids), , drop = FALSE]
 
           Q_current <- distribute_matrix_across_clusters(
-            cluster_level_matrix = make_breidt_chauvet_matrix(
+            cluster_level_matrix = make_deville_tille_matrix(
               probs = cluster_probs,
               aux_vars = cluster_aux_vars
             ),
@@ -720,30 +724,58 @@ make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
 }
 
 #' @title Create a quadratic form's matrix
-#' for the Breidt-Chauvet variance estimator
-#' @description Creates the quadratic form matrix for the
-#' variance estimator of Breidt and Chauvet (2011),
-#' intended to be used in variance estimation for balanced
-#' samples selected using the cube method. See Li, Chen, and Krenzke (2014)
-#' for an explanation of the quadratic form for this estimator
-#' and an example of its use as the basis for a generalized replication
-#' estimator.
+#' for a Deville-Tillé variance estimator for balanced samples
+#' @description Creates the quadratic form matrix for a
+#' variance estimator for balanced samples,
+#' proposed by Deville and Tillé (2005).
 #' @param probs A vector of first-order inclusion probabilities
 #' @param aux_vars A matrix of auxiliary variables,
 #' with the number of rows matching the number of elements of \code{probs}.
 #'
 #' @return A symmetric matrix whose dimension matches the length of \code{probs}.
 #' @keywords internal
+#' @details
+#' See Section 6.8 of Tillé (2020) for more detail on this estimator,
+#' including an explanation of its quadratic form.
+#' See Deville and Tillé (2005) for the results of a simulation study
+#' comparing this and other alternative estimators for balanced sampling.
+#'
+#' The estimator can be written as follows:
+#' \deqn{
+#'   v(\hat{Y})=\sum_{k \in S} \frac{c_k}{\pi_k^2}\left(y_k-\hat{y}_k^*\right)^2,
+#' }
+#' where
+#' \deqn{
+#'   \hat{y}_k^*=\mathbf{z}_k^{\top}\left(\sum_{\ell \in S} c_{\ell} \frac{\mathbf{z}_{\ell} \mathbf{z}_{\ell}^{\prime}}{\pi_{\ell}^2}\right)^{-1} \sum_{\ell \in S} c_{\ell} \frac{\mathbf{z}_{\ell} y_{\ell}}{\pi_{\ell}^2}
+#' }
+#' and \eqn{\mathbf{z}_k} denotes the vector of auxiliary variables for observation \eqn{k}
+#' included in sample \eqn{S}, with inclusion probability \eqn{\pi_k}. The value \eqn{c_k} is set to \eqn{\frac{n}{n-q}(1-\pi_k)},
+#' where \eqn{n} is the number of observations and \eqn{q} is the number of auxiliary variables.
+#'
+#' See Li, Chen, and Krenzke (2014) for an example of this estimator's use
+#' as the basis for a generalized replication estimator. See Breidt and Chauvet (2011)
+#' for a discussion of alternative simulation-based estimators for the specific
+#' application of variance estimation for balanced samples selected using the cube method.
+#'
 #' @references
 #' - Breidt, F.J. and Chauvet, G. (2011).
 #' "Improved variance estimation for balanced samples drawn via the cube method."
 #' Journal of Statistical Planning and Inference, 141, 411-425.
 #'
+#' - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+#' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+#'
 #' - Li, J., Chen, S., and Krenzke, T. (2014).
 #' "Replication Variance Estimation for Balanced Sampling: An Application to the PIAAC Study."
 #' Proceedings of the Survey Research Methods Section, 2014: 985–994. Alexandria, VA: American Statistical Association.
 #' http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
-make_breidt_chauvet_matrix <- function(probs, aux_vars) {
+#'
+#' - Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
+make_deville_tille_matrix <- function(probs, aux_vars) {
+
+  if (all(probs == 1)) {
+    return(matrix(0, length(probs), length(probs)))
+  }
 
   n <- length(probs)
 
@@ -780,8 +812,8 @@ make_breidt_chauvet_matrix <- function(probs, aux_vars) {
     j <- 1
     while (j <= i) {
 
-      Sigma[i,j] <- (
-        -c_k[i] * (t(a_k[i,]) %*% B_inv %*% a_k[j,]) * c_k[j]
+      Sigma[i,j] <- -(
+        c_k[i] * (t(a_k[i,]) %*% B_inv %*% a_k[j,]) * c_k[j]
       )
 
       if (i == j) {
@@ -793,7 +825,7 @@ make_breidt_chauvet_matrix <- function(probs, aux_vars) {
     i <- i + 1
   }
 
-  Sigma[upper.tri(Sigma)] <- Sigma[lower.tri(Sigma)]
+  Sigma[upper.tri(Sigma)] <- t(Sigma)[upper.tri(Sigma)]
 
   return(Sigma)
 }

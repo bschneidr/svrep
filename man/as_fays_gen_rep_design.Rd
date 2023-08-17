@@ -9,6 +9,7 @@ as_fays_gen_rep_design(
   design,
   variance_estimator = NULL,
   max_replicates = 500,
+  balanced = TRUE,
   psd_option = "warn",
   mse = getOption("survey.replicates.mse"),
   compress = TRUE
@@ -54,6 +55,10 @@ for a balanced, fully-efficient estimator is less than \code{max_replicates},
 then only the number of replicates needed will be created.
 If more replicates are needed than \code{max_replicates}, then the full number of replicates
 needed will be created, but only a random subsample will be retained.}
+
+\item{balanced}{If \code{balanced=TRUE}, the replicates
+will all contribute equally to variance estimates, but
+the number of replicates needed may slightly increase.}
 
 \item{psd_option}{Either \code{"warn"} (the default) or \code{"error"}.
 This option specifies what will happen if the target variance estimator

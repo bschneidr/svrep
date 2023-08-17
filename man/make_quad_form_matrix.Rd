@@ -48,12 +48,12 @@ sometimes used for variance estimation for systematic sampling.}
 \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 This estimator is the basis of the "successive-differences replication" estimator commonly used
 for variance estimation for systematic sampling.}
-\item{\strong{"Breidt-Chauvet"}: }{The estimator of Breidt and Chauvet (2011),
+\item{\strong{"Deville-Tille"}: }{The estimator of Deville and Tillé (2005),
 developed for balanced sampling using the cube method.
 }
 }}
 
-\item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"} or \code{"Deville-2"}.
+\item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
 This should be a matrix or data frame of sampling probabilities.
 If there are multiple stages of sampling,
 then \code{probs} can have multiple columns,
@@ -84,7 +84,7 @@ with one column for each level of sampling to be accounted for by the variance e
 \item{sort_order}{Required if \code{variance_estimator} equals \code{"SD1"} or \code{"SD2"}.
 This should be a vector that orders the rows of data into the order used for sampling.}
 
-\item{aux_vars}{Required if \code{variance_estimator} equals \code{"Breidt-Chauvet"}.
+\item{aux_vars}{Required if \code{variance_estimator} equals \code{"Deville-Tille"}.
 A matrix of auxiliary variables.}
 }
 \value{
@@ -116,7 +116,7 @@ Below are the arguments that are required or optional for each variance estimato
    SD2 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \tab  \cr
    Deville-1 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
    Deville-2 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
-   Breidt-Chauvet \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab Required \cr
+   Deville-Tille \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab Required \cr
    Yates-Grundy \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
    Horvitz-Thompson \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
 }

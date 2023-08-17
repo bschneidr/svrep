@@ -134,12 +134,37 @@ and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
 within the first-stage unit.
 }
 
+\section{Deville-Tillé}{
+
+See Section 6.8 of Tillé (2020) for more detail on this estimator,
+including an explanation of its quadratic form.
+See Deville and Tillé (2005) for the results of a simulation study
+comparing this and other alternative estimators for balanced sampling.
+
+The estimator can be written as follows:
+\deqn{
+  v(\hat{Y})=\sum_{k \in S} \frac{c_k}{\pi_k^2}\left(y_k-\hat{y}_k^*\right)^2,
+}
+where
+\deqn{
+  \hat{y}_k^*=\mathbf{z}_k^{\top}\left(\sum_{\ell \in S} c_{\ell} \frac{\mathbf{z}_{\ell} \mathbf{z}_{\ell}^{\prime}}{\pi_{\ell}^2}\right)^{-1} \sum_{\ell \in S} c_{\ell} \frac{\mathbf{z}_{\ell} y_{\ell}}{\pi_{\ell}^2}
+}
+and \eqn{\mathbf{z}_k} denotes the vector of auxiliary variables for observation \eqn{k}
+included in sample \eqn{S}, with inclusion probability \eqn{\pi_k}. The value \eqn{c_k} is set to \eqn{\frac{n}{n-q}(1-\pi_k)},
+where \eqn{n} is the number of observations and \eqn{q} is the number of auxiliary variables.
+}
+
 \references{
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 
 Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
+
+Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+\strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+
+Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
 
 Matei, Alina, and Yves Tillé. (2005).
 “\emph{Evaluation of Variance Approximations and Estimators

@@ -4,7 +4,12 @@
 \alias{get_design_quad_form}
 \title{Determine the quadratic form matrix of a variance estimator for a survey design object}
 \usage{
-get_design_quad_form(design, variance_estimator, ensure_psd = FALSE)
+get_design_quad_form(
+  design,
+  variance_estimator,
+  ensure_psd = FALSE,
+  aux_var_names = NULL
+)
 }
 \arguments{
 \item{design}{A survey design object created using the 'survey' (or 'srvyr') package,
@@ -49,6 +54,10 @@ The approximation method is discussed by Beaumont and Patak (2012)
 in the context of forming replicate weights for two-phase samples.
 The authors argue that this approximation should
 lead to only a small overestimation of variance.}
+
+\item{aux_var_names}{Only required if \code{variance_estimator = "Deville-Tille"}.
+Should be a character vector of variable names for auxiliary variables
+to be used in the Breidt and Chauvet (2011) variance estimator.}
 }
 \value{
 A matrix representing the quadratic form of a specified variance estimator,

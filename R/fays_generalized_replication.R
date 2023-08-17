@@ -10,6 +10,9 @@
 #' needed to produce a fully-efficient variance estimator.
 #' If more replicates are needed than \code{max_replicates}, then the full number of replicates
 #' needed will be created, but only a random subsample will be retained.
+#' @param balanced If \code{balanced=TRUE}, the replicates
+#' will all contribute equally to variance estimates, but
+#' the number of replicates needed may slightly increase.
 #' @return A matrix of replicate factors,
 #' with the number of rows matching the number of rows of \code{Sigma}
 #' and the number of columns less than or equal to \code{max_replicates}.
@@ -29,7 +32,8 @@
 #' \deqn{
 #' \boldsymbol{\Sigma} = \sum_{r=1}^k \lambda_r \mathbf{v}_{(r)} \mathbf{v^{\prime}}_{(r)}
 #' }
-#' Let \eqn{\mathbf{H}} be a Hadamard matrix (with all entries equal to \eqn{1} or \eqn{-1}),
+#' If \code{balanced = FALSE}, then we let \eqn{\mathbf{H}} denote an identity matrix
+#' with \eqn{k' = k} rows/columns. If \code{balanced = TRUE}, then we let \eqn{\mathbf{H}} be a Hadamard matrix (with all entries equal to \eqn{1} or \eqn{-1}),
 #' of order \eqn{k^{\prime} \geq k}. Let \eqn{\mathbf{H}_{mr}} denote the entry in row
 #' \eqn{m} and column \eqn{r} of \eqn{\mathbf{H}}.
 #'
@@ -37,28 +41,30 @@
 #' Let \eqn{r} denote a given replicate, with \eqn{r = 1, ..., k^{\prime}},
 #' and let \eqn{c} denote some positive constant (yet to be specified).
 #'
-#'
-#' For now, let \eqn{c=1} and create the \eqn{r}-th replicate's adjustment factor \eqn{\mathbf{f}_{r}} as:
+#' The \eqn{r}-th replicate adjustment factor \eqn{\mathbf{f}_{r}} is formed as:
 #' \deqn{
-#'   \mathbf{f}_{r} = 1 + c \sum_{m=1}^k H_{m r} \lambda^{\frac{1}{2}} v_{(m)}
+#'   \mathbf{f}_{r} = 1 + c \sum_{m=1}^k H_{m r} \lambda_{(m)}^{\frac{1}{2}} \mathbf{v}_{(m)}
 #' }
 #'
-#' It's possible that one or more of the replicates will have a negative adjustment factor.
-#' This can easily be eliminated by an appropriate choice of the constant \eqn{c}.
-#' If there are any negative adjustment factors,
-#' then set \eqn{c^{-1}} equal to some value just larger than the
-#' absolute value of the minimum replicate adjustment factor (from across all the replicates).
-#' Then recalculate \eqn{\mathbf{f}_{r}} using the updated value of \eqn{c}.
-#' This function uses a value of \eqn{c=1}. You can update the value
-#' of \eqn{c} after creating replicate factors
-#' by using the function \code{\link[svrep]{rescale_reps}}.
+#' This function uses a value of \eqn{c = 1}. If any of the replicates
+#' are negative, you can use \code{\link[svrep]{rescale_reps}},
+#' which updates replicates by increasing \eqn{c}.
 #'
 #' If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
 #' \deqn{
 #'   v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{k^{\prime}} \sum_{r=1}^{k^{\prime}}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
 #' }
 #' For population totals, this replication variance estimator
-#' will \emph{exactly} match the target variance estimator.
+#' will \emph{exactly} match the target variance estimator
+#' if the number of replicates \eqn{k^{\prime}} matches the rank of \eqn{\Sigma}.
+#'
+#' @section The Number of Replicates:
+#'
+#' If \code{balanced=TRUE}, the number of replicates created
+#' may need to increase slightly.
+#' This is due to the fact that a Hadamard matrix
+#' of order \eqn{k^{\prime} \geq k} is used to balance the replicates,
+#' and it may be necessary to use order \eqn{k^{\prime} \gt k}.
 #'
 #' If the number of replicates \eqn{k^{\prime}} is too large for practical purposes,
 #' then one can simply retain only a random subset of \eqn{R} of the \eqn{k^{\prime}} replicates.
@@ -70,12 +76,26 @@
 #' matrix rank of \code{Sigma}: only a random subset
 #' of the created replicates will be retained.
 #'
-#' The Hadamard matrix used in the construction of replicates
-#' is deterministically created using the function
-#' \code{\link[survey]{hadamard}} from the 'survey' package.
-#' However, the order of rows/columns is randomly permuted.
+#' However, subsampling replicates is only recommended when
+#' using \code{balanced=TRUE}, since in this case every replicate
+#' contributes equally to variance estimates. If \code{balanced=FALSE},
+#' then randomly subsampling replicates is valid but may
+#' produce large variation in variance estimates since replicates
+#' in that case may vary greatly in their contribution to variance
+#' estimates.
+#'
+#' @section Reproducibility:
+#'
+#' If \code{balanced=TRUE}, a Hadamard matrix
+#' is used as described above. The Hadamard matrix is
+#' deterministically created using the function
+#' \code{\link[survey]{hadamard}()} from the 'survey' package.
+#' However, the order of rows/columns is randomly permuted
+#' before forming replicates.
+#'
+#' In general, column-ordering of the replicate weights is random.
 #' To ensure exact reproducibility, it is recommended to call
-#' \code{\link[base]{set.seed}} before using this function.
+#' \code{\link[base]{set.seed}()} before using this function.
 #'
 #' @references
 #'
@@ -139,7 +159,11 @@
 #' SE(ht_estimate)
 #' SE(rep_estimate) / SE(ht_estimate)
 
-make_fays_gen_rep_factors <- function(Sigma, max_replicates) {
+make_fays_gen_rep_factors <- function(
+    Sigma,
+    max_replicates = Matrix::rankMatrix(Sigma) + 4,
+    balanced = TRUE
+) {
 
   n <- nrow(Sigma)
 
@@ -183,10 +207,15 @@ make_fays_gen_rep_factors <- function(Sigma, max_replicates) {
     replicate_factors <- replicate_factors[,sample(num_replicates),drop=FALSE]
 
     if (max_replicates < Sigma_rank) {
-      sprintf(
-        "The number of replicates needed for balanced, fully-efficient replication is %s, but `max_replicates` is set to %s",
+      msg <- sprintf(
+        "The number of replicates needed for fully efficient replication is %s, but `max_replicates` is set to %s.",
         k_prime, max_replicates
-      ) |> message()
+      )
+      msg <- paste(msg, "Only a random sample of replicates will be retained.")
+      message(msg)
+      if (!balanced) {
+        warning("Random subsampling of replicates is not recommended when `balanced=FALSE`. See the help page `?make_fays_gen_rep_factors` for details.")
+      }
     }
   }
 
@@ -245,6 +274,9 @@ make_fays_gen_rep_factors <- function(Sigma, max_replicates) {
 #' then only the number of replicates needed will be created.
 #' If more replicates are needed than \code{max_replicates}, then the full number of replicates
 #' needed will be created, but only a random subsample will be retained.
+#' @param balanced If \code{balanced=TRUE}, the replicates
+#' will all contribute equally to variance estimates, but
+#' the number of replicates needed may slightly increase.
 #' @param psd_option Either \code{"warn"} (the default) or \code{"error"}.
 #' This option specifies what will happen if the target variance estimator
 #' has a quadratic form matrix which is not positive semidefinite. This
@@ -363,6 +395,7 @@ make_fays_gen_rep_factors <- function(Sigma, max_replicates) {
 #' @export
 as_fays_gen_rep_design <- function(design, variance_estimator = NULL,
                                    max_replicates = 500,
+                                   balanced = TRUE,
                                    psd_option = "warn",
                                    mse = getOption("survey.replicates.mse"),
                                    compress = TRUE) {
@@ -372,6 +405,7 @@ as_fays_gen_rep_design <- function(design, variance_estimator = NULL,
 #' @export
 as_fays_gen_rep_design.twophase2 <- function(design, variance_estimator = NULL,
                                              max_replicates = 500,
+                                             balanced = TRUE,
                                              psd_option = "warn",
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
@@ -405,7 +439,8 @@ as_fays_gen_rep_design.twophase2 <- function(design, variance_estimator = NULL,
 
   adjustment_factors <- make_fays_gen_rep_factors(
     Sigma = Sigma,
-    max_replicates = max_replicates
+    max_replicates = max_replicates,
+    balanced = balanced
   )
 
   rep_design <- survey::svrepdesign(
@@ -433,6 +468,7 @@ as_fays_gen_rep_design.twophase2 <- function(design, variance_estimator = NULL,
 #' @export
 as_fays_gen_rep_design.survey.design <- function(design, variance_estimator = NULL,
                                                  max_replicates = 500,
+                                                 balanced = TRUE,
                                                  psd_option = 'warn',
                                                  mse = getOption("survey.replicates.mse"),
                                                  compress = TRUE) {
@@ -470,7 +506,8 @@ as_fays_gen_rep_design.survey.design <- function(design, variance_estimator = NU
   # Generate adjustment factors for the compressed design object
   adjustment_factors <- make_fays_gen_rep_factors(
     Sigma = Sigma,
-    max_replicates = max_replicates
+    max_replicates = max_replicates,
+    balanced = balanced
   )
 
   scale <- attr(adjustment_factors, 'scale')
@@ -512,6 +549,7 @@ as_fays_gen_rep_design.survey.design <- function(design, variance_estimator = NU
 #' @export
 as_fays_gen_rep_design.DBIsvydesign <- function(design, variance_estimator = NULL,
                                                 max_replicates = 500,
+                                                balanced = TRUE,
                                                 psd_option = 'warn',
                                                 mse = getOption("survey.replicates.mse"),
                                                 compress = TRUE) {
@@ -549,7 +587,8 @@ as_fays_gen_rep_design.DBIsvydesign <- function(design, variance_estimator = NUL
   # Generate adjustment factors for the compressed design object
   adjustment_factors <- make_fays_gen_rep_factors(
     Sigma = Sigma,
-    max_replicates = max_replicates
+    max_replicates = max_replicates,
+    balanced = balanced
   )
 
   scale <- attr(adjustment_factors, 'scale')

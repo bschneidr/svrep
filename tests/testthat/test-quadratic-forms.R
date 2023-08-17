@@ -512,6 +512,61 @@ library_stsys_sample <- library_stsys_sample |>
 
   })
 
+# Check Deville-Tille results ----
+
+  test_that("Deville-Tille quadratic form gives expected estimate", {
+
+    ## Create input data
+    y <- rnorm(n = 5, mean = 5)
+    aux_vars <- matrix(rnorm(n = 15), nrow = 5, ncol = 3)
+    probs <- c(1/3, 1/2, 1, 1/2, 1/4)
+
+    ## Calculate the estimator "by hand"
+    c_values <- ((length(probs))/(length(probs) - ncol(aux_vars))) * (1-probs)
+
+    denom_matrix <- lapply(seq_along(probs), function(k) {
+      c_values[k] * (aux_vars[k,] %*% t(aux_vars[k,])) / (probs[k]^2)
+    }) |> Reduce(f = `+`)
+
+    inv_denom_matrix <- solve(denom_matrix)
+
+    right_vector <- lapply(seq_along(probs), function(l) {
+      c_l <- c_values[l]
+      z_l <- aux_vars[l,]
+      y_l <- y[l]
+      pi_l <- probs[l]
+      c_l * (z_l * y_l) / (pi_l^2)
+    }) |> Reduce(f = `+`)
+
+    hat_matrix <- inv_denom_matrix %*% right_vector
+
+    y_star <- as.vector(aux_vars %*% hat_matrix)
+
+    var_est <- sapply(seq_along(probs), function(k) {
+      (c_values[k]/(probs[k]^2)) * (y[k] - y_star[k])^2
+    }) |> sum()
+
+    ## Compare the "by-hand" result to the quadratic form result
+    Q <- make_deville_tille_matrix(
+      probs = probs, aux_vars = aux_vars
+    )
+
+    Q_var_est <- as.vector(t(y/probs) %*% Q %*% (y/probs))
+
+    expect_equal(
+      object = Q_var_est,
+      expected = var_est
+    )
+
+    ## If every unit selected with certainty, variance estimate should be 0
+    expect_equal(
+      object = make_deville_tille_matrix(probs = c(1,1),
+                                         aux_vars = matrix(c(1,1), 2, 1)),
+      expected = matrix(c(0,0,0,0), nrow = 2, ncol = 2)
+    )
+
+  })
+
 # Ensure function checks inputs for issues ----
 
   test_that(

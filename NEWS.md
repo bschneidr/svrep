@@ -2,6 +2,8 @@
 
 * Added support for Fay's generalized replication method, specifically the version proposed in Fay (1989): the key functions are `as_fays_gen_rep_design()` and `make_fays_gen_rep_factors()`, which are nearly identical to the generalized bootstrap functions `as_gen_boot_design()` and `make_gen_boot_factors()`.
 
+* Added a new variance estimator, `"Deville-Tille"`, useful for balanced sampling (including the cube method).
+
 # svrep 0.6.0
 
 * Added a function `as_random_group_jackknife_design()` to create random-group jackknife replicates.

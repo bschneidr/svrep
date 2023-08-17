@@ -4,10 +4,14 @@
 \alias{compress_design}
 \title{Produce a compressed representation of a survey design object}
 \usage{
-compress_design(design)
+compress_design(design, vars_to_keep = NULL)
 }
 \arguments{
 \item{design}{A survey design object}
+
+\item{vars_to_keep}{(Optional) A character vector
+of variables in the design to keep in the compressed design.
+By default, none of the variables are retained.}
 }
 \value{
 A list with two elements. The \code{design_subset}

@@ -42,7 +42,7 @@
 #' in the context of forming replicate weights for two-phase samples.
 #' The authors argue that this approximation should
 #' lead to only a small overestimation of variance.
-#' @param aux_var_names Only required if \code{variance_estimator = "Breidt-Chauvet"}.
+#' @param aux_var_names Only required if \code{variance_estimator = "Deville-Tille"}.
 #' Should be a character vector of variable names for auxiliary variables
 #' to be used in the Breidt and Chauvet (2011) variance estimator.
 #' @return A matrix representing the quadratic form of a specified variance estimator,
@@ -154,7 +154,7 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
   )
 
   if (is.null(variance_estimator)) {
@@ -230,10 +230,10 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       sort_order = NULL
     )
   }
-  if (variance_estimator %in% c("Breidt-Chauvet")) {
+  if (variance_estimator %in% c("Deville-Tille")) {
 
     if (is.null(aux_var_names)) {
-      stop("For `variance_estimator='Breidt-Chavuet', must supply a vector of variable names to `aux_var_names`.")
+      stop("For `variance_estimator='Deville-Tille', must supply a vector of variable names to `aux_var_names`.")
     }
 
     if (!all(aux_var_names %in% colnames(design$variables))) {
@@ -273,7 +273,7 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Breidt-Chauvet"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
   )
   accepted_phase2_estimators <- c(
     "Ultimate Cluster", "Stratified Multistage SRS",

@@ -358,6 +358,7 @@ test_that(
 
 test_that(
   desc = "Helpful message if `max_replicates` is too low.", {
+
     expect_message(
       regexp = "number of replicates needed",
       object = {
@@ -372,6 +373,26 @@ test_that(
         )
       }
     )
+
+
+    expect_warning(
+      regexp = "not recommended",
+      object = {
+        suppressMessages({
+          svydesign(
+            data = election_pps,
+            id = ~1, fpc = ~p,
+            pps = ppsmat(election_jointprob),
+            variance = "YG"
+          ) |> as_fays_gen_rep_design(
+            variance_estimator = "Yates-Grundy",
+            max_replicates = 5,
+            balanced = FALSE
+          )
+        })
+      }
+    )
+
   }
 )
 
