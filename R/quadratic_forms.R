@@ -186,10 +186,6 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     stop("Can only specify one estimator for `variance_estimator`.")
   }
 
-  if (variance_estimator == "Deville-Tillé") {
-    variance_estimator <- "Deville-Tille"
-  }
-
   if (!variance_estimator %in% accepted_variance_estimators) {
     sprintf("`%s` is not a supported variance estimator, or else there is a typo.",
             variance_estimator) |> stop()
