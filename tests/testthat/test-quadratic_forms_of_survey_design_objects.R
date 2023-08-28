@@ -157,6 +157,38 @@ suppressWarnings({
     )
   })
 
+# Test for Deville-Tille estimator ----
+
+  test_that("Correct quadratic form for Deville-Tille estimator", {
+
+    data('api', package = 'survey')
+
+    aux_var_columns <- model.matrix(object = ~ -1 + stype, data = apistrat)
+
+    apistrat <- cbind(apistrat, aux_var_columns)
+
+    ## Create survey design object
+    multistage_survey_design <- svydesign(
+      data = apistrat,
+      weights = ~ pw,
+      ids = ~ 1
+    )
+
+    expect_equal(
+      object = get_design_quad_form(
+        design = multistage_survey_design,
+        variance_estimator = "Deville-Tille",
+        aux_var_names = "stype"
+      ) |> as.matrix(),
+      expected = make_deville_tille_matrix(
+        probs = multistage_survey_design$variables$pw^(-1),
+        aux_vars = aux_var_columns
+      )
+    )
+
+  })
+
+
 # Informative messages for bad inputs ----
 
   test_that(

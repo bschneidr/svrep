@@ -240,12 +240,17 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       stop("Some of `aux_var_names` do not show up as columns in the design object.")
     }
 
+    aux_vars_matrix <- model.matrix(
+      object = reformulate(termlabels = aux_var_names, intercept = FALSE),
+      data = design$variables[,aux_var_names,drop=FALSE]
+    )
+
     Sigma <- make_quad_form_matrix(
       variance_estimator = variance_estimator,
       cluster_ids = design$cluster,
       strata_ids = design$strata,
       probs = design$allprob,
-      aux_vars = design$variables[,aux_var_names,drop=FALSE],
+      aux_vars = aux_vars_matrix,
       strata_pop_sizes = NULL,
       sort_order = NULL
     )

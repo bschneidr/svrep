@@ -246,6 +246,49 @@ test_that(
   })
 
 test_that(
+  "Deville-Tille: Same results from conversion vs. creating from scratch", {
+
+    data('api', package = 'survey')
+
+    aux_var_columns <- model.matrix(object = ~ -1 + stype, data = apistrat)
+
+    apistrat <- cbind(apistrat, aux_var_columns)
+
+    ## Create survey design object
+    apistrat_survey_design <- svydesign(
+      data = apistrat,
+      weights = ~ pw,
+      ids = ~ 1
+    )
+
+    suppressMessages({
+      ## Convert to generalized replication design
+      set.seed(2014)
+      conversion_result <- apistrat_survey_design |>
+        as_fays_gen_rep_design(variance_estimator = "Deville-Tille",
+                               aux_var_names = c("stypeE", "stypeM", "stypeH"),
+                               max_replicates = 5) |>
+        weights(type = "replication")
+
+
+      set.seed(2014)
+      orig_result <- make_quad_form_matrix(variance_estimator = "Deville-Tille",
+                                           strata_ids = apistrat_survey_design$strata,
+                                           cluster_ids = apistrat_survey_design$cluster,
+                                           probs = matrix(apistrat_survey_design$variables$pw^(-1),
+                                                          nrow = nrow(apistrat_survey_design)),
+                                           aux_vars = aux_var_columns) |>
+        make_fays_gen_rep_factors(max_replicates = 5)
+    })
+
+    expect_equal(
+      object = conversion_result,
+      expected = orig_result
+    )
+
+  })
+
+test_that(
   "Two-phase Design: Same results from conversion vs. creating from scratch", {
 
     suppressMessages({

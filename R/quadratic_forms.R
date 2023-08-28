@@ -441,7 +441,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
           current_cluster_ids <- cluster_ids[stratum_indices, stage, drop = TRUE]
           current_probs <- probs[stratum_indices, stage, drop = TRUE]
           cluster_probs <- current_probs[!duplicated(current_cluster_ids)]
-          current_aux_vars <- aux_vars[stratum_indices, stage, drop = FALSE]
+          current_aux_vars <- aux_vars[stratum_indices, , drop = FALSE]
           cluster_aux_vars <- current_aux_vars[!duplicated(current_cluster_ids), , drop = FALSE]
 
           Q_current <- distribute_matrix_across_clusters(
