@@ -50,7 +50,7 @@ The information from the first-phase sample is useful for both design and analys
 
 # Replicate Variance Estimation with the 'svrep' Package
 
-In this vignette, we'll show how to use the generalized bootstrap to estimate sampling variances for estimates based on two-phase sample designs. Other types of replication such as the jackknife or balanced repeated replication (BRR) can theoretically be used, but the 'svrep' package only implements the generalized bootstrap method, because it is relatively simple and is applicable to a much larger variety of sample designs than the jackknife or BRR.
+In this vignette, we'll show how to use the generalized bootstrap to estimate sampling variances for estimates based on two-phase sample designs. Other types of replication such as the jackknife or balanced repeated replication (BRR) can theoretically be used, but the 'svrep' package only implements two-phase replication methods for the generalized bootstrap and for Fay's generalized replication method. In theory, other replication methods can be used for two-phase samples, but their applicability is much more limited.
 
 ## Overview of the Generalized Bootstrap
 
@@ -154,6 +154,23 @@ twophase_boot_design <- as_gen_boot_design(
 ```
 
 As you can see from the output above, the function emitted a warning message. The generalized bootstrap works by mimicking a variance estimator but requires that variance estimator to be represented as a positive semidefinite qudratic form. In two-phase designs, however, it is often the case that the usual variance estimator cannot be represented exactly as a positive semidefinite quadratic form. In such cases, @beaumont2012 suggest using an approximation of the actual quadratic form matrix by the most similar positive semidefinite matrix. This approximation will in general never lead to an underestimation of variance, and @beaumont2012 argue that this should only produce a small overestimate of variance in practice. Section 5 of this vignette provides more details of this approximation.
+
+## Create Replicates Using Fay's Generalized Replication Method
+
+Instead of the generalized bootstrap, we can instead use Fay's generalized replication method. The R code looks almost exactly the same as for the generalized bootstrap.
+
+```{r}
+twophase_genrep_design <- as_fays_gen_rep_design(
+  design = twophase_design,
+  variance_estimator = list(
+    "Phase 1" = "Stratified Multistage SRS",
+    "Phase 2" = "Ultimate Cluster"
+  ),
+  max_replicates = 500
+)
+```
+
+The key difference from a programming standpoint is that we use the argument `max_replicates` to specify the maximum number of replicates that can be created. If the function determines that fewer than `max_replicates` are needed to obtain a fully-efficient variance estimator, then the actual number of replicates created will be less than `max_replicates`.
 
 ## Calibrating Second-phase Weights to First-phase Estimates
 
