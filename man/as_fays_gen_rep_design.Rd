@@ -8,6 +8,7 @@ using Fay's generalized replication method}
 as_fays_gen_rep_design(
   design,
   variance_estimator = NULL,
+  aux_var_names = NULL,
   max_replicates = 500,
   balanced = TRUE,
   psd_option = "warn",
@@ -48,6 +49,9 @@ Options include:
   This estimator is the basis of the "successive-differences replication" estimator commonly used
   for variance estimation for systematic sampling.}
 }}
+
+\item{aux_var_names}{(Only used if \code{variance_estimator = "Deville-Tille")}.
+A vector of the names of auxiliary variables used in sampling.}
 
 \item{max_replicates}{The maximum number of replicates to allow (should be as large as possible, given computer memory/storage limitations).
 A commonly-recommended default is 500. If the number of replicates needed

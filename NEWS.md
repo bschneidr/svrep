@@ -2,7 +2,9 @@
 
 * Added support for Fay's generalized replication method, specifically the version proposed in Fay (1989): the key functions are `as_fays_gen_rep_design()` and `make_fays_gen_rep_factors()`, which are nearly identical to the generalized bootstrap functions `as_gen_boot_design()` and `make_gen_boot_factors()`.
 
-* Added a new variance estimator, `"Deville-Tille"`, useful for balanced sampling (including the cube method).
+* Added a new variance estimator, `"Deville-Tille"`, useful for balanced sampling (including the cube method). Currently only works for single-stage designs.
+
+  * The functions `as_gen_boot_design()` and `as_fays_gen_rep_design()` have a new argument `aux_var_names` meant to be used for the `"Deville-Tille"` variance estimator. Similarly, `make_gen_boot_factors()` and `make_fays_gen_rep_factors()` have an argument named `aux_vars`.
 
 # svrep 0.6.0
 

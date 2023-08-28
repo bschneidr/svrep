@@ -46,13 +46,16 @@
 #'   \mathbf{f}_{r} = 1 + c \sum_{m=1}^k H_{m r} \lambda_{(m)}^{\frac{1}{2}} \mathbf{v}_{(m)}
 #' }
 #'
-#' This function uses a value of \eqn{c = 1}. If any of the replicates
+#' If \code{balanced = FALSE}, then \eqn{c = 1}. If \code{balanced = TRUE},
+#' then \eqn{c = \frac{1}{\sqrt{k^{\prime}}}}.
+#'
+#' If any of the replicates
 #' are negative, you can use \code{\link[svrep]{rescale_reps}},
-#' which updates replicates by increasing \eqn{c}.
+#' which recalculates the replicate factors with a smaller value of \eqn{c}.
 #'
 #' If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
 #' \deqn{
-#'   v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{k^{\prime}} \sum_{r=1}^{k^{\prime}}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
+#'   v_{rep}\left(\hat{T}_y\right) = \sum_{r=1}^{k^{\prime}}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
 #' }
 #' For population totals, this replication variance estimator
 #' will \emph{exactly} match the target variance estimator
@@ -70,13 +73,13 @@
 #' then one can simply retain only a random subset of \eqn{R} of the \eqn{k^{\prime}} replicates.
 #' In this case, variances are calculated as follows:
 #' \deqn{
-#'   v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{R} \sum_{r=1}^{R}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
+#'   v_{rep}\left(\hat{T}_y\right) = \frac{k^{\prime}}{R} \sum_{r=1}^{R}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
 #' }
 #' This is what happens if \code{max_replicates} is less than the
 #' matrix rank of \code{Sigma}: only a random subset
 #' of the created replicates will be retained.
 #'
-#' However, subsampling replicates is only recommended when
+#' Subsampling replicates is only recommended when
 #' using \code{balanced=TRUE}, since in this case every replicate
 #' contributes equally to variance estimates. If \code{balanced=FALSE},
 #' then randomly subsampling replicates is valid but may
@@ -151,7 +154,8 @@
 #'   combined.weights = FALSE,
 #'   scale = attr(adjustment_factors, 'scale'),
 #'   rscales = rep(1, times = ncol(adjustment_factors)),
-#'   type = "other"
+#'   type = "other",
+#'   mse = TRUE
 #' ) |>
 #'   svytotal(x = ~ Kerry)
 #'
@@ -180,24 +184,35 @@ make_fays_gen_rep_factors <- function(
               })
   v <- v[, seq_len(Sigma_rank), drop=FALSE]
 
-  # Generate Hadamard matrix
-  H <- (2*survey::hadamard(Sigma_rank) - 1)
-  k_prime <- ncol(H)
-  shuffle_order <- sample(x = k_prime, size = k_prime, replace = FALSE)
-  H <- H[shuffle_order, shuffle_order]
+  # Create replication factors
+  if (!balanced) {
+    k_prime <- Sigma_rank
+    # Shuffle the column order
+    shuffle_order <- sample(x = k_prime, size = k_prime, replace = FALSE)
+    replicate_factors <- v[,shuffle_order,drop=FALSE]
+  }
 
-  # Construct replicate factors
-  replicate_factors <- (
-    v[,seq_len(Sigma_rank),drop=FALSE] %*% H[seq_len(Sigma_rank),,drop=FALSE]
-  )
+  if (balanced) {
+    # Generate Hadamard matrix
+    H <- (2*survey::hadamard(Sigma_rank) - 1)
+    k_prime <- ncol(H)
+    shuffle_order <- sample(x = k_prime, size = k_prime, replace = FALSE)
+    H <- H[shuffle_order, shuffle_order]
 
-  scale_factor <- 1
+    # Construct replicate factors
+    replicate_factors <- (
+      v[,seq_len(Sigma_rank),drop=FALSE] %*% H[seq_len(Sigma_rank),,drop=FALSE]
+    )
+    replicate_factors <- replicate_factors / sqrt(k_prime)
+  }
 
-  replicate_factors <- 1 + (scale_factor * replicate_factors)
+  replicate_factors <- 1 + replicate_factors
 
-  scale <- (k_prime * (scale_factor^2))^(-1)
+  # Set overall scale factor used in estimation
+  scale <- 1
 
   # Potentially subsample replicate factors
+  # (and adjust the scale factor if doing any subsampling)
   if (max_replicates >= k_prime) {
     num_replicates <- k_prime
   }
@@ -268,6 +283,8 @@ make_fays_gen_rep_factors <- function(
 #'   This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'   for variance estimation for systematic sampling.}
 #' }
+#' @param aux_var_names (Only used if \code{variance_estimator = "Deville-Tille")}.
+#' A vector of the names of auxiliary variables used in sampling.
 #' @param max_replicates The maximum number of replicates to allow (should be as large as possible, given computer memory/storage limitations).
 #' A commonly-recommended default is 500. If the number of replicates needed
 #' for a balanced, fully-efficient estimator is less than \code{max_replicates},
@@ -394,6 +411,7 @@ make_fays_gen_rep_factors <- function(
 #'             design = gen_rep_design_sd2)
 #' @export
 as_fays_gen_rep_design <- function(design, variance_estimator = NULL,
+                                   aux_var_names = NULL,
                                    max_replicates = 500,
                                    balanced = TRUE,
                                    psd_option = "warn",
@@ -404,13 +422,14 @@ as_fays_gen_rep_design <- function(design, variance_estimator = NULL,
 
 #' @export
 as_fays_gen_rep_design.twophase2 <- function(design, variance_estimator = NULL,
+                                             aux_var_names = NULL,
                                              max_replicates = 500,
                                              balanced = TRUE,
                                              psd_option = "warn",
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
-  Sigma <- get_design_quad_form(design, variance_estimator)
+  Sigma <- get_design_quad_form(design, variance_estimator, aux_var_names = aux_var_names)
 
   if (!is_psd_matrix(Sigma)) {
     problem_msg <- paste0(
@@ -467,6 +486,7 @@ as_fays_gen_rep_design.twophase2 <- function(design, variance_estimator = NULL,
 
 #' @export
 as_fays_gen_rep_design.survey.design <- function(design, variance_estimator = NULL,
+                                                 aux_var_names = NULL,
                                                  max_replicates = 500,
                                                  balanced = TRUE,
                                                  psd_option = 'warn',
@@ -474,13 +494,14 @@ as_fays_gen_rep_design.survey.design <- function(design, variance_estimator = NU
                                                  compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  compressed_design_structure <- compress_design(design)
+  compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
 
   # Get the quadratic form of the variance estimator,
   # for the compressed design object
   Sigma <- get_design_quad_form(
     compressed_design_structure$design_subset,
-    variance_estimator
+    variance_estimator,
+    aux_var_names = aux_var_names
   )
 
   # Check that the matrix is positive semidefinite
@@ -548,6 +569,7 @@ as_fays_gen_rep_design.survey.design <- function(design, variance_estimator = NU
 
 #' @export
 as_fays_gen_rep_design.DBIsvydesign <- function(design, variance_estimator = NULL,
+                                                aux_var_names = NULL,
                                                 max_replicates = 500,
                                                 balanced = TRUE,
                                                 psd_option = 'warn',
@@ -555,13 +577,14 @@ as_fays_gen_rep_design.DBIsvydesign <- function(design, variance_estimator = NUL
                                                 compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  compressed_design_structure <- compress_design(design)
+  compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
 
   # Get the quadratic form of the variance estimator,
   # for the compressed design object
   Sigma <- get_design_quad_form(
     compressed_design_structure$design_subset,
-    variance_estimator
+    variance_estimator,
+    aux_var_names = aux_var_names
   )
 
   # Check that the matrix is positive semidefinite

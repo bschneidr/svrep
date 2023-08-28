@@ -66,13 +66,16 @@ The \eqn{r}-th replicate adjustment factor \eqn{\mathbf{f}_{r}} is formed as:
   \mathbf{f}_{r} = 1 + c \sum_{m=1}^k H_{m r} \lambda_{(m)}^{\frac{1}{2}} \mathbf{v}_{(m)}
 }
 
-This function uses a value of \eqn{c = 1}. If any of the replicates
+If \code{balanced = FALSE}, then \eqn{c = 1}. If \code{balanced = TRUE},
+then \eqn{c = \frac{1}{\sqrt{k^{\prime}}}}.
+
+If any of the replicates
 are negative, you can use \code{\link[svrep]{rescale_reps}},
-which updates replicates by increasing \eqn{c}.
+which recalculates the replicate factors with a smaller value of \eqn{c}.
 
 If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
 \deqn{
-  v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{k^{\prime}} \sum_{r=1}^{k^{\prime}}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
+  v_{rep}\left(\hat{T}_y\right) = \sum_{r=1}^{k^{\prime}}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
 }
 For population totals, this replication variance estimator
 will \emph{exactly} match the target variance estimator
@@ -92,13 +95,13 @@ If the number of replicates \eqn{k^{\prime}} is too large for practical purposes
 then one can simply retain only a random subset of \eqn{R} of the \eqn{k^{\prime}} replicates.
 In this case, variances are calculated as follows:
 \deqn{
-  v_{rep}\left(\hat{T}_y\right) = \frac{c^2}{R} \sum_{r=1}^{R}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
+  v_{rep}\left(\hat{T}_y\right) = \frac{k^{\prime}}{R} \sum_{r=1}^{R}\left(\hat{T}_y^{*(r)}-\hat{T}_y\right)^2
 }
 This is what happens if \code{max_replicates} is less than the
 matrix rank of \code{Sigma}: only a random subset
 of the created replicates will be retained.
 
-However, subsampling replicates is only recommended when
+Subsampling replicates is only recommended when
 using \code{balanced=TRUE}, since in this case every replicate
 contributes equally to variance estimates. If \code{balanced=FALSE},
 then randomly subsampling replicates is valid but may
@@ -167,7 +170,8 @@ rep_estimate <- svrepdesign(
   combined.weights = FALSE,
   scale = attr(adjustment_factors, 'scale'),
   rscales = rep(1, times = ncol(adjustment_factors)),
-  type = "other"
+  type = "other",
+  mse = TRUE
 ) |>
   svytotal(x = ~ Kerry)
 

@@ -7,6 +7,7 @@
 as_gen_boot_design(
   design,
   variance_estimator = NULL,
+  aux_var_names = NULL,
   replicates = 500,
   tau = "auto",
   exact_vcov = FALSE,

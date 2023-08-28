@@ -689,6 +689,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
+                               aux_var_names = NULL,
                                replicates = 500, tau = "auto", exact_vcov = FALSE,
                                psd_option = "warn",
                                mse = getOption("survey.replicates.mse"),
@@ -698,12 +699,13 @@ as_gen_boot_design <- function(design, variance_estimator = NULL,
 
 #' @export
 as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
+                                         aux_var_names = NULL,
                                          replicates = 500, tau = "auto",
                                          exact_vcov = FALSE, psd_option = "warn",
                                          mse = getOption("survey.replicates.mse"),
                                          compress = TRUE) {
 
-  Sigma <- get_design_quad_form(design, variance_estimator)
+  Sigma <- get_design_quad_form(design, variance_estimator, aux_var_names = aux_var_names)
 
   if (!is_psd_matrix(Sigma)) {
     problem_msg <- paste0(
@@ -763,19 +765,21 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 
 #' @export
 as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
+                                             aux_var_names = NULL,
                                              replicates = 500, tau = "auto", exact_vcov = FALSE,
                                              psd_option = 'warn',
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  compressed_design_structure <- compress_design(design)
+  compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
 
   # Get the quadratic form of the variance estimator,
   # for the compressed design object
   Sigma <- get_design_quad_form(
     compressed_design_structure$design_subset,
-    variance_estimator
+    variance_estimator,
+    aux_var_names = aux_var_names
   )
 
   # Check that the matrix is positive semidefinite
@@ -848,19 +852,21 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
 
 #' @export
 as_gen_boot_design.DBIsvydesign <- function(design, variance_estimator = NULL,
+                                            aux_var_names = NULL,
                                             replicates = 500, tau = "auto",
                                             exact_vcov = FALSE, psd_option = "warn",
                                             mse = getOption("survey.replicates.mse"),
                                             compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  compressed_design_structure <- compress_design(design)
+  compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
 
   # Get the quadratic form of the variance estimator,
   # for the compressed design object
   Sigma <- get_design_quad_form(
     compressed_design_structure$design_subset,
-    variance_estimator
+    variance_estimator,
+    aux_var_names = aux_var_names
   )
 
   # Check that the matrix is positive semidefinite

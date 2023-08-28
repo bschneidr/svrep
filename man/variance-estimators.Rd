@@ -5,10 +5,28 @@
 \title{Variance Estimators}
 \description{
 This help page describes variance estimators
-which are commonly-used for survey samples. These variance estimators
-can be used as the basis of the generalized bootstrap, implemented
-with the function \code{as_gen_boot_design()}.
+which are commonly used for survey samples. These variance estimators
+can be used as the basis of the generalized replication methods, implemented
+with the functions \code{\link[svrep]{as_fays_gen_rep_design}()},
+\code{\link[svrep]{as_gen_boot_design}()},
+\code{\link[svrep]{make_fays_gen_rep_factors}()},
+or \code{\link[svrep]{make_gen_boot_factors}()}
 }
+\section{Shared Notation}{
+
+Let \eqn{s} denote the selected sample of size \eqn{n}, with elements \eqn{i=1,\dots,n}.
+Element \eqn{i} in the sample had probability \eqn{\pi_i} of being included in the sample.
+The \emph{pair} of elements \eqn{ij} was sampled with probability \eqn{\pi_{ij}}.
+
+The population total for a variable is denoted \eqn{Y = \sum_{i \in U}y_i},
+and the Horvitz-Thompson estimator for \eqn{\hat{Y}} is
+denoted \eqn{\hat{Y} = \sum_{i \in s} y_i/\pi_i}. For convenience,
+we denote \eqn{\breve{y}_i = y_i/\pi_i}.
+
+The true sampling variance of \eqn{\hat{Y}} is denoted \eqn{V(\hat{Y})},
+while an estimator of this sampling variance is denoted \eqn{v(\hat{Y})}.
+}
+
 \section{Horvitz-Thompson}{
 
 The \strong{Horvitz-Thompson} variance estimator:
