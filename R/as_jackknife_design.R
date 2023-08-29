@@ -122,8 +122,8 @@
 #' \deqn{
 #'  a_{\tilde{h} g} =
 #'  \begin{cases}
-#'  \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} & \textit{ if adj\_method = ``variance-units''} \\
-#'  \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} & \textit{ if adj\_method = ``variance-stratum-psus''} \\
+#'  \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} & \textit{ if adj. method = variance-units} \\
+#'  \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} & \textit{ if adj. method = variance-stratum-psus} \\
 #'  \end{cases}
 #' }
 #' The scale factor \eqn{c_r} for replicate \eqn{r}
@@ -132,8 +132,8 @@
 #' \deqn{
 #'  c_{r} =
 #'  \begin{cases}
-#'  \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} & \textit{ if scale\_method = ``variance-units''} \\
-#'  \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} & \textit{ if scale\_method = ``variance-stratum-psus''} \\
+#'  \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} & \textit{ if scale method = variance-units} \\
+#'  \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} & \textit{ if scale method = variance-stratum-psus} \\
 #'  \end{cases}
 #' }
 #'
