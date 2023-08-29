@@ -454,6 +454,8 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'   This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'   for variance estimation for systematic sampling.}
 #' }
+#' @param aux_var_names (Only used if \code{variance_estimator = "Deville-Tille")}.
+#' A vector of the names of auxiliary variables used in sampling.
 #' @param replicates Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 #' A commonly-recommended default is 500.
 #' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant

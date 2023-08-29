@@ -15,6 +15,7 @@
 #' @importFrom stats model.frame
 #' @importFrom stats model.matrix
 #' @importFrom stats na.pass
+#' @importFrom stats reformulate
 #' @importFrom stats setNames
 #' @importFrom stats terms
 #' @importFrom stats weights

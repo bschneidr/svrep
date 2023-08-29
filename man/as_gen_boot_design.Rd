@@ -50,6 +50,9 @@ Options include:
   for variance estimation for systematic sampling.}
 }}
 
+\item{aux_var_names}{(Only used if \code{variance_estimator = "Deville-Tille")}.
+A vector of the names of auxiliary variables used in sampling.}
+
 \item{replicates}{Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 A commonly-recommended default is 500.}
 
