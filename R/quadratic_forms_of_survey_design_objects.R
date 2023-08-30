@@ -364,7 +364,7 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
 #' needed to represent the survey design.
 #' The \code{index} element links each row of the original design
 #' to a row of \code{design_subset}, so that the design can be "uncompressed."
-#'
+#' @keywords internal
 compress_design <- function(design, vars_to_keep = NULL) {
 
   UseMethod("compress_design", design)

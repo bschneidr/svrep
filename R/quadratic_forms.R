@@ -974,7 +974,7 @@ ht_matrix_to_joint_probs <- function(ht_quad_form) {
 #' @param w Vector of weights (should all be nonnegative), of length \code{n}
 #'
 #' @return An \eqn{n \times n} matrix. This is the "hat matrix" for a WLS regression.
-#' @keywords Internal
+#' @keywords internal
 #'
 wls_hat_matrix <- function(X, w) {
 

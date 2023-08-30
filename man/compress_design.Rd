@@ -23,3 +23,4 @@ to a row of \code{design_subset}, so that the design can be "uncompressed."
 \description{
 Produce a compressed representation of a survey design object
 }
+\keyword{internal}

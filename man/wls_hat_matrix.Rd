@@ -17,4 +17,4 @@ An \eqn{n \times n} matrix. This is the "hat matrix" for a WLS regression.
 \description{
 Create the "hat matrix" for weighted least squares regression
 }
-\keyword{Internal}
+\keyword{internal}
