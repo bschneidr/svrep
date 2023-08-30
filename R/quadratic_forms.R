@@ -788,40 +788,21 @@ make_deville_tille_matrix <- function(probs, aux_vars) {
     stop(error_msg)
   }
 
+  # Calculate the constants used for each observation
   c_k <- (1 - probs) * (n/(n-q))
 
-  a_k <- apply(aux_vars, MARGIN = 2,
-               FUN = function(x_k) {
-                 x_k/probs
-               })
+  # Calculate the hat matrix for creating y-star
+  H <- wls_hat_matrix(X = aux_vars, w = c_k/(probs^2))
 
-  B <- matrix(0, q, q)
-  for (i in seq_len(n)) {
-    B <- B + (c_k[i] * (a_k[i,] %*% t(a_k[i,])))
-  }
+  # Subtract the hat matrix from the identity matrix
+  I_minus_H <- diag(n) - H
 
-  B_inv <- solve(B)
+  # Weight each entry
+  wtd_I_minus_H <- I_minus_H * sqrt(c_k/(probs^2))
 
-  Sigma <- matrix(0, n, n)
-  i <- 1
-  while (i <= n) {
-    j <- 1
-    while (j <= i) {
+  Q_wtd <- crossprod(wtd_I_minus_H, wtd_I_minus_H)
 
-      Sigma[i,j] <- -(
-        c_k[i] * (t(a_k[i,]) %*% B_inv %*% a_k[j,]) * c_k[j]
-      )
-
-      if (i == j) {
-        Sigma[i,j] <- c_k[i] + Sigma[i,j]
-      }
-
-      j <- j + 1
-    }
-    i <- i + 1
-  }
-
-  Sigma[upper.tri(Sigma)] <- t(Sigma)[upper.tri(Sigma)]
+  Sigma <- diag(probs) %*% Q_wtd %*% diag(probs)
 
   return(Sigma)
 }
@@ -987,6 +968,41 @@ ht_matrix_to_joint_probs <- function(ht_quad_form) {
   first_order_probs <- 1 - Matrix::diag(ht_quad_form)
   joint_probs <- ((1 - ht_quad_form)^(-1)) * outer(first_order_probs, first_order_probs)
   return(joint_probs)
+}
+
+#' @title Create the "hat matrix" for weighted least squares regression
+#'
+#' @param X Matrix of predictor variables, with \code{n} rows
+#' @param w Vector of weights (should all be nonnegative), of length \code{n}
+#'
+#' @return An \eqn{n \times n} matrix. This is the "hat matrix" for a WLS regression.
+#' @keywords Internal
+#'
+wls_hat_matrix <- function(X, w) {
+
+  # Temporarily drop entries with zero weights
+  n <- length(w)
+  which_zero <- (w == 0)
+  X <- X[(w != 0), , drop = FALSE]
+  w <- w[(w != 0)]
+
+  # Compute the hat matrix
+  rw <- sqrt(w)
+  X1 <- rw * X
+
+  QR <- qr.default(X1, LAPACK = TRUE)
+  Q <- qr.qy(QR, diag(1, nrow = nrow(QR$qr), ncol = QR$rank))
+
+  Q1 <- (1 / rw) * Q
+  Q2 <- rw * Q
+
+  H <- tcrossprod(Q1, Q2)
+
+  # Restore entries with zero weights
+  result <- matrix(0, nrow = n, ncol = n)
+  result[!which_zero, !which_zero] <- H
+
+  return(result)
 }
 
 #' @title Combine quadratic forms from each phase of a two phase design
