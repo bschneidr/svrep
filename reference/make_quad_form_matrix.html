@@ -88,7 +88,8 @@ This function constructs the \(n \times n\) matrix of the quadratic form, \(\mat
 <span>  cluster_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  strata_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  strata_pop_sizes <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  sort_order <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  sort_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  aux_vars <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -125,11 +126,13 @@ sometimes used for variance estimation for systematic sampling.</p></li>
 <li><p><strong>"SD2"</strong>: The circular successive-differences variance estimator described by Ash (2014).
 This estimator is the basis of the "successive-differences replication" estimator commonly used
 for variance estimation for systematic sampling.</p></li>
+<li><p><strong>"Deville-Tille"</strong>: The estimator of Deville and Tillé (2005),
+developed for balanced sampling using the cube method.</p></li>
 </ul></dd>
 
 
 <dt>probs</dt>
-<dd><p>Required if <code>variance_estimator</code> equals <code>"Deville-1"</code> or <code>"Deville-2"</code>.
+<dd><p>Required if <code>variance_estimator</code> equals <code>"Deville-1"</code>, <code>"Deville-2"</code>, or <code>"Breidt-Chauvet"</code>.
 This should be a matrix or data frame of sampling probabilities.
 If there are multiple stages of sampling,
 then <code>probs</code> can have multiple columns,
@@ -170,6 +173,11 @@ with one column for each level of sampling to be accounted for by the variance e
 <dd><p>Required if <code>variance_estimator</code> equals <code>"SD1"</code> or <code>"SD2"</code>.
 This should be a vector that orders the rows of data into the order used for sampling.</p></dd>
 
+
+<dt>aux_vars</dt>
+<dd><p>Required if <code>variance_estimator</code> equals <code>"Deville-Tille"</code>.
+A matrix of auxiliary variables.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -188,7 +196,7 @@ description of each variance estimator.</p>
     <h2 id="arguments-required-for-each-variance-estimator">Arguments required for each variance estimator<a class="anchor" aria-label="anchor" href="#arguments-required-for-each-variance-estimator"></a></h2>
     
 
-<p>Below are the arguments that are required or optional for each variance estimator.</p><table class="table table"><tr><td>variance_estimator</td><td>probs</td><td>joint_probs</td><td>cluster_ids</td><td>strata_ids</td><td>strata_pop_sizes</td><td>sort_order</td></tr><tr><td>Stratified Multistage SRS</td><td></td><td></td><td>Required</td><td>Required</td><td>Required</td><td></td></tr><tr><td>Ultimate Cluster</td><td></td><td></td><td>Required</td><td>Required</td><td>Optional</td><td></td></tr><tr><td>SD1</td><td></td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr><tr><td>SD2</td><td></td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td></tr><tr><td>Deville-1</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td></tr><tr><td>Deville-2</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td></tr><tr><td>Yates-Grundy</td><td></td><td>Required</td><td></td><td></td><td></td><td></td></tr><tr><td>Horvitz-Thompson</td><td></td><td>Required</td><td></td><td></td><td></td><td></td></tr></table></div>
+<p>Below are the arguments that are required or optional for each variance estimator.</p><table class="table table"><tr><td>variance_estimator</td><td>probs</td><td>joint_probs</td><td>cluster_ids</td><td>strata_ids</td><td>strata_pop_sizes</td><td>sort_order</td><td>aux_vars</td></tr><tr><td>Stratified Multistage SRS</td><td></td><td></td><td>Required</td><td>Required</td><td>Required</td><td></td><td></td></tr><tr><td>Ultimate Cluster</td><td></td><td></td><td>Required</td><td>Required</td><td>Optional</td><td></td><td></td></tr><tr><td>SD1</td><td></td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td><td></td></tr><tr><td>SD2</td><td></td><td></td><td>Required</td><td>Optional</td><td>Optional</td><td>Required</td><td></td></tr><tr><td>Deville-1</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td><td></td></tr><tr><td>Deville-2</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td><td></td></tr><tr><td>Deville-Tille</td><td>Required</td><td></td><td>Required</td><td>Optional</td><td></td><td></td><td>Required</td></tr><tr><td>Yates-Grundy</td><td></td><td>Required</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Horvitz-Thompson</td><td></td><td>Required</td><td></td><td></td><td></td><td></td><td></td></tr></table></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>See <a href="variance-estimators.html">variance-estimators</a> for a

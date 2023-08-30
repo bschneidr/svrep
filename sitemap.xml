@@ -37,6 +37,9 @@
     <loc>https://bschneidr.github.io/svrep/reference/as_data_frame_with_weights.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/reference/as_fays_gen_rep_design.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/reference/as_gen_boot_design.html</loc>
   </url>
   <url>
@@ -47,6 +50,9 @@
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/calibrate_to_sample.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/compress_design.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/distribute_matrix_across_clusters.html</loc>
@@ -86,6 +92,12 @@
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/lou_vax_survey_control_totals.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/make_deville_tille_matrix.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/make_fays_gen_rep_factors.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/make_gen_boot_factors.html</loc>
@@ -131,5 +143,8 @@
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/variance-estimators.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/wls_hat_matrix.html</loc>
   </url>
 </urlset>

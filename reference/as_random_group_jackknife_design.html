@@ -227,8 +227,8 @@ as well as \(n_{\tilde{h}}\), the total number of PSUs in variance stratum \(\ti
 $$
  a_{\tilde{h} g} =
  \begin{cases}
- \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} &amp; \textit{ if adj\_method = ``variance-units''} \\
- \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} &amp; \textit{ if adj\_method = ``variance-stratum-psus''} \\
+ \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} &amp; \textit{ if adj. method = variance-units} \\
+ \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} &amp; \textit{ if adj. method = variance-stratum-psus} \\
  \end{cases}
 $$
 The scale factor \(c_r\) for replicate \(r\)
@@ -237,8 +237,8 @@ calculated according to the function argument <code>scale_method</code>.
 $$
  c_{r} =
  \begin{cases}
- \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} &amp; \textit{ if scale\_method = ``variance-units''} \\
- \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} &amp; \textit{ if scale\_method = ``variance-stratum-psus''} \\
+ \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} &amp; \textit{ if scale method = variance-units} \\
+ \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} &amp; \textit{ if scale method = variance-stratum-psus} \\
  \end{cases}
 $$</p>
 <p>The sampling fraction \(f_r\) used for finite population correction \(1 - f_r\)

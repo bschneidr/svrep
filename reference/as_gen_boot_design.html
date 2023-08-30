@@ -78,6 +78,7 @@ can be represented as a quadratic form whose matrix is positive semidefinite
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">as_gen_boot_design</span><span class="op">(</span></span>
 <span>  <span class="va">design</span>,</span>
 <span>  variance_estimator <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  aux_var_names <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  replicates <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  tau <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  exact_vcov <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -116,12 +117,19 @@ Options include:</p><ul><li><p><strong>"Yates-Grundy"</strong>: The Yates-Grundy
 <li><p><strong>"Deville-2"</strong>: A variance estimator for unequal-probability
   sampling without replacement, described in Matei and Tillé (2005)
   as "Deville 2".</p></li>
+<li><p><strong>"Deville-Tille": </strong>A variance estimator useful
+  for balanced sampling designs, proposed by Deville and Tillé (2005).</p></li>
 <li><p><strong>"SD1"</strong>: The non-circular successive-differences variance estimator described by Ash (2014),
   sometimes used for variance estimation for systematic sampling.</p></li>
 <li><p><strong>"SD2"</strong>: The circular successive-differences variance estimator described by Ash (2014).
   This estimator is the basis of the "successive-differences replication" estimator commonly used
   for variance estimation for systematic sampling.</p></li>
 </ul></dd>
+
+
+<dt>aux_var_names</dt>
+<dd><p>(Only used if <code>variance_estimator = "Deville-Tille")</code>.
+A vector of the names of auxiliary variables used in sampling.</p></dd>
 
 
 <dt>replicates</dt>
@@ -269,6 +277,9 @@ in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein 
 - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 <br><br>
 - Bertail, and Combris. 1997. “Bootstrap Généralisé d’un Sondage.” Annales d’Économie Et de Statistique, no. 46: 49. https://doi.org/10.2307/20076068.
+<br><br>
+- Deville, J.‐C., and Tillé, Y. (2005). "<em>Variance approximation under balanced sampling.</em>"
+<strong>Journal of Statistical Planning and Inference</strong>, 128, 569–591.
 <br><br>
 - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 <br><br>

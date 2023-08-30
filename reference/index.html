@@ -128,9 +128,10 @@
         <dd>Convert a survey design object to a bootstrap replicate design</dd>
       </dl><dl><dt>
           
-          <code><a href="as_gen_boot_design.html">as_gen_boot_design()</a></code> 
+          <code><a href="make_rwyb_bootstrap_weights.html">make_rwyb_bootstrap_weights()</a></code> 
         </dt>
-        <dd>Convert a survey design object to a generalized bootstrap replicate design</dd>
+        <dd>Create bootstrap replicate weights for a general survey design,
+using the Rao-Wu-Yue-Beaumont bootstrap method</dd>
       </dl><dl><dt>
           
           <code><a href="estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv()</a></code> 
@@ -141,6 +142,50 @@
           <code><a href="estimate_boot_sim_cv.html">estimate_boot_sim_cv()</a></code> 
         </dt>
         <dd>Estimate the bootstrap simulation error</dd>
+      </dl></div><div class="section level2">
+      <h2 id="generalized-replication-method-including-the-generalized-bootstrap-">Generalized Replication Method (including the Generalized Bootstrap)<a class="anchor" aria-label="anchor" href="#generalized-replication-method-including-the-generalized-bootstrap-"></a></h2>
+      
+      
+
+      
+    </div><div class="section level2">
+      
+      <h3 id="fay-s-generalized-replication-method">Fay’s Generalized Replication Method<a class="anchor" aria-label="anchor" href="#fay-s-generalized-replication-method"></a></h3>
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="as_fays_gen_rep_design.html">as_fays_gen_rep_design()</a></code> 
+        </dt>
+        <dd>Convert a survey design object to a replication design
+using Fay's generalized replication method</dd>
+      </dl><dl><dt>
+          
+          <code><a href="make_fays_gen_rep_factors.html">make_fays_gen_rep_factors()</a></code> 
+        </dt>
+        <dd>Form replication factors using Fay's generalized replication method</dd>
+      </dl></div><div class="section level2">
+      
+      <h3 id="generalized-bootstrap">Generalized Bootstrap<a class="anchor" aria-label="anchor" href="#generalized-bootstrap"></a></h3>
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="as_gen_boot_design.html">as_gen_boot_design()</a></code> 
+        </dt>
+        <dd>Convert a survey design object to a generalized bootstrap replicate design</dd>
       </dl><dl><dt>
           
           <code><a href="make_gen_boot_factors.html">make_gen_boot_factors()</a></code> 
@@ -148,19 +193,13 @@
         <dd>Creates replicate factors for the generalized survey bootstrap</dd>
       </dl><dl><dt>
           
-          <code><a href="make_rwyb_bootstrap_weights.html">make_rwyb_bootstrap_weights()</a></code> 
-        </dt>
-        <dd>Create bootstrap replicate weights for a general survey design,
-using the Rao-Wu-Yue-Beaumont bootstrap method</dd>
-      </dl><dl><dt>
-          
           <code><a href="rescale_reps.html">rescale_reps()</a></code> 
         </dt>
         <dd>Rescale replicate factors to have specified lower bound</dd>
       </dl></div><div class="section level2">
       
-      <h3 id="variance-estimators-available-for-the-generalized-bootstrap">Variance Estimators Available for the Generalized Bootstrap<a class="anchor" aria-label="anchor" href="#variance-estimators-available-for-the-generalized-bootstrap"></a></h3>
-      <p class="section-desc"></p><p><em>The generalized bootstrap works by “mimicking” a target variance estimator, such as the Horvitz-Thompson estimator. This help page describes the variance estimators that can be used as the target for the generalized boostrap.</em></p>
+      <h3 id="variance-estimators-available-for-the-generalized-replication-methods">Variance Estimators Available for the Generalized Replication Methods<a class="anchor" aria-label="anchor" href="#variance-estimators-available-for-the-generalized-replication-methods"></a></h3>
+      <p class="section-desc"></p><p><em>The generalized replication methods (Fay’s method and the generalized bootstrap) work by “mimicking” a target variance estimator, such as the Horvitz-Thompson estimator. This help page describes the variance estimators that can be used as the target for the generalized replication methods.</em></p>
 
       
     </div><div id="" class="section level2">
@@ -176,7 +215,7 @@ using the Rao-Wu-Yue-Beaumont bootstrap method</dd>
       </dl></div><div class="section level2">
       
       <h3 id="helper-functions-for-working-with-quadratic-forms">Helper Functions for Working with Quadratic Forms<a class="anchor" aria-label="anchor" href="#helper-functions-for-working-with-quadratic-forms"></a></h3>
-      <p class="section-desc"></p><p><em>These functions help the user specify the quadratic form representation of common variance estimators and, if necessary, adjust them so that they are positive semidefinite (a necessary prerequisite for using the generalized bootstrap).</em></p>
+      <p class="section-desc"></p><p><em>These functions help the user specify the quadratic form representation of common variance estimators and, if necessary, adjust them so that they are positive semidefinite (a necessary prerequisite for using the generalized replication methods).</em></p>
 
       
     </div><div id="" class="section level2">

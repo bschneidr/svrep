@@ -66,7 +66,12 @@ the 'survey' package.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_design_quad_form</span><span class="op">(</span><span class="va">design</span>, <span class="va">variance_estimator</span>, ensure_psd <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_design_quad_form</span><span class="op">(</span></span>
+<span>  <span class="va">design</span>,</span>
+<span>  <span class="va">variance_estimator</span>,</span>
+<span>  ensure_psd <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  aux_var_names <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -98,6 +103,8 @@ Options include:</p><ul><li><p><strong>"Yates-Grundy"</strong>: The Yates-Grundy
 <li><p><strong>"Deville-2"</strong>: A variance estimator for unequal-probability
   sampling without replacement, described in Matei and Tillé (2005)
   as "Deville 2".</p></li>
+<li><p><strong>"Deville-Tille": </strong>A variance estimator useful
+  for balanced sampling designs, proposed by Deville and Tillé (2005).</p></li>
 <li><p><strong>"SD1"</strong>: The non-circular successive-differences variance estimator described by Ash (2014),
   sometimes used for variance estimation for systematic sampling.</p></li>
 <li><p><strong>"SD2"</strong>: The circular successive-differences variance estimator described by Ash (2014).
@@ -116,6 +123,12 @@ The approximation method is discussed by Beaumont and Patak (2012)
 in the context of forming replicate weights for two-phase samples.
 The authors argue that this approximation should
 lead to only a small overestimation of variance.</p></dd>
+
+
+<dt>aux_var_names</dt>
+<dd><p>Only required if <code>variance_estimator = "Deville-Tille"</code>.
+Should be a character vector of variable names for auxiliary variables
+to be used in the Breidt and Chauvet (2011) variance estimator.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -155,6 +168,9 @@ see the documentation for <a href="make_twophase_quad_form.html">make_twophase_q
 <br><br>
 - Bellhouse, D.R. (1985). "<em>Computing Methods for Variance Estimation in Complex Surveys</em>."
 <strong>Journal of Official Statistics</strong>, Vol.1, No.3.
+<br><br>
+- Deville, J.‐C., and Tillé, Y. (2005). "<em>Variance approximation under balanced sampling.</em>"
+<strong>Journal of Statistical Planning and Inference</strong>, 128, 569–591.
 <br><br>
 - Särndal, C.-E., Swensson, B., &amp; Wretman, J. (1992). "<em>Model Assisted Survey Sampling</em>." Springer New York.</p>
     </div>

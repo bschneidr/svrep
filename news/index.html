@@ -55,7 +55,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
-</div>
+<ul><li><p>Added support for Fay’s generalized replication method, specifically the version proposed in Fay (1989): the key functions are <code><a href="../reference/as_fays_gen_rep_design.html">as_fays_gen_rep_design()</a></code> and <code><a href="../reference/make_fays_gen_rep_factors.html">make_fays_gen_rep_factors()</a></code>, which are nearly identical to the generalized bootstrap functions <code><a href="../reference/as_gen_boot_design.html">as_gen_boot_design()</a></code> and <code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code>.</p></li>
+<li>
+<p>Added a new variance estimator, <code>"Deville-Tille"</code>, useful for balanced sampling (including the cube method). Currently only works for single-stage designs.</p>
+<ul><li>The functions <code><a href="../reference/as_gen_boot_design.html">as_gen_boot_design()</a></code> and <code><a href="../reference/as_fays_gen_rep_design.html">as_fays_gen_rep_design()</a></code> have a new argument <code>aux_var_names</code> meant to be used for the <code>"Deville-Tille"</code> variance estimator. Similarly, <code><a href="../reference/make_gen_boot_factors.html">make_gen_boot_factors()</a></code> and <code><a href="../reference/make_fays_gen_rep_factors.html">make_fays_gen_rep_factors()</a></code> have an argument named <code>aux_vars</code>.</li>
+</ul></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="svrep-060">svrep 0.6.0<a class="anchor" aria-label="anchor" href="#svrep-060"></a></h2><p class="text-muted">CRAN release: 2023-07-06</p>
 <ul><li><p>Added a function <code><a href="../reference/as_random_group_jackknife_design.html">as_random_group_jackknife_design()</a></code> to create random-group jackknife replicates.</p></li>
