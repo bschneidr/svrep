@@ -67,7 +67,7 @@
 #' may need to increase slightly.
 #' This is due to the fact that a Hadamard matrix
 #' of order \eqn{k^{\prime} \geq k} is used to balance the replicates,
-#' and it may be necessary to use order \eqn{k^{\prime} \gt k}.
+#' and it may be necessary to use order \eqn{k^{\prime} > k}.
 #'
 #' If the number of replicates \eqn{k^{\prime}} is too large for practical purposes,
 #' then one can simply retain only a random subset of \eqn{R} of the \eqn{k^{\prime}} replicates.
