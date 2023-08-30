@@ -800,9 +800,7 @@ make_deville_tille_matrix <- function(probs, aux_vars) {
   # Weight each entry
   wtd_I_minus_H <- I_minus_H * sqrt(c_k/(probs^2))
 
-  Q_wtd <- crossprod(wtd_I_minus_H, wtd_I_minus_H)
-
-  Sigma <- diag(probs) %*% Q_wtd %*% diag(probs)
+  Sigma <- diag(probs) %*% crossprod(wtd_I_minus_H, wtd_I_minus_H) %*% diag(probs)
 
   return(Sigma)
 }
