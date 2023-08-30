@@ -277,6 +277,8 @@ make_fays_gen_rep_factors <- function(
 #'   \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
 #'   sampling without replacement, described in Matei and Tillé (2005)
 #'   as "Deville 2".}
+#'   \item{\strong{"Deville-Tille": }}{A variance estimator useful
+#'   for balanced sampling designs, proposed by Deville and Tillé (2005).}
 #'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 #'   sometimes used for variance estimation for systematic sampling.}
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
@@ -360,6 +362,9 @@ make_fays_gen_rep_factors <- function(
 #' - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 #' \cr \cr
+#' - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+#' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+#' \cr \cr
 #' - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 #' \cr \cr
 #' - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
@@ -371,44 +376,37 @@ make_fays_gen_rep_factors <- function(
 #' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
 #' \strong{Journal of Official Statistics}, 21(4):543–70.
 #' @examples
-#' library(survey)
+#' if (FALSE) {
 #'
-#' ## Load an example systematic sample ----
-#' data('library_stsys_sample', package = 'svrep')
+#'   library(survey)
 #'
-#' ## First, ensure data are sorted in same order as was used in sampling
-#' library_stsys_sample <- library_stsys_sample[
-#'   order(library_stsys_sample$SAMPLING_SORT_ORDER),
-#' ]
+#'   ## Load an example systematic sample ----
+#'   data('library_stsys_sample', package = 'svrep')
 #'
-#' ## Create a survey design object
-#' design_obj <- svydesign(
-#'   data = library_stsys_sample,
-#'   strata = ~ SAMPLING_STRATUM,
-#'   ids = ~ 1,
-#'   fpc = ~ STRATUM_POP_SIZE
-#' )
+#'   ## First, ensure data are sorted in same order as was used in sampling
+#'   library_stsys_sample <- library_stsys_sample[
+#'     order(library_stsys_sample$SAMPLING_SORT_ORDER),
+#'   ]
 #'
-#' ## Convert to generalized replicate design
-#' gen_boot_design_sd2 <- as_gen_boot_design(
-#'   design = design_obj,
-#'   variance_estimator = "SD2",
-#'   replicates = 250, exact_vcov = TRUE
-#' )
-#' gen_rep_design_sd2 <- as_fays_gen_rep_design(
-#'   design = design_obj,
-#'   variance_estimator = "SD2",
-#'   max_replicates = 250,
-#'   mse = TRUE
-#' )
+#'   ## Create a survey design object
+#'   design_obj <- svydesign(
+#'     data = library_stsys_sample,
+#'     strata = ~ SAMPLING_STRATUM,
+#'     ids = ~ 1,
+#'     fpc = ~ STRATUM_POP_SIZE
+#'   )
 #'
-#' svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
-#' svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_rep_design_sd2)
+#'   ## Convert to generalized replicate design
 #'
-#' svyquantile(x = ~ LIBRARIA, quantiles = 0.5, na.rm = TRUE,
-#'             design = gen_boot_design_sd2, interval.type = "quantile")
-#' svyquantile(x = ~ LIBRARIA, quantiles = 0.5, na.rm = TRUE,
-#'             design = gen_rep_design_sd2)
+#'   gen_rep_design_sd2 <- as_fays_gen_rep_design(
+#'     design = design_obj,
+#'     variance_estimator = "SD2",
+#'     max_replicates = 250,
+#'     mse = TRUE
+#'   )
+#'
+#'   svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_rep_design_sd2)
+#' }
 #' @export
 as_fays_gen_rep_design <- function(design, variance_estimator = NULL,
                                    aux_var_names = NULL,

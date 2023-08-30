@@ -27,6 +27,8 @@
 #'   \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
 #'   sampling without replacement, described in Matei and Tillé (2005)
 #'   as "Deville 2".}
+#'   \item{\strong{"Deville-Tille": }}{A variance estimator useful
+#'   for balanced sampling designs, proposed by Deville and Tillé (2005).}
 #'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 #'   sometimes used for variance estimation for systematic sampling.}
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
@@ -59,6 +61,9 @@
 #' \cr \cr
 #' - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
+#' \cr \cr
+#' - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+#' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.
 #' \cr \cr
 #' - Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 #' @examples
