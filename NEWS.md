@@ -1,5 +1,9 @@
 # svrep (development version)
 
+* Bug Fixes:
+  
+  * In cases where the `variables` component of a survey design object is not a tibble, an unnecessary error message would appear when calling `as_data_frame_with_weights()` with only one name supplied to the `vars_to_keep` argument.
+
 # svrep 0.6.1
 
 * Added support for Fay's generalized replication method, specifically the version proposed in Fay (1989): the key functions are `as_fays_gen_rep_design()` and `make_fays_gen_rep_factors()`, which are nearly identical to the generalized bootstrap functions `as_gen_boot_design()` and `make_gen_boot_factors()`.
