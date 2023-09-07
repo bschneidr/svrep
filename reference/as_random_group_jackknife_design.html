@@ -206,16 +206,14 @@ of random groups across all variance strata:
 \(R = \sum_{\tilde{h}}^{\tilde{H}} G_{\tilde{h}}\). In other words,
 each replicate corresponds to one of the random groups from one of the variance strata.</p>
 <p>The weights for replicate \(r\) corresponding to random group \(g\) within
-variance stratum \(\tilde{h}\) is defined as follows.
-$$
- w_{i}^{(r)} =
- \begin{cases}
- w_{i} &amp; \text{if } i \text{ not in variance stratum } \tilde{h} \\
- a_{\tilde{h} g} w_{i} &amp; \text{if } i \text{ in } \tilde{h} \text{ but not in random group } g \\
- 0 &amp; \text{if } i \text{ in random group } g \text{ of } \tilde{h} \\
- \end{cases}
-$$
-The R function argument <code>adj_method</code> determines how
+variance stratum \(\tilde{h}\) is defined as follows.</p>
+<p>If case \(i\)
+is not in variance stratum \(\tilde{h}\), then \(w_{i}^{(r)} = w_i\).</p>
+<p>If case \(i\) is in variance stratum \(\tilde{h}\) but in random group \(g\),
+then \(w_{i}^{(r)} = a_{\tilde{h}g} w_i\).</p>
+<p>Otherwise, if case \(i\) is in
+in random group \(g\) of variance stratum \(\tilde{h}\), then \(w_{i}^{(r)} = 0\).</p>
+<p>The R function argument <code>adj_method</code> determines how
 the adjustment factor \(a_{\tilde{h} g}\) is calculated.
 When <code>adj_method = "variance-units"</code>, then
 \(a_{\tilde{h} g}\) is calculated based on \(G_{\tilde{h}}\),
@@ -223,24 +221,14 @@ which is the number of random groups in variance stratum \(\tilde{h}\).
 When <code>adj_method = "variance-stratum-psus"</code>, then
 \(a_{\tilde{h} g}\) is calculated based on \(n_{\tilde{h}g}\),
 which is the number of PSUs in random group \(g\) in variance stratum \(\tilde{h}\),
-as well as \(n_{\tilde{h}}\), the total number of PSUs in variance stratum \(\tilde{h}\).
-$$
- a_{\tilde{h} g} =
- \begin{cases}
- \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} &amp; \textit{ if adj. method = variance-units} \\
- \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} &amp; \textit{ if adj. method = variance-stratum-psus} \\
- \end{cases}
-$$
-The scale factor \(c_r\) for replicate \(r\)
+as well as \(n_{\tilde{h}}\), the total number of PSUs in variance stratum \(\tilde{h}\).</p>
+<p>If <code>adj_method = "variance-units"</code>, then: $$a_{\tilde{h}g} = \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1}$$</p>
+<p>If <code>adj_method = "variance-stratum-psus"</code>, then: $$a_{\tilde{h}g} = \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}}$$</p>
+<p>The scale factor \(c_r\) for replicate \(r\)
 corresponding to random group \(g\) within variance stratum \(\tilde{h}\) is
-calculated according to the function argument <code>scale_method</code>.
-$$
- c_{r} =
- \begin{cases}
- \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} &amp; \textit{ if scale method = variance-units} \\
- \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} &amp; \textit{ if scale method = variance-stratum-psus} \\
- \end{cases}
-$$</p>
+calculated according to the function argument <code>scale_method</code>.</p>
+<p>If <code>scale_method = "variance-units"</code>, then: $$c_r = \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}}$$</p>
+<p>If <code>scale_method = "variance-stratum-psus"</code>, then: $$c_r = \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}}$$</p>
 <p>The sampling fraction \(f_r\) used for finite population correction \(1 - f_r\)
 is by default assumed to equal 0. However, the user can supply a sampling fraction
 for each variance stratum using the argument <code>var_strat_frac</code>.</p>
