@@ -59,7 +59,8 @@ set.seed(2014)
         labelled::val_labels() |>
         names() |>
         iconv(from = "UTF-8", to = "latin1") |>
-        `Encoding<-`("UTF-8")
+        `Encoding<-`("UTF-8") |>
+        iconv(from = "UTF-8", to = "latin1")
   }
 
 # Prepare data files ----
