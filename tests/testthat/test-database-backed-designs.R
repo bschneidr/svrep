@@ -73,6 +73,12 @@ test_that(
 test_that(
   desc = "Generalized replication works for database-backed designs", {
 
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+
     # Create Fay's generalized replication replicates for database-backed design
 
     set.seed(2023)
