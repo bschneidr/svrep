@@ -73,7 +73,7 @@ as_data_frame_with_weights <- function(design, full_wgt_name = "FULL_SAMPLE_WGT"
 
   if (!inherits(design, "DBIsvydesign")) {
     if (!is.null(vars_to_keep)) {
-      survey_data <- design[['variables']][,vars_to_keep]
+      survey_data <- design[['variables']][, vars_to_keep, drop = FALSE]
     } else {
       survey_data <- design[['variables']]
     }

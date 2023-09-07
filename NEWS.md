@@ -1,5 +1,9 @@
 # svrep (development version)
 
+* Bug Fixes:
+  
+  * In cases where the `variables` component of a survey design object is not a tibble, an unnecessary error message would appear when calling `as_data_frame_with_weights()` with only one name supplied to the `vars_to_keep` argument.
+
 * Changes specifically for CRAN check:
 
   * Removed 12 unmarked UTF-8 strings causing a CRAN check note.
