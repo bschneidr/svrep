@@ -1,3 +1,5 @@
+# svrep (development version)
+
 # svrep 0.6.1
 
 * Added support for Fay's generalized replication method, specifically the version proposed in Fay (1989): the key functions are `as_fays_gen_rep_design()` and `make_fays_gen_rep_factors()`, which are nearly identical to the generalized bootstrap functions `as_gen_boot_design()` and `make_gen_boot_factors()`.
