@@ -102,14 +102,16 @@
 #'
 #' The weights for replicate \eqn{r} corresponding to random group \eqn{g} within
 #' variance stratum \eqn{\tilde{h}} is defined as follows.
-#' \deqn{
-#'  w_{i}^{(r)} =
-#'  \begin{cases}
-#'  w_{i} & \text{if } i \text{ not in variance stratum } \tilde{h} \\
-#'  a_{\tilde{h} g} w_{i} & \text{if } i \text{ in } \tilde{h} \text{ but not in random group } g \\
-#'  0 & \text{if } i \text{ in random group } g \text{ of } \tilde{h} \\
-#'  \end{cases}
-#' }
+#'
+#' If case \eqn{i}
+#' is not in variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = w_i}.
+#'
+#' If case \eqn{i} is in variance stratum \eqn{\tilde{h}} but in random group \eqn{g},
+#' then \eqn{w_{i}^{(r)} = a_{\tilde{h}g} w_i}.
+#'
+#' Otherwise, if case \eqn{i} is in
+#' in random group \eqn{g} of variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = 0}.
+#'
 #' The R function argument \code{adj_method} determines how
 #' the adjustment factor \eqn{a_{\tilde{h} g}} is calculated.
 #' When \code{adj_method = "variance-units"}, then
@@ -119,23 +121,18 @@
 #' \eqn{a_{\tilde{h} g}} is calculated based on \eqn{n_{\tilde{h}g}},
 #' which is the number of PSUs in random group \eqn{g} in variance stratum \eqn{\tilde{h}},
 #' as well as \eqn{n_{\tilde{h}}}, the total number of PSUs in variance stratum \eqn{\tilde{h}}.
-#' \deqn{
-#'  a_{\tilde{h} g} =
-#'  \begin{cases}
-#'  \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} & \textit{ if adj. method = variance-units} \\
-#'  \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} & \textit{ if adj. method = variance-stratum-psus} \\
-#'  \end{cases}
-#' }
+#'
+#' If \code{adj_method = "variance-units"}, then: \deqn{a_{\tilde{h}g} = \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1}}
+#'
+#' If \code{adj_method = "variance-stratum-psus"}, then: \deqn{a_{\tilde{h}g} = \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}}}
+#'
 #' The scale factor \eqn{c_r} for replicate \eqn{r}
 #' corresponding to random group \eqn{g} within variance stratum \eqn{\tilde{h}} is
 #' calculated according to the function argument \code{scale_method}.
-#' \deqn{
-#'  c_{r} =
-#'  \begin{cases}
-#'  \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} & \textit{ if scale method = variance-units} \\
-#'  \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} & \textit{ if scale method = variance-stratum-psus} \\
-#'  \end{cases}
-#' }
+#'
+#' If \code{scale_method = "variance-units"}, then: \deqn{c_r = \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}}}
+#'
+#' If \code{scale_method = "variance-stratum-psus"}, then: \deqn{c_r = \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}}}
 #'
 #' The sampling fraction \eqn{f_r} used for finite population correction \eqn{1 - f_r}
 #' is by default assumed to equal 0. However, the user can supply a sampling fraction
