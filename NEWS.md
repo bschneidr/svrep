@@ -1,4 +1,4 @@
-# svrep (development version)
+# svrep 0.6.2
 
 * Bug Fixes:
   
