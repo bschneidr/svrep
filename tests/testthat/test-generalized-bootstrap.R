@@ -37,6 +37,10 @@ twophase_design <- twophase(
   test_that(
     "Horvitz-Thompson: Same results from conversion vs. creating from scratch", {
 
+      # Disable test until the Matrix package adapts to change in R 4.3.2
+      # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+      skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
+
       ## Create survey design object
       pps_design_ht <- svydesign(
         data = election_pps,
@@ -67,6 +71,10 @@ twophase_design <- twophase(
 
   test_that(
     "Yates-Grundy: Same results from conversion vs. creating from scratch", {
+
+      # Disable test until the Matrix package adapts to change in R 4.3.2
+      # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+      skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
 
       ## Create survey design object
       pps_design_yg <- svydesign(
@@ -321,6 +329,11 @@ twophase_design <- twophase(
 
   test_that(
     desc = "`exact_vcov = TRUE` gives exact variance estimate for totals", {
+
+      # Disable test until the Matrix package adapts to change in R 4.3.2
+      # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+      skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
+
       pps_design_yg <- svydesign(
         data = election_pps,
         id = ~1, fpc = ~p,
@@ -345,6 +358,11 @@ twophase_design <- twophase(
 
   test_that(
     desc = "`exact_vcov = TRUE` throws informative error message if there too few replicates", {
+
+      # Disable test until the Matrix package adapts to change in R 4.3.2
+      # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+      skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
+
       expect_error(
         regexp = "only works if.+39",
         object = {
@@ -368,6 +386,10 @@ twophase_design <- twophase(
 
   test_that(
     "Bootstrap estimate with many replicates close to expected value", {
+
+      # Disable test until the Matrix package adapts to change in R 4.3.2
+      # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+      skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
 
       ## Create survey design object
       pps_design_yg <- svydesign(

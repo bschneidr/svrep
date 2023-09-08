@@ -110,6 +110,7 @@
 #' @seealso Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
 #' @export
 #' @examples
+#' \dontrun{
 #'   library(survey)
 #'
 #' # Load an example dataset that uses unequal probability sampling ----
@@ -162,6 +163,7 @@
 #' SE(rep_estimate)
 #' SE(ht_estimate)
 #' SE(rep_estimate) / SE(ht_estimate)
+#' }
 
 make_fays_gen_rep_factors <- function(
     Sigma,

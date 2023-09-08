@@ -165,19 +165,23 @@ library_stsys_sample <- library_stsys_sample |>
      expect_equal(object = as.matrix(ht_quad_form), expected = horvitz_thompson_matrix)
   })
 
-  ## Use the 'survey' package to obtain the Horvitz-Thompson estimate
-  svy_pkg_result <- svydesign(
-    data = election_pps,
-    id = ~1, fpc = ~p,
-    pps = ppsmat(election_jointprob),
-    variance = "HT"
-  ) |> svytotal(x = ~ Bush) |> vcov()
-
   ## Use the 'svrep' package to obtain the Horvitz-Thompson estimate
   quad_form_result <- t(y_wtd) %*% ht_quad_form %*% y_wtd
 
   test_that(
     "Horvitz-Thompson estimate matches the 'survey' package", {
+      # Disable test until the Matrix package adapts to change in R 4.3.2
+      # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+      skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
+
+      ## Use the 'survey' package to obtain the Horvitz-Thompson estimate
+      svy_pkg_result <- svydesign(
+        data = election_pps,
+        id = ~1, fpc = ~p,
+        pps = ppsmat(election_jointprob),
+        variance = "HT"
+      ) |> svytotal(x = ~ Bush) |> vcov()
+
     expect_equal(object = as.matrix(quad_form_result), expected = svy_pkg_result)
   })
 
@@ -201,16 +205,19 @@ library_stsys_sample <- library_stsys_sample |>
 
   quad_form_result <-  as.matrix(t(y_wtd) %*% yg_quad_form_matrix %*% y_wtd)
 
-
-  svy_pkg_result <- svydesign(
-    data = election_pps,
-    id = ~1, fpc = ~p,
-    pps = ppsmat(election_jointprob),
-    variance = "YG"
-  ) |> svytotal(x = ~ Bush) |> vcov()
-
   test_that(
     "Generates correct quadratic form for Yates-Grundy", {
+    # Disable test until the Matrix package adapts to change in R 4.3.2
+    # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+    skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
+
+    svy_pkg_result <- svydesign(
+      data = election_pps,
+      id = ~1, fpc = ~p,
+      pps = ppsmat(election_jointprob),
+      variance = "YG"
+    ) |> svytotal(x = ~ Bush) |> vcov()
+
     expect_equal(object = quad_form_result, expected = syg_result)
     expect_equal(object = quad_form_result, expected = svy_pkg_result)
   })

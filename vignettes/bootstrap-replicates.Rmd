@@ -119,7 +119,7 @@ set.seed(2022)
 
 **Example 2: Single-stage unequal probability sampling without replacement**
 
-```{r}
+```{r, eval=FALSE}
 # Load example dataset of U.S. counties and states with 2004 Presidential vote counts
   data("election", package = 'survey')
   pps_wor_design <- svydesign(data = election_pps,
@@ -385,7 +385,7 @@ svymean(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
 
 For a PPS design that uses the Horvitz-Thompson or Yates-Grundy estimator, we can create a generalized bootstrap estimator with the same expectation. In the example below, we create a PPS design with the 'survey' package and convert it to a generalied bootstrap design.
 
-```{r}
+```{r, eval=FALSE}
 # Load example data of a PPS survey of counties and states
    data('election', package = 'survey')
 
@@ -437,13 +437,13 @@ Unless specified otherwise, `as_gen_boot_design()` automatically selects a resca
 
 ```{r}
 # View overall scale factor
-overall_scale_factor <- gen_boot_design_ht$scale
+overall_scale_factor <- multistage_boot_design$scale
 print(overall_scale_factor)
 
 # Check that the scale factor was calculated correctly
-tau <- gen_boot_design_ht$tau
+tau <- multistage_boot_design$tau
 print(tau)
-B <- ncol(gen_boot_design_ht$repweights)
+B <- ncol(multistage_boot_design$repweights)
 print(B)
 
 print( (tau^2) / B )

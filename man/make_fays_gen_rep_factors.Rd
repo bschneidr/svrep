@@ -126,6 +126,7 @@ To ensure exact reproducibility, it is recommended to call
 }
 
 \examples{
+\dontrun{
   library(survey)
 
 # Load an example dataset that uses unequal probability sampling ----
@@ -178,6 +179,7 @@ rep_estimate <- svrepdesign(
 SE(rep_estimate)
 SE(ht_estimate)
 SE(rep_estimate) / SE(ht_estimate)
+}
 }
 \references{
 Fay, Robert. 1989.
