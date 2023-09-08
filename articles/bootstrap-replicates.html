@@ -316,13 +316,7 @@ replacement</strong></p>
 <span>                                              replicates <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">Bush</span> <span class="op">+</span> <span class="va">Kerry</span>, design <span class="op">=</span> <span class="va">pps_wor_design</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          total      SE</span></span>
-<span><span class="co">#&gt; Bush  64518472 2472753</span></span>
-<span><span class="co">#&gt; Kerry 51202102 2426842</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">Bush</span> <span class="op">+</span> <span class="va">Kerry</span>, design <span class="op">=</span> <span class="va">bootstrap_rep_design</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          total      SE</span></span>
-<span><span class="co">#&gt; Bush  64518472 2331148</span></span>
-<span><span class="co">#&gt; Kerry 51202102 2337653</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">Bush</span> <span class="op">+</span> <span class="va">Kerry</span>, design <span class="op">=</span> <span class="va">bootstrap_rep_design</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Example 3: Multistage Sampling with Different Sampling
 Methods at Each Stage</strong></p>
 <p>For designs that use different sampling methods at different stages,
@@ -358,7 +352,7 @@ specify <code>pps = "brewer"</code>.</p>
 <span><span class="co">#&gt; TOTCIR 1634739229 250890030</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTCIR</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, design <span class="op">=</span> <span class="va">boot_design</span><span class="op">)</span></span>
 <span><span class="co">#&gt;             total        SE</span></span>
-<span><span class="co">#&gt; TOTCIR 1634739229 259570779</span></span></code></pre></div>
+<span><span class="co">#&gt; TOTCIR 1634739229 264207604</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -710,8 +704,8 @@ weights.</p>
 <span></span>
 <span><span class="co"># Estimate sampling variances</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTSTAFF</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, design <span class="op">=</span> <span class="va">gen_boot_design_sd2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            mean     SE</span></span>
-<span><span class="co">#&gt; TOTSTAFF 19.756 4.2644</span></span></code></pre></div>
+<span><span class="co">#&gt;            mean    SE</span></span>
+<span><span class="co">#&gt; TOTSTAFF 19.756 4.238</span></span></code></pre></div>
 <p>For a PPS design that uses the Horvitz-Thompson or Yates-Grundy
 estimator, we can create a generalized bootstrap estimator with the same
 expectation. In the example below, we create a PPS design with the
@@ -736,13 +730,7 @@ expectation. In the example below, we create a PPS design with the
 <span></span>
 <span><span class="co"># Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">Bush</span> <span class="op">+</span> <span class="va">Kerry</span>, design <span class="op">=</span> <span class="va">pps_design_ht</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          total      SE</span></span>
-<span><span class="co">#&gt; Bush  64518472 2604404</span></span>
-<span><span class="co">#&gt; Kerry 51202102 2523712</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">Bush</span> <span class="op">+</span> <span class="va">Kerry</span>, design <span class="op">=</span> <span class="va">gen_boot_design_ht</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          total      SE</span></span>
-<span><span class="co">#&gt; Bush  64518472 2627361</span></span>
-<span><span class="co">#&gt; Kerry 51202102 2499754</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">Bush</span> <span class="op">+</span> <span class="va">Kerry</span>, design <span class="op">=</span> <span class="va">gen_boot_design_ht</span><span class="op">)</span></span></code></pre></div>
 <p>We can also use the generalized bootstrap for designs that use
 multistage, stratified simple random sampling without replacement.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -769,7 +757,7 @@ multistage, stratified simple random sampling without replacement.</p>
 <span><span class="co">#&gt; TOTCIR 1634739229 251589313</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTCIR</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, design <span class="op">=</span> <span class="va">multistage_boot_design</span><span class="op">)</span></span>
 <span><span class="co">#&gt;             total        SE</span></span>
-<span><span class="co">#&gt; TOTCIR 1634739229 236364980</span></span></code></pre></div>
+<span><span class="co">#&gt; TOTCIR 1634739229 250754549</span></span></code></pre></div>
 <p>Unless specified otherwise, <code><a href="../reference/as_gen_boot_design.html">as_gen_boot_design()</a></code>
 automatically selects a rescaling value <span class="math inline">\(\tau\)</span> to use for eliminating negative
 adjustment factors. The <code>scale</code> attribute of the resulting
@@ -777,20 +765,20 @@ replicate survey design object is thus set to equal <span class="math inline">\(
 design object, as follows.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View overall scale factor</span></span>
-<span><span class="va">overall_scale_factor</span> <span class="op">&lt;-</span> <span class="va">gen_boot_design_ht</span><span class="op">$</span><span class="va">scale</span></span>
+<span><span class="va">overall_scale_factor</span> <span class="op">&lt;-</span> <span class="va">multistage_boot_design</span><span class="op">$</span><span class="va">scale</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">overall_scale_factor</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.00472392</span></span>
+<span><span class="co">#&gt; [1] 0.0458882</span></span>
 <span></span>
 <span><span class="co"># Check that the scale factor was calculated correctly</span></span>
-<span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="va">gen_boot_design_ht</span><span class="op">$</span><span class="va">tau</span></span>
+<span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="va">multistage_boot_design</span><span class="op">$</span><span class="va">tau</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 4.86</span></span>
-<span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">gen_boot_design_ht</span><span class="op">$</span><span class="va">repweights</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 4.79</span></span>
+<span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">multistage_boot_design</span><span class="op">$</span><span class="va">repweights</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">B</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 5000</span></span>
+<span><span class="co">#&gt; [1] 500</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span> <span class="op">(</span><span class="va">tau</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="va">B</span> <span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.00472392</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.0458882</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="option-2-create-the-quadratic-form-matrix-and-then-use-it-to-create-bootstrap-weights">Option 2: Create the quadratic form matrix and then use it to create
@@ -842,11 +830,11 @@ included as attributes of the adjustment factors created by
 <code class="sourceCode R"><span><span class="co"># Retrieve value of 'scale'</span></span>
 <span><span class="va">rep_adj_factors</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="st">'scale'</span><span class="op">)</span> </span>
-<span><span class="co">#&gt; [1] 0.0445568</span></span>
+<span><span class="co">#&gt; [1] 0.041405</span></span>
 <span></span>
 <span><span class="co"># Compare to manually-calculated value</span></span>
 <span>  <span class="op">(</span><span class="va">tau</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="va">B</span></span>
-<span><span class="co">#&gt; [1] 0.0445568</span></span>
+<span><span class="co">#&gt; [1] 0.041405</span></span>
 <span></span>
 <span><span class="co"># Retrieve value of 'rscales'</span></span>
 <span><span class="va">rep_adj_factors</span> <span class="op">|&gt;</span></span>
@@ -874,8 +862,8 @@ sampling designs.</p>
 <code class="sourceCode R"><span><span class="va">gen_boot_design</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTSTAFF</span>,</span>
 <span>          na.rm <span class="op">=</span> <span class="cn">TRUE</span>, deff <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt;             mean      SE DEff</span></span>
-<span><span class="co">#&gt; TOTSTAFF 19.7565  4.2024 0.97</span></span></code></pre></div>
+<span><span class="co">#&gt;            mean     SE   DEff</span></span>
+<span><span class="co">#&gt; TOTSTAFF 19.756  4.149 0.9455</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -972,8 +960,8 @@ statistic.</p>
 <span>    target_cv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.10</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt;   TARGET_CV MAX_REPS api00 api99 stypeE stypeH stypeM</span></span>
-<span><span class="co">#&gt; 1      0.01    15068  6651  6652  15068  15068  15068</span></span>
-<span><span class="co">#&gt; 2      0.05      603   267   267    603    603    603</span></span>
+<span><span class="co">#&gt; 1      0.01    15068  6651  6650  15068  15068  15068</span></span>
+<span><span class="co">#&gt; 2      0.05      603   267   266    603    603    603</span></span>
 <span><span class="co">#&gt; 3      0.10      151    67    67    151    151    151</span></span></code></pre></div>
 <p>To estimate the simulation CV for the current number of replicates
 used, it is possible to use the function
@@ -981,8 +969,8 @@ used, it is possible to use the function
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/estimate_boot_sim_cv.html">estimate_boot_sim_cv</a></span><span class="op">(</span><span class="va">estimated_means_and_proportions</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   STATISTIC SIMULATION_CV N_REPLICATES</span></span>
-<span><span class="co">#&gt; 1     api00    0.01153322         5000</span></span>
-<span><span class="co">#&gt; 2     api99    0.01153350         5000</span></span>
+<span><span class="co">#&gt; 1     api00    0.01153261         5000</span></span>
+<span><span class="co">#&gt; 2     api99    0.01153177         5000</span></span>
 <span><span class="co">#&gt; 3    stypeE    0.01735956         5000</span></span>
 <span><span class="co">#&gt; 4    stypeH    0.01735950         5000</span></span>
 <span><span class="co">#&gt; 5    stypeM    0.01735951         5000</span></span></code></pre></div>
