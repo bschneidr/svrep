@@ -1,3 +1,7 @@
+# svrep 0.6.3
+
+* Bumped version number for CRAN submission. No significant user-facing changes: just updates to unit tests and rendering of examples/vignettes due to temporary CRAN check issues for the development version of R.
+
 # svrep 0.6.2
 
 * Bug Fixes:
