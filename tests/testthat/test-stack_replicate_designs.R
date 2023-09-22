@@ -83,6 +83,16 @@ test_that("Able to supply `mrbbootstrap` or `subbootstrap` designs", code = {
                expected = 'bootstrap')
 })
 
+# Stacking works for custom replication types ----
+
+test_that("Able to use designs with custom `type`", code = {
+  custom_type_design <- mrbboot_design
+  custom_type_design$type <- 'custom replication method'
+
+  expect_equal(object = suppressWarnings({stack_replicate_designs(custom_type_design, custom_type_design)})$type,
+               expected = 'other')
+})
+
 # Check that function works for more specialized classes ----
 
 test_that(

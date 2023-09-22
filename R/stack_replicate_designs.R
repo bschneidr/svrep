@@ -151,6 +151,12 @@ stack_replicate_designs <- function(..., .id = "Design_Name") {
     design_specs[['type']] <- 'bootstrap'
   }
 
+  known_types <- c("bootstrap", "JK1", "JK2", "JKn", "BRR", "Fay",
+                   "ACS", "successive-difference")
+  if (!design_specs[['type']] %in% known_types) {
+    design_specs[['type']] <- "other"
+  }
+
   # Extract the matrices of replicate weights
   # and determine which were compressed and which are combined with full-sample weights
 

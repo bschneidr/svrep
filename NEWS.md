@@ -1,3 +1,7 @@
+# svrep (dev)
+
+* Fix issue #32: `stack_replicate_designs()` would only accept designs with types known to the 'survey' package. Fixed to allow other design types such as the random-groups jackknife.
+
 # svrep 0.6.3
 
 * Bumped version number for CRAN submission. No significant user-facing changes: just updates to unit tests and rendering of examples/vignettes due to temporary CRAN check issues for the development version of R.
