@@ -63,13 +63,21 @@ subsample_replicates <- function(design, n) {
   selected_subsample <- sample(
     x = seq_len(n_reps), size = n, replace = FALSE
   )
+
+  # Update the overall scale factor
   subsample_rate <- n / n_reps
   scale_adjustment <- subsample_rate^(-1)
 
-  # Retrieve the original 'scale' and 'rscales' attributes
+  design$scale <- scale_adjustment * design$scale
+
+  # Retrieve the original 'scale' and 'rscales' attributes of the weights matrix
   if (!is_compressed) {
     orig_scale_attribute <- scale_adjustment * attr(design$repweights, 'scale')
     orig_rscales_attribute <- attr(design$repweights, 'rscales')
+  }
+  if (is_compressed) {
+    orig_scale_attribute <- scale_adjustment * attr(design$repweights[['weights']], 'scale')
+    orig_rscales_attribute <- attr(design$repweights[['weights']], 'rscales')
   }
 
   # Update the matrix of replicate weights
