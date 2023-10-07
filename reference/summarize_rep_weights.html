@@ -168,41 +168,41 @@ The contents of the <code>"specific"</code> summary are the following:</p><ul><l
 <span class="r-in"><span><span class="fu">summarize_rep_weights</span><span class="op">(</span><span class="va">ue_adjusted_design</span>, type <span class="op">=</span> <span class="st">'overall'</span>,</span></span>
 <span class="r-in"><span>                      by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response_status"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       response_status nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1          Ineligible    60    15           14   15    2630.824    198.7133</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       Nonrespondent    43    15           12   13    1897.213    145.7418</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3          Respondent    37    15           13   14    1665.963    104.3812</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Unknown eligibility    43    15           -1    0       0.000      0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          Ineligible    39    15           13   14    1896.620    164.4527</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       Nonrespondent    47    15           14   15    2296.912    133.9403</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          Respondent    41    15           13   14    2000.468    130.3750</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Unknown eligibility    56    15           -1    0       0.000      0.0000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   min_rep_wgt max_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1           0    72.52928</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2           0    72.52928</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3           0    72.52928</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1           0    56.98729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2           0    56.98729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3           0    56.98729</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4           0     0.00000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">summarize_rep_weights</span><span class="op">(</span><span class="va">ue_adjusted_design</span>, type <span class="op">=</span> <span class="st">'overall'</span>,</span></span>
 <span class="r-in"><span>                      by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stype"</span>, <span class="st">"response_status"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    stype     response_status nrows ncols degf_svy_pkg rank avg_wgt_sum</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      E          Ineligible    51    15           12   13   2200.1908</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      H          Ineligible     2    15            1    2    118.4357</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      M          Ineligible     7    15            5    6    312.1978</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      E       Nonrespondent    33    15            9   10   1423.2703</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      H       Nonrespondent     2    15            1    2    118.0903</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      M       Nonrespondent     8    15            4    5    355.8526</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      E          Respondent    29    15            9   10   1250.5064</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8      H          Respondent     4    15            2    3    237.3319</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9      M          Respondent     4    15            3    4    178.1244</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10     E Unknown eligibility    31    15           -1    0      0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11     H Unknown eligibility     6    15           -1    0      0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12     M Unknown eligibility     6    15           -1    0      0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      E          Ineligible    29    15            7    8  1413.77685</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      H          Ineligible     6    15            2    3   283.80822</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      M          Ineligible     4    15            3    4   199.03463</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      E       Nonrespondent    36    15           12   13  1753.97013</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      H       Nonrespondent     2    15            1    2    95.02487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      M       Nonrespondent     9    15            5    6   447.91713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      E          Respondent    35    15           10   11  1706.22048</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      H          Respondent     2    15            1    2    95.02487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      M          Respondent     4    15            2    3   199.22315</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     E Unknown eligibility    44    15           -1    0     0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     H Unknown eligibility     4    15           -1    0     0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     M Unknown eligibility     8    15           -1    0     0.00000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    sd_wgt_sums min_rep_wgt max_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    201.82533           0    46.97919</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     22.02850           0    72.52928</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     32.19238           0    50.77049</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    115.98281           0    46.97919</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     20.43272           0    72.52928</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6     38.32268           0    50.77049</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7     89.02605           0    46.97919</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8     36.80087           0    72.52928</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9     20.55949           0    50.77049</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    149.65790           0    53.40068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     40.20252           0    56.98729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     23.57306           0    56.98729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    121.79339           0    53.40068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     18.18279           0    56.98729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     46.50443           0    56.98729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    135.21908           0    53.40068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     18.18279           0    56.98729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9     32.77474           0    56.98729</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10     0.00000           0     0.00000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11     0.00000           0     0.00000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12     0.00000           0     0.00000</span>
@@ -220,7 +220,7 @@ The contents of the <code>"specific"</code> summary are the following:</p><ul><l
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $adjusted</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   183    15           14   15        6194    403.1741           0    72.52928</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   183    15           14   15        6194    403.1741           0    56.98729</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
