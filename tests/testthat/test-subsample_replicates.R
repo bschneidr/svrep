@@ -28,7 +28,7 @@ survey_design <- svydesign(
 
 test_that("Correct number of replicates and `scale` attribute after subsampling", {
   jkn_design <- survey_design |> as.svrepdesign(type = "JKn", compress = TRUE)
-  subsamp_design <- jkn_design |> subsample_replicates(n = 5)
+  subsamp_design <- jkn_design |> subsample_replicates(n_reps = 5)
 
   expect_equal(
     object = ncol(subsamp_design$repweights[['weights']]),
@@ -40,7 +40,7 @@ test_that("Correct number of replicates and `scale` attribute after subsampling"
   )
 
   jkn_design <- survey_design |> as.svrepdesign(type = "JKn", compress = FALSE)
-  subsamp_design <- jkn_design |> subsample_replicates(n = 5)
+  subsamp_design <- jkn_design |> subsample_replicates(n_reps = 5)
 
   expect_equal(
     object = ncol(subsamp_design$repweights),
