@@ -2,6 +2,10 @@
 
 * Fix issue #32: `stack_replicate_designs()` would only accept designs with types known to the 'survey' package. Fixed to allow other design types such as the random-groups jackknife.
 
+* Added new helper function `shuffle_replicates()` to randomize the order of the columns of replicate weights. This is useful, for example, when replicates are created independently in each stratum and then combined.
+
+* Added new helper function `subsample_replicates()` to retain a random subset of replicates and accordingly increase the scale factor used for variance estimation.
+
 # svrep 0.6.3
 
 * Bumped version number for CRAN submission. No significant user-facing changes: just updates to unit tests and rendering of examples/vignettes due to temporary CRAN check issues for the development version of R.
