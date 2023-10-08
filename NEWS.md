@@ -8,6 +8,10 @@
 
 * Added new helper function `subsample_replicates()` to retain a random subset of replicates and accordingly increase the scale factor used for variance estimation.
 
+* Added new helper function `add_inactive_replicates()` which allows the user
+to add "inactive" replicates to a design object, so that the matrix of replicate weights
+has the desired number of columns.
+
 # svrep 0.6.3
 
 * Bumped version number for CRAN submission. No significant user-facing changes: just updates to unit tests and rendering of examples/vignettes due to temporary CRAN check issues for the development version of R.

@@ -2,14 +2,9 @@ url: https://bschneidr.github.io/svrep/
 template:
   bootstrap: 5
 reference:
-- title: General-purpose Convenience Functions
+- title: Convert a Survey Design Object to a Data Frame
 - contents:
   - matches("as_data_frame")
-  - matches("svyby_repwts")
-  - matches("shuffle_replicates|subsample_replicates|stack_replicate_designs")
-- title: Diagnostic Functions to Check Replicate Weights
-- contents:
-  - matches("summarize_rep_weights")
 - title: Nonresponse Adjustments
 - contents:
   - matches("redistribute")
@@ -44,6 +39,14 @@ reference:
 - title: Calibrating to Estimated Control Totals
 - contents:
   - starts_with("calibrate_to")
+- title: General-Purpose Helper Functions
+- contents:
+  - matches("shuffle_replicates|subsample_replicates|stack_replicate_designs")
+  - matches("add_inactive_replicates")
+  - matches("svyby_repwts")
+- title: Diagnostic Functions to Check Replicate Weights
+- contents:
+  - matches("summarize_rep_weights")
 - title: Example Datasets
 - contents:
   - starts_with("lou")
