@@ -4,13 +4,7 @@
 \alias{add_inactive_replicates}
 \title{Add inactive replicates to a survey design object}
 \usage{
-add_inactive_replicates(
-  design,
-  n_total,
-  n_to_add,
-  location = "last",
-  update_scale = FALSE
-)
+add_inactive_replicates(design, n_total, n_to_add, location = "last")
 }
 \arguments{
 \item{design}{A survey design object, created with either the \code{survey} or \code{srvyr} packages.}

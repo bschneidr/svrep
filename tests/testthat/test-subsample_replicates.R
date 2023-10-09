@@ -1,10 +1,6 @@
 suppressPackageStartupMessages(library(survey))
 
 # Create example data ----
-set.seed(1999)
-
-#
-library(survey)
 set.seed(2023)
 
 # Create an example survey design object

@@ -95,7 +95,7 @@
 #'     add_inactive_replicates(n_to_add = 5, location = "random") |>
 #'     weights(type = "analysis")
 #'
-add_inactive_replicates <- function(design, n_total, n_to_add, location = "last", update_scale = FALSE) {
+add_inactive_replicates <- function(design, n_total, n_to_add, location = "last") {
 
   # Check for invalid inputs
   if (!inherits(design, "svyrep.design")) {
@@ -190,6 +190,11 @@ add_inactive_replicates <- function(design, n_total, n_to_add, location = "last"
   if (!is_compressed) {
     design$repweights <- updated_rep_wts
   }
+
+  # Add new 'rscales' elements, as necessary
+  updated_rscales <- rep(1, times = n_total)
+  updated_rscales[old_rep_positions] <- design$rscales
+  design$rscales <- updated_rscales
 
   if (!design$mse) {
     paste0(
