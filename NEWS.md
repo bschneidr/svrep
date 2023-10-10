@@ -10,6 +10,8 @@
 to add "inactive" replicates to a design object, so that the matrix of replicate weights
 has the desired number of columns.
 
+* The function `as_random_group_jackknife_design()` now returns an object with class `tbl_svy` if the input was also an object with class `tbl_svy`.
+
 # svrep 0.6.3
 
 * Bumped version number for CRAN submission. No significant user-facing changes: just updates to unit tests and rendering of examples/vignettes due to temporary CRAN check issues for the development version of R.
