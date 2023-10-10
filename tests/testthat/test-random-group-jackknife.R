@@ -155,3 +155,20 @@ set.seed(2014)
       )
     }, regexp = "Overwriting.+stype")
   })
+
+# Works for more specialized classes of survey designs ----
+
+  test_that(
+    desc = "Returns `tbl_svy` if the input is a `tbl_svy` and 'srvyr' is loaded", {
+      library(srvyr)
+      expect_true(
+        suppressMessages({
+          dstrat_nofpc |> as_survey() |>
+            as_random_group_jackknife_design(
+              replicates = 10
+            ) |>
+            inherits('tbl_svy')
+        })
+      )
+    }
+  )

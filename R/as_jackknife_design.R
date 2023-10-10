@@ -481,6 +481,12 @@ as_random_group_jackknife_design.survey.design <- function(
     jk_design$variables[[group_var_name]] <- design_vars[['RANDOM_GROUP_VAR_UNIT']]
   }
 
+  if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    jk_design <- srvyr::as_survey_rep(
+      jk_design
+    )
+  }
+
   # Return the result
   jk_design$call <- sys.call(which = -1)
   return(jk_design)
