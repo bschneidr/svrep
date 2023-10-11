@@ -311,7 +311,6 @@ as_random_group_jackknife_design.survey.design <- function(
   n_psus <- design_vars$PSU |> unique() |> length()
   psu_random_labels <- sample(x = n_psus, size = n_psus, replace = FALSE)
   design_vars[['RAND_PSU_ID']] <- interaction(
-    design_vars[['VAR_STRAT']],
     design_vars[['STRATUM']],
     psu_random_labels[design_vars[['PSU']]],
     drop = TRUE, lex.order = TRUE
