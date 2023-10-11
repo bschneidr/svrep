@@ -348,12 +348,19 @@ as_random_group_jackknife_design.survey.design <- function(
   design_vars[['RANDOM_GROUP_VAR_UNIT']] <- interaction(
     design_vars$VAR_STRAT,
     design_vars$RANDOM_GROUP_VAR_UNIT,
-    drop = TRUE
+    drop = TRUE, lex.order = TRUE
   ) |> as.numeric()
+
+
+
 
   # Create the jackknife replicate weights
 
   if ((adj_method == "variance-units") & (scale_method == "variance-units")) {
+
+    # Reorder the data back to its original order
+    design_vars <- design_vars[order(design_vars[['ROW_ID']]),]
+
     jk_design <- survey::svydesign(
       data = design$variables,
       ids = design_vars[['RANDOM_GROUP_VAR_UNIT']],
@@ -436,8 +443,7 @@ as_random_group_jackknife_design.survey.design <- function(
 
     scale_factors <- scale_factors * (1 - var_unit_psu_counts$VAR_STRAT_FRAC)
 
-    # Reorder the data by the original order
-
+    # Combine replicate factors and the design variables
     design_vars <- merge(
       x = design_vars,
       y = cbind(
@@ -447,8 +453,6 @@ as_random_group_jackknife_design.survey.design <- function(
       by = "RANDOM_GROUP_VAR_UNIT"
     )
 
-    design_vars <- design_vars[order(design_vars[['ROW_ID']]),]
-
     if (length(unique(scale_factors)) == 1) {
       overall_scale <- scale_factors[1]
       rscales <- rep(1, times = length(scale_factors))
@@ -457,6 +461,10 @@ as_random_group_jackknife_design.survey.design <- function(
       rscales <- scale_factors
     }
 
+    # Reorder the data back to its original order
+    design_vars <- design_vars[order(design_vars[['ROW_ID']]),]
+
+    # Combine data, replicate factors, and replication coefficients
     jk_design <- survey::svrepdesign(
       variables = design$variables,
       repweights = design_vars[,colnames(rep_factors)],
