@@ -31,7 +31,7 @@ set.seed(2014)
 
 # Test for expected formation of random groups ----
 
-  test_that(desc = "Random groups formed correctly", {
+  test_that(desc = "Random groups (without var_strat) formed correctly", {
 
     ## Correct sizes for random groups
     jk_design <- as_random_group_jackknife_design(
@@ -58,6 +58,24 @@ set.seed(2014)
         distinct(dnum, .random_group) |>
         nrow(),
       expected = 15
+    )
+
+  })
+
+  test_that(desc = "Random groups (with var_strat) formed correctly", {
+
+    ## Correct sizes for random groups
+    jk_design <- as_random_group_jackknife_design(
+      design = dstrat_nofpc,
+      var_strat = "stype",
+      replicates = 5
+    )
+
+    expect_equal(
+      object = jk_design$variables |>
+        count(stype, .random_group) |>
+        pull("n"),
+      expected = c(rep(c(20, 10, 10), each = 5))
     )
 
   })

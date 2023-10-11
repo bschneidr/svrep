@@ -229,18 +229,14 @@ as_random_group_jackknife_design.survey.design <- function(
     stop("`scale_method` must be either 'variance-stratum-psus' or 'variance-units'")
   }
 
-  # Extract necessary design information
+  # Begin extracting necessary design information
   n <- nrow(design)
-
   design_vars <- data.frame(
     'ROW_ID' = seq_len(n),
-    'STRATUM' = design$strata[,1,drop=TRUE],
-    'PSU' = interaction(design$strata[,1,drop=TRUE],
-                        design$cluster[,1,drop=TRUE],
-                        drop = TRUE) |> as.numeric(),
-    stringsAsFactors = FALSE
+    'STRATUM' = design$strata[,1,drop=TRUE]
   )
 
+  # Handle VAR_STRAT variable
   if (!is.null(var_strat)) {
     if (!(var_strat %in% colnames(design$variables))) {
       stop("`var_strat` must be either NULL or the name of a variable in the data.")
@@ -253,6 +249,13 @@ as_random_group_jackknife_design.survey.design <- function(
   if (is.null(var_strat)) {
     design_vars[['VAR_STRAT']] <- 1
   }
+
+  # Create unique PSU IDs within
+  # combinations of variance strata and design strata
+  design_vars[['PSU']] <- interaction(design_vars[['VAR_STRAT']],
+                                      design$strata[,1,drop=TRUE],
+                                      design$cluster[,1,drop=TRUE],
+                                      drop = TRUE) |> as.numeric()
 
   # Warn the user about FPCs and check that `var_strat_frac` is valid
 
@@ -308,6 +311,7 @@ as_random_group_jackknife_design.survey.design <- function(
   n_psus <- design_vars$PSU |> unique() |> length()
   psu_random_labels <- sample(x = n_psus, size = n_psus, replace = FALSE)
   design_vars[['RAND_PSU_ID']] <- interaction(
+    design_vars[['VAR_STRAT']],
     design_vars[['STRATUM']],
     psu_random_labels[design_vars[['PSU']]],
     drop = TRUE, lex.order = TRUE
