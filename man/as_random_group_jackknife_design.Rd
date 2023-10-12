@@ -9,6 +9,7 @@ as_random_group_jackknife_design(
   replicates = 50,
   var_strat = NULL,
   var_strat_frac = NULL,
+  sort_var = NULL,
   adj_method = "variance-stratum-psus",
   scale_method = "variance-stratum-psus",
   group_var_name = ".random_group",
@@ -35,6 +36,12 @@ then there is effectively only one variance stratum.}
 to use for finite population corrections in each
 value of \code{var_strat}. Can use either a single number
 or a variable in the data corresponding to \code{var_strat}.}
+
+\item{sort_var}{(Optional) Specifies the name of a variable
+in the data which should be used to sort the data before
+assigning random groups. If a variable is specified for
+\code{var_strat}, the sorting will happen within values of
+that variable.}
 
 \item{adj_method}{Specifies how to calculate the
 replicate weight adjustment factor.

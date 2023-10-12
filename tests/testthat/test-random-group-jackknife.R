@@ -178,7 +178,7 @@ set.seed(2014)
 
   test_that(
     desc = "Returns `tbl_svy` if the input is a `tbl_svy` and 'srvyr' is loaded", {
-      library(srvyr)
+      suppressPackageStartupMessages({library(srvyr)})
       expect_true(
         suppressMessages({
           dstrat_nofpc |> as_survey() |>
