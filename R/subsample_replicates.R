@@ -90,7 +90,7 @@ subsample_replicates <- function(design, n_reps) {
 
   # Determine the new order of the replicates
   selected_subsample <- sample(
-    x = seq_len(n_reps), size = n_reps, replace = FALSE
+    x = seq_len(orig_n_reps), size = n_reps, replace = FALSE
   )
 
   # Update the overall scale factor
