@@ -14,7 +14,7 @@ into random, (approximately) equal-sized groups."><!-- mathjax --><script src="h
     
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,6 @@ into random, (approximately) equal-sized groups.</p>
 <span>  replicates <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  var_strat <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  var_strat_frac <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  sort_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  adj_method <span class="op">=</span> <span class="st">"variance-stratum-psus"</span>,</span>
 <span>  scale_method <span class="op">=</span> <span class="st">"variance-stratum-psus"</span>,</span>
 <span>  group_var_name <span class="op">=</span> <span class="st">".random_group"</span>,</span>
@@ -107,14 +106,6 @@ then there is effectively only one variance stratum.</p></dd>
 to use for finite population corrections in each
 value of <code>var_strat</code>. Can use either a single number
 or a variable in the data corresponding to <code>var_strat</code>.</p></dd>
-
-
-<dt>sort_var</dt>
-<dd><p>(Optional) Specifies the name of a variable
-in the data which should be used to sort the data before
-assigning random groups. If a variable is specified for
-<code>var_strat</code>, the sorting will happen within values of
-that variable.</p></dd>
 
 
 <dt>adj_method</dt>

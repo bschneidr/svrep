@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="convert-a-survey-design-object-to-a-data-frame">Convert a Survey Design Object to a Data Frame<a class="anchor" aria-label="anchor" href="#convert-a-survey-design-object-to-a-data-frame"></a></h2>
+      <h2 id="general-purpose-convenience-functions">General-purpose Convenience Functions<a class="anchor" aria-label="anchor" href="#general-purpose-convenience-functions"></a></h2>
       
       
 
@@ -68,6 +68,32 @@
           <code><a href="as_data_frame_with_weights.html">as_data_frame_with_weights()</a></code> 
         </dt>
         <dd>Convert a survey design object to a data frame with weights stored as columns</dd>
+      </dl><dl><dt>
+          
+          <code><a href="stack_replicate_designs.html">stack_replicate_designs()</a></code> 
+        </dt>
+        <dd>Stack replicate designs, combining data and weights into a single object</dd>
+      </dl><dl><dt>
+          
+          <code><a href="svyby_repwts.html">svyby_repwts()</a></code> 
+        </dt>
+        <dd>Compare survey statistics calculated separately from different sets of replicate weights</dd>
+      </dl></div><div class="section level2">
+      <h2 id="diagnostic-functions-to-check-replicate-weights">Diagnostic Functions to Check Replicate Weights<a class="anchor" aria-label="anchor" href="#diagnostic-functions-to-check-replicate-weights"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="summarize_rep_weights.html">summarize_rep_weights()</a></code> 
+        </dt>
+        <dd>Summarize the replicate weights</dd>
       </dl></div><div class="section level2">
       <h2 id="nonresponse-adjustments">Nonresponse Adjustments<a class="anchor" aria-label="anchor" href="#nonresponse-adjustments"></a></h2>
       
@@ -262,58 +288,6 @@ with replicate-weight adjustments that account for variance of the control total
         </dt>
         <dd>Calibrate weights from a primary survey to estimated totals from a control survey,
 with replicate-weight adjustments that account for variance of the control totals</dd>
-      </dl></div><div class="section level2">
-      <h2 id="general-purpose-helper-functions">General-Purpose Helper Functions<a class="anchor" aria-label="anchor" href="#general-purpose-helper-functions"></a></h2>
-      
-      
-
-      
-    </div><div id="" class="section level2">
-      
-      
-      
-
-      <dl><dt>
-          
-          <code><a href="shuffle_replicates.html">shuffle_replicates()</a></code> 
-        </dt>
-        <dd>Shuffle the order of replicates in a survey design object</dd>
-      </dl><dl><dt>
-          
-          <code><a href="stack_replicate_designs.html">stack_replicate_designs()</a></code> 
-        </dt>
-        <dd>Stack replicate designs, combining data and weights into a single object</dd>
-      </dl><dl><dt>
-          
-          <code><a href="subsample_replicates.html">subsample_replicates()</a></code> 
-        </dt>
-        <dd>Retain only a random subset of the replicates in a design</dd>
-      </dl><dl><dt>
-          
-          <code><a href="add_inactive_replicates.html">add_inactive_replicates()</a></code> 
-        </dt>
-        <dd>Add inactive replicates to a survey design object</dd>
-      </dl><dl><dt>
-          
-          <code><a href="svyby_repwts.html">svyby_repwts()</a></code> 
-        </dt>
-        <dd>Compare survey statistics calculated separately from different sets of replicate weights</dd>
-      </dl></div><div class="section level2">
-      <h2 id="diagnostic-functions-to-check-replicate-weights">Diagnostic Functions to Check Replicate Weights<a class="anchor" aria-label="anchor" href="#diagnostic-functions-to-check-replicate-weights"></a></h2>
-      
-      
-
-      
-    </div><div id="" class="section level2">
-      
-      
-      
-
-      <dl><dt>
-          
-          <code><a href="summarize_rep_weights.html">summarize_rep_weights()</a></code> 
-        </dt>
-        <dd>Summarize the replicate weights</dd>
       </dl></div><div class="section level2">
       <h2 id="example-datasets">Example Datasets<a class="anchor" aria-label="anchor" href="#example-datasets"></a></h2>
       
