@@ -132,6 +132,15 @@ make_optim_boot_factors <- function(
   iteration <- 1L
   loss <- loss_fn(log_A, Sigma_tensor)
 
+  if (inherits(optimizer, "optim_lbfgs")) {
+    calc_loss <- function() {
+      optimizer$zero_grad()
+      loss_value <- loss_fn(log_A, Sigma_tensor)
+      loss_value$backward()
+      loss_value
+    }
+  }
+
   # Conduct the loop
   while ( (as.numeric(loss) > max_loss) & (iteration < max_iter) ) {
 
@@ -142,17 +151,21 @@ make_optim_boot_factors <- function(
       }
     }
 
-    # Set the gradient to zero
-    optimizer$zero_grad()
+    if (inherits(optimizer, "optim_lbfgs")) {
+      optimizer$step(calc_loss)
+    } else {
+      # Set the gradient to zero
+      optimizer$zero_grad()
 
-    # Determine loss at current iteration
-    loss = loss_fn(log_A, Sigma_tensor)
+      # Determine loss at current iteration
+      loss = loss_fn(log_A, Sigma_tensor)
 
-    # Calculate gradients
-    loss$backward()
+      # Calculate gradients
+      loss$backward()
 
-    # Update `log_A`
-    optimizer$step()
+      # Update `log_A`
+      optimizer$step()
+    }
 
     iteration <- iteration + 1L
   }
