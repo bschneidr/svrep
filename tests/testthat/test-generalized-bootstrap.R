@@ -302,10 +302,10 @@ twophase_design <- twophase(
       })
 
       rescaled_design <- twophase_gen_boot |>
-        rescale_reps(tau = "auto", min_wgt = 0.05)
+        rescale_reps(tau = NULL, min_wgt = 0.05)
       rescaled_matrix <- twophase_gen_boot |>
         weights(type = "replication") |>
-        rescale_reps(tau = "auto", min_wgt = 0.05)
+        rescale_reps(tau = NULL, min_wgt = 0.05)
 
     expect_equal(
       object = rescaled_design |> weights(type = "replication"),

@@ -21,7 +21,6 @@ reference:
 - contents:
   - matches("as_gen_boot")
   - matches("make_gen_boot")
-  - matches("rescale_reps")
 - subtitle: Variance Estimators Available for the Generalized Replication Methods
   desc: >
     *The generalized replication methods (Fay's method and the generalized bootstrap) work by "mimicking" a target variance estimator, such as the Horvitz-Thompson estimator. This help page describes the variance estimators that can be used as the target for the generalized replication methods.*
@@ -42,6 +41,7 @@ reference:
 - title: General-Purpose Helper Functions
 - contents:
   - matches("shuffle_replicates|subsample_replicates|stack_replicate_designs")
+  - matches("rescale_reps")
   - matches("add_inactive_replicates")
   - matches("svyby_repwts")
 - title: Diagnostic Functions to Check Replicate Weights
