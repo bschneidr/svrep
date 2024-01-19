@@ -52,11 +52,28 @@ test_that("Estimates from separate and stacked designs match", code = {
                           unname(SE(sep_estimates[['orig']]))))
 })
 
+# Test that stacking works when variables differ ----
+
+test_that("Can stack designs where the variables differ", {
+  expect_true({
+    stacked_design <- stack_replicate_designs(
+      orig_rep_design    |> transform(dummy_variable_1 = "a"), 
+      ue_adjusted_design |> transform(dummy_variable_2 = 1)
+    )
+    all(c("dummy_variable_1", "dummy_variable_2") %in% colnames(stacked_design))
+  })
+})
+
 # Test for informative error that designs are conformable ----
 
 test_that("Informative error message for different types of designs", code = {
- expect_error(stack_replicate_designs(orig_rep_design, boot_design),
-              regexp = "specifications differ")
+  expect_error(
+    stack_replicate_designs(
+      orig_rep_design |> (\(x) {x$mse <- TRUE; x})(),
+      boot_design     |> (\(x) {x$mse <- FALSE; x})()
+    ),
+    regexp = "specifications differ"
+  )
 })
 test_that("Informative error message for non-comformable designs", {
   expect_error(stack_replicate_designs(boot_design, boot_design_more_cols),

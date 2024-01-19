@@ -198,22 +198,37 @@ stack_replicate_designs <- function(..., .id = "Design_Name") {
   stacked_rep_wts_matrix <- Reduce(x = rep_wts_matrices, f = rbind)
 
   # Stack the datasets
-  stacked_datasets <- Reduce(x = rep_wts_datasets, f = rbind)
-
+  rep_wts_datasets_col_names <- rep_wts_datasets |>
+    lapply(colnames) |> 
+    unlist() |> 
+    unique()
+  
+  stacked_datasets <- lapply(
+    rep_wts_datasets, function(df) {
+      data.frame(
+        c(df, sapply(setdiff(rep_wts_datasets_col_names, colnames(df)),
+                     function(y) NA))
+      )
+    }
+  ) |> Reduce(f = rbind)
+  
   # Stack the full-sample weights
   stacked_fs_weights <- Reduce(x = list_of_fullsamp_wts, f = c)
 
   # Create a survey design object
 
-  combined_svrepdesign <- survey::svrepdesign(data = stacked_datasets,
-                                              repweights = stacked_rep_wts_matrix,
-                                              weights = stacked_fs_weights,
-                                              type = design_specs$type,
-                                              combined.weights = TRUE,
-                                              rho = design_specs$rho,
-                                              scale = design_specs$scale,
-                                              rscales = design_specs$rscales,
-                                              fpc = design_specs$fpc, fpctype = design_specs$fpctype)
+  combined_svrepdesign <- survey::svrepdesign(
+    data = stacked_datasets,
+    repweights = stacked_rep_wts_matrix,
+    weights = stacked_fs_weights,
+    type = design_specs$type,
+    combined.weights = TRUE,
+    rho = design_specs$rho,
+    scale = design_specs$scale,
+    rscales = design_specs$rscales,
+    fpc = design_specs$fpc, fpctype = design_specs$fpctype,
+    mse = design_specs$mse
+  )
 
   class(combined_svrepdesign) <- append(x = class(combined_svrepdesign), "svyrep.stacked")
 
