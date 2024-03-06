@@ -200,8 +200,7 @@ add_inactive_replicates <- function(design, n_total, n_to_add, location = "last"
     paste0(
       "The design object has `mse = FALSE`: ",
       "variance estimates may differ before and after adding inactive replicates. ",
-      "For details, see `help('add_inactive_replicates', package = 'svrep')`."
-    ) |> warning()
+      "For details, see `help('add_inactive_replicates', package = 'svrep')`." )
   }
 
   return(design)
