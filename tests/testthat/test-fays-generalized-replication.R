@@ -503,6 +503,18 @@ test_that(
   }
 )
 
+# Warnings for ill-advised choices -----
+
+test_that(
+  desc = "Warning when `mse = FALSE`", {
+    expect_warning({
+    twophase_design$phase1$full |> 
+      as_fays_gen_rep_design("Ultimate Cluster", mse = FALSE) |>
+      svytotal(x = ~ y1)
+    }, regexp = "may produce large underestimates")
+  }
+)
+
 # Works for more specialized classes of survey designs ----
 
 test_that(

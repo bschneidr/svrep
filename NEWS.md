@@ -10,6 +10,8 @@
 to add "inactive" replicates to a design object, so that the matrix of replicate weights
 has the desired number of columns.
 
+* The function `as_fays_gen_rep_design()` now has a default value of `mse = TRUE`. Setting `mse = FALSE` will produce a warning message, since Fay's generalized replication method can sometimes produce large underestimates of variance when `mse = FALSE`.
+
 * The function `as_random_group_jackknife_design()` now returns an object with class `tbl_svy` if the input was also an object with class `tbl_svy`.
 
 # svrep 0.6.3

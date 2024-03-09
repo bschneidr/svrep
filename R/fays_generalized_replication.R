@@ -314,8 +314,10 @@ make_fays_gen_rep_factors <- function(
 #' for details of the approximation.
 #' @param compress This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
-#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+#' @param mse If \code{TRUE} (the default), compute variances from sums of squares around the point estimate from the full-sample weights,
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
+#' For Fay's generalized replication method, setting \code{mse = FALSE} can potentially
+#' lead to large underestimates of variance.
 #' @return
 #' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
 #' such as \code{svymean()} or \code{svyglm()}.
@@ -415,8 +417,13 @@ as_fays_gen_rep_design <- function(design, variance_estimator = NULL,
                                    max_replicates = 500,
                                    balanced = TRUE,
                                    psd_option = "warn",
-                                   mse = getOption("survey.replicates.mse"),
+                                   mse = TRUE,
                                    compress = TRUE) {
+  
+  if (!mse) {
+    warning("When `balanced = FALSE`, setting `mse = FALSE` may produce large underestimates of variance.")
+  }
+  
   UseMethod("as_fays_gen_rep_design", design)
 }
 
@@ -490,8 +497,9 @@ as_fays_gen_rep_design.survey.design <- function(design, variance_estimator = NU
                                                  max_replicates = 500,
                                                  balanced = TRUE,
                                                  psd_option = 'warn',
-                                                 mse = getOption("survey.replicates.mse"),
+                                                 mse = TRUE,
                                                  compress = TRUE) {
+  
 
   # Produce a (potentially) compressed survey design object
   compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
@@ -573,7 +581,7 @@ as_fays_gen_rep_design.DBIsvydesign <- function(design, variance_estimator = NUL
                                                 max_replicates = 500,
                                                 balanced = TRUE,
                                                 psd_option = 'warn',
-                                                mse = getOption("survey.replicates.mse"),
+                                                mse = TRUE,
                                                 compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
