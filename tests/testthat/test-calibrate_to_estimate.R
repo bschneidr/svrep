@@ -7,10 +7,10 @@
   set.seed(1999)
 
   primary_survey <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc) |>
-    as.svrepdesign(type = "JK1")
+    as.svrepdesign(type = "JK1", mse = FALSE)
 
   control_survey <- svydesign(id = ~ 1, fpc = ~fpc, data = apisrs) |>
-    as.svrepdesign(type = "JK1")
+    as.svrepdesign(type = "JK1", mse = FALSE)
 
 test_that("Basic example gives correct results", {
 
