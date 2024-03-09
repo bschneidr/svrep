@@ -40,8 +40,10 @@
 #' will be no larger than \code{epsilon} times (1 plus the absolute value of the target).
 #' See \link[survey]{calibrate} for details.
 #' @param variance Parameter passed to \link[survey]{grake} for calibration. See \link[survey]{calibrate} for details.
-#' @param control_col_matches Optional parameter to control which control survey replicate
-#' is matched to each primary survey replicate.
+#' @param control_col_matches Optional parameter to specify which control survey replicate
+#' is matched to each primary survey replicate. If the \eqn{i-th} entry of \code{control_col_matches}
+#' equals \eqn{k}, then replicate \eqn{i} in \code{primary_rep_design} is matched
+#' to replicate \eqn{k} in \code{control_rep_design.}
 #' Entries of \code{NA} denote a primary survey replicate not matched to any control survey replicate.
 #' If this parameter is not used, matching is done at random.
 #' @return A replicate design object, with full-sample weights calibrated to totals from \code{control_rep_design},
