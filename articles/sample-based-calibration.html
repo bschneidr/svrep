@@ -8,8 +8,8 @@
 <meta name="description" content="svrep">
 <title>Calibrating to Estimated Control Totals • svrep</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Calibrating to Estimated Control Totals">
 <meta property="og:description" content="svrep">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,11 +143,11 @@ totals.</p>
 replicate weights are conducted using the method proposed by Opsomer and
 Erciulescu (2021), requiring a dataset with replicate weights to use for
 estimating control totals and their sampling variance.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calibrate_to_sample</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> primary_rep_design,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rep_design =</span> control_rep_design</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> CALIBRATION_VARIABLE_1 <span class="sc">+</span> CALIBRATION_VARIABLE_2 <span class="sc">+</span> ...,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">calibrate_to_sample</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> primary_rep_design,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">control_rep_design =</span> control_rep_design</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> CALIBRATION_VARIABLE_1 <span class="sc">+</span> CALIBRATION_VARIABLE_2 <span class="sc">+</span> ...,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>For both functions, it is possible to use a variety of calibration
 options from the <code>survey</code> package’s <code><a href="https://rdrr.io/pkg/survey/man/calibrate.html" class="external-link">calibrate()</a></code>
 function. For example, the user can specify a specific calibration
@@ -649,42 +649,42 @@ Hispanic or Latino</td>
 <tr class="odd">
 <td align="left">se1</td>
 <td align="right">10002.951</td>
-<td align="right">633.5569</td>
+<td align="right">633.6287</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
 <td align="right">4824.430</td>
-<td align="right">107.8772</td>
+<td align="right">107.9829</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
 <td align="right">6222.719</td>
-<td align="right">472.1548</td>
+<td align="right">472.4107</td>
 </tr>
 <tr class="even">
 <td align="left">se4</td>
 <td align="right">11713.138</td>
-<td align="right">594.1299</td>
+<td align="right">594.1448</td>
 </tr>
 <tr class="odd">
 <td align="left">se5</td>
 <td align="right">13301.627</td>
-<td align="right">615.0332</td>
+<td align="right">616.0314</td>
 </tr>
 <tr class="even">
 <td align="left">se6</td>
 <td align="right">13301.627</td>
-<td align="right">596.2981</td>
+<td align="right">596.2990</td>
 </tr>
 <tr class="odd">
 <td align="left">se7</td>
 <td align="right">13289.206</td>
-<td align="right">2004.2872</td>
+<td align="right">2004.8048</td>
 </tr>
 <tr class="even">
 <td align="left">se8</td>
 <td align="right">13289.206</td>
-<td align="right">2065.8156</td>
+<td align="right">2067.3494</td>
 </tr>
 </tbody>
 </table>
@@ -793,53 +793,53 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">13403.5781</td>
-<td align="right">13397.6269</td>
+<td align="right">13416.2987</td>
+<td align="right">13421.0938</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">13446.3272</td>
-<td align="right">13417.3809</td>
+<td align="right">13417.8092</td>
+<td align="right">13412.3713</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
-<td align="right">633.5569</td>
-<td align="right">633.5867</td>
+<td align="right">633.6287</td>
+<td align="right">633.6287</td>
 </tr>
 <tr class="even">
 <td align="left">se4</td>
-<td align="right">107.8772</td>
-<td align="right">107.9815</td>
+<td align="right">107.9829</td>
+<td align="right">107.9829</td>
 </tr>
 <tr class="odd">
 <td align="left">se5</td>
-<td align="right">472.1548</td>
-<td align="right">471.9864</td>
+<td align="right">472.4107</td>
+<td align="right">472.4107</td>
 </tr>
 <tr class="even">
 <td align="left">se6</td>
-<td align="right">594.1299</td>
-<td align="right">594.0839</td>
+<td align="right">594.1448</td>
+<td align="right">594.1448</td>
 </tr>
 <tr class="odd">
 <td align="left">se7</td>
-<td align="right">615.0332</td>
-<td align="right">616.0278</td>
+<td align="right">616.0314</td>
+<td align="right">616.0314</td>
 </tr>
 <tr class="even">
 <td align="left">se8</td>
-<td align="right">596.2981</td>
-<td align="right">596.2711</td>
+<td align="right">596.2990</td>
+<td align="right">596.2990</td>
 </tr>
 <tr class="odd">
 <td align="left">se9</td>
-<td align="right">2004.2872</td>
-<td align="right">2003.8989</td>
+<td align="right">2004.8048</td>
+<td align="right">2004.8048</td>
 </tr>
 <tr class="even">
 <td align="left">se10</td>
-<td align="right">2065.8156</td>
-<td align="right">2066.5749</td>
+<td align="right">2067.3494</td>
+<td align="right">2067.3494</td>
 </tr>
 </tbody>
 </table>
@@ -1086,53 +1086,53 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">0.0234495</td>
-<td align="right">0.0234534</td>
+<td align="right">0.0234616</td>
+<td align="right">0.0234323</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">0.0234495</td>
-<td align="right">0.0234534</td>
+<td align="right">0.0234616</td>
+<td align="right">0.0234323</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
 <td align="right">0.0009765</td>
-<td align="right">0.0009765</td>
+<td align="right">0.0009766</td>
 </tr>
 <tr class="even">
 <td align="left">se4</td>
-<td align="right">0.0001856</td>
+<td align="right">0.0001857</td>
 <td align="right">0.0001856</td>
 </tr>
 <tr class="odd">
 <td align="left">se5</td>
 <td align="right">0.0007811</td>
-<td align="right">0.0007802</td>
+<td align="right">0.0007809</td>
 </tr>
 <tr class="even">
 <td align="left">se6</td>
-<td align="right">0.0007038</td>
-<td align="right">0.0007036</td>
+<td align="right">0.0007040</td>
+<td align="right">0.0007039</td>
 </tr>
 <tr class="odd">
 <td align="left">se7</td>
-<td align="right">0.0007463</td>
+<td align="right">0.0007464</td>
 <td align="right">0.0007464</td>
 </tr>
 <tr class="even">
 <td align="left">se8</td>
-<td align="right">0.0007463</td>
+<td align="right">0.0007464</td>
 <td align="right">0.0007464</td>
 </tr>
 <tr class="odd">
 <td align="left">se9</td>
-<td align="right">0.0033335</td>
-<td align="right">0.0033324</td>
+<td align="right">0.0033336</td>
+<td align="right">0.0033339</td>
 </tr>
 <tr class="even">
 <td align="left">se10</td>
-<td align="right">0.0033335</td>
-<td align="right">0.0033324</td>
+<td align="right">0.0033336</td>
+<td align="right">0.0033339</td>
 </tr>
 </tbody>
 </table>
@@ -1162,7 +1162,7 @@ control totals, we can use the function argument
 <span>                             size <span class="op">=</span> <span class="va">dimension_of_control_totals</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">columns_to_perturb</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] 448  34 411 469  32 324 206 559 909 811 653 428  39 939 968 430</span></span>
+<span><span class="co">#&gt;  [1] 339 307 843 526 478 908 577 874 563 557 929  34 816  39 349 776</span></span>
 <span></span>
 <span><span class="co"># Perform the calibration</span></span>
 <span><span class="va">poststratified_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_to_estimate.html">calibrate_to_estimate</a></span><span class="op">(</span></span>
@@ -1218,7 +1218,7 @@ primary survey replicate column was matched to.</p>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-10.2307/24306529" class="csl-entry">
 Fuller, Wayne A. 1998. <span>“Replication <span>Variance
 Estimation</span> for <span>Two-Phase Samples</span>.”</span>

@@ -31,6 +31,9 @@
     <loc>https://bschneidr.github.io/svrep/news/index.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/reference/add_inactive_replicates.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/reference/as_bootstrap_design.html</loc>
   </url>
   <url>
@@ -130,7 +133,13 @@
     <loc>https://bschneidr.github.io/svrep/reference/shift_weight.html</loc>
   </url>
   <url>
+    <loc>https://bschneidr.github.io/svrep/reference/shuffle_replicates.html</loc>
+  </url>
+  <url>
     <loc>https://bschneidr.github.io/svrep/reference/stack_replicate_designs.html</loc>
+  </url>
+  <url>
+    <loc>https://bschneidr.github.io/svrep/reference/subsample_replicates.html</loc>
   </url>
   <url>
     <loc>https://bschneidr.github.io/svrep/reference/summarize_rep_weights.html</loc>
