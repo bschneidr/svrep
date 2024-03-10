@@ -93,24 +93,24 @@ with class <code>'survey.design'</code> or <code>'svyimputationList'</code>.</p>
 <dd><p>The type of bootstrap to use, which should be chosen based
 on its applicability to the sampling method used for the survey.
 The available types are the following: <br></p><ul><li><p><strong>"Rao-Wu-Yue-Beaumont"</strong> (the default): <br>
- The bootstrap method of Beaumont and Émond (2022), which is a generalization of the Rao-Wu-Yue bootstrap,
- and is applicable to a wide variety of designs, including single-stage and multistage stratified designs.
- The design may have different sampling methods used at different stages.
- Each stage of sampling may potentially be PPS (i.e., use unequal probabilities), with or without replacement,
- and may potentially use Poisson sampling. <br><br>
- For a stratum with a fixed sample size of \(n\) sampling units, resampling in each replicate resamples \((n-1)\) sampling units with replacement.</p></li>
+   The bootstrap method of Beaumont and Émond (2022), which is a generalization of the Rao-Wu-Yue bootstrap,
+   and is applicable to a wide variety of designs, including single-stage and multistage stratified designs.
+   The design may have different sampling methods used at different stages.
+   Each stage of sampling may potentially be PPS (i.e., use unequal probabilities), with or without replacement,
+   and may potentially use Poisson sampling. <br><br>
+   For a stratum with a fixed sample size of \(n\) sampling units, resampling in each replicate resamples \((n-1)\) sampling units with replacement.</p></li>
 <li><p><strong>"Rao-Wu"</strong>: <br>
- The basic Rao-Wu \((n-1)\) bootstrap method, which is only applicable to single-stage designs or
- multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
- Accommodates stratified designs. All sampling within a stratum must be simple random sampling with or without replacement,
- although the first-stage sampling is effectively treated as sampling without replacement.</p></li>
+   The basic Rao-Wu \((n-1)\) bootstrap method, which is only applicable to single-stage designs or
+   multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
+   Accommodates stratified designs. All sampling within a stratum must be simple random sampling with or without replacement,
+   although the first-stage sampling is effectively treated as sampling without replacement.</p></li>
 <li><p><strong>"Preston"</strong>: <br>
- Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
- with arbitrary sampling fractions. Accommodates stratified designs. All sampling within a stratum must be
- simple random sampling with or without replacement.</p></li>
+   Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
+   with arbitrary sampling fractions. Accommodates stratified designs. All sampling within a stratum must be
+   simple random sampling with or without replacement.</p></li>
 <li><p><strong>"Canty-Davison"</strong>: <br>
- The Canty-Davison bootstrap, which is only applicable to single-stage designs, with arbitrary sampling fractions.
- Accommodates stratified designs. All sampling with a stratum must be simple random sampling with or without replacement.</p></li>
+   The Canty-Davison bootstrap, which is only applicable to single-stage designs, with arbitrary sampling fractions.
+   Accommodates stratified designs. All sampling with a stratum must be simple random sampling with or without replacement.</p></li>
 </ul></dd>
 
 
@@ -134,11 +134,11 @@ If <code>FALSE</code>, compute variances from sums of squares around the mean es
 <dd><p>(Optional). By default, this function will automatically determine the sampling method used at each stage.
 However, this argument can be used to ensure the correct sampling method is identified for each stage. <br>
 Accepts a vector with length equal to the number of stages of sampling.
-Each element should be one of the following: <br></p><ul><li><p>"SRSWOR" - Simple random sampling, without replacement</p></li>
-<li><p>"SRSWR" - Simple random sampling, with replacement</p></li>
-<li><p>"PPSWOR" - Unequal probabilities of selection, without replacement</p></li>
-<li><p>"PPSWR" - Unequal probabilities of selection, with replacement</p></li>
-<li><p>"Poisson" -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.</p></li>
+Each element should be one of the following: <br></p><ul><li><p><code>"SRSWOR"</code> - Simple random sampling, without replacement</p></li>
+<li><p><code>"SRSWR"</code> - Simple random sampling, with replacement</p></li>
+<li><p><code>"PPSWOR"</code> - Unequal probabilities of selection, without replacement</p></li>
+<li><p><code>"PPSWR"</code> - Unequal probabilities of selection, with replacement</p></li>
+<li><p><code>"Poisson"</code> -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.</p></li>
 </ul></dd>
 
 </dl></div>
