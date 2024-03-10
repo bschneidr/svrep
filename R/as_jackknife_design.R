@@ -30,31 +30,27 @@
 #' replicate weight adjustment factor.
 #' Available options for \code{adj_method} include:
 #' \itemize{
-#'   \item{"variance-stratum-psus" (the default)}{
+#'   \item \code{"variance-stratum-psus"} (the default) \cr
 #'     The replicate weight adjustment for a unit
 #'     is based on the number of PSUs in its variance stratum.
-#'   }
-#'   \item{"variance-units"}{
+#'   \item \code{"variance-units"} \cr
 #'     The replicate weight adjustment for a unit
 #'     is based on the number of variance units
 #'     in its variance stratum.
-#'   }
 #' }
 #' See the section "Adjustment and Scale Methods" for details.
 #' @param scale_method Specifies how to calculate the
 #' scale factor for each replicate.
 #' Available options for \code{scale_method} include:
 #' \itemize{
-#'   \item{"variance-stratum-psus"}{
+#'   \item \code{"variance-stratum-psus"} \cr
 #'     The scale factor for a variance unit
 #'     is based on its number of PSUs compared
 #'     to the number of PSUs in its variance stratum.
-#'   }
-#'   \item{"variance-units"}{
+#'   \item \code{"variance-units"} \cr
 #'     The scale factor for a variance unit is
 #'     based on the number of variance units in
 #'     its variance stratum.
-#'   }
 #' }
 #' See the section "Adjustment and Scale Methods" for details.
 #' @param var_strat Specifies the name of a variable

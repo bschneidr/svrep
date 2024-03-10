@@ -11,37 +11,36 @@
 #' whose quadratic form matrix should be created. See the section "Variance Estimators" below.
 #' Options include:
 #' \itemize{
-#'   \item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
-#'   first-order and second-order inclusion probabilities. If this is used,
-#'   the argument \code{joint_probs} must also be used.}
-#'   \item{\strong{"Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator based on
-#'   first-order and second-order inclusion probabilities. If this is used,
-#'   the argument \code{joint_probs} must also be used.}
-#'   \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
-#'   based on estimating the variance of cluster totals within strata at each stage.
-#'   If this option is used, then it is necessary to also use the arguments
-#'   \code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}, and \code{strata_pop_sizes}.}
-#'   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
-#'   the variance of first-stage cluster totals within first-stage strata.
-#'   If this option is used, then it is necessary to also use the arguments
-#'   \code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}.
-#'   Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.}
-#'   \item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
-#'   sampling without replacement, described in Matei and Tillé (2005)
-#'   as "Deville 1". If this option is used, then it is necessary to also use the arguments
-#'   \code{strata_ids}, \code{cluster_ids}, and \code{probs}.}
-#'   \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
-#'   sampling without replacement, described in Matei and Tillé (2005)
-#'   as "Deville 2". If this option is used, then it is necessary to also use the arguments
-#'   \code{strata_ids}, \code{cluster_ids}, and \code{probs}.}
-#'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
-#'   sometimes used for variance estimation for systematic sampling.}
-#'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
-#'   This estimator is the basis of the "successive-differences replication" estimator commonly used
-#'   for variance estimation for systematic sampling.}
-#'   \item{\strong{"Deville-Tille"}: }{The estimator of Deville and Tillé (2005),
-#'   developed for balanced sampling using the cube method.
-#'   }
+#'   \item \strong{"Yates-Grundy"}: The Yates-Grundy variance estimator based on
+#'     first-order and second-order inclusion probabilities. If this is used,
+#'     the argument \code{joint_probs} must also be used.
+#'   \item \strong{"Horvitz-Thompson"}: The Horvitz-Thompson variance estimator based on
+#'     first-order and second-order inclusion probabilities. If this is used,
+#'     the argument \code{joint_probs} must also be used.
+#'   \item \strong{"Stratified Multistage SRS"}: The usual stratified multistage variance estimator
+#'     based on estimating the variance of cluster totals within strata at each stage.
+#'     If this option is used, then it is necessary to also use the arguments
+#'     \code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}, and \code{strata_pop_sizes}.
+#'   \item \strong{"Ultimate Cluster"}: The usual variance estimator based on estimating
+#'     the variance of first-stage cluster totals within first-stage strata.
+#'     If this option is used, then it is necessary to also use the arguments
+#'     \code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}.
+#'     Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.
+#'   \item \strong{"Deville-1"}: A variance estimator for unequal-probability
+#'     sampling without replacement, described in Matei and Tillé (2005)
+#'     as "Deville 1". If this option is used, then it is necessary to also use the arguments
+#'     \code{strata_ids}, \code{cluster_ids}, and \code{probs}.
+#'   \item \strong{"Deville-2"}:  A variance estimator for unequal-probability
+#'     sampling without replacement, described in Matei and Tillé (2005)
+#'     as "Deville 2". If this option is used, then it is necessary to also use the arguments
+#'     \code{strata_ids}, \code{cluster_ids}, and \code{probs}.
+#'   \item \strong{"SD1"}: The non-circular successive-differences variance estimator described by Ash (2014),
+#'     sometimes used for variance estimation for systematic sampling.
+#'   \item \strong{"SD2"}: The circular successive-differences variance estimator described by Ash (2014).
+#'     This estimator is the basis of the "successive-differences replication" estimator commonly used
+#'     for variance estimation for systematic sampling.
+#'   \item \strong{"Deville-Tille"}: The estimator of Deville and Tillé (2005),
+#'     developed for balanced sampling using the cube method.
 #' }
 #' @param probs Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
 #' This should be a matrix or data frame of sampling probabilities.
@@ -644,8 +643,8 @@ make_srswor_matrix <- function(n, f = 0) {
 #' See the "Details" section below.
 #' Options include:
 #' \itemize{
-#'   \item{"Deville-1"}
-#'   \item{"Deville-2"}
+#'   \item "Deville-1"
+#'   \item "Deville-2"
 #' }
 
 #' @return A symmetric matrix whose dimension matches the length of \code{probs}.
@@ -673,10 +672,10 @@ make_srswor_matrix <- function(n, f = 0) {
 #' The constants \eqn{c_i} are defined for each approximation method as follows,
 #' with the names taken directly from Matei and Tillé (2005).
 #' \itemize{
-#'   \item{\strong{"Deville-1"}: }{
-#'     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
-#'   \item{\strong{"Deville-2"}: }{
-#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+#'   \item \strong{"Deville-1"}:
+#'     \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}
+#'   \item \strong{"Deville-2"}:
+#'     \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}
 #' }
 #' Both of the approximations \strong{"Deville-1"} and \strong{"Deville-2"} were shown
 #' in the simulation studies of Matei and Tillé (2005) to perform much better

@@ -7,17 +7,17 @@
 \format{
 A data frame with 80 rows and 85 variables
 \itemize{
-  \item{UNIQUE_ID}{: Unique identifier for records}
-  \item{AGE}{: Age in years (copied from the AGEP variable in the ACS microdata)}
-  \item{RACE_ETHNICITY}{: Race and Hispanic/Latino ethnicity
-  derived from RAC1P and HISP variables
-  of ACS microdata and collapsed to a smaller number of categories.}
-  \item{SEX}{: Male or Female}
-  \item{EDUC_ATTAINMENT}{: Highest level of education attained ('Less than high school' or 'High school or beyond')
-  derived from SCHL variable in ACS microdata and collapsed to a smaller number of categories.}
-  \item{PWGTP}{: Weights for the full-sample}
-  \item{PWGTP1-PWGTP80}{: 80 columns of replicate weights
-  created using the Successive Differences Replication (SDR) method.}
+  \item UNIQUE_ID: Unique identifier for records
+  \item AGE: Age in years (copied from the AGEP variable in the ACS microdata)
+  \item RACE_ETHNICITY: Race and Hispanic/Latino ethnicity
+    derived from RAC1P and HISP variables
+    of ACS microdata and collapsed to a smaller number of categories.
+  \item SEX: Male or Female
+  \item EDUC_ATTAINMENT: Highest level of education attained ('Less than high school' or 'High school or beyond')
+    derived from SCHL variable in ACS microdata and collapsed to a smaller number of categories.
+  \item PWGTP: Weights for the full-sample
+  \item PWGTP1-PWGTP80: 80 columns of replicate weights
+    created using the Successive Differences Replication (SDR) method.
 }
 }
 \usage{

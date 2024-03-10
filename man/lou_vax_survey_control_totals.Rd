@@ -11,15 +11,15 @@ each of which contains two elements: \code{estimates} and \code{variance-covaria
   \item{poststratification}{Control totals for the combination of
   \code{RACE_ETHNICITY}, \code{SEX}, and \code{EDUC_ATTAINMENT}.
     \itemize{
-    \item{estimates}{: A numeric vector of estimated population totals.}
-    \item{variance-covariance}{: A variance-covariance matrix for the estimated population totals.}
+    \item estimates: A numeric vector of estimated population totals.
+    \item variance-covariance: A variance-covariance matrix for the estimated population totals.
     }
   }
   \item{raking}{Separate control totals for each of
   \code{RACE_ETHNICITY}, \code{SEX}, and \code{EDUC_ATTAINMENT}.
     \itemize{
-    \item{estimates}{: A numeric vector of estimated population totals.}
-    \item{variance-covariance}{: A variance-covariance matrix for the estimated population totals.}
+    \item estimates: A numeric vector of estimated population totals.
+    \item variance-covariance: A variance-covariance matrix for the estimated population totals.
     }
   }
 }

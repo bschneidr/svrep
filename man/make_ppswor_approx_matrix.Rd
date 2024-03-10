@@ -14,8 +14,8 @@ make_ppswor_approx_matrix(probs, method = "Deville-1")
 See the "Details" section below.
 Options include:
 \itemize{
-  \item{"Deville-1"}
-  \item{"Deville-2"}
+  \item "Deville-1"
+  \item "Deville-2"
 }}
 }
 \value{
@@ -55,10 +55,10 @@ If there is only one sampling unit, then \eqn{\sigma_{11}=0}; that is, the unit 
 The constants \eqn{c_i} are defined for each approximation method as follows,
 with the names taken directly from Matei and Tillé (2005).
 \itemize{
-  \item{\strong{"Deville-1"}: }{
-    \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
-  \item{\strong{"Deville-2"}: }{
-    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+  \item \strong{"Deville-1"}:
+    \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}
+  \item \strong{"Deville-2"}:
+    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}
 }
 Both of the approximations \strong{"Deville-1"} and \strong{"Deville-2"} were shown
 in the simulation studies of Matei and Tillé (2005) to perform much better

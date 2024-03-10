@@ -15,11 +15,11 @@
 #' This describes the method of sampling used at each stage.
 #' Each element should be one of the following: \cr
 #' \itemize{
-#'  \item{"SRSWOR"}{ - Simple random sampling, without replacement}
-#'  \item{"SRSWR"}{ - Simple random sampling, with replacement}
-#'  \item{"PPSWOR"}{ - Unequal probabilities of selection, without replacement}
-#'  \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
-#'  \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
+#'  \item "SRSWOR" - Simple random sampling, without replacement
+#'  \item "SRSWR" - Simple random sampling, with replacement
+#'  \item "PPSWOR" - Unequal probabilities of selection, without replacement
+#'  \item "PPSWR" - Unequal probabilities of selection, with replacement
+#'  \item "Poisson" -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.
 #' }
 #' @param allow_final_stage_singletons Logical value indicating whether to allow
 #' non-certainty singleton strata at the final sampling stage (rather than throw an error message). \cr
@@ -39,10 +39,10 @@
 #' are guaranteed to produce nonnegative replicate weights and provide design-unbiased and design-consistent variance estimates for totals,
 #' for designs where sampling uses one or more of the following methods:
 #' \itemize{
-#'  \item{"SRSWOR"}{ - Simple random sampling, without replacement}
-#'  \item{"SRSWR"}{ - Simple random sampling, with replacement}
-#'  \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
-#'  \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
+#'  \item "SRSWOR" - Simple random sampling, without replacement
+#'  \item "SRSWR" - Simple random sampling, with replacement
+#'  \item "PPSWR" - Unequal probabilities of selection, with replacement
+#'  \item "Poisson" -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.
 #' }
 #'
 #' For designs where at least one stage's strata have sampling without replacement with unequal probabilities of selection ("PPSWOR"),

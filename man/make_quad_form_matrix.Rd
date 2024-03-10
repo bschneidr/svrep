@@ -20,37 +20,36 @@ make_quad_form_matrix(
 whose quadratic form matrix should be created. See the section "Variance Estimators" below.
 Options include:
 \itemize{
-\item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
+\item \strong{"Yates-Grundy"}: The Yates-Grundy variance estimator based on
 first-order and second-order inclusion probabilities. If this is used,
-the argument \code{joint_probs} must also be used.}
-\item{\strong{"Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator based on
+the argument \code{joint_probs} must also be used.
+\item \strong{"Horvitz-Thompson"}: The Horvitz-Thompson variance estimator based on
 first-order and second-order inclusion probabilities. If this is used,
-the argument \code{joint_probs} must also be used.}
-\item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
+the argument \code{joint_probs} must also be used.
+\item \strong{"Stratified Multistage SRS"}: The usual stratified multistage variance estimator
 based on estimating the variance of cluster totals within strata at each stage.
 If this option is used, then it is necessary to also use the arguments
-\code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}, and \code{strata_pop_sizes}.}
-\item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
+\code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}, and \code{strata_pop_sizes}.
+\item \strong{"Ultimate Cluster"}: The usual variance estimator based on estimating
 the variance of first-stage cluster totals within first-stage strata.
 If this option is used, then it is necessary to also use the arguments
 \code{strata_ids}, \code{cluster_ids}, \code{strata_pop_sizes}.
-Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.}
-\item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
+Optionally, to use finite population correction factors, one can also use the argument \code{strata_pop_sizes}.
+\item \strong{"Deville-1"}: A variance estimator for unequal-probability
 sampling without replacement, described in Matei and Tillé (2005)
 as "Deville 1". If this option is used, then it is necessary to also use the arguments
-\code{strata_ids}, \code{cluster_ids}, and \code{probs}.}
-\item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
+\code{strata_ids}, \code{cluster_ids}, and \code{probs}.
+\item \strong{"Deville-2"}:  A variance estimator for unequal-probability
 sampling without replacement, described in Matei and Tillé (2005)
 as "Deville 2". If this option is used, then it is necessary to also use the arguments
-\code{strata_ids}, \code{cluster_ids}, and \code{probs}.}
-\item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
-sometimes used for variance estimation for systematic sampling.}
-\item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
+\code{strata_ids}, \code{cluster_ids}, and \code{probs}.
+\item \strong{"SD1"}: The non-circular successive-differences variance estimator described by Ash (2014),
+sometimes used for variance estimation for systematic sampling.
+\item \strong{"SD2"}: The circular successive-differences variance estimator described by Ash (2014).
 This estimator is the basis of the "successive-differences replication" estimator commonly used
-for variance estimation for systematic sampling.}
-\item{\strong{"Deville-Tille"}: }{The estimator of Deville and Tillé (2005),
+for variance estimation for systematic sampling.
+\item \strong{"Deville-Tille"}: The estimator of Deville and Tillé (2005),
 developed for balanced sampling using the cube method.
-}
 }}
 
 \item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.

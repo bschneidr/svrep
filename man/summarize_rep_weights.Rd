@@ -25,14 +25,14 @@ a data frame providing an overall summary of the replicate weights. \cr
 \cr
 The contents of the \code{"overall"} summary are the following:
 \itemize{
- \item{"nrows"}{: Number of rows for the weights}
- \item{"ncols"}{: Number of columns of replicate weights}
- \item{"degf_svy_pkg"}{: The degrees of freedom according to the survey package in R}
- \item{"rank"}{: The matrix rank as determined by a QR decomposition}
- \item{"avg_wgt_sum"}{: The average column sum}
- \item{"sd_wgt_sums"}{: The standard deviation of the column sums}
- \item{"min_rep_wgt"}{: The minimum value of any replicate weight}
- \item{"max_rep_wgt"}{: The maximum value of any replicate weight}
+ \item "nrows": Number of rows for the weights
+ \item "ncols": Number of columns of replicate weights
+ \item "degf_svy_pkg": The degrees of freedom according to the survey package in R
+ \item "rank": The matrix rank as determined by a QR decomposition
+ \item "avg_wgt_sum": The average column sum
+ \item "sd_wgt_sums": The standard deviation of the column sums
+ \item "min_rep_wgt": The minimum value of any replicate weight
+ \item "max_rep_wgt": The maximum value of any replicate weight
 }
 
 If \code{type = "specific"}, the result is a data frame providing a
@@ -40,15 +40,15 @@ summary of each column of replicate weights, with each column of replicate weigh
 described in a given row of the data frame.
 The contents of the \code{"specific"} summary are the following:
 \itemize{
- \item{"Rep_Column"}{: The name of a given column of replicate weights.
-  If columns are unnamed, the column number is used instead}
- \item{"N"}{: The number of entries}
- \item{"N_NONZERO"}{: The number of nonzero entries}
- \item{"SUM"}{: The sum of the weights}
- \item{"MEAN"}{: The average of the weights}
- \item{"CV"}{: The coefficient of variation of the weights (standard deviation divided by mean)}
- \item{"MIN"}{: The minimum weight}
- \item{"MAX"}{: The maximum weight}
+ \item "Rep_Column": The name of a given column of replicate weights.
+   If columns are unnamed, the column number is used instead
+ \item "N": The number of entries
+ \item "N_NONZERO": The number of nonzero entries
+ \item "SUM": The sum of the weights
+ \item "MEAN": The average of the weights
+ \item "CV": The coefficient of variation of the weights (standard deviation divided by mean)
+ \item "MIN": The minimum weight
+ \item "MAX": The maximum weight
 }
 }
 \description{

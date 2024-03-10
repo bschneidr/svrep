@@ -21,25 +21,25 @@ with class \code{'survey.design'} or \code{'svyimputationList'}.}
 on its applicability to the sampling method used for the survey.
 The available types are the following: \cr
 \itemize{
- \item{\strong{"Rao-Wu-Yue-Beaumont"} (the default): }{\cr
- The bootstrap method of Beaumont and Émond (2022), which is a generalization of the Rao-Wu-Yue bootstrap,
- and is applicable to a wide variety of designs, including single-stage and multistage stratified designs.
- The design may have different sampling methods used at different stages.
- Each stage of sampling may potentially be PPS (i.e., use unequal probabilities), with or without replacement,
- and may potentially use Poisson sampling. \cr \cr
- For a stratum with a fixed sample size of \eqn{n} sampling units, resampling in each replicate resamples \eqn{(n-1)} sampling units with replacement.}
- \item{\strong{"Rao-Wu"}: }{\cr
- The basic Rao-Wu \eqn{(n-1)} bootstrap method, which is only applicable to single-stage designs or
- multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
- Accommodates stratified designs. All sampling within a stratum must be simple random sampling with or without replacement,
- although the first-stage sampling is effectively treated as sampling without replacement.}
- \item{\strong{"Preston"}: }{\cr
- Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
- with arbitrary sampling fractions. Accommodates stratified designs. All sampling within a stratum must be
- simple random sampling with or without replacement.}
- \item{\strong{"Canty-Davison"}: }{\cr
- The Canty-Davison bootstrap, which is only applicable to single-stage designs, with arbitrary sampling fractions.
- Accommodates stratified designs. All sampling with a stratum must be simple random sampling with or without replacement.}
+ \item \strong{"Rao-Wu-Yue-Beaumont"} (the default): \cr
+   The bootstrap method of Beaumont and Émond (2022), which is a generalization of the Rao-Wu-Yue bootstrap,
+   and is applicable to a wide variety of designs, including single-stage and multistage stratified designs.
+   The design may have different sampling methods used at different stages.
+   Each stage of sampling may potentially be PPS (i.e., use unequal probabilities), with or without replacement,
+   and may potentially use Poisson sampling. \cr \cr
+   For a stratum with a fixed sample size of \eqn{n} sampling units, resampling in each replicate resamples \eqn{(n-1)} sampling units with replacement.
+ \item \strong{"Rao-Wu"}: \cr
+   The basic Rao-Wu \eqn{(n-1)} bootstrap method, which is only applicable to single-stage designs or
+   multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
+   Accommodates stratified designs. All sampling within a stratum must be simple random sampling with or without replacement,
+   although the first-stage sampling is effectively treated as sampling without replacement.
+ \item \strong{"Preston"}: \cr
+   Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
+   with arbitrary sampling fractions. Accommodates stratified designs. All sampling within a stratum must be
+   simple random sampling with or without replacement.
+ \item \strong{"Canty-Davison"}: \cr
+   The Canty-Davison bootstrap, which is only applicable to single-stage designs, with arbitrary sampling fractions.
+   Accommodates stratified designs. All sampling with a stratum must be simple random sampling with or without replacement.
 }}
 
 \item{replicates}{Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
@@ -57,11 +57,11 @@ However, this argument can be used to ensure the correct sampling method is iden
 Accepts a vector with length equal to the number of stages of sampling.
 Each element should be one of the following: \cr
 \itemize{
- \item{"SRSWOR"}{ - Simple random sampling, without replacement}
- \item{"SRSWR"}{ - Simple random sampling, with replacement}
- \item{"PPSWOR"}{ - Unequal probabilities of selection, without replacement}
- \item{"PPSWR"}{ - Unequal probabilities of selection, with replacement}
- \item{"Poisson"}{ -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.}
+ \item \code{"SRSWOR"} - Simple random sampling, without replacement
+ \item \code{"SRSWR"} - Simple random sampling, with replacement
+ \item \code{"PPSWOR"} - Unequal probabilities of selection, without replacement
+ \item \code{"PPSWR"} - Unequal probabilities of selection, with replacement
+ \item \code{"Poisson"} -  Poisson sampling: each sampling unit is selected into the sample at most once, with potentially different probabilities of inclusion for each sampling unit.
 }}
 }
 \value{

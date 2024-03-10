@@ -134,10 +134,10 @@ These variance estimators take the following form:
 where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
 and \eqn{c_i} depend on the method used:
 \itemize{
-  \item{\strong{"Deville-1"}: }{
-    \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
-  \item{\strong{"Deville-2"}: }{
-    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+  \item \strong{"Deville-1"}: 
+    \deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}
+  \item \strong{"Deville-2"}: 
+    \deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}
 }
 In the case of simple random sampling without replacement (SRSWOR),
 these estimators are both identical to the usual stratified multistage SRS estimator
