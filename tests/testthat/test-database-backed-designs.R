@@ -28,9 +28,11 @@ test_that(
   "`as_data_frame_with_weights()` works for database-backed designs", {
 
     expect_equal(
-      object = dbclus1 |> as_data_frame_with_weights(
-        vars_to_keep = c("dnum", "snum"),
-        full_wgt_name = "FULL_SAMPLE_WGT"
+      object = suppressWarnings(
+        dbclus1 |> as_data_frame_with_weights(
+          vars_to_keep = c("dnum", "snum"),
+          full_wgt_name = "FULL_SAMPLE_WGT"
+        )
       ),
       expected = dclus1 |> as_data_frame_with_weights(
         vars_to_keep = c("dnum", "snum"),
@@ -316,3 +318,7 @@ test_that(
 
   }
 )
+
+# Disconnect from the database
+dbclus1$db$connection |> dbDisconnect()
+rm(dbclus1)
