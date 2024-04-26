@@ -67,8 +67,12 @@ set.seed(2021)
 
 # Create a survey design object for a sample
 # selected using a single-stage cluster sample without replacement
-dclus1 <- svydesign(data = apiclus1,
-                    id = ~dnum, weights = ~pw, fpc = ~fpc)
+dclus1 <- svydesign(
+  data    = apiclus1,
+  ids     = ~dnum, 
+  weights = ~pw, 
+  fpc     = ~fpc
+)
 ```
 
 To help us estimate sampling variances, we can create bootstrap
@@ -80,8 +84,10 @@ generalization of the Rao-Wu bootstrap).
 
 ``` r
 # Create replicate-weights survey design
-orig_rep_design <- as_bootstrap_design(dclus1, replicates = 500,
-                                       type = "Rao-Wu-Yue-Beaumont")
+orig_rep_design <- dclus1 |> as_bootstrap_design( 
+  replicates = 500,
+  type       = "Rao-Wu-Yue-Beaumont"
+)
 
 print(orig_rep_design)
 #> Call: as_bootstrap_design(dclus1, replicates = 500, type = "Rao-Wu-Yue-Beaumont")
@@ -102,17 +108,17 @@ library_stsys_sample <- library_stsys_sample[
 
 # Create a survey design object
 design_obj <- svydesign(
-  data = library_stsys_sample,
+  data   = library_stsys_sample,
   strata = ~ SAMPLING_STRATUM,
-  ids = ~ 1,
-  fpc = ~ STRATUM_POP_SIZE
+  ids    = ~ 1,
+  fpc    = ~ STRATUM_POP_SIZE
 )
 
 # Convert to generalized bootstrap replicate design
 gen_boot_design_sd2 <- as_gen_boot_design(
-  design = design_obj,
+  design             = design_obj,
   variance_estimator = "SD2",
-  replicates = 500
+  replicates         = 500
 )
 #> For `variance_estimator='SD2', assumes rows of data are sorted in the same order used in sampling.
 ```
@@ -124,7 +130,9 @@ jackknife.
 # Create random-group jackknife replicates
 # for a single-stage survey with many first-stage sampling units
 rand_grp_jk_design <- apisrs |>
-  svydesign(data = _, ids = ~ 1, weights = ~ pw) |>
+  svydesign(data    = _, 
+            ids     = ~ 1,
+            weights = ~ pw) |>
   as_random_group_jackknife_design(
     replicates = 20
   )
@@ -167,8 +175,8 @@ implemented using the `redistribute_weights()` function.
 ``` r
 # Adjust weights for unknown eligibility
 ue_adjusted_design <- redistribute_weights(
-  design = orig_rep_design,
-  reduce_if = response_status %in% c("Unknown eligibility"),
+  design      = orig_rep_design,
+  reduce_if   = response_status %in% c("Unknown eligibility"),
   increase_if = !response_status %in% c("Unknown eligibility")
 )
 ```
@@ -180,10 +188,10 @@ class adjustments.
 
 ``` r
 nr_adjusted_design <- redistribute_weights(
-  design = ue_adjusted_design,
-  reduce_if = response_status == "Nonrespondent",
+  design      = ue_adjusted_design,
+  reduce_if   = response_status == "Nonrespondent",
   increase_if = response_status == "Respondent",
-  by = c("stype")
+  by          = c("stype")
 )
 ```
 
@@ -197,9 +205,10 @@ to compare estimates from different sets of weights.
 ``` r
 # Estimate overall means (and their standard errors) from each design
 overall_estimates <- svyby_repwts(
-  rep_designs = list('original' = orig_rep_design,
+  rep_designs = list('original'             = orig_rep_design,
                      'nonresponse-adjusted' = nr_adjusted_design),
-  formula = ~ api00, FUN = svymean
+  formula     = ~ api00, 
+  FUN         = svymean
 )
 print(overall_estimates, row.names = FALSE)
 #>           Design_Name    api00       se
@@ -208,9 +217,11 @@ print(overall_estimates, row.names = FALSE)
 
 # Estimate domain means (and their standard errors) from each design
 domain_estimates <- svyby_repwts(
-  rep_designs = list('original' = orig_rep_design,
+  rep_designs = list('original'             = orig_rep_design,
                      'nonresponse-adjusted' = nr_adjusted_design),
-  formula = ~ api00, by = ~ stype, FUN = svymean
+  formula = ~ api00, 
+  by      = ~ stype, 
+  FUN     = svymean
 )
 print(domain_estimates, row.names = FALSE)
 #>           Design_Name stype    api00       se
@@ -227,9 +238,10 @@ weights and calculate confidence intervals for their difference.
 
 ``` r
 estimates <- svyby_repwts(
-  rep_designs = list('original' = orig_rep_design,
+  rep_designs = list('original'             = orig_rep_design,
                      'nonresponse-adjusted' = nr_adjusted_design),
-  formula = ~ api00, FUN = svymean
+  formula     = ~ api00, 
+  FUN         = svymean
 )
 
 vcov(estimates)
@@ -237,10 +249,12 @@ vcov(estimates)
 #> nonresponse-adjusted             652.4793 585.5253
 #> original                         585.5253 531.8947
 
-diff_between_ests <- svycontrast(stat = estimates,
-                                 contrasts = list(
-                                   "Original vs. Adjusted" = c(-1,1)
-                                 ))
+diff_between_ests <- svycontrast(
+  stat      = estimates,
+  contrasts = list(
+    "Original vs. Adjusted" = c(-1,1)
+  )
+)
 print(diff_between_ests)
 #>                       contrast     SE
 #> Original vs. Adjusted   2.9664 3.6501
@@ -266,28 +280,19 @@ to group the summaries by one or more variables.
 ``` r
 summarize_rep_weights(
   rep_design = nr_adjusted_design,
-  type = 'specific',
-  by = "response_status"
+  type       = 'specific',
+  by         = "response_status"
 ) |> 
   subset(Rep_Column %in% 1:2)
-#>          response_status Rep_Column   N N_NONZERO       SUM     MEAN        CV
-#> 1             Ineligible          1  16        16  608.1360 38.00850 1.2415437
-#> 2             Ineligible          2  16        16  739.2634 46.20397 0.7578107
-#> 501        Nonrespondent          1  32         0    0.0000  0.00000       NaN
-#> 502        Nonrespondent          2  32         0    0.0000  0.00000       NaN
-#> 1001          Respondent          1 119       119 6236.0577 52.40385 1.0431318
-#> 1002          Respondent          2 119       119 6426.4544 54.00382 0.8345243
-#> 1501 Unknown eligibility          1  16         0    0.0000  0.00000       NaN
-#> 1502 Unknown eligibility          2  16         0    0.0000  0.00000       NaN
-#>            MIN       MAX
-#> 1    0.5632079 120.38814
-#> 2    0.5422029  77.44622
-#> 501  0.0000000   0.00000
-#> 502  0.0000000   0.00000
-#> 1001 0.6072282 151.10496
-#> 1002 0.5971008 102.40567
-#> 1501 0.0000000   0.00000
-#> 1502 0.0000000   0.00000
+#>          response_status Rep_Column   N N_NONZERO       SUM     MEAN        CV       MIN       MAX
+#> 1             Ineligible          1  16        16  608.1360 38.00850 1.2415437 0.5632079 120.38814
+#> 2             Ineligible          2  16        16  739.2634 46.20397 0.7578107 0.5422029  77.44622
+#> 501        Nonrespondent          1  32         0    0.0000  0.00000       NaN 0.0000000   0.00000
+#> 502        Nonrespondent          2  32         0    0.0000  0.00000       NaN 0.0000000   0.00000
+#> 1001          Respondent          1 119       119 6236.0577 52.40385 1.0431318 0.6072282 151.10496
+#> 1002          Respondent          2 119       119 6426.4544 54.00382 0.8345243 0.5971008 102.40567
+#> 1501 Unknown eligibility          1  16         0    0.0000  0.00000       NaN 0.0000000   0.00000
+#> 1502 Unknown eligibility          2  16         0    0.0000  0.00000       NaN 0.0000000   0.00000
 ```
 
 At the end of the adjustment process, we can inspect the number of rows
@@ -326,14 +331,20 @@ bootstrap replicates.
 data("lou_vax_survey")
 
 # Load example data
-lou_vax_survey <- svydesign(ids = ~ 1, weights = ~ SAMPLING_WEIGHT,
-                            data = lou_vax_survey) |>
-  as_bootstrap_design(replicates = 100, mse = TRUE)
+lou_vax_survey <- svydesign(
+  data    = lou_vax_survey,
+  ids     = ~ 1, 
+  weights = ~ SAMPLING_WEIGHT
+) |>
+  as_bootstrap_design(
+    replicates = 100, 
+    mse        = TRUE
+  )
 
 # Adjust for nonresponse
 lou_vax_survey <- lou_vax_survey |>
   redistribute_weights(
-    reduce_if = RESPONSE_STATUS == "Nonrespondent",
+    reduce_if   = RESPONSE_STATUS == "Nonrespondent",
     increase_if = RESPONSE_STATUS == "Respondent"
   ) |>
   subset(RESPONSE_STATUS == "Respondent")
@@ -350,11 +361,12 @@ replicate weights.
 data("lou_pums_microdata")
 
 acs_benchmark_survey <- survey::svrepdesign(
-  data = lou_pums_microdata,
-  variables = ~ UNIQUE_ID + AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
-  weights = ~ PWGTP, repweights = "PWGTP\\d{1,2}",
-  type = "successive-difference",
-  mse = TRUE
+  data       = lou_pums_microdata,
+  variables  = ~ UNIQUE_ID + AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
+  weights    = ~ PWGTP, 
+  repweights = "PWGTP\\d{1,2}",
+  type       = "successive-difference",
+  mse        = TRUE
 )
 ```
 
@@ -364,22 +376,21 @@ differs from the distribution of race/ethnicity in the ACS benchmarks.
 ``` r
 # Compare demographic estimates from the two data sources
 estimate_comparisons <- data.frame(
-  'Vax_Survey' = svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey) |> coef(),
-  'ACS_Benchmark' = svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey) |> coef()
+  'Vax_Survey'    = lou_vax_survey |>
+    svymean(x = ~ RACE_ETHNICITY) |> 
+    coef(),
+  'ACS_Benchmark' = acs_benchmark_survey |>
+    svymean(x = ~ RACE_ETHNICITY) |> 
+    coef()
 )
 rownames(estimate_comparisons) <- gsub(x = rownames(estimate_comparisons),
                                        "RACE_ETHNICITY", "")
 print(estimate_comparisons)
-#>                                                         Vax_Survey
-#> Black or African American alone, not Hispanic or Latino 0.16932271
-#> Hispanic or Latino                                      0.03386454
-#> Other Race, not Hispanic or Latino                      0.05776892
-#> White alone, not Hispanic or Latino                     0.73904382
-#>                                                         ACS_Benchmark
-#> Black or African American alone, not Hispanic or Latino    0.19949824
-#> Hispanic or Latino                                         0.04525039
-#> Other Race, not Hispanic or Latino                         0.04630955
-#> White alone, not Hispanic or Latino                        0.70894182
+#>                                                         Vax_Survey ACS_Benchmark
+#> Black or African American alone, not Hispanic or Latino 0.16932271    0.19949824
+#> Hispanic or Latino                                      0.03386454    0.04525039
+#> Other Race, not Hispanic or Latino                      0.05776892    0.04630955
+#> White alone, not Hispanic or Latino                     0.73904382    0.70894182
 ```
 
 There are two options for calibrating the sample to the control totals
@@ -389,18 +400,20 @@ estimates and their variance-covariance matrix to the function
 
 ``` r
 # Estimate control totals and their variance-covariance matrix
-control_totals <- svymean(x = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
-                          design = acs_benchmark_survey)
+control_totals <- svymean(
+  x      = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
+  design = acs_benchmark_survey
+)
 point_estimates <- coef(control_totals)
 vcov_estimates <- vcov(control_totals)
 
 # Calibrate the vaccination survey to the estimated control totals
 vax_survey_raked_to_estimates <- calibrate_to_estimate(
-  rep_design = lou_vax_survey,
-  estimate = point_estimates,
+  rep_design    = lou_vax_survey,
+  estimate      = point_estimates,
   vcov_estimate = vcov_estimates,
-  cal_formula = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
-  calfun = survey::cal.raking
+  cal_formula   = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
+  calfun        = survey::cal.raking
 )
 ```
 
@@ -411,8 +424,8 @@ design to `calibrate_to_sample()`.
 vax_survey_raked_to_acs_sample <- calibrate_to_sample(
   primary_rep_design = lou_vax_survey,
   control_rep_design = acs_benchmark_survey,
-  cal_formula = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
-  calfun = survey::cal.raking
+  cal_formula        = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
+  calfun             = survey::cal.raking
 )
 ```
 
@@ -424,22 +437,18 @@ rate has increased.
 # Compare the two sets of estimates
 svyby_repwts(
   rep_design = list(
-    'NR-adjusted' = lou_vax_survey,
+    'NR-adjusted'       = lou_vax_survey,
     'Raked to estimate' = vax_survey_raked_to_estimates,
-    'Raked to sample' = vax_survey_raked_to_acs_sample
+    'Raked to sample'   = vax_survey_raked_to_acs_sample
   ),
-  formula = ~ VAX_STATUS,
-  FUN = svymean,
+  formula    = ~ VAX_STATUS,
+  FUN        = svymean,
   keep.names = FALSE
 )
-#>         Design_Name VAX_STATUSUnvaccinated VAX_STATUSVaccinated        se1
-#> 1       NR-adjusted              0.4621514            0.5378486 0.01863299
-#> 2 Raked to estimate              0.4732623            0.5267377 0.01895171
-#> 3   Raked to sample              0.4732623            0.5267377 0.01893093
-#>          se2
-#> 1 0.01863299
-#> 2 0.01895171
-#> 3 0.01893093
+#>         Design_Name VAX_STATUSUnvaccinated VAX_STATUSVaccinated        se1        se2
+#> 1       NR-adjusted              0.4621514            0.5378486 0.01870176 0.01870176
+#> 2 Raked to estimate              0.4732623            0.5267377 0.01901224 0.01901224
+#> 3   Raked to sample              0.4732623            0.5267377 0.01900022 0.01900022
 ```
 
 ### Saving results to a data file
@@ -452,21 +461,20 @@ be loaded into R or other software later.
 ``` r
 data_frame_with_final_weights <- vax_survey_raked_to_estimates |>
   as_data_frame_with_weights(
-    full_wgt_name = "RAKED_WGT",
+    full_wgt_name  = "RAKED_WGT",
     rep_wgt_prefix = "RAKED_REP_WGT_"
   )
 
 # Preview first 10 column names
 colnames(data_frame_with_final_weights) |> head(10)
-#>  [1] "RESPONSE_STATUS" "RACE_ETHNICITY"  "SEX"             "EDUC_ATTAINMENT"
-#>  [5] "VAX_STATUS"      "SAMPLING_WEIGHT" "RAKED_WGT"       "RAKED_REP_WGT_1"
-#>  [9] "RAKED_REP_WGT_2" "RAKED_REP_WGT_3"
+#>  [1] "RESPONSE_STATUS" "RACE_ETHNICITY"  "SEX"             "EDUC_ATTAINMENT" "VAX_STATUS"      "SAMPLING_WEIGHT"
+#>  [7] "RAKED_WGT"       "RAKED_REP_WGT_1" "RAKED_REP_WGT_2" "RAKED_REP_WGT_3"
 ```
 
 ``` r
 # Write the data to a CSV file
 write.csv(
-  x = data_frame_with_final_weights,
+  x    = data_frame_with_final_weights,
   file = "survey-data_with-updated-weights.csv"
 )
 ```
