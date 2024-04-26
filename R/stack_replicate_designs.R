@@ -207,7 +207,8 @@ stack_replicate_designs <- function(..., .id = "Design_Name") {
     rep_wts_datasets, function(df) {
       data.frame(
         c(df, sapply(setdiff(rep_wts_datasets_col_names, colnames(df)),
-                     function(y) NA))
+                     function(y) NA)),
+        check.names = FALSE
       )
     }
   ) |> Reduce(f = rbind)
