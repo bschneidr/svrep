@@ -1,3 +1,5 @@
+# svrep (development version)
+
 # svrep 0.6.4
 
 -   Fix issue #32: `stack_replicate_designs()` would only accept designs with types known to the 'survey' package. Fixed to allow other design types such as the random-groups jackknife.
