@@ -22,10 +22,12 @@ Options include:
 \itemize{
 \item \strong{"Yates-Grundy"}: The Yates-Grundy variance estimator based on
 first-order and second-order inclusion probabilities. If this is used,
-the argument \code{joint_probs} must also be used.
+the argument \code{joint_probs} must also be used to specify the
+joint probabilities for the sample.
 \item \strong{"Horvitz-Thompson"}: The Horvitz-Thompson variance estimator based on
 first-order and second-order inclusion probabilities. If this is used,
-the argument \code{joint_probs} must also be used.
+the argument \code{joint_probs} must also be used to specify the
+joint probabilities for the sample.
 \item \strong{"Stratified Multistage SRS"}: The usual stratified multistage variance estimator
 based on estimating the variance of cluster totals within strata at each stage.
 If this option is used, then it is necessary to also use the arguments
@@ -50,6 +52,10 @@ This estimator is the basis of the "successive-differences replication" estimato
 for variance estimation for systematic sampling.
 \item \strong{"Deville-Tille"}: The estimator of Deville and Tillé (2005),
 developed for balanced sampling using the cube method.
+\item \strong{"Aronow-Samii"}: The estimator of Aronow and Samii (2013),
+a conservative variance estimator for designs where some
+pairwise inclusion probabilities are nonzero. Requires \code{joint_probs},
+which should contain the \emph{population} joint probabilities for this estimator.
 }}
 
 \item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
@@ -118,6 +124,7 @@ Below are the arguments that are required or optional for each variance estimato
    Deville-Tille \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab Required \cr
    Yates-Grundy \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
    Horvitz-Thompson \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
+   Aronow-Samii \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
 }
 }
 
