@@ -107,11 +107,11 @@
 #' If case \eqn{i}
 #' is not in variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = w_i}.
 #'
-#' If case \eqn{i} is in variance stratum \eqn{\tilde{h}} but in random group \eqn{g},
+#' If case \eqn{i} is in variance stratum \eqn{\tilde{h}} and not in random group \eqn{g},
 #' then \eqn{w_{i}^{(r)} = a_{\tilde{h}g} w_i}.
 #'
-#' Otherwise, if case \eqn{i} is in
-#' in random group \eqn{g} of variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = 0}.
+#' Otherwise, if case \eqn{i} is in random group \eqn{g}
+#' of variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = 0}.
 #'
 #' The R function argument \code{adj_method} determines how
 #' the adjustment factor \eqn{a_{\tilde{h} g}} is calculated.
