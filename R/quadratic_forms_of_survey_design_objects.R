@@ -318,7 +318,10 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
     variance_estimator = variance_estimator[[1]],
     aux_var_names = aux_var_names
   )
-  Sigma_phase1 <- Sigma_phase1[design$subset, design$subset]
+  Sigma_phase1 <- Sigma_phase1[
+    as.logical(design$subset), 
+    as.logical(design$subset)
+  ]
 
   # Extract the quadratic form for second phase
   # (conditional on first phase sample)
