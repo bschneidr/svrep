@@ -332,10 +332,9 @@ as_random_group_jackknife_design.survey.design <- function(
   ) |> as.numeric()
 
   # Order the data by varstrat, then stratum, then sort variable, then by PSU
-  design_vars <- design_vars[order(design_vars[['RAND_PSU_ID']]),,drop=FALSE]
-  design_vars <- design_vars[order(design_vars[['SORT_VAR']]),,drop=FALSE]
-  design_vars <- design_vars[order(design_vars[['STRATUM']]),,drop=FALSE]
-  design_vars <- design_vars[order(design_vars[['VAR_STRAT']]),,drop=FALSE]
+  design_vars <- design_vars |> sort_by(
+    ~ VAR_STRAT + STRATUM + SORT_VAR + RAND_PSU_ID
+  )
 
   # Create random groups separately by VAR_STRAT
   design_vars[['RANDOM_GROUP_VAR_UNIT']] <- NA_real_
