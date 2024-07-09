@@ -1,159 +1,55 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://bschneidr.github.io/svrep/404.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/articles/bootstrap-replicates.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/articles/nonresponse-adjustments.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/articles/sample-based-calibration.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/articles/two-phase-sampling.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/add_inactive_replicates.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/as_bootstrap_design.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/as_data_frame_with_weights.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/as_fays_gen_rep_design.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/as_gen_boot_design.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/as_random_group_jackknife_design.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/calibrate_to_sample.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/compress_design.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/distribute_matrix_across_clusters.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/estimate_boot_reps_for_target_cv.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/estimate_boot_sim_cv.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/get_design_quad_form.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/get_nearest_psd_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/getvars.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/ht_matrix_to_joint_probs.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/is_psd_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/libraries.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/lou_pums_microdata.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/lou_vax_survey.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/lou_vax_survey_control_totals.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_deville_tille_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_fays_gen_rep_factors.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_gen_boot_factors.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_ppswor_approx_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_quad_form_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_rwyb_bootstrap_weights.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_sd_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_srswor_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/make_twophase_quad_form.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/redistribute_weights.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/rescale_reps.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/shift_weight.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/shuffle_replicates.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/stack_replicate_designs.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/subsample_replicates.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/summarize_rep_weights.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/svrep-package.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/svyby_repwts.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/variance-estimators.html</loc>
-  </url>
-  <url>
-    <loc>https://bschneidr.github.io/svrep/reference/wls_hat_matrix.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://bschneidr.github.io/svrep/404.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/LICENSE.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/articles/bootstrap-replicates.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/articles/index.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/articles/nonresponse-adjustments.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/articles/sample-based-calibration.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/articles/two-phase-sampling.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/authors.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/index.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/news/index.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/add_inactive_replicates.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/as_bootstrap_design.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/as_data_frame_with_weights.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/as_fays_gen_rep_design.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/as_gen_boot_design.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/as_random_group_jackknife_design.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/calibrate_to_sample.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/compress_design.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/distribute_matrix_across_clusters.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/estimate_boot_reps_for_target_cv.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/estimate_boot_sim_cv.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/get_design_quad_form.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/get_nearest_psd_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/getvars.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/ht_matrix_to_joint_probs.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/index.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/is_psd_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/libraries.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/lou_pums_microdata.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/lou_vax_survey.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/lou_vax_survey_control_totals.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_deville_tille_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_fays_gen_rep_factors.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_gen_boot_factors.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_ppswor_approx_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_quad_form_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_rwyb_bootstrap_weights.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_sd_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_srswor_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_twophase_quad_form.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/redistribute_weights.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/rescale_reps.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/shift_weight.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/shuffle_replicates.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/stack_replicate_designs.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/subsample_replicates.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/summarize_rep_weights.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/svrep-package.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/svyby_repwts.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/variance-estimators.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/wls_hat_matrix.html</loc></url>
 </urlset>
+
