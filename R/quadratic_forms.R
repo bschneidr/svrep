@@ -13,10 +13,12 @@
 #' \itemize{
 #'   \item \strong{"Yates-Grundy"}: The Yates-Grundy variance estimator based on
 #'     first-order and second-order inclusion probabilities. If this is used,
-#'     the argument \code{joint_probs} must also be used.
+#'     the argument \code{joint_probs} must also be used to specify the 
+#'     joint probabilities for the sample.
 #'   \item \strong{"Horvitz-Thompson"}: The Horvitz-Thompson variance estimator based on
 #'     first-order and second-order inclusion probabilities. If this is used,
-#'     the argument \code{joint_probs} must also be used.
+#'     the argument \code{joint_probs} must also be used to specify the 
+#'     joint probabilities for the sample.
 #'   \item \strong{"Stratified Multistage SRS"}: The usual stratified multistage variance estimator
 #'     based on estimating the variance of cluster totals within strata at each stage.
 #'     If this option is used, then it is necessary to also use the arguments
@@ -41,6 +43,10 @@
 #'     for variance estimation for systematic sampling.
 #'   \item \strong{"Deville-Tille"}: The estimator of Deville and Tillé (2005),
 #'     developed for balanced sampling using the cube method.
+#'   \item \strong{"Aronow-Samii"}: The estimator of Aronow and Samii (2013),
+#'     a conservative variance estimator for designs where some
+#'     pairwise inclusion probabilities are nonzero. Requires \code{joint_probs},
+#'     which should contain the \emph{population} joint probabilities for this estimator.
 #' }
 #' @param probs Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
 #' This should be a matrix or data frame of sampling probabilities.
@@ -86,6 +92,7 @@
 #' | Deville-Tille            | Required   |             | Required    | Optional    |                  |            | Required |
 #' | Yates-Grundy             |            | Required    |             |             |                  |            |          |
 #' | Horvitz-Thompson         |            | Required    |             |             |                  |            |          |
+#' | Aronow-Samii             |            | Required    |             |             |                  |            |          |
 #' @md
 #' @return The matrix of the quadratic form representing the variance estimator.
 #' @export
@@ -172,11 +179,11 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
                                   cluster_ids = NULL,
                                   strata_ids = NULL,
                                   strata_pop_sizes = NULL,
-                                  sort_order = NULL,
+                                  sort_order = NULL, 
                                   aux_vars = NULL) {
 
   accepted_variance_estimators <- c(
-    "Yates-Grundy", "Horvitz-Thompson",
+    "Yates-Grundy", "Horvitz-Thompson", "Aronow-Samii",
     "Ultimate Cluster", "Stratified Multistage SRS",
     "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
   )
@@ -190,7 +197,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
             variance_estimator) |> stop()
   }
 
-  if (variance_estimator %in% c("Yates-Grundy", "Horvitz-Thompson")) {
+  if (variance_estimator %in% c("Yates-Grundy", "Horvitz-Thompson", "Aronow-Samii")) {
     if (is.null(joint_probs)) {
       sprintf("For `variance_estimator='%s'`, must supply a matrix to the argument `joint_probs`.",
               variance_estimator) |>
@@ -320,6 +327,24 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     for (i in seq_len(n)) {
       for (j in seq(from = i, to = n, by = 1)) {
         quad_form_matrix[i,j] <- 1 - (joint_probs[i,i] * joint_probs[j,j])/joint_probs[i,j]
+      }
+    }
+    quad_form_matrix[lower.tri(quad_form_matrix)] <- t(quad_form_matrix)[lower.tri(quad_form_matrix)]
+  }
+
+  if (variance_estimator == "Aronow-Samii") {
+    n <- number_of_ultimate_units
+    quad_form_matrix <- Matrix::Matrix(0, nrow = n, ncol = n) |> as("symmetricMatrix")
+    diag(quad_form_matrix) <- 1 - diag(joint_probs)
+    for (i in seq_len(n)) {
+      for (j in seq(from = i, to = n, by = 1)[-1]) {
+        if (joint_probs[i,j] > 0) {
+          quad_form_matrix[i,j] <- 1 - (joint_probs[i,i] * joint_probs[j,j])/joint_probs[i,j]
+        } else {
+          quad_form_matrix[i,j] <- 0
+          quad_form_matrix[i,i] <- quad_form_matrix[i,i] + (joint_probs[i,i])
+          quad_form_matrix[j,j] <- quad_form_matrix[j,j] + (joint_probs[j,j])
+        }
       }
     }
     quad_form_matrix[lower.tri(quad_form_matrix)] <- t(quad_form_matrix)[lower.tri(quad_form_matrix)]

@@ -172,7 +172,51 @@ included in sample \eqn{S}, with inclusion probability \eqn{\pi_k}. The value \e
 where \eqn{n} is the number of observations and \eqn{q} is the number of auxiliary variables.
 }
 
+\section{Aronow-Samii}{
+
+The Aronow-Samii variance estimator is intended for use in 
+non-measurable survey designs, where some pairs of units in the population have zero
+pairwise inclusion probabilities (i.e., where \eqn{\pi_{ij} = 0} for some \eqn{i} and \eqn{j}).
+An important example is when a design samples only one unit from a stratum
+with multiple units. Unbiased variance estimation is not in general possible for such designs.
+
+The estimator proposed by Aronow and Samii (2013) is conservative in the sense that
+its bias is guaranteed to be weakly greater than zero. Aronow and Samii (2013)
+provide a detailed discussion of this estimator's properties, concluding
+that the estimator should be effective for designs that sample one unit
+per stratum. However, they caution against using the estimator
+for systematic samples, as in such cases it may be too upwardly biased to be useful.
+
+This estimator requires the joint probabilities for the entire \emph{population},
+or at least for each stratum in the population. Thus, it cannot
+be used with the functions \code{as_fays_gen_rep_design()} or \code{as_gen_boot_design()}.
+Instead, it can only be used with \code{make_quad_form_matrix()}.
+
+Let \eqn{I_i} equal 1 if unit \eqn{i} is included in the sample and equal if not,
+and let \eqn{I_j} equal 1 if unit \eqn{j} is included in the sample and equal 0 if not.
+
+Then the Aronow-Samii variance estimator is written as follows:
+\deqn{
+  v(\hat{Y}) = T_1 + T_2
+}
+
+where
+\deqn{
+  T_1 = \sum_{i \in U}\sum_{j \in \{U: \pi_{ij} > 0\}} I_i I_j (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
+}
+
+and
+
+\deqn{
+  T_2 = \sum_{i \in U}\sum_{j \in \{U: \pi_{ij} = 0\}} I_i \frac{y_i^2}{2 \pi_i} + I_j \frac{y_j^2}{2 \pi_j}
+}
+}
+
 \references{
+Aronow, P., and Samii, C. (2013). "\emph{Conservative variance estimation 
+for sampling designs with zero pairwise inclusion probabilities}."
+\strong{Survey Methodology}, Statistics Canada, 39(1), 231-241.
+
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
 

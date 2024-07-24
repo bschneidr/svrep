@@ -573,6 +573,36 @@ library_stsys_sample <- library_stsys_sample |>
     )
 
   })
+  
+# Check "Aronow-Samii" results ----
+  
+  test_that("Correct quadratic form for Aronow-Samii", {
+    
+    joint_probs <- matrix(
+      c(1/2, 0,
+        0  , 1/2),
+      nrow = 2, ncol = 2
+    )
+    
+    expect_equal(
+      object = make_quad_form_matrix(
+        "Aronow-Samii", 
+        joint_probs = joint_probs
+      ) |> as.matrix(),
+      expected = diag(2)
+    )
+    
+    expect_equal(
+      object = make_quad_form_matrix(
+        "Aronow-Samii",
+        joint_probs = election_jointprob
+      ) |> as.matrix(),
+      expected = make_quad_form_matrix(
+        "Horvitz-Thompson",
+        joint_probs = election_jointprob
+      ) |> as.matrix()
+    )
+  })
 
 # Ensure function checks inputs for issues ----
 
