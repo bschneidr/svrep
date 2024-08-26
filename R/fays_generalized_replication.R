@@ -174,7 +174,34 @@ make_fays_gen_rep_factors <- function(
   n <- nrow(Sigma)
 
   # Calculate spectral decomposition ----
-  eigen_decomposition <- eigen(x = Sigma, symmetric = TRUE)
+  svrep_torch_device <- getOption("svrep.torch_device")
+  
+  use_torch <- FALSE
+  if (!is.null(svrep_torch_device) && svrep_torch_device %in% c("cpu", "cuda")) {
+    if (requireNamespace("torch", quietly = TRUE)) {
+      use_torch <- torch::torch_is_installed()
+    }
+  }
+  
+  if (!use_torch) {
+    eigen_decomposition <- eigen(x = Sigma, symmetric = TRUE)
+  }
+  
+  if (use_torch) {
+    if (svrep_torch_device == "cuda" && !torch::cuda_is_available()) {
+      svrep_torch_device <- "cpu"
+      message("Using CPU for torch, since `torch::cuda_is_available()` returned FALSE.")
+    }
+    eigen_decomposition <- Sigma |> as.matrix() |> 
+      torch::torch_tensor(device = torch::torch_device(
+        type = svrep_torch_device
+      )) |>
+      torch::linalg_eigh() |>
+      (\(torch_eigh_output) {
+        list('values' = as.numeric(torch_eigh_output[[1]]),
+             'vectors' = as.matrix(torch_eigh_output[[2]]))
+      })()
+  }
   Sigma_rank <- Matrix::rankMatrix(Sigma, method = "qr")
 
   # Obtain eigenvectors scaled by square roots of eigenvalues ----
