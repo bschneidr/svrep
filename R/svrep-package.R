@@ -22,3 +22,9 @@
 #' @importFrom utils packageVersion
 ## usethis namespace: end
 NULL
+
+.onLoad <- function(...) {
+  if (is.null(getOption("svrep.torch_device"))) {
+    options(svrep.torch_device = NULL)
+  }
+}
