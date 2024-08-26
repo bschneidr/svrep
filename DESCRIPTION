@@ -45,7 +45,8 @@ Suggests:
     withr,
     sampling,
     prettydoc,
-    RSQLite
+    RSQLite,
+    torch
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
