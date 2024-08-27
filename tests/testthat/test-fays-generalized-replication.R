@@ -531,3 +531,35 @@ test_that(
     )
   }
 )
+
+# Test use of 'torch' for matrix decomposition ----
+
+test_that(
+  desc = "Can use 'torch' for Fay's generalized replication", {
+    skip_if_not_installed("torch")
+    skip_if_not(torch::torch_is_installed())
+    
+    non_torch_result <- svydesign(
+      data = election_pps,
+      id = ~1, fpc = ~p,
+      pps = ppsmat(election_jointprob),
+      variance = "YG"
+    ) |> svytotal(x = ~ Bush + Kerry) |> SE()
+    
+    torch_result <- withr::with_options(list(svrep.torch_device = "cpu"), {
+      svydesign(
+        data = election_pps,
+        id = ~1, fpc = ~p,
+        pps = ppsmat(election_jointprob),
+        variance = "YG"
+      ) |> as_fays_gen_rep_design(
+        variance_estimator = "Yates-Grundy",
+        max_replicates = 100
+      ) |> svytotal(x = ~ Bush + Kerry) |> SE()
+    })
+    
+    expect_equal(unname(torch_result), unname(non_torch_result),
+                 tolerance = 0.1)
+    
+  }
+)

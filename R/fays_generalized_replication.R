@@ -192,14 +192,18 @@ make_fays_gen_rep_factors <- function(
       svrep_torch_device <- "cpu"
       message("Using CPU for torch, since `torch::cuda_is_available()` returned FALSE.")
     }
+    
+    # Note that with 'torch', eigenvalues/vectors are in *ascending* order
+    reversal_indices <- seq(from = ncol(Sigma), to = 1, by = -1)
+    
     eigen_decomposition <- Sigma |> as.matrix() |> 
       torch::torch_tensor(device = torch::torch_device(
         type = svrep_torch_device
       )) |>
       torch::linalg_eigh() |>
       (\(torch_eigh_output) {
-        list('values' = as.numeric(torch_eigh_output[[1]]),
-             'vectors' = as.matrix(torch_eigh_output[[2]]))
+        list('values' = as.numeric(torch_eigh_output[[1]])[reversal_indices],
+             'vectors' = as.matrix(torch_eigh_output[[2]])[,reversal_indices,drop=FALSE])
       })()
   }
   Sigma_rank <- Matrix::rankMatrix(Sigma, method = "qr")
