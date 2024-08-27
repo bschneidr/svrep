@@ -6,7 +6,7 @@
 \usage{
 make_fays_gen_rep_factors(
   Sigma,
-  max_replicates = Matrix::rankMatrix(Sigma) + 4,
+  max_replicates = Matrix::rankMatrix(Sigma, method = "qr") + 4,
   balanced = TRUE
 )
 }

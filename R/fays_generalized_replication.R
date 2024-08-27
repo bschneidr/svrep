@@ -167,7 +167,7 @@
 
 make_fays_gen_rep_factors <- function(
     Sigma,
-    max_replicates = Matrix::rankMatrix(Sigma) + 4,
+    max_replicates = Matrix::rankMatrix(Sigma, method = "qr") + 4,
     balanced = TRUE
 ) {
 
@@ -180,9 +180,11 @@ make_fays_gen_rep_factors <- function(
   # Obtain eigenvectors scaled by square roots of eigenvalues ----
   v <- sapply(X = seq_along(eigen_decomposition$values),
               FUN = function(k) {
-                truncated_eigenvalue <- ifelse(eigen_decomposition$values[k] < 0,
-                                               0, eigen_decomposition$values[k])
-                sqrt(truncated_eigenvalue) * eigen_decomposition$vectors[,k]
+                if (eigen_decomposition$values[k] < 0) {
+                  rep(0, times = nrow(eigen_decomposition$vectors))
+                } else {
+                  sqrt(eigen_decomposition$values[k]) * eigen_decomposition$vectors[,k]
+                }
               })
   v <- v[, seq_len(Sigma_rank), drop=FALSE]
 
