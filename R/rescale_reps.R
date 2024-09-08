@@ -153,7 +153,7 @@ rescale_reps <- function(x, tau = NULL, min_wgt = 0.01, digits = 2) {
     stop("When `tau=NULL`, the argument `min_wgt` must be at least 0 and less than 1.")
   }
   if (!missing(digits)) {
-    if (!is.numeric(digits) || (length(digits != 1)) || is.na(digits) || (digits < 1)) {
+    if (!is.numeric(digits) || (length(digits) != 1) || is.na(digits) || (digits < 1)) {
       stop("`digits` must be an integer greater than or equal to 1.")
     }
   }
