@@ -172,6 +172,32 @@ the variance estimate from a third-stage stratum is multiplied by \(\frac{n_1}{N
 which is the product of sampling fractions from the first-stage stratum and second-stage stratum.</p>
     </div>
     <div class="section level2">
+    <h2 id="beaumont-emond">Beaumont-Emond<a class="anchor" aria-label="anchor" href="#beaumont-emond"></a></h2>
+
+
+<p>The <strong>"Beaumont-Emond"</strong> variance estimator was proposed by Beaumont and Emond (2022),
+intended for designs that use fixed-size, unequal-probability random sampling without replacement.
+The variance estimator is simply the Horvitz-Thompson
+variance estimator with the following approximation for the joint inclusion
+probabilities.
+$$
+  \pi_{kl} \approx \pi_k \pi_l \frac{n - 1}{(n-1) + \sqrt{(1-\pi_k)(1-\pi_l)}}
+$$
+In the case of cluster sampling, this approximation is
+applied to the clusters rather than the units within clusters,
+with \(n\) denoting the number of sampled clusters. and the probabilities \(\pi\)
+referring to the cluster's sampling probability. For stratified samples,
+the joint probability for units \(k\) and \(l\) in different strata
+is simply the product of \(\pi_k\) and \(\pi_l\).</p>
+<p>For multistage samples, this approximation is applied to the clusters at each stage, separately by stratum.
+For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+the variance estimate from a third-stage stratum is multiplied by \(\pi_1 \times \pi_{(2 | 1)}\),
+where \(\pi_1\) is the sampling probability of the first-stage unit
+and \(\pi_{(2|1)}\) is the sampling probability of the second-stage unit
+within the first-stage unit.</p>
+    </div>
+    <div class="section level2">
     <h2 id="deville-and-deville-">Deville 1 and Deville 2<a class="anchor" aria-label="anchor" href="#deville-and-deville-"></a></h2>
 
 
@@ -227,6 +253,9 @@ where \(n\) is the number of observations and \(q\) is the number of auxiliary v
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Ash, S. (2014). "<em>Using successive difference replication for estimating variances</em>."
 <strong>Survey Methodology</strong>, Statistics Canada, 40(1), 47–59.</p>
+<p>Beaumont, J.-F.; Émond, N. (2022). "<em>A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase</em>."
+<strong>Stats</strong>, <em>5</em>: 339–357.
+https://doi.org/10.3390/stats5020019</p>
 <p>Bellhouse, D.R. (1985). "<em>Computing Methods for Variance Estimation in Complex Surveys</em>."
 <strong>Journal of Official Statistics</strong>, Vol.1, No.3.</p>
 <p>Deville, J.‐C., and Tillé, Y. (2005). "<em>Variance approximation under balanced sampling.</em>"

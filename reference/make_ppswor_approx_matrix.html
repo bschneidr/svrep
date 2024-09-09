@@ -83,6 +83,7 @@ to represent such variance estimators.</p>
 See the "Details" section below.
 Options include:</p><ul><li><p>"Deville-1"</p></li>
 <li><p>"Deville-2"</p></li>
+<li><p>"Beaumont-Emond"</p></li>
 </ul></dd>
 
 </dl></div>
@@ -91,12 +92,14 @@ Options include:</p><ul><li><p>"Deville-1"</p></li>
     <p>A symmetric matrix whose dimension matches the length of <code>probs</code>.</p>
     </div>
     <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>These variance estimators have been shown to be effective
+    <h2 id="deville-s-estimators">Deville's Estimators<a class="anchor" aria-label="anchor" href="#deville-s-estimators"></a></h2>
+
+
+<p>The "Deville-1" and "Deville-2" approximations have been shown to be effective
 for designs that use a fixed sample size with a high-entropy sampling method.
 This includes most PPSWOR sampling methods,
 but unequal-probability systematic sampling is an important exception.</p>
-<p>These variance estimators generally take the following form:
+<p>Deville's variance estimators generally take the following form:
 $$
 \hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
 $$
@@ -121,6 +124,20 @@ in terms of MSE compared to the strictly-unbiased
 Horvitz-Thompson and Yates-Grundy variance estimators.
 In the case of simple random sampling without replacement (SRSWOR),
 these estimators are identical to the usual Horvitz-Thompson variance estimator.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="beaumont-emond-estimator">Beaumont-Emond Estimator<a class="anchor" aria-label="anchor" href="#beaumont-emond-estimator"></a></h2>
+
+
+<p>Beaumont and Emond (2022) proposed a variance estimator for unequal probability
+sampling without replacement. This estimator is simply the Horvitz-Thompson
+variance estimator with the following approximation for the joint inclusion
+probabilities.
+$$
+  \pi_{kl} \approx \pi_k \pi_l \frac{n - 1}{(n-1) + \sqrt{(1-\pi_k)(1-\pi_l)}}
+$$
+In the case of cluster sampling, this approximation should be
+applied to the clusters rather than the units within clusters.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
