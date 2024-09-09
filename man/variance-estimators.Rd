@@ -116,6 +116,32 @@ the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1
 which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
 }
 
+\section{Beaumont-Emond}{
+
+The \strong{"Beaumont-Emond"} variance estimator was proposed by Beaumont and Emond (2022),
+intended for designs that use fixed-size, unequal-probability random sampling without replacement.
+The variance estimator is simply the Horvitz-Thompson
+variance estimator with the following approximation for the joint inclusion
+probabilities.
+\deqn{
+  \pi_{kl} \approx \pi_k \pi_l \frac{n - 1}{(n-1) + \sqrt{(1-\pi_k)(1-\pi_l)}}
+}
+In the case of cluster sampling, this approximation is
+applied to the clusters rather than the units within clusters,
+with \eqn{n} denoting the number of sampled clusters. and the probabilities \eqn{\pi}
+referring to the cluster's sampling probability. For stratified samples,
+the joint probability for units \eqn{k} and \eqn{l} in different strata
+is simply the product of \eqn{\pi_k} and \eqn{\pi_l}.
+
+For multistage samples, this approximation is applied to the clusters at each stage, separately by stratum.
+For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+the variance estimate from a third-stage stratum is multiplied by \eqn{\pi_1 \times \pi_{(2 | 1)}},
+where \eqn{\pi_1} is the sampling probability of the first-stage unit
+and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
+within the first-stage unit.
+}
+
 \section{Deville 1 and Deville 2}{
 
 The \strong{"Deville-1"} and \strong{"Deville-2"} variance estimators
@@ -175,6 +201,10 @@ where \eqn{n} is the number of observations and \eqn{q} is the number of auxilia
 \references{
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+
+Beaumont, J.-F.; Émond, N. (2022). "\emph{A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase}."
+\strong{Stats}, \emph{5}: 339–357.
+https://doi.org/10.3390/stats5020019
 
 Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.

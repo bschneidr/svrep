@@ -49,6 +49,8 @@ Options include:
   \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
     This estimator is the basis of the "successive-differences replication" estimator commonly used
     for variance estimation for systematic sampling.
+  \item\strong{"Beaumont-Emond"}: \cr The variance estimator of Beaumont and Emond (2022)
+    for multistage unequal-probability sampling without replacement.
 }}
 
 \item{aux_var_names}{(Only used if \code{variance_estimator = "Deville-Tille")}.
@@ -174,6 +176,11 @@ by using only a random subset of the replicates.
 
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\cr \cr
+- Beaumont, J.-F.; Émond, N. (2022).
+"\emph{A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase}."
+\strong{Stats}, \emph{5}: 339–357.
+https://doi.org/10.3390/stats5020019
 \cr \cr
 - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
 \strong{Journal of Statistical Planning and Inference}, 128, 569–591.

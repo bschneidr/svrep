@@ -16,6 +16,7 @@ Options include:
 \itemize{
   \item "Deville-1"
   \item "Deville-2"
+  \item "Beaumont-Emond"
 }}
 }
 \value{
@@ -31,13 +32,14 @@ and ignores the joint inclusion probabilities.
 This function returns the matrix of the quadratic form used
 to represent such variance estimators.
 }
-\details{
-These variance estimators have been shown to be effective
+\section{Deville's Estimators}{
+ 
+The "Deville-1" and "Deville-2" approximations have been shown to be effective
 for designs that use a fixed sample size with a high-entropy sampling method.
 This includes most PPSWOR sampling methods,
 but unequal-probability systematic sampling is an important exception.
 
-These variance estimators generally take the following form:
+Deville's variance estimators generally take the following form:
 \deqn{
 \hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
 }
@@ -67,6 +69,20 @@ Horvitz-Thompson and Yates-Grundy variance estimators.
 In the case of simple random sampling without replacement (SRSWOR),
 these estimators are identical to the usual Horvitz-Thompson variance estimator.
 }
+
+\section{Beaumont-Emond Estimator}{
+ 
+Beaumont and Emond (2022) proposed a variance estimator for unequal probability
+sampling without replacement. This estimator is simply the Horvitz-Thompson
+variance estimator with the following approximation for the joint inclusion
+probabilities.
+\deqn{
+  \pi_{kl} \approx \pi_k \pi_l \frac{n - 1}{(n-1) + \sqrt{(1-\pi_k)(1-\pi_l)}}
+}
+In the case of cluster sampling, this approximation should be 
+applied to the clusters rather than the units within clusters.
+}
+
 \references{
 Matei, Alina, and Yves Tillé. 2005.
 “Evaluation of Variance Approximations and Estimators

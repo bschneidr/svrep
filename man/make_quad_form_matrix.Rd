@@ -50,6 +50,8 @@ This estimator is the basis of the "successive-differences replication" estimato
 for variance estimation for systematic sampling.
 \item \strong{"Deville-Tille"}: The estimator of Deville and Tillé (2005),
 developed for balanced sampling using the cube method.
+\item \strong{"Beaumont-Emond"}: The variance estimator of Beaumont and Emond (2022)
+for multistage unequal-probability sampling without replacement.
 }}
 
 \item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
@@ -115,6 +117,7 @@ Below are the arguments that are required or optional for each variance estimato
    SD2 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \tab  \cr
    Deville-1 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
    Deville-2 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
+   Beaumont-Emond \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
    Deville-Tille \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab Required \cr
    Yates-Grundy \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
    Horvitz-Thompson \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr

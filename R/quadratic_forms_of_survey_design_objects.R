@@ -34,6 +34,8 @@
 #'   \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
 #'     This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'     for variance estimation for systematic sampling.
+#'   \item \strong{"Beaumont-Emond"}: The variance estimator of Beaumont and Emond (2022)
+#'     for multistage unequal-probability sampling without replacement.
 #' }
 #' @param ensure_psd If \code{TRUE} (the default), ensures
 #' that the result is a positive semidefinite matrix. This
@@ -159,7 +161,7 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond"
   )
 
   if (is.null(variance_estimator)) {
@@ -225,7 +227,7 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       sort_order = NULL
     )
   }
-  if (variance_estimator %in% c("Deville-1", "Deville-2")) {
+  if (variance_estimator %in% c("Deville-1", "Deville-2", "Beaumont-Emond")) {
     Sigma <- make_quad_form_matrix(
       variance_estimator = variance_estimator,
       cluster_ids = design$cluster,
@@ -283,7 +285,7 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond"
   )
   accepted_phase2_estimators <- c(
     "Ultimate Cluster", "Stratified Multistage SRS",

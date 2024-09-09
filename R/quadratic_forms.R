@@ -41,6 +41,8 @@
 #'     for variance estimation for systematic sampling.
 #'   \item \strong{"Deville-Tille"}: The estimator of Deville and Tillé (2005),
 #'     developed for balanced sampling using the cube method.
+#'   \item \strong{"Beaumont-Emond"}: The variance estimator of Beaumont and Emond (2022)
+#'     for multistage unequal-probability sampling without replacement.
 #' }
 #' @param probs Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
 #' This should be a matrix or data frame of sampling probabilities.
@@ -83,6 +85,7 @@
 #' | SD2                      |            |             | Required    | Optional    | Optional         | Required   |          |
 #' | Deville-1                | Required   |             | Required    | Optional    |                  |            |          |
 #' | Deville-2                | Required   |             | Required    | Optional    |                  |            |          |
+#' | Beaumont-Emond           | Required   |             | Required    | Optional    |                  |            |          |
 #' | Deville-Tille            | Required   |             | Required    | Optional    |                  |            | Required |
 #' | Yates-Grundy             |            | Required    |             |             |                  |            |          |
 #' | Horvitz-Thompson         |            | Required    |             |             |                  |            |          |
@@ -178,7 +181,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   accepted_variance_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Beaumont-Emond", "Deville-Tille"
   )
 
   if (length(variance_estimator) > 1) {
@@ -205,12 +208,12 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
   # Check inputs and assemble all necessary information
   # for estimators of stratified/clustered designs
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
 
     use_sparse_matrix <- TRUE
 
     # Ensure the minimal set of inputs is supplied
-    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2", "Deville-Tille")) {
+    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
       if (is.null(cluster_ids) || is.null(strata_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to both `strata_ids` and `cluster_ids`",
@@ -218,7 +221,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         ) |> stop()
       }
     }
-    if (variance_estimator %in% c("Deville-1", "Deville-2", "Deville-Tille")) {
+    if (variance_estimator %in% c("Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
       if (is.null(probs)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to `probs`.",
@@ -232,7 +235,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes`.")
       }
     }
-    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille")) {
+    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
       if (is.null(cluster_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to `cluster_ids`",
@@ -355,7 +358,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     }
   }
 
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2", "Deville-Tille")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
     quad_form_matrix <- Matrix::Matrix(data = 0,
                                        nrow = number_of_ultimate_units,
                                        ncol = number_of_ultimate_units) |>
@@ -404,7 +407,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
           prev_stages_samp_prob <- prev_samp_fraction
         }
 
-        if (variance_estimator %in% c("Deville-1", "Deville-2")) {
+        if (variance_estimator %in% c("Deville-1", "Deville-2", "Beaumont-Emond")) {
 
           # Get quadratic form at current stage
           current_cluster_ids <- cluster_ids[stratum_indices, stage, drop = TRUE]
@@ -639,16 +642,17 @@ make_srswor_matrix <- function(n, f = 0) {
 #' \itemize{
 #'   \item "Deville-1"
 #'   \item "Deville-2"
+#'   \item "Beaumont-Emond"
 #' }
 
 #' @return A symmetric matrix whose dimension matches the length of \code{probs}.
-#' @details
-#' These variance estimators have been shown to be effective
+#' @section Deville's Estimators: 
+#' The "Deville-1" and "Deville-2" approximations have been shown to be effective
 #' for designs that use a fixed sample size with a high-entropy sampling method.
 #' This includes most PPSWOR sampling methods,
 #' but unequal-probability systematic sampling is an important exception.
 #'
-#' These variance estimators generally take the following form:
+#' Deville's variance estimators generally take the following form:
 #' \deqn{
 #' \hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
 #' }
@@ -677,6 +681,17 @@ make_srswor_matrix <- function(n, f = 0) {
 #' Horvitz-Thompson and Yates-Grundy variance estimators.
 #' In the case of simple random sampling without replacement (SRSWOR),
 #' these estimators are identical to the usual Horvitz-Thompson variance estimator.
+#' 
+#' @section Beaumont-Emond Estimator: 
+#' Beaumont and Emond (2022) proposed a variance estimator for unequal probability
+#' sampling without replacement. This estimator is simply the Horvitz-Thompson
+#' variance estimator with the following approximation for the joint inclusion
+#' probabilities.
+#' \deqn{
+#'   \pi_{kl} \approx \pi_k \pi_l \frac{n - 1}{(n-1) + \sqrt{(1-\pi_k)(1-\pi_l)}}
+#' }
+#' In the case of cluster sampling, this approximation should be 
+#' applied to the clusters rather than the units within clusters.
 #'
 #' @references
 #' Matei, Alina, and Yves Tillé. 2005.
@@ -690,23 +705,34 @@ make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
   n <- length(probs)
   one_minus_pi <- 1 - probs
 
-  if (method == "Deville-1") {
-    c_k <- (1 - probs) * (n/(n-1))
+  if (method %in% c("Deville-1", "Deville-2")) {
+    if (method == "Deville-1") {
+      c_k <- (1 - probs) * (n/(n-1))
+    }
+    if (method == "Deville-2") {
+      c_k <- (1 - probs) / (
+        1 - sum( (one_minus_pi/sum(one_minus_pi))^2 )
+      )
+    }
+    
+    c_sum <- sum(c_k)
+    
+    if ((n == 1) || (c_sum == 0)) {
+      Sigma <- Matrix::Matrix(0, nrow = length(c_k), ncol = length(c_k))
+    } else {
+      Sigma <- outer(c_k, -c_k) / c_sum
+      diag(Sigma) <- c_k*(1 - c_k/c_sum)
+      Sigma <- as(Sigma, "symmetricMatrix")
+    }
   }
-  if (method == "Deville-2") {
-    c_k <- (1 - probs) / (
-      1 - sum( (one_minus_pi/sum(one_minus_pi))^2 )
-    )
-  }
-
-  c_sum <- sum(c_k)
-
-  if ((n == 1) || (c_sum == 0)) {
-    Sigma <- Matrix::Matrix(0, nrow = length(c_k), ncol = length(c_k))
-  } else {
-    Sigma <- outer(c_k, -c_k) / c_sum
-    diag(Sigma) <- c_k*(1 - c_k/c_sum)
-    Sigma <- as(Sigma, "symmetricMatrix")
+  if (method == "Beaumont-Emond") {
+    if ((n == 1)) {
+      Sigma <- Matrix::Matrix(0, n, n)
+    } else {
+      Sigma <- - tcrossprod(sqrt(one_minus_pi)) / (n-1)
+      diag(Sigma) <- one_minus_pi
+      Sigma <- as(Sigma, "symmetricMatrix")
+    }
   }
 
   return(Sigma)

@@ -45,6 +45,8 @@ Options include:
   \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
     This estimator is the basis of the "successive-differences replication" estimator commonly used
     for variance estimation for systematic sampling.
+  \item \strong{"Beaumont-Emond"}: The variance estimator of Beaumont and Emond (2022)
+    for multistage unequal-probability sampling without replacement.
 }}
 
 \item{ensure_psd}{If \code{TRUE} (the default), ensures
