@@ -460,6 +460,60 @@ library_stsys_sample <- library_stsys_sample |>
           vcov()
       )
     })
+  
+# Check "Beaumont-Emond" results ----
+  
+  test_that(
+    "Helper function for Beaumont-Emond quadratic forms works correctly", {
+      
+      data('api', package = 'survey')
+      
+      # For a single-stage stratified SRSWOR sample,
+      # results match usual variance estimator
+      wtd_y_matrix <- as.matrix(
+        library_stsys_sample[,c("TOTCIR", "TOTSTAFF")]
+      )/library_stsys_sample[['SAMPLING_PROB']]
+      quad_BE <- make_quad_form_matrix(
+        variance_estimator = "Beaumont-Emond",
+        cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+        strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+        probs = library_stsys_sample[,'SAMPLING_PROB',drop=FALSE]
+      )
+      expect_equal(
+        object = as.matrix(t(wtd_y_matrix) %*% quad_BE %*% wtd_y_matrix),
+        expected = svydesign(
+          data = library_stsys_sample,
+          ids = ~ FSCSKEY,
+          strata = ~ SAMPLING_STRATUM,
+          fpc = ~ STRATUM_POP_SIZE
+        ) |> svytotal(x = ~ TOTCIR + TOTSTAFF, na.rm = TRUE) |>
+          vcov()
+      )
+      
+      # For a stratified multistage SRSWOR sample,
+      # results match the usual variance estimator
+      wtd_y_matrix <- as.matrix(apiclus2[,c('api00', 'api99')] * apiclus2$pw)
+      apiclus2_design <- svydesign(id=~dnum+snum, fpc=~fpc1+fpc2, data=apiclus2)
+      quad_BE <- make_quad_form_matrix(
+        variance_estimator = "Beaumont-Emond",
+        cluster_ids = apiclus2[,c("dnum", "snum"),drop=FALSE],
+        strata_ids = data.frame('PSU_STRATUM' = rep(1, times = nrow(apiclus2)),
+                                'SSU_STRATUM' = rep(1, times = nrow(apiclus2))),
+        probs = apiclus2_design$allprob
+      )
+      expect_equal(
+        object = as.matrix(t(wtd_y_matrix) %*% quad_BE %*% wtd_y_matrix),
+        expected = svydesign(id=~dnum+snum, fpc=~fpc1+fpc2, data=apiclus2) |> 
+          svytotal(x = ~ api00 + api99, na.rm = TRUE) |>
+          vcov()
+      )
+
+      # Correct result for only a single unit
+      expect_equal(
+        object = svrep:::make_ppswor_approx_matrix(probs = 0.5) |> as.matrix(),
+        expected = matrix(0, nrow = 1, ncol = 1)
+      )
+    })
 
 # Check "Deville-1" and "Deville-2" results ----
 
