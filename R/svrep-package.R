@@ -25,6 +25,6 @@ NULL
 
 .onLoad <- function(...) {
   if (is.null(getOption("svrep.torch_device"))) {
-    options(svrep.torch_device = NULL)
+    options(svrep.torch_device = 'none')
   }
 }

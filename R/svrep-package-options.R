@@ -17,7 +17,7 @@
 #' 
 #' The option `svrep.torch_device` accepts the following options:
 #' 
-#' - `options(svrep.torch_device = NULL)`: The 'torch' package will not be used.
+#' - `options(svrep.torch_device = 'none')`: The 'torch' package will not be used.
 #' 
 #' - `options(svrep.torch_device = 'cpu')`: The 'torch' package will be used
 #'   with all operations done on the CPU.
