@@ -10,6 +10,8 @@
 
 -   Added more detailed documentation to the Rao-Wu-Yue-Beaumont bootstrap method.
 
+-   Added new options to enable users to speed up the creation of replicate weights if they have the 'torch' package installed. For more details, see `help('svrep-package-options', package = 'svrep')`.
+
 # svrep 0.6.4
 
 -   Fix issue #32: `stack_replicate_designs()` would only accept designs with types known to the 'survey' package. Fixed to allow other design types such as the random-groups jackknife.
