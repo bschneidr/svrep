@@ -89,6 +89,25 @@ If any stages use simple random sampling without replacement, it is possible for
 If there is survey nonresponse, it may be useful to represent the response/nonresponse as an additional
 stage of sampling, where sampling is conducted with Poisson sampling
 where each unit's "selection probability" at that stage is its response propensity (which typically has to be estimated).
+
+The formulas and algorithms for the replication factors are described
+by Beaumont and Émond (2022). Below, we list the relevant equations and 
+sections of the paper for each sampling method.
+
+\itemize{
+  \item "SRSWR"  - Equation 19 of Beaumont and Émond (2022)
+  \item "PPSWR"  - Equation 19 of Beaumont and Émond (2022)
+  \item "SRSWOR" - Equation 20 of Beaumont and Émond (2022)
+  \item "PPSWOR" - Equations 24 and 21 of Beaumont and Émond (2022)
+  \item "Poisson" - See section 3.1 of Beaumont and Émond (2022)
+}
+
+For stratified sampling, the replicate factors are generated independently in each stratum.
+For cluster sampling at a given stage, the replicate factors are generated 
+at the cluster level and then the cluster's replicate factors are applied to all units in the cluster.
+
+For multistage sampling, replicate factors are generated using the 
+method described in Section 7 ("Bootstrap for Multistage Sampling").
 }
 \examples{
 \dontrun{
