@@ -52,6 +52,8 @@ reference:
 - title: Diagnostic Functions to Check Replicate Weights
 - contents:
   - matches("summarize_rep_weights")
+- title: Package-level Options
+  - matches("svrep-package-options")
 - title: Example Datasets
 - contents:
   - starts_with("lou")
