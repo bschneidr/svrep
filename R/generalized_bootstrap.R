@@ -316,7 +316,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' for details of the approximation.
 #' @param compress This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
-#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #' @return
 #' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,

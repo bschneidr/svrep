@@ -82,7 +82,7 @@ Beaumont and Patak (2012) argue that this overestimation is expected to be
 small in magnitude. See \code{\link[svrep]{get_nearest_psd_matrix}}
 for details of the approximation.}
 
-\item{mse}{If \code{TRUE} (the default), compute variances from sums of squares around the point estimate from the full-sample weights,
+\item{mse}{If \code{TRUE} (the default), compute variances from sums of squares around the point estimate from the full-sample weights.
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 For Fay's generalized replication method, setting \code{mse = FALSE} can potentially
 lead to large underestimates of variance.}

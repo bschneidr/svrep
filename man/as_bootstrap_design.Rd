@@ -49,7 +49,7 @@ A commonly-recommended default is 500.}
 This reduces the computer memory required to represent the replicate weights and has no
 impact on estimates.}
 
-\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
 
 \item{samp_method_by_stage}{(Optional). By default, this function will automatically determine the sampling method used at each stage.

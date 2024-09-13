@@ -81,7 +81,7 @@ Specify \code{group_var_name = NULL} to avoid creating the variable in the data.
 This reduces the computer memory required to represent the replicate weights and has no
 impact on estimates.}
 
-\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
 }
 \value{

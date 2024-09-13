@@ -317,7 +317,7 @@ make_fays_gen_rep_factors <- function(
 #' for details of the approximation.
 #' @param compress This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
-#' @param mse If \code{TRUE} (the default), compute variances from sums of squares around the point estimate from the full-sample weights,
+#' @param mse If \code{TRUE} (the default), compute variances from sums of squares around the point estimate from the full-sample weights.
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #' For Fay's generalized replication method, setting \code{mse = FALSE} can potentially
 #' lead to large underestimates of variance.

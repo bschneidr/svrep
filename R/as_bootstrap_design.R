@@ -35,7 +35,7 @@
 #' @param compress Use a compressed representation of the replicate weights matrix.
 #' This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
-#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #' @param samp_method_by_stage (Optional). By default, this function will automatically determine the sampling method used at each stage.
 #' However, this argument can be used to ensure the correct sampling method is identified for each stage. \cr

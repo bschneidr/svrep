@@ -73,7 +73,7 @@
 #' @param compress Use a compressed representation of the replicate weights matrix.
 #' This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
-#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #'
 #' @return
