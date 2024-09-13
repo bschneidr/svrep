@@ -9,7 +9,7 @@ as_fays_gen_rep_design(
   design,
   variance_estimator = NULL,
   aux_var_names = NULL,
-  max_replicates = 500,
+  max_replicates = Inf,
   balanced = TRUE,
   psd_option = "warn",
   mse = TRUE,
