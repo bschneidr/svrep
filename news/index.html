@@ -41,7 +41,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
-</div>
+<ul><li><p>For Fay’s generalized replication, the default value of <code>max_replicates</code> is now <code>Inf</code>, meaning that there is no limit on the number of replicates that will be included in the output.</p></li>
+<li><p>Added the option <code>variance_estimator = "Beaumont-Emond"</code> to the generalized replication methods.</p></li>
+<li><p>Functions for Fay’s generalized replication method are now noticeably faster.</p></li>
+<li><p>Added more detailed documentation to the RWYB bootstrap method.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.4" id="svrep-064">svrep 0.6.4<a class="anchor" aria-label="anchor" href="#svrep-064"></a></h2><p class="text-muted">CRAN release: 2024-04-26</p>
 <ul><li><p>Fix issue <a href="https://github.com/bschneidr/svrep/issues/32" class="external-link">#32</a>: <code><a href="../reference/stack_replicate_designs.html">stack_replicate_designs()</a></code> would only accept designs with types known to the ‘survey’ package. Fixed to allow other design types such as the random-groups jackknife.</p></li>
