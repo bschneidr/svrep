@@ -1,5 +1,13 @@
 # svrep (development version)
 
+-   For Fay's generalized replication, the default value of `max_replicates` is now `Inf`, meaning that there is no limit on the number of replicates that will be included in the output.
+
+-   Added the option `variance_estimator = "Beaumont-Emond"` to the generalized replication methods.
+
+-   Functions for Fay's generalized replication method are now noticeably faster.
+
+-   Added more detailed documentation to the RWYB bootstrap method.
+
 # svrep 0.6.4
 
 -   Fix issue #32: `stack_replicate_designs()` would only accept designs with types known to the 'survey' package. Fixed to allow other design types such as the random-groups jackknife.
