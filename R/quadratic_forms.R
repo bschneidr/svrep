@@ -824,6 +824,157 @@ make_deville_tille_matrix <- function(probs, aux_vars) {
   return(Sigma)
 }
 
+#' @title Make a quadratic form matrix for the kernel-based variance estimator
+#' of Breidt, Opsomer, and Sanchez-Borrego (2016)
+#' @description Constructs the quadratic form matrix
+#' for the kernel-based variance estimator of Breidt, Opsomer, and Sanchez-Borrego (2016).
+#' The bandwidth is automatically chosen to result
+#' in the smallest possible nonempty kernel window.
+#' @param x A numeric vector, giving the values
+#' of an auxiliary variable.
+#' @param kernel The name of a kernel function. 
+#' Currently only "Epanechnikov" is supported.
+#' @param bandwidth The bandwidth to use for the kernel.
+#' The default value is `"auto"`, which means that the bandwidth
+#' will be chosen automatically to produce the smallest window size
+#' while ensuring that every unit has a nonempty window,
+#' as suggested by Breidt, Opsomer, and Sanchez-Borrego (2016).
+#' Otherwise, the user can supply their own value, which can be a 
+#' single positive number.
+#'
+#' @return The quadratic form matrix for the variance estimator,
+#' with dimension equal equal to the length of `x`. The resulting
+#' object has an attribute `bandwidth` that can be retrieved
+#' using `attr(Q, 'bandwidth')`
+#' 
+#' @details
+#' 
+#' Suppose there are \eqn{H} strata, and
+#' for each stratum \eqn{i} there is a numeric population characteristic \eqn{x_i}
+#' and there is a weighted total \eqn{\hat{Y}_i}, where
+#' \eqn{\hat{Y}_i} is only observed in the selected sample but \eqn{x_i}
+#' is known prior to sampling. We assume that only one sampling unit
+#' is sampled from each stratum (systematic sampling is a special case).
+#' 
+#' The variance estimator has the following form:
+#' 
+#' \deqn{
+#'   \hat{V}_{ker}=\frac{1}{C_d} \sum_{i=1}^H (\hat{Y}_i-\sum_{j=1}^H d_j(i) \hat{Y}_j)^2
+#' }
+#' 
+#' The terms \eqn{d_j(i)} are kernel weights given by
+#' 
+#' \deqn{
+#'   d_j(i)=\frac{K(\frac{x_i-x_j}{h})}{\sum_{j=1}^H K(\frac{x_i-x_j}{h})}
+#' }
+#' 
+#' where \eqn{K(\cdot)} is a symmetric, bounded kernel function
+#' and \eqn{h} is a bandwidth parameter. The normalizing constant \eqn{C_d} 
+#' is computed as:
+#' 
+#' \deqn{
+#'   C_d=\frac{1}{H} \sum_{i=1}^H(1-2 d_i(i)+\sum_{j=1}^H d_j^2(i))
+#' }
+#' 
+#' 
+#' 
+#' @export
+#' @md
+#' 
+#' @references
+#' Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
+#' "Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata." 
+#' Journal of the American Statistical Association, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
+#' @examples
+#' # The auxiliary variable has the same value for all units
+#' make_kernel_var_matrix(c(1, 1, 1))
+#' 
+#' # The auxiliary variable differs across units
+#' make_kernel_var_matrix(c(1, 2, 3))
+#' 
+#' # View the bandwidth that was automatically selected
+#' Q <- make_kernel_var_matrix(c(1, 2, 4))
+#' attr(Q, 'bandwidth')
+#' 
+make_kernel_var_matrix <- function(x, kernel = "Epanechnikov", bandwidth = "auto") {
+  
+  if (!is.vector(x) || !is.numeric(x)) {
+    stop("Only numeric vectors are supported for the argument `x`.")
+  }
+  
+  kernel_fn <- switch(
+    kernel,
+    "Epanechnikov" = function(u) 0.75 * (1-pmin(abs(u), 1)^2),
+    stop("The only value allowed for `kernel` is 'Epanechnikov'.")
+  )
+  
+  # Construct matrix of pairwise differences
+  
+  H     <- length(x)
+  
+  diffs <- outer(x, x, FUN = `-`)
+  
+  # Determine bandwidth
+  
+  if (!is.numeric(bandwidth) && !is.character(bandwidth)) {
+    stop("`bandwidth` must be either 'auto' or a single positive number.") 
+  }
+  if (length(bandwidth) != 1) {
+    stop("`bandwidth` must be either 'auto' or a single positive number.")
+  }
+  if (is.na(bandwidth)) {
+    stop("`bandwidth` must be either 'auto' or a single positive number.")
+  }
+  
+  if (is.numeric(bandwidth)) {
+    if (bandwidth <= 0) {
+      stop("`bandwidth` must be either 'auto' or a single positive number.")
+    }
+    bw <- bandwidth
+  }
+  if (is.character(bandwidth)) {
+    if (bandwidth != "auto") {
+      stop("`bandwidth` must be either 'auto' or a single positive number.")
+    }
+  }
+  
+  # Choose bandwidth to use the smallest window
+  # such that each unit has a nonempty window
+  if (bandwidth == "auto") {
+    bw <- 0
+    if (H > 2) {
+      for (i in seq_len(H)) {
+        abs_diffs    <- abs(diffs[i,-i])
+        candidate_bw <- sort(abs_diffs)[2]
+        bw           <- pmax(bw, candidate_bw)
+      }
+    } else {
+      bw <- Inf
+    }
+    
+    if (bw == 0) {
+      bw <- 1
+    }
+  }
+  K     <- kernel_fn(diffs/bw)
+  
+  # Construct quadratic form for the variance estimator
+  
+  D_ij  <- K / rowSums(K)
+  
+  C_d   <- 1 - (1/H) * (2*sum(diag(D_ij)) - sum(D_ij^2))
+  
+  Q     <- (1/C_d) * crossprod(diag(H) - D_ij)
+  
+  Q <- as(Q, "symmetricMatrix")
+  
+  # Save the bandwidth as an attribute
+  attr(Q, "bandwidth") <- bw
+  
+  return(Q)
+}
+
+
 #' @title Helper function to turn a cluster-level matrix into an element-level matrix
 #' by duplicating rows or columns of the matrix
 #' @description Turns a cluster-level matrix into an element-level matrix
