@@ -153,7 +153,7 @@ twophase_boot_design <- as_gen_boot_design(
 )
 ```
 
-As you can see from the output above, the function emitted a warning message. The generalized bootstrap works by mimicking a variance estimator but requires that variance estimator to be represented as a positive semidefinite qudratic form. In two-phase designs, however, it is often the case that the usual variance estimator cannot be represented exactly as a positive semidefinite quadratic form. In such cases, @beaumont2012 suggest using an approximation of the actual quadratic form matrix by the most similar positive semidefinite matrix. This approximation will in general never lead to an underestimation of variance, and @beaumont2012 argue that this should only produce a small overestimate of variance in practice. Section 5 of this vignette provides more details of this approximation.
+As you can see from the output above, the function emitted a warning message. The generalized bootstrap works by mimicking a variance estimator but requires that variance estimator to be represented as a positive semidefinite quadratic form. In two-phase designs, however, it is often the case that the usual variance estimator cannot be represented exactly as a positive semidefinite quadratic form. In such cases, @beaumont2012 suggest using an approximation of the actual quadratic form matrix by the most similar positive semidefinite matrix. This approximation will in general never lead to an underestimation of variance, and @beaumont2012 argue that this should only produce a small overestimate of variance in practice. Section 5 of this vignette provides more details of this approximation.
 
 ## Create Replicates Using Fay's Generalized Replication Method
 

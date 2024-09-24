@@ -383,7 +383,7 @@ gen_boot_design_sd2 <- as_gen_boot_design(
 svymean(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
 ```
 
-For a PPS design that uses the Horvitz-Thompson or Yates-Grundy estimator, we can create a generalized bootstrap estimator with the same expectation. In the example below, we create a PPS design with the 'survey' package and convert it to a generalied bootstrap design.
+For a PPS design that uses the Horvitz-Thompson or Yates-Grundy estimator, we can create a generalized bootstrap estimator with the same expectation. In the example below, we create a PPS design with the 'survey' package and convert it to a generalized bootstrap design.
 
 ```{r, eval=FALSE}
 # Load example data of a PPS survey of counties and states
