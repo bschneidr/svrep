@@ -34,8 +34,13 @@
 #'   \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
 #'     This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'     for variance estimation for systematic sampling.
-#'   \item \strong{"Beaumont-Emond"}: The variance estimator of Beaumont and Emond (2022)
+#'   \item \strong{"Beaumont-Emond"}: \cr The variance estimator of Beaumont and Emond (2022)
 #'     for multistage unequal-probability sampling without replacement.
+#'   \item \strong{"BOSB"}: \cr The kernel-based variance estimator proposed by
+#'     Breidt, Opsomer, and Sanchez-Borrego (2016) for use with systematic samples
+#'     or other finely stratified designs. Uses the Epanechnikov kernel
+#'     with the bandwidth automatically chosen to result in the smallest possible
+#'     nonempty kernel window.
 #' }
 #' @param ensure_psd If \code{TRUE} (the default), ensures
 #' that the result is a positive semidefinite matrix. This
@@ -46,9 +51,13 @@
 #' in the context of forming replicate weights for two-phase samples.
 #' The authors argue that this approximation should
 #' lead to only a small overestimation of variance.
-#' @param aux_var_names Only required if \code{variance_estimator = "Deville-Tille"}.
-#' Should be a character vector of variable names for auxiliary variables
-#' to be used in the Breidt and Chauvet (2011) variance estimator.
+#' @param aux_var_names Only required if \code{variance_estimator = "Deville-Tille"}
+#' or if \code{variance_estimator = "BOSB"}.
+#' For the Deville-Tillé estimator, this should be a character vector of 
+#' variable names for auxiliary variables to be used in the variance estimator.
+#' For the BOSB estimator, this should be a string giving a single variable name
+#' to use as an auxiliary variable in the kernel-based variance estimator
+#' of Breidt, Opsomer, and Sanchez-Borrego (2016).
 #' @return A matrix representing the quadratic form of a specified variance estimator,
 #' based on extracting information about clustering, stratification,
 #' and selection probabilities from the survey design object.
@@ -63,6 +72,10 @@
 #' \cr \cr
 #' - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
+#' \cr \cr
+#' - Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
+#' "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
+#' \strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
 #' \cr \cr
 #' - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
 #' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.
@@ -109,8 +122,21 @@
 #'    # Compare to estimate from assuming SRS
 #'    svytotal(x = ~ LIBRARIA, na.rm = TRUE,
 #'             design = design_obj)
+#'             
+#' # Example 2: Kernel-based variance estimator ----
+#' 
+#'    Q_BOSB <- get_design_quad_form(
+#'      design             = design_obj,
+#'      variance_estimator = "BOSB",
+#'      aux_var_names      = "SAMPLING_SORT_ORDER"
+#'    )
+#'    
+#'    var_est <- t(y_wtd) %*% Q_BOSB %*% y_wtd
+#'    std_error <- sqrt(var_est)
+#'    
+#'    print(pop_total); print(std_error)
 #'
-#' # Example 2: Two-phase design (second phase is nonresponse) ----
+#' # Example 3: Two-phase design (second phase is nonresponse) ----
 #'
 #'   ## Estimate response propensities, separately by stratum
 #'   library_stsys_sample[['RESPONSE_PROB']] <- svyglm(
@@ -161,7 +187,8 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond"
+    "SD1", "SD2", "BOSB", 
+    "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond"
   )
 
   if (is.null(variance_estimator)) {
@@ -262,6 +289,36 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       sort_order = NULL
     )
   }
+  
+  if (variance_estimator %in% c("BOSB")) {
+    
+    if (is.null(aux_var_names) || (length(aux_var_names) != 1)) {
+      stop("For `variance_estimator='BOSB', must supply a single variable name to `aux_var_names`.")
+    }
+    
+    if (!all(aux_var_names %in% colnames(design$variables))) {
+      stop("Some of `aux_var_names` do not show up as columns in the design object.")
+    }
+    
+    if (!is.numeric(design$variables[,aux_var_names,drop=TRUE])) {
+      stop("The variable specified by `aux_var_names` should be a numeric variable.")
+    }
+    
+    aux_var_matrix <- model.matrix(
+      object = reformulate(termlabels = aux_var_names, intercept = FALSE),
+      data = design$variables[,aux_var_names,drop=FALSE]
+    )
+    
+    Sigma <- make_quad_form_matrix(
+      variance_estimator = variance_estimator,
+      cluster_ids        = design$cluster,
+      strata_ids         = design$strata,
+      probs              = design$allprob,
+      aux_vars           = aux_var_matrix,
+      strata_pop_sizes   = NULL,
+      sort_order         = NULL
+    )
+  }
 
   if (ensure_psd && !is_psd_matrix(Sigma)) {
     informative_msg <- paste0(
@@ -285,7 +342,7 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond", "BOSB"
   )
   accepted_phase2_estimators <- c(
     "Ultimate Cluster", "Stratified Multistage SRS",

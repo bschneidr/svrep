@@ -148,6 +148,47 @@
 #' where \eqn{\pi_1} is the sampling probability of the first-stage unit
 #' and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
 #' within the first-stage unit.
+#' @section BOSB:
+#' This kernel-based variance estimator was proposed by Breidt, Opsomer, and Sanchez-Borrego (2016),
+#' for use with samples selected using systematic sampling or where only a single
+#' sampling unit is selected from each stratum (sometimes referred to as "fine stratification").
+#' 
+#' Suppose there are \eqn{n} sampled units, and
+#' for each unit \eqn{i} there is a numeric population characteristic \eqn{x_i}
+#' and there is a weighted total \eqn{\hat{Y}_i}, where
+#' \eqn{\hat{Y}_i} is only observed in the selected sample but \eqn{x_i}
+#' is known prior to sampling.
+#' 
+#' The variance estimator has the following form:
+#' 
+#' \deqn{
+#'   \hat{V}_{ker}=\frac{1}{C_d} \sum_{i=1}^n (\hat{Y}_i-\sum_{j=1}^n d_j(i) \hat{Y}_j)^2
+#' }
+#' 
+#' The terms \eqn{d_j(i)} are kernel weights given by
+#' 
+#' \deqn{
+#'   d_j(i)=\frac{K(\frac{x_i-x_j}{h})}{\sum_{j=1}^n K(\frac{x_i-x_j}{h})}
+#' }
+#' 
+#' where \eqn{K(\cdot)} is a symmetric, bounded kernel function
+#' and \eqn{h} is a bandwidth parameter. The normalizing constant \eqn{C_d} 
+#' is computed as:
+#' 
+#' \deqn{
+#'   C_d=\frac{1}{n} \sum_{i=1}^n(1-2 d_i(i)+\sum_{j=1}^H d_j^2(i))
+#' }
+#' 
+#' For most functions in the 'svrep' package, the kernel function
+#' is the Epanechnikov kernel and the bandwidth is automatically selected
+#' to yield the smallest possible nonempty kernel window, as was recommended
+#' by Breidt, Opsomer, and Sanchez-Borrego (2016). That's the case for
+#' the functions \code{as_fays_gen_rep_design()}, \code{as_gen_boot_design()},
+#' \code{make_quad_form_matrix()}, etc. However, users can construct the quadratic
+#' form matrix of this variance estimator using a different kernel and a different bandwidth
+#' by directly working with the function \code{make_kernel_var_matrix()}.
+#' 
+#' 
 #' @section Deville-Tillé:
 #' See Section 6.8 of Tillé (2020) for more detail on this estimator,
 #' including an explanation of its quadratic form.
@@ -175,6 +216,10 @@
 #'
 #' Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
+#' 
+#' Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
+#' "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
+#' \strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
 #'
 #' Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
 #' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.

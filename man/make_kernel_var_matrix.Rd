@@ -24,7 +24,7 @@ single positive number.}
 }
 \value{
 The quadratic form matrix for the variance estimator,
-with dimension equal equal to the length of \code{x}. The resulting
+with dimension equal to the length of \code{x}. The resulting
 object has an attribute \code{bandwidth} that can be retrieved
 using \code{attr(Q, 'bandwidth')}
 }
@@ -35,23 +35,26 @@ The bandwidth is automatically chosen to result
 in the smallest possible nonempty kernel window.
 }
 \details{
-Suppose there are \eqn{H} strata, and
-for each stratum \eqn{i} there is a numeric population characteristic \eqn{x_i}
+This kernel-based variance estimator was proposed by Breidt, Opsomer, and Sanchez-Borrego (2016),
+for use with samples selected using systematic sampling or where only a single
+sampling unit is selected from each stratum (sometimes referred to as "fine stratification").
+
+Suppose there are \eqn{n} sampled units, and
+for each unit \eqn{i} there is a numeric population characteristic \eqn{x_i}
 and there is a weighted total \eqn{\hat{Y}_i}, where
 \eqn{\hat{Y}_i} is only observed in the selected sample but \eqn{x_i}
-is known prior to sampling. We assume that only one sampling unit
-is sampled from each stratum (systematic sampling is a special case).
+is known prior to sampling.
 
 The variance estimator has the following form:
 
 \deqn{
-  \hat{V}_{ker}=\frac{1}{C_d} \sum_{i=1}^H (\hat{Y}_i-\sum_{j=1}^H d_j(i) \hat{Y}_j)^2
+  \hat{V}_{ker}=\frac{1}{C_d} \sum_{i=1}^n (\hat{Y}_i-\sum_{j=1}^n d_j(i) \hat{Y}_j)^2
 }
 
 The terms \eqn{d_j(i)} are kernel weights given by
 
 \deqn{
-  d_j(i)=\frac{K(\frac{x_i-x_j}{h})}{\sum_{j=1}^H K(\frac{x_i-x_j}{h})}
+  d_j(i)=\frac{K(\frac{x_i-x_j}{h})}{\sum_{j=1}^n K(\frac{x_i-x_j}{h})}
 }
 
 where \eqn{K(\cdot)} is a symmetric, bounded kernel function
@@ -59,8 +62,13 @@ and \eqn{h} is a bandwidth parameter. The normalizing constant \eqn{C_d}
 is computed as:
 
 \deqn{
-  C_d=\frac{1}{H} \sum_{i=1}^H(1-2 d_i(i)+\sum_{j=1}^H d_j^2(i))
+  C_d=\frac{1}{n} \sum_{i=1}^n(1-2 d_i(i)+\sum_{j=1}^H d_j^2(i))
 }
+
+If \eqn{n=2}, then the estimator is simply the estimator
+used for simple random sampling without replacement.
+
+If \eqn{n=1}, then the matrix simply has an entry equal to 0.
 }
 \examples{
 # The auxiliary variable has the same value for all units
@@ -76,6 +84,6 @@ attr(Q, 'bandwidth')
 }
 \references{
 Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016).
-"Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata."
-Journal of the American Statistical Association, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
+"\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}."
+\strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
 }
