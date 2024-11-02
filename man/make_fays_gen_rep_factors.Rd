@@ -4,11 +4,7 @@
 \alias{make_fays_gen_rep_factors}
 \title{Form replication factors using Fay's generalized replication method}
 \usage{
-make_fays_gen_rep_factors(
-  Sigma,
-  max_replicates = Matrix::rankMatrix(Sigma, method = "qr") + 4,
-  balanced = TRUE
-)
+make_fays_gen_rep_factors(Sigma, max_replicates = Inf, balanced = TRUE)
 }
 \arguments{
 \item{Sigma}{A quadratic form matrix corresponding to

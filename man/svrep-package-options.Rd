@@ -21,7 +21,7 @@ for Fay's generalized replication method or generalized bootstrap methods.
 
 The option \code{svrep.torch_device} accepts the following options:
 \itemize{
-\item \code{options(svrep.torch_device = NULL)}: The 'torch' package will not be used.
+\item \code{options(svrep.torch_device = 'none')}: The 'torch' package will not be used.
 \item \code{options(svrep.torch_device = 'cpu')}: The 'torch' package will be used
 with all operations done on the CPU.
 \item \code{options(svrep.torch_device = 'cuda')}: The 'torch' package will be used,
