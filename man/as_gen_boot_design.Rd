@@ -46,9 +46,16 @@ Options include:
     for balanced sampling designs, proposed by Deville and Tillé (2005).
   \item \strong{"SD1"}: \cr The non-circular successive-differences variance estimator described by Ash (2014),
     sometimes used for variance estimation for systematic sampling.
-  \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
+  \item \strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
     This estimator is the basis of the "successive-differences replication" estimator commonly used
     for variance estimation for systematic sampling.
+  \item \strong{"BOSB"}: \cr The kernel-based variance estimator proposed by
+    Breidt, Opsomer, and Sanchez-Borrego (2016) for use with systematic samples
+    or other finely stratified designs. Uses the Epanechnikov kernel
+    with the bandwidth automatically chosen to result in the smallest possible
+    nonempty kernel window.
+  \item\strong{"Beaumont-Emond"}: \cr The variance estimator of Beaumont and Emond (2022)
+    for multistage unequal-probability sampling without replacement.
 }}
 
 \item{aux_var_names}{(Only used if \code{variance_estimator = "Deville-Tille")}.
@@ -284,6 +291,10 @@ in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein 
 \cr \cr
 - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
+\cr \cr
+- Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
+"\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
+\strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
 \cr \cr
 - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 \cr \cr

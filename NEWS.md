@@ -2,11 +2,13 @@
 
 -   For Fay's generalized replication, the default value of `max_replicates` is now `Inf`, meaning that there is no limit on the number of replicates that will be included in the output.
 
+-   Added a kernel-based variance estimator (of Breidt, Opsomer, and Sanchez-Borrego 2016) for finely stratified or systematic samples. This can be used by calling `as_fays_gen_rep_design(..., variance_estimator = "BOSB")` or `as_gen_boot_design(..., variance_estimator = "BOSB")`. Or you can directly create the quadratic form matrix for this estimator using the function `make_kernel_var_matrix()`. Currently only supports a single auxiliary variable and only the Epanechnikov kernel function.
+
 -   Added the option `variance_estimator = "Beaumont-Emond"` to the generalized replication methods.
 
 -   Functions for Fay's generalized replication method are now noticeably faster.
 
--   Added more detailed documentation to the RWYB bootstrap method.
+-   Added more detailed documentation to the Rao-Wu-Yue-Beaumont bootstrap method.
 
 # svrep 0.6.4
 

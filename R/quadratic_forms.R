@@ -39,6 +39,11 @@
 #'   \item \strong{"SD2"}: The circular successive-differences variance estimator described by Ash (2014).
 #'     This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'     for variance estimation for systematic sampling.
+#'   \item \strong{"BOSB"}: \cr The kernel-based variance estimator proposed by
+#'     Breidt, Opsomer, and Sanchez-Borrego (2016) for use with systematic samples
+#'     or other finely stratified designs. Uses the Epanechnikov kernel
+#'     with the bandwidth automatically chosen to result in the smallest possible
+#'     nonempty kernel window.
 #'   \item \strong{"Deville-Tille"}: The estimator of Deville and Tillé (2005),
 #'     developed for balanced sampling using the cube method.
 #'   \item \strong{"Beaumont-Emond"}: The variance estimator of Beaumont and Emond (2022)
@@ -87,6 +92,7 @@
 #' | Deville-2                | Required   |             | Required    | Optional    |                  |            |          |
 #' | Beaumont-Emond           | Required   |             | Required    | Optional    |                  |            |          |
 #' | Deville-Tille            | Required   |             | Required    | Optional    |                  |            | Required |
+#' | BOSB                     |            |             | Required    | Optional    |                  |            | Required |
 #' | Yates-Grundy             |            | Required    |             |             |                  |            |          |
 #' | Horvitz-Thompson         |            | Required    |             |             |                  |            |          |
 #' @md
@@ -181,7 +187,8 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
   accepted_variance_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2", "Beaumont-Emond", "Deville-Tille"
+    "SD1", "SD2", "BOSB",
+    "Deville-1", "Deville-2", "Beaumont-Emond", "Deville-Tille"
   )
 
   if (length(variance_estimator) > 1) {
@@ -208,12 +215,12 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
   # Check inputs and assemble all necessary information
   # for estimators of stratified/clustered designs
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond", "BOSB")) {
 
     use_sparse_matrix <- TRUE
 
     # Ensure the minimal set of inputs is supplied
-    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
+    if (variance_estimator %in% c("Stratified Multistage SRS", "Ultimate Cluster", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond", "BOSB")) {
       if (is.null(cluster_ids) || is.null(strata_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to both `strata_ids` and `cluster_ids`",
@@ -235,7 +242,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         stop("For `variance_estimator='Stratified Multistage SRS'`, must supply a matrix or data frame to `strata_pop_sizes`.")
       }
     }
-    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
+    if (variance_estimator %in% c("SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond", "BOSB")) {
       if (is.null(cluster_ids)) {
         sprintf(
           "For `variance_estimator='%s'`, must supply a matrix or data frame to `cluster_ids`",
@@ -251,7 +258,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
         ) |> stop()
       }
     }
-    if (variance_estimator == "Deville-Tille") {
+    if (variance_estimator %in% c("Deville-Tille", "BOSB")) {
       if (missing(aux_vars) || is.null(aux_vars)) {
         sprintf(
           "For `variance_estimator='%s', must supply a matrix to `aux_vars`",
@@ -283,8 +290,11 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
       number_of_ultimate_units <- nrow(strata_ids)
     }
 
-    if ((variance_estimator == "Deville-Tille") && (number_of_stages > 1)) {
-      message("For `variance_estimator = 'Deville-Tille', the quadratic form only takes into account the first stage of sampling.")
+    if ((variance_estimator %in% c("Deville-Tille", "BOSB")) && (number_of_stages > 1)) {
+      sprintf(
+        "For `variance_estimator = '%s', the quadratic form only takes into account the first stage of sampling.",
+        variance_estimator
+      ) |> message()
     }
 
     # Make sure each stage's sampling units are nested within strata
@@ -358,7 +368,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
     }
   }
 
-  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond")) {
+  if (variance_estimator %in% c("Stratified Multistage SRS", "Deville-1", "Deville-2", "Deville-Tille", "Beaumont-Emond", "BOSB")) {
     quad_form_matrix <- Matrix::Matrix(data = 0,
                                        nrow = number_of_ultimate_units,
                                        ncol = number_of_ultimate_units) |>
@@ -432,7 +442,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
         }
 
-        if ((variance_estimator == "Deville-Tille") && (stage == 1)) {
+        if ((variance_estimator %in% c("Deville-Tille")) && (stage == 1)) {
           # Get quadratic form at current stage
           current_cluster_ids <- cluster_ids[stratum_indices, stage, drop = TRUE]
           current_probs <- probs[stratum_indices, stage, drop = TRUE]
@@ -451,12 +461,33 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 
           prev_stages_samp_prob <- 1
         }
+        
+        if ((variance_estimator %in% c("BOSB")) && (stage == 1)) {
+          # Get quadratic form at current stage
+          current_cluster_ids <- cluster_ids[stratum_indices, stage, drop = TRUE]
+          current_aux_vars <- aux_vars[stratum_indices, , drop = FALSE]
+          cluster_aux_vars <- current_aux_vars[!duplicated(current_cluster_ids), , drop = FALSE]
+          
+          Q_current <- distribute_matrix_across_clusters(
+            cluster_level_matrix = make_kernel_var_matrix(
+              x         = cluster_aux_vars[, 1, drop = TRUE],
+              kernel    = "Epanechnikov",
+              bandwidth = "auto"
+            ),
+            cluster_ids = current_cluster_ids,
+            rows = TRUE, cols = TRUE
+          )
+          
+          prev_stages_samp_prob <- 1
+        }
 
         # Add overall variance contribution from current stage/stratum sampling
         quad_form_matrix[stratum_indices,stratum_indices] <- (
           quad_form_matrix[stratum_indices,stratum_indices] +
             (Q_current * prev_stages_samp_prob)
         )
+        
+        if (any(is.nan(quad_form_matrix))) {}
 
       }
       stage <- stage + 1L
@@ -823,6 +854,189 @@ make_deville_tille_matrix <- function(probs, aux_vars) {
 
   return(Sigma)
 }
+
+#' @title Make a quadratic form matrix for the kernel-based variance estimator
+#' of Breidt, Opsomer, and Sanchez-Borrego (2016)
+#' @description Constructs the quadratic form matrix
+#' for the kernel-based variance estimator of Breidt, Opsomer, and Sanchez-Borrego (2016).
+#' The bandwidth is automatically chosen to result
+#' in the smallest possible nonempty kernel window.
+#' @param x A numeric vector, giving the values
+#' of an auxiliary variable.
+#' @param kernel The name of a kernel function. 
+#' Currently only "Epanechnikov" is supported.
+#' @param bandwidth The bandwidth to use for the kernel.
+#' The default value is `"auto"`, which means that the bandwidth
+#' will be chosen automatically to produce the smallest window size
+#' while ensuring that every unit has a nonempty window,
+#' as suggested by Breidt, Opsomer, and Sanchez-Borrego (2016).
+#' Otherwise, the user can supply their own value, which can be a 
+#' single positive number.
+#'
+#' @return The quadratic form matrix for the variance estimator,
+#' with dimension equal to the length of `x`. The resulting
+#' object has an attribute `bandwidth` that can be retrieved
+#' using `attr(Q, 'bandwidth')`
+#' 
+#' @details
+#' 
+#' This kernel-based variance estimator was proposed by Breidt, Opsomer, and Sanchez-Borrego (2016),
+#' for use with samples selected using systematic sampling or where only a single
+#' sampling unit is selected from each stratum (sometimes referred to as "fine stratification").
+#' 
+#' Suppose there are \eqn{n} sampled units, and
+#' for each unit \eqn{i} there is a numeric population characteristic \eqn{x_i}
+#' and there is a weighted total \eqn{\hat{Y}_i}, where
+#' \eqn{\hat{Y}_i} is only observed in the selected sample but \eqn{x_i}
+#' is known prior to sampling.
+#' 
+#' The variance estimator has the following form:
+#' 
+#' \deqn{
+#'   \hat{V}_{ker}=\frac{1}{C_d} \sum_{i=1}^n (\hat{Y}_i-\sum_{j=1}^n d_j(i) \hat{Y}_j)^2
+#' }
+#' 
+#' The terms \eqn{d_j(i)} are kernel weights given by
+#' 
+#' \deqn{
+#'   d_j(i)=\frac{K(\frac{x_i-x_j}{h})}{\sum_{j=1}^n K(\frac{x_i-x_j}{h})}
+#' }
+#' 
+#' where \eqn{K(\cdot)} is a symmetric, bounded kernel function
+#' and \eqn{h} is a bandwidth parameter. The normalizing constant \eqn{C_d} 
+#' is computed as:
+#' 
+#' \deqn{
+#'   C_d=\frac{1}{n} \sum_{i=1}^n(1-2 d_i(i)+\sum_{j=1}^H d_j^2(i))
+#' }
+#' 
+#' If \eqn{n=2}, then the estimator is simply the estimator
+#' used for simple random sampling without replacement.
+#' 
+#' If \eqn{n=1}, then the matrix simply has an entry equal to 0.
+#' 
+#' @export
+#' @md
+#' 
+#' @references
+#' Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
+#' "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
+#' \strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
+#' @examples
+#' # The auxiliary variable has the same value for all units
+#' make_kernel_var_matrix(c(1, 1, 1))
+#' 
+#' # The auxiliary variable differs across units
+#' make_kernel_var_matrix(c(1, 2, 3))
+#' 
+#' # View the bandwidth that was automatically selected
+#' Q <- make_kernel_var_matrix(c(1, 2, 4))
+#' attr(Q, 'bandwidth')
+#' 
+make_kernel_var_matrix <- function(x, kernel = "Epanechnikov", bandwidth = "auto") {
+  
+  if (!is.vector(x) || !is.numeric(x)) {
+    stop("Only numeric vectors are supported for the argument `x`.")
+  }
+  
+  kernel_fn <- switch(
+    kernel,
+    "Epanechnikov" = function(u) 0.75 * (1-pmin(abs(u), 1)^2),
+    stop("The only value allowed for `kernel` is 'Epanechnikov'.")
+  )
+  
+  # Rescale 'x' to the range [-1,1]
+  max_abs_x <- max(abs(x))
+  if (max_abs_x > 0) {
+    x <- x/max_abs_x
+  }
+  
+  # Construct matrix of pairwise differences
+  
+  H     <- length(x)
+  
+  diffs <- outer(x, x, FUN = `-`)
+
+  diffs <- round(diffs, 8)
+  
+  # Determine bandwidth
+  
+  if (!is.numeric(bandwidth) && !is.character(bandwidth)) {
+    stop("`bandwidth` must be either 'auto' or a single positive number.") 
+  }
+  if (length(bandwidth) != 1) {
+    stop("`bandwidth` must be either 'auto' or a single positive number.")
+  }
+  if (is.na(bandwidth)) {
+    stop("`bandwidth` must be either 'auto' or a single positive number.")
+  }
+  
+  if (is.numeric(bandwidth)) {
+    if (bandwidth <= 0) {
+      stop("`bandwidth` must be either 'auto' or a single positive number.")
+    }
+    bw <- bandwidth
+  }
+  if (is.character(bandwidth)) {
+    if (bandwidth != "auto") {
+      stop("`bandwidth` must be either 'auto' or a single positive number.")
+    }
+  }
+  
+  # Choose bandwidth to use the smallest window
+  # such that each unit has a nonempty window
+  if (bandwidth == "auto") {
+    if (H > 2) {
+      bw <- 1
+      min_bw <- min(abs(upper.tri(diffs)))
+      for (i in seq_len(H)) {
+        abs_diffs     <- abs(diffs[i,-i])
+        min_abs_diff  <- min(abs_diffs)
+        max_abs_diff  <- max(abs_diffs)
+        
+        if (bw > min_abs_diff) {
+          if (max_abs_diff > min_abs_diff) {
+            bw <- pmax(pmin(max_abs_diff, bw), min_bw)
+          }
+        }
+        if (bw <= min_abs_diff) {
+          candidate_bw_values <- abs_diffs[abs_diffs > bw]
+          if (length(candidate_bw_values) > 0) {
+            bw <- min(candidate_bw_values)
+          }
+        }
+      }
+    }
+    if (H == 2) {
+      bw <- Inf
+    }
+    if (H == 1) {
+      bw <- 1
+    }
+  }
+  K     <- kernel_fn(diffs/bw)
+  
+  # Construct quadratic form for the variance estimator
+  
+  D_ij  <- K / rowSums(K)
+  
+  if (H > 1) {
+    C_d   <- 1 - (1/H) * (2*sum(diag(D_ij)) - sum(D_ij^2))
+  }
+  if (H == 1) {
+    C_d   <- 1
+  }
+  
+  Q     <- (1/C_d) * crossprod(diag(H) - D_ij)
+  
+  Q <- as(Q, "symmetricMatrix")
+  
+  # Save the bandwidth as an attribute
+  attr(Q, "bandwidth") <- bw * max_abs_x
+  
+  return(Q)
+}
+
 
 #' @title Helper function to turn a cluster-level matrix into an element-level matrix
 #' by duplicating rows or columns of the matrix
