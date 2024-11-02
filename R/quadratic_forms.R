@@ -956,6 +956,8 @@ make_kernel_var_matrix <- function(x, kernel = "Epanechnikov", bandwidth = "auto
   H     <- length(x)
   
   diffs <- outer(x, x, FUN = `-`)
+
+  diffs <- round(diffs, 8)
   
   # Determine bandwidth
   
@@ -1030,7 +1032,7 @@ make_kernel_var_matrix <- function(x, kernel = "Epanechnikov", bandwidth = "auto
   Q <- as(Q, "symmetricMatrix")
   
   # Save the bandwidth as an attribute
-  attr(Q, "bandwidth") <- bw
+  attr(Q, "bandwidth") <- bw * max_abs_x
   
   return(Q)
 }

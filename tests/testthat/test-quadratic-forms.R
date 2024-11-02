@@ -427,7 +427,7 @@ library_stsys_sample <- library_stsys_sample |>
       
       expect_equal(
         object   = make_kernel_var_matrix(c(1,1,2,2,4)) |> attr('bandwidth'),
-        expected = 3/4
+        expected = 3/4 * 4
       )
       
       expect_equal(
