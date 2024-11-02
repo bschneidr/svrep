@@ -26,3 +26,4 @@ package if the user has 'torch' installed and
 has set \code{options(svrep.torch_device = "cpu")}
 or \code{options(svrep.torch_device = "cuda")}.
 }
+\keyword{internal}

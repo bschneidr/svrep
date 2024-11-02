@@ -9,6 +9,7 @@
 #' @return A list object with two named components:
 #' - `values`: A vector of eigenvalues.
 #' - `vectors`: A matrix with eigenvectors corresponding to the eigenvalues.
+#' @keywords internal
 #' @md
 compute_eigen_decomposition <- function(Sigma) {
   
