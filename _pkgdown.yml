@@ -53,6 +53,7 @@ reference:
 - contents:
   - matches("summarize_rep_weights")
 - title: Package-level Options
+- contents:
   - matches("svrep-package-options")
 - title: Example Datasets
 - contents:
