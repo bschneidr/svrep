@@ -98,8 +98,13 @@ Options include:</p><ul><li><p><strong>"Yates-Grundy"</strong>: <br> The Yates-G
 <li><p><strong>"SD2"</strong>:  <br> The circular successive-differences variance estimator described by Ash (2014).
     This estimator is the basis of the "successive-differences replication" estimator commonly used
     for variance estimation for systematic sampling.</p></li>
-<li><p><strong>"Beaumont-Emond"</strong>: The variance estimator of Beaumont and Emond (2022)
+<li><p><strong>"Beaumont-Emond"</strong>: <br> The variance estimator of Beaumont and Emond (2022)
     for multistage unequal-probability sampling without replacement.</p></li>
+<li><p><strong>"BOSB"</strong>: <br> The kernel-based variance estimator proposed by
+    Breidt, Opsomer, and Sanchez-Borrego (2016) for use with systematic samples
+    or other finely stratified designs. Uses the Epanechnikov kernel
+    with the bandwidth automatically chosen to result in the smallest possible
+    nonempty kernel window.</p></li>
 </ul></dd>
 
 
@@ -116,9 +121,13 @@ lead to only a small overestimation of variance.</p></dd>
 
 
 <dt id="arg-aux-var-names">aux_var_names<a class="anchor" aria-label="anchor" href="#arg-aux-var-names"></a></dt>
-<dd><p>Only required if <code>variance_estimator = "Deville-Tille"</code>.
-Should be a character vector of variable names for auxiliary variables
-to be used in the Breidt and Chauvet (2011) variance estimator.</p></dd>
+<dd><p>Only required if <code>variance_estimator = "Deville-Tille"</code>
+or if <code>variance_estimator = "BOSB"</code>.
+For the Deville-Tillé estimator, this should be a character vector of
+variable names for auxiliary variables to be used in the variance estimator.
+For the BOSB estimator, this should be a string giving a single variable name
+to use as an auxiliary variable in the kernel-based variance estimator
+of Breidt, Opsomer, and Sanchez-Borrego (2016).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -156,6 +165,10 @@ see the documentation for <a href="make_twophase_quad_form.html">make_twophase_q
 <br><br>
 - Bellhouse, D.R. (1985). "<em>Computing Methods for Variance Estimation in Complex Surveys</em>."
 <strong>Journal of Official Statistics</strong>, Vol.1, No.3.
+<br><br>
+- Breidt, F. J., Opsomer, J. D., &amp; Sanchez-Borrego, I. (2016).
+"<em>Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata</em>."
+<strong>Journal of the American Statistical Association</strong>, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
 <br><br>
 - Deville, J.‐C., and Tillé, Y. (2005). "<em>Variance approximation under balanced sampling.</em>"
 <strong>Journal of Statistical Planning and Inference</strong>, 128, 569–591.
@@ -205,8 +218,21 @@ see the documentation for <a href="make_twophase_quad_form.html">make_twophase_q
 <span class="r-in"><span>   <span class="co"># Compare to estimate from assuming SRS</span></span></span>
 <span class="r-in"><span>   <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">LIBRARIA</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>            design <span class="op">=</span> <span class="va">design_obj</span><span class="op">)</span></span></span>
+<span class="r-in"><span>            </span></span>
+<span class="r-in"><span><span class="co"># Example 2: Kernel-based variance estimator ----</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Example 2: Two-phase design (second phase is nonresponse) ----</span></span></span>
+<span class="r-in"><span>   <span class="va">Q_BOSB</span> <span class="op">&lt;-</span> <span class="fu">get_design_quad_form</span><span class="op">(</span></span></span>
+<span class="r-in"><span>     design             <span class="op">=</span> <span class="va">design_obj</span>,</span></span>
+<span class="r-in"><span>     variance_estimator <span class="op">=</span> <span class="st">"BOSB"</span>,</span></span>
+<span class="r-in"><span>     aux_var_names      <span class="op">=</span> <span class="st">"SAMPLING_SORT_ORDER"</span></span></span>
+<span class="r-in"><span>   <span class="op">)</span></span></span>
+<span class="r-in"><span>   </span></span>
+<span class="r-in"><span>   <span class="va">var_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">y_wtd</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">Q_BOSB</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">y_wtd</span></span></span>
+<span class="r-in"><span>   <span class="va">std_error</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">var_est</span><span class="op">)</span></span></span>
+<span class="r-in"><span>   </span></span>
+<span class="r-in"><span>   <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">pop_total</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">std_error</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 3: Two-phase design (second phase is nonresponse) ----</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co">## Estimate response propensities, separately by stratum</span></span></span>
 <span class="r-in"><span>  <span class="va">library_stsys_sample</span><span class="op">[[</span><span class="st">'RESPONSE_PROB'</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyglm.html" class="external-link">svyglm</a></span><span class="op">(</span></span></span>

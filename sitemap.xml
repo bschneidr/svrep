@@ -18,6 +18,7 @@
 <url><loc>https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/calibrate_to_sample.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/compress_design.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/compute_eigen_decomposition.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/distribute_matrix_across_clusters.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/estimate_boot_reps_for_target_cv.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/estimate_boot_sim_cv.html</loc></url>
@@ -34,6 +35,7 @@
 <url><loc>https://bschneidr.github.io/svrep/reference/make_deville_tille_matrix.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_fays_gen_rep_factors.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_gen_boot_factors.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_kernel_var_matrix.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_ppswor_approx_matrix.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_quad_form_matrix.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_rwyb_bootstrap_weights.html</loc></url>
@@ -47,6 +49,7 @@
 <url><loc>https://bschneidr.github.io/svrep/reference/stack_replicate_designs.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/subsample_replicates.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/summarize_rep_weights.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/svrep-package-options.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/svrep-package.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/svyby_repwts.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/variance-estimators.html</loc></url>
