@@ -67,7 +67,7 @@ make_optim_boot_factors <- function(
     num_replicates = Matrix::rankMatrix(Sigma) + 1,
     max_iter = 20000,
     max_loss = 0.0001,
-    torch_optimizer = \(params, ...) torch::optim_adam(params, lr = 0.0005, ...),
+    torch_optimizer = \(params, ...) torch::optim_adamw(params, lr = 0.0005, ...),
     ...,
     .verbose = TRUE
 ) {
@@ -90,10 +90,18 @@ make_optim_boot_factors <- function(
 
   Sigma_tensor = Sigma |> as.matrix() |> torch::torch_tensor()
 
+  constrain_sums <- function(X) {
+    X = (X / X$mean(1))
+    X = (X$t() / X$mean(2))$t()
+    X = (X / X$mean(1))
+    X = (X$t() / X$mean(2))$t()
+    X
+  }
+
   # log_A The logarithms of the matrix A we are trying to optimize
   # target_sigma The target quadratic form matrix
   loss_fn <- function(log_A, target_sigma) {
-    A = torch::torch_exp(log_A)
+    A = log_A$clamp(0) |> constrain_sums()
     # Loss consists of:
     # (1) Squared Frobenius distance
     #     between weights' covariance matrix
@@ -117,10 +125,10 @@ make_optim_boot_factors <- function(
     num_replicates = num_replicates,
     tau = 1, exact_vcov = TRUE
   )
-
-  initial_solution[initial_solution < 0] <- 1e-10
-
-  log_A = torch::torch_tensor(log(initial_solution),
+  initial_solution[sign(initial_solution) < 0] <- 0
+  #initial_solution[initial_solution < 0] <- 1e-10
+  
+  log_A = torch::torch_tensor(initial_solution,
                               requires_grad = TRUE)
 
   # Create an optimizer
@@ -183,7 +191,7 @@ make_optim_boot_factors <- function(
   }
 
   # Create the matrix of replicates by exponentiating log_A
-  A <- log_A |> torch::torch_exp() |> as.matrix()
+  A <- log_A$clamp(0) |> constrain_sums() |> as.matrix()
   attr(A, 'converged') <- converged
 
   return(A)
@@ -360,7 +368,7 @@ make_optim_boot_factors <- function(
 #'        replicates = 50,
 #'        max_loss = 1e-7,
 #'        torch_optimizer = \(params, ...) {
-#'          torch::optim_adam(params, lr = 0.01)
+#'          torch::optim_adamw(params, lr = 0.01)
 #'        }
 #'      )
 #'
@@ -437,7 +445,7 @@ as_optim_boot_design <- function(design, variance_estimator = NULL,
                                  psd_option = "warn",
                                  max_iter = 20000,
                                  max_loss = 0.0001,
-                                 torch_optimizer = \(params, ...) torch::optim_adam(params, lr = 0.0005, ...),
+                                 torch_optimizer = \(params, ...) torch::optim_adamw(params, lr = 0.0005, ...),
                                  ...,
                                  mse = getOption("survey.replicates.mse"),
                                  compress = TRUE,
@@ -451,7 +459,7 @@ as_optim_boot_design.twophase2 <- function(design, variance_estimator = NULL,
                                            psd_option = "warn",
                                            max_iter = 20000,
                                            max_loss = 0.0001,
-                                           torch_optimizer = \(params, ...) torch::optim_adam(params, lr = 0.0005, ...),
+                                           torch_optimizer = \(params, ...) torch::optim_adamw(params, lr = 0.0005, ...),
                                            ...,
                                            mse = getOption("survey.replicates.mse"),
                                            compress = TRUE,
@@ -524,38 +532,21 @@ as_optim_boot_design.survey.design <- function(design, variance_estimator = NULL
                                                psd_option = "warn",
                                                max_iter = 20000,
                                                max_loss = 0.0001,
-                                               torch_optimizer = \(params, ...) torch::optim_adam(params, lr = 0.0005, ...),
+                                               torch_optimizer = \(params, ...) torch::optim_adamw(params, lr = 0.0005, ...),
                                                ...,
                                                mse = getOption("survey.replicates.mse"),
                                                compress = TRUE,
                                                .verbose = TRUE) {
 
-  # Produce a (potentially) compressed survey design object
-  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
-    compressed_design_structure <- list(
-      design_subset = design,
-      index = seq_len(nrow(design))
-    )
-  } else {
-    design_structure <- cbind(design$strata, design$cluster)
-    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
-    unique_elements <- !duplicated(design_structure)
-    compressed_design_structure <- list(
-      design_subset = design |> (\(design_obj) {
-        # Reduce memory usage by dropping variables
-        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
-        # Subset to only unique strata/cluster combos
-        design_obj[unique_elements,]
-      })(),
-      index = match(tmp, tmp[unique_elements])
-    )
-  }
+    # Produce a (potentially) compressed survey design object
+  compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
 
-  # Get the quadratic form of the variance estimator,
-  # for the compressed design object
+    # Get the quadratic form of the variance estimator,
+    # for the compressed design object
   Sigma <- get_design_quad_form(
     compressed_design_structure$design_subset,
-    variance_estimator
+    variance_estimator,
+    ...
   )
 
   # Check that the matrix is positive semidefinite
