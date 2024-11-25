@@ -1,0 +1,159 @@
+suppressWarnings({
+  suppressPackageStartupMessages({
+    library(survey)
+    library(testthat)
+  })
+})
+
+set.seed(2014)
+
+# Tests for row assignment methods ----
+
+test_that(
+  "Correct row assignments when available Hadamard rows are at least n", {
+    
+    expect_equal(
+      assign_hadamard_rows(
+        n = 4, hadamard_order = 4,
+        circular = TRUE
+      ) |> unname(),
+        expected = matrix(
+          c(1,2,
+            2,3,
+            3,4,
+            4,1), 
+            byrow = TRUE, ncol = 2
+        )
+    )
+
+    expect_equal(
+      assign_hadamard_rows(
+        n = 4, hadamard_order = 8,
+        circular = FALSE
+      ) |> unname(),
+        expected = matrix(
+          c(1,2,
+            2,3,
+            3,4,
+            4,5), 
+            byrow = TRUE, ncol = 2
+        )
+    )
+        
+  }
+)
+
+test_that(
+  "Correct row assignments when available Hadamard rows are less than n", {
+    
+    expect_equal(
+      assign_hadamard_rows(
+        n = 9, hadamard_order = 4, use_first_row = TRUE
+      ) |> unname(),
+        expected = matrix(
+          c(1,2,
+            2,3,
+            3,4,
+            4,1,
+            1,3,
+            3,1,
+            2,4,
+            4,2,
+            1,2), 
+            byrow = TRUE, ncol = 2
+        )
+    )
+
+    expect_equal(
+      assign_hadamard_rows(
+        n = 9, hadamard_order = 4, use_first_row = FALSE
+      ) |> unname(),
+        expected = matrix(
+          c(2,3,
+            3,4,
+            4,2,
+            2,4,
+            4,3,
+            3,2,
+            2,3,
+            3,4,
+            4,2), 
+            byrow = TRUE, ncol = 2
+        )
+    )
+        
+  }
+)
+
+# Expected quadratic forms ----
+
+test_that("SDRM with enough replicates matches SD2", {
+
+  # Checks for SD2
+  suppressMessages({
+    rep_factors <- make_sdr_replicate_factors(5, target_number_of_replicates = 8,
+                                              use_normal_hadamard = TRUE)
+  })
+  
+  expect_equal(
+    ((4/8) * tcrossprod(rep_factors - 1)) |> round(2),
+    expected = make_sd_matrix(n = 5, type = "SD2") |> as.matrix()
+  )
+
+  suppressMessages({
+    rep_factors <- make_sdr_replicate_factors(5, target_number_of_replicates = 8,
+                                              use_normal_hadamard = TRUE)
+  })
+  
+  expect_equal(
+    ((4/8) * tcrossprod(rep_factors - 1)) |> round(2),
+    expected = make_sd_matrix(n = 5, type = "SD2") |> as.matrix()
+  )
+
+  }
+)
+
+# Expected variance estimates from `as_sdr_design()`
+
+test_that("as_sdr_design() gives expected variance estimates", {
+
+  # Load example stratified systematic sample
+  data('library_stsys_sample', package = 'svrep')
+
+  # First, ensure data are sorted in same order as was used in sampling
+  library_stsys_sample <- library_stsys_sample |> sort_by(~ SAMPLING_SORT_ORDER)
+
+  # Create survey design object
+  simple_design_obj <- svydesign(data = library_stsys_sample, ids = ~ 1,
+                                 probs = ~ SAMPLING_PROB)
+
+  # Compare SDR variance estimate against SD2 variance estimate
+  expect_equal(
+    object = suppressMessages({simple_design_obj |> as_sdr_design(
+      replicates = 224, sort_variable = "SAMPLING_SORT_ORDER"
+    ) |> svytotal(x = ~ LIBRARIA, na.rm = TRUE) |> SE()}),
+    expected = suppressMessages({simple_design_obj |> as_fays_gen_rep_design(
+      max_replicates = 224, variance_estimator = "SD2"
+    ) |> svytotal(x = ~ LIBRARIA, na.rm = TRUE) |> SE()}),
+    tolerance = 0.0001
+  )
+
+  # Check that first-stage strata are used as the primary sort variable
+  reordered_design <- library_stsys_sample |> 
+    transform(RAND_ORDER = runif(n = nrow(library_stsys_sample))) |>
+    transform(ORDER_WITHIN_STRATUM = gsub(x = SAMPLING_SORT_ORDER,
+                                          "\\d{3}_", "")) |>
+    sort_by(~ RAND_ORDER) |>
+    svydesign(data = _, ids = ~ 1, strata = ~ SAMPLING_STRATUM,
+              probs = ~ SAMPLING_PROB)
+  
+  expect_equal(
+    object = suppressMessages({reordered_design |> 
+      as_sdr_design(sort_variable = "ORDER_WITHIN_STRATUM", replicates = 8) |> 
+      svytotal(x = ~ LIBRARIA, na.rm = TRUE)}),
+    expected = suppressMessages({reordered_design |> 
+      as_sdr_design(sort_variable = "SAMPLING_SORT_ORDER", replicates = 8) |> 
+      svytotal(x = ~ LIBRARIA, na.rm = TRUE)})
+  )
+
+})

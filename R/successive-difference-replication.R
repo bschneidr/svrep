@@ -5,30 +5,72 @@
 #' @param n The sample size of the data.
 #' @param hadamard_order The order of the Hadamard matrix (i.e., the number of rows/columns)
 #' @param number_of_cycles The number of cycles to use in the row assignment.
-#' Must be at least as large as \code{n/hadamard_order}.
+#' Must be at least as large as \code{n/hadamard_order}. Only
+#' applies when \code{n} exceeds the number of available rows
+#' in the Hadamard matrix. The number of available rows
+#' is \code{hadamard_order} when \code{use_first_row = TRUE},
+#' and \code{hadamard_order - 1} when \code{use_first_row = FALSE}.
 #' @param use_first_row Whether to use the first row of the Hadamard matrix.
 #' The first row of a Hadamard matrix is often all 1's, and so using the first
 #' row to create replicate factors leads to the creation of a replicate
 #' whose weights exactly match the full-sample weights. Thus, using the first row
 #' of the Hadamard matrix may be undesirable for practical purposes,
 #' even if it is valid for the purpose of variance estimation.
+#' @param circular \code{TRUE} or \code{FALSE}. Only applies
+#' when the number of available rows in the Hadamard matrix 
+#' is at least as large as \code{n}.
+#' Whether to make a circular row assignment,
+#' so that the resulting successive-difference replication variance estimator
+#' is equivalent to the SD2 variance estimator rather than the SD1 variance
+#' estimator (see Ash 2014). The number of available rows
+#' is \code{hadamard_order} when \code{use_first_row = TRUE},
+#' and \code{hadamard_order - 1} when \code{use_first_row = FALSE}.
+#' @details
+#' Implements row-assignment methods described in Ash (2014)
+#' and in Fay and Train (1995). The row-assignment method
+#' depends on the number of available rows of the Hadamard matrix used.
+#' The number of available rows
+#' is \code{hadamard_order} when \code{use_first_row = TRUE},
+#' and \code{hadamard_order - 1} when \code{use_first_row = FALSE}.
+#' 
+#' When the number of available Hadamard rows is at least as large as \code{n},
+#' then the row assignment is as follows. Let \eqn{i=1,\dots,n} be the index
+#' for the data that will receive row assignments, 
+#' and let \eqn{a_j} denote row \eqn{j} of a Hadamard matrix. 
+#' For \eqn{i < n}, the assignments
+#' are entries \eqn{a_i} and \eqn{a_{i+1}} when \code{use_first_row = TRUE},
+#' and when \code{use_first_row = FALSE}, the assignments are entries
+#' \eqn{a_{i+1}} and \eqn{a_{i+2}}. The assignment for \eqn{i=n} depends on 
+#' whether \code{circular = TRUE}. If \eqn{circular=TRUE}, then the assignment
+#' for \eqn{i=n} is entries \eqn{a_i} and \eqn{a_1} if \code{use_first_row = TRUE},
+#' and entries \eqn{a_{i+1}} and \eqn{a_2} if \code{use_first_row = FALSE}.
+#' 
+#' When the number of available Hadamard rows is less than \code{n},
+#' then the row assignment method is the method denoted as RA1 in Ash (2014).
+#' This method uses the argument \code{number_of_cycles} and 
+#' does \emph{not} use the argument \code{circular}.
+#' 
 #' @return A matrix with \code{n} rows and two columns. Each row
 #' gives the assignment of two rows of a Hadamard matrix to the row of data.
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
-#' @export
-#'
 #' @examples
 #' # Assign rows of a 4x4 Hadamard matrix
 #' # to 9 observations, using two cycles
 #' assign_hadamard_rows(
 #'   n = 9,
 #'   hadamard_order = 4,
-#'   number_of_cycles = 2
+#'   number_of_cycles = 2,
+#'   circular = TRUE
 #' )
 #'
-assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n/hadamard_order), use_first_row = TRUE) {
+assign_hadamard_rows <- function(
+  n, hadamard_order, 
+  number_of_cycles = ceiling(n/hadamard_order), 
+  use_first_row    = TRUE,
+  circular         = TRUE
+) {
 
   if ((hadamard_order %% 4) > 0) {
     stop("`hadamard_order` must be a multiple of 4.")
@@ -112,6 +154,9 @@ assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n
   if (nrow(row_assignment_matrix) > n) {
     row_assignment_matrix <- row_assignment_matrix[seq_len(n),]
   }
+  if ((n <= k_A) && circular) {
+    row_assignment_matrix[n,2] <- row_assignment_matrix[1,1] 
+  }
 
   return(row_assignment_matrix)
 }
@@ -152,26 +197,17 @@ assign_hadamard_rows <- function(n, hadamard_order, number_of_cycles = ceiling(n
 #'   use_normal_hadamard = FALSE
 #' )
 #'
-#' # These replicate factors are nearly equivalent
-#' # to the SD1 variance estimator
-#' vcov_of_rep_factors <- make_sdr_replicate_factors(
-#'   n = 4,
-#'   target_number_of_replicates = 4,
-#'   use_normal_hadamard = TRUE
-#' ) |> t() |> cov() |> Matrix::Matrix()
+#' # These replicate factors are equivalent
+#' # to the SD2 variance estimator
+#' tcrossprod(rep_factors - 1)
 #'
-#' sdr_quad_form <- (3/4) * 4 * vcov_of_rep_factors
-#'
-#' sdr_quad_form |> image()
-#'
-#' # Compare to the quadratic form of the SD1 estimator
+#' # Compare to the quadratic form of the SD2 estimator
 #' sd1_quad_form <- make_quad_form_matrix(
 #'   variance_estimator = "SD1",
-#'   cluster_ids = matrix(1:4, ncol = 1),
-#'   sort_order = matrix(1:4, ncol = 1)
+#'   cluster_ids        = matrix(1:4, ncol = 1),
+#'   sort_order         = matrix(1:4, ncol = 1)
 #' )
 #'
-#' sd1_quad_form |> image()
 make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_normal_hadamard = FALSE) {
 
   # Create Hadamard matrix to use for replicate factors
@@ -193,18 +229,23 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
   }
   if (use_normal_hadamard) {
     H_A <- survey::hadamard(target_number_of_replicates - 1)
-    H_A <- H_A <- 2*H_A - 1 # Convert from 1/0 format to 1/-1 format
+    H_A <- 2*H_A - 1 # Convert from 1/0 format to 1/-1 format
   }
   hadamard_order <- ncol(H_A)
-  sprintf("Using Hadamard matrix of order %s", hadamard_order) |>
+  smallest_hadamard_order <- find_minimum_hadamard_order(target_number_of_replicates)
+  sprintf("Using Hadamard matrix of order %s. If `use_normal_hadamard=TRUE`, the smallest possible order is %s.",
+          hadamard_order, smallest_hadamard_order) |>
     message()
+
 
   # Assign rows of the Hadamard matrix to each observation
 
   row_assignment_matrix <- assign_hadamard_rows(
-    n = n,
-    hadamard_order = hadamard_order,
-    use_first_row = TRUE
+    n                = n,
+    hadamard_order   = hadamard_order,
+    number_of_cycles = ceiling(n / hadamard_order),
+    use_first_row    = TRUE,
+    circular         = TRUE
   )
 
   # Create replicate factors based on the Hadamard matrix and the row assignments
@@ -331,32 +372,8 @@ as_sdr_design.survey.design <- function(
   }
 
   # Produce a (potentially) compressed survey design object
-  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
-    compressed_design_structure <- list(
-      design_subset = design,
-      index = seq_len(nrow(design))
-    )
-  } else {
-    design_structure <- cbind(
-      design$strata[, 1, drop=FALSE],
-      design$cluster[, 1, drop=FALSE]
-    )
-    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
-    unique_elements <- !duplicated(design_structure)
-    compressed_design_structure <- list(
-      design_subset = design |> (\(design_obj) {
-        # Reduce memory usage by dropping variables
-        if (!is.null(sort_variable)) {
-          design_obj$variables <- design_obj$variables[, sort_variable, drop=FALSE]
-        } else {
-          design_obj$variables <- design_obj$variables[, 0, drop = FALSE]
-        }
-        # Subset to only unique strata/cluster combos
-        design_obj[unique_elements,]
-      })(),
-      index = match(tmp, tmp[unique_elements])
-    )
-  }
+  compressed_design_structure <- compress_design(design, vars_to_keep = sort_variable)
+
 
   # Create adjustment factors for the compressed design structure
   adjustment_factors <- make_sdr_replicate_factors(
@@ -367,7 +384,17 @@ as_sdr_design.survey.design <- function(
 
   if (!is.null(sort_variable)) {
     sort_order <- rank(design$variables[[sort_variable]], ties.method = 'first')
-    adjustment_factors <- adjustment_factors[sort_order, , drop = FALSE]
+
+    sort_data <- data.frame(
+      ORIG_ORDER    = seq_len(nrow(compressed_design_structure$design)),
+      PSU_STRATUM   = compressed_design_structure$design$strata[,1,drop=TRUE], 
+      SORT_VARIABLE = compressed_design_structure$design$variables[[sort_variable]]
+    )
+
+    sort_data <- sort_data |> sort_by(~ PSU_STRATUM + SORT_VARIABLE)
+    sort_data[['SORT_ORDER']] <- seq_len(nrow(sort_data))
+    sort_data <- sort_data |> sort_by(~ ORIG_ORDER)
+    adjustment_factors <- adjustment_factors[sort_data[['SORT_ORDER']], , drop = FALSE]
   }
 
   # Uncompress the adjustment factors
@@ -388,9 +415,7 @@ as_sdr_design.survey.design <- function(
 
   # Return the result
   if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
-    rep_design <- srvyr::as_survey_rep(
-      rep_design
-    )
+    rep_design <- srvyr::as_survey_rep(rep_design)
   }
 
   rep_design$call <- sys.call(which = -1)

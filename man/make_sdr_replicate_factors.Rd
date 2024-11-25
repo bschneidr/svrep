@@ -50,24 +50,15 @@ rep_factors <- make_sdr_replicate_factors(
   use_normal_hadamard = FALSE
 )
 
-# These replicate factors are nearly equivalent
-# to the SD1 variance estimator
-vcov_of_rep_factors <- make_sdr_replicate_factors(
-  n = 4,
-  target_number_of_replicates = 4,
-  use_normal_hadamard = TRUE
-) |> t() |> cov() |> Matrix::Matrix()
+# These replicate factors are equivalent
+# to the SD2 variance estimator
+tcrossprod(rep_factors - 1)
 
-sdr_quad_form <- (3/4) * 4 * vcov_of_rep_factors
-
-sdr_quad_form |> image()
-
-# Compare to the quadratic form of the SD1 estimator
+# Compare to the quadratic form of the SD2 estimator
 sd1_quad_form <- make_quad_form_matrix(
   variance_estimator = "SD1",
-  cluster_ids = matrix(1:4, ncol = 1),
-  sort_order = matrix(1:4, ncol = 1)
+  cluster_ids        = matrix(1:4, ncol = 1),
+  sort_order         = matrix(1:4, ncol = 1)
 )
 
-sd1_quad_form |> image()
 }

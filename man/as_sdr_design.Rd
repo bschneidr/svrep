@@ -79,6 +79,7 @@ design_obj <- svydesign(
 sdr_design <- as_sdr_design(
   design = design_obj,
   replicates = 180,
+  sort_variable = "SAMPLING_SORT_ORDER",
   use_normal_hadamard = TRUE
 )
 
