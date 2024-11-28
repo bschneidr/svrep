@@ -169,8 +169,8 @@ assign_hadamard_rows <- function(
 #' creating replicate factors. The actual number of replicates will
 #' be a multiple of 4.
 #' If \code{use_normal_hadamard = FALSE}, then the actual number of replicates
-#' will be a power of 4, which means that the actual number of
-#' replicates might be much larger than the target.
+#' will be \eqn{4 \times 2^k} for some integer \eqn{k}, 
+#' which means that the actual number of replicates might be much larger than the target.
 #' @param use_normal_hadamard Whether to use a normal Hadamard matrix:
 #' that is, a matrix whose first row and first column only have entries
 #' equal to 1.
@@ -265,29 +265,64 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' with replicate weights formed using the successive differences replication (SDR) method.
 #' The SDR method is suitable for designs that use
 #' systematic sampling or finely-stratified sampling designs.
-#' The rows of data in the survey design should be sorted
-#' in the same order that was used for sampling.
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
 #' @param replicates The target number of replicates to create.
 #' This will determine the order of the Hadamard matrix to use when
 #' creating replicate factors.
-#' If \code{use_normal_hadamard = TRUE}, then the actual number of replicates will be the
-#' smallest \emph{multiple} of 4 that is greater or equal to the specified value of \code{replicates}.
+#' If \code{use_normal_hadamard = TRUE}, then the actual number of replicates will be
+#' greater than or equal to \code{replicates} and determined by identifying
+#' the smallest available Hadamard matrix available from the 'survey' package.
 #' If \code{use_normal_hadamard = FALSE}, then the actual number of replicates will be the
 #' smallest \emph{power} of 4 that is greater or equal to the specified value of \code{replicates}.
-#' @param sort_variable To create SDR replicates, the data must
-#' be sorted in the order used in sampling. The name of a sorting variable
-#' can be supplied as a character string. If no variable name is supplied,
-#' then this function assumes that the data are already sorted into the correct order.
+#' @param sort_variable A character string specifying the name
+#' of a sorting variable. This variable should give
+#' the sort order used in sampling.
 #' @param use_normal_hadamard Whether to use a normal Hadamard matrix:
 #' that is, a matrix whose first row and first column only have entries
-#' equal to 1.
+#' equal to 1. This means that one of the replicates will be an "inactive" replicate.
+#' See the "Details" section for more information.
 #' @param compress Use a compressed representation of the replicate weights matrix.
 #' This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
 #' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
+#' @details
+#' The successive difference replication method was proposed by Fay and Train (1995)
+#' as a replication method appropriate for samples selected using systematic sampling.
+#' It is designed to yield variance estimates for totals that are equivalent to
+#' successive difference variance estimators described in Fay and Train (1995).
+#' There are different methods for forming the replicate factors depending on
+#' whether the replicate variance estimator is meant to be equivalent to the 
+#' SD2 variance estimator (i.e., the circular successive difference estimator) 
+#' or the SD1 variance estimator (the non-circular successive difference estiamtor) 
+#' described in Ash (2014). This function uses the approach based on the SD2 variance estimator.
+#' 
+#' The number of replicates must match the order of an available Hadamard matrix.
+#' A Hadamard matrix can either be normal or non-normal: a normal Hadamard matrix
+#' is one where the entries in the first row and in the first column are all equal to one.
+#' If the user specifies \code{use_normal_hadamard = TRUE}, then there are more choices
+#' of Hadamard matrix sizes available, and so greater flexibility in choosing the
+#' number of replicates to create. When a normal Hadamard matrix is used, this will result
+#' in the creation of an inactive replicate (sometimes referred to as a "dead" replicate),
+#' which is a replicate where all the replicate factors equal one. Inactive replicates
+#' are perfectly valid for variance estimation, though some users may find them
+#' confusing.
+#' 
+#' An important part of the process of creating replicate weights is the assignment of rows of the Hadamard matrix
+#' to primary sampling units. The method of Ash (2014) referred to as "RA1" is used for row assignments,
+#' which means that the replication-based variance estimates for totals will
+#' be equivalent to the SD2 variance estimator described by Ash (2014). The number of cycles
+#' used with the "RA1" method is the smallest integer greater than \eqn{n/R}, where
+#' \eqn{n} is the number of primary sample units and \eqn{R} is the number of replicates.
+#' 
+#' If there are finite population correction factors for strata, then these finite population correction factors
+#' will be applied to the replicate factors. This means that variance estimates with the finite population correction
+#' do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
+#' used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
+#' 
+#' The scale factor to be used for variance estimation with the replicate weights
+#' is \eqn{4/R}, where \eqn{R} is the number of replicates.
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
@@ -295,6 +330,8 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' Fay, R.E. and Train, G.F. (1995). "\emph{Aspects of Survey and Model-Based Postcensal Estimation of
 #' Income and Poverty Characteristics for States and Counties}." Joint Statistical Meetings,
 #' Proceedings of the Section on Government Statistics, 154-159.
+#' 
+#' U.S. Census Bureau. (2022). "\emph{American Community Survey and Puerto Rico Community Survey Design and Methodology, Version 3.0.}" 
 #' @return
 #' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
 #' such as \code{svymean()} or \code{svyglm()}.
@@ -317,27 +354,27 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #'
 #' ## Create a survey design object
 #' design_obj <- svydesign(
-#'   data = library_stsys_sample,
+#'   data   = library_stsys_sample,
 #'   strata = ~ SAMPLING_STRATUM,
-#'   ids = ~ 1,
-#'   fpc = ~ STRATUM_POP_SIZE
+#'   ids    = ~ 1,
+#'   fpc    = ~ STRATUM_POP_SIZE
 #' )
 #'
 #' ## Convert to SDR replicate design
 #' sdr_design <- as_sdr_design(
-#'   design = design_obj,
-#'   replicates = 180,
-#'   sort_variable = "SAMPLING_SORT_ORDER",
+#'   design              = design_obj,
+#'   replicates          = 180,
+#'   sort_variable       = "SAMPLING_SORT_ORDER",
 #'   use_normal_hadamard = TRUE
 #' )
 #'
 #' ## Compare to generalized bootstrap
 #' ## based on the SD2 estimator that SDR approximates
 #' gen_boot_design <- as_gen_boot_design(
-#'   design = design_obj,
+#'   design             = design_obj,
 #'   variance_estimator = "SD2",
-#'   replicates = 180,
-#'   exact_vcov = TRUE
+#'   replicates         = 180,
+#'   exact_vcov         = TRUE
 #' )
 #'
 #' ## Estimate sampling variances
@@ -382,8 +419,21 @@ as_sdr_design.survey.design <- function(
     use_normal_hadamard = use_normal_hadamard
   )
 
+  if (is.null(sort_variable)) {
+    stop("Must specify a variable name for `sort_variable`.")
+  }
+
   if (!is.null(sort_variable)) {
-    sort_order <- rank(design$variables[[sort_variable]], ties.method = 'first')
+
+    if (!is.character(sort_variable) || length(sort_variable) != 1) {
+      stop("`sort_variable` must be a single string.")
+    }
+    if (!sort_variable %in% colnames(design$variables)) {
+      sprintf("The variable `%s` does  not appear in the data.", sort_variable) |> stop()
+    }
+    if (any(is.na(design$variables[[sort_variable]]))) {
+      stop("`sort_variable` cannot have any missing values in the data.")
+    }
 
     sort_data <- data.frame(
       ORIG_ORDER    = seq_len(nrow(compressed_design_structure$design)),
@@ -395,6 +445,17 @@ as_sdr_design.survey.design <- function(
     sort_data[['SORT_ORDER']] <- seq_len(nrow(sort_data))
     sort_data <- sort_data |> sort_by(~ ORIG_ORDER)
     adjustment_factors <- adjustment_factors[sort_data[['SORT_ORDER']], , drop = FALSE]
+  }
+
+  # Apply first-stage FPCs
+  if (!is.null(compressed_design_structure$design$fpc$popsize)) {
+    fpc_factors <- sqrt(1 - (
+      compressed_design_structure$design$fpc$sampsize[,1,drop = TRUE] /
+      compressed_design_structure$design$fpc$popsize[,1,drop = TRUE] 
+    ))
+    stopifnot(nrow(adjustment_factors) == length(fpc_factors))
+    adjustment_factors <- 1 + (fpc_factors * (adjustment_factors - 1))
+    message("Finite population corrections are incorporated into the replicate factors.")
   }
 
   # Uncompress the adjustment factors

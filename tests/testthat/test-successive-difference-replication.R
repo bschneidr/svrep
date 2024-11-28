@@ -115,7 +115,7 @@ test_that("SDRM with enough replicates matches SD2", {
 
 # Expected variance estimates from `as_sdr_design()`
 
-test_that("as_sdr_design() gives expected variance estimates", {
+test_that("as_sdr_design() gives expected variance estimates in basic examples", {
 
   # Load example stratified systematic sample
   data('library_stsys_sample', package = 'svrep')
@@ -154,6 +154,61 @@ test_that("as_sdr_design() gives expected variance estimates", {
     expected = suppressMessages({reordered_design |> 
       as_sdr_design(sort_variable = "SAMPLING_SORT_ORDER", replicates = 8) |> 
       svytotal(x = ~ LIBRARIA, na.rm = TRUE)})
+  )
+  
+  # Check that FPCs are incorporated into replicate factors
+  # Load example stratified systematic sample
+
+  # Create survey design object, with and without FPC
+  design_obj_with_fpcs <- svydesign(
+    data = library_stsys_sample |> 
+      sort_by(~ SAMPLING_SORT_ORDER),
+    ids = ~ 1,
+    probs = ~ SAMPLING_PROB, 
+    strata = ~ SAMPLING_STRATUM, fpc = ~ STRATUM_POP_SIZE
+  )
+  design_obj_without_fpcs <- svydesign(
+    data = library_stsys_sample |> 
+      sort_by(~ SAMPLING_SORT_ORDER),
+    ids = ~ 1,
+    probs = ~ SAMPLING_PROB, 
+    strata = ~ SAMPLING_STRATUM
+  )
+  
+  # Create SDR replicates with and without FPCs
+  suppressMessages({
+    sdr_svy_w_fpcs <- design_obj_with_fpcs |> as_sdr_design(
+      sort_variable = "SAMPLING_SORT_ORDER", replicates = 256
+    )
+  })
+  
+  # Check that quadratic form based on replicates has the expected FPCs
+  rep_quad_form_diag <- diag(
+    ((4/256) * tcrossprod(weights(sdr_svy_w_fpcs, 'replication') - 1))
+  )
+  
+  expected_fpc <- 1 - as.vector(design_obj_with_fpcs$fpc$sampsize/design_obj_with_fpcs$fpc$popsize)
+  
+  expect_equal(rep_quad_form_diag, expected_fpc)
+  
+  # Check that variance estimate with FPC matches the SD2 estimator with FPC, for totals
+  expect_equal(
+    object   = suppressMessages({library_stsys_sample |> sort_by(~SAMPLING_SORT_ORDER) |> 
+        transform(POP_SIZE = 1000) |> svydesign(
+          data = _, ids = ~ 1, prob = ~ SAMPLING_PROB, fpc = ~ POP_SIZE
+        ) |> 
+        as_sdr_design(sort_variable = "SAMPLING_SORT_ORDER", replicates = 224) |> 
+        svytotal(x = ~ LIBRARIA, na.rm = TRUE) |>
+        SE()
+    }),
+    expected = suppressMessages({library_stsys_sample |> transform(POP_SIZE = 1000) |> svydesign(
+      data = _, ids = ~ 1, prob = ~ SAMPLING_PROB, fpc = ~ POP_SIZE
+    ) |> 
+        as_fays_gen_rep_design("SD2") |> 
+        svytotal(x = ~ LIBRARIA, na.rm = TRUE) |>
+        SE()
+    }),
+    tolerance = 0.0001
   )
 
 })
