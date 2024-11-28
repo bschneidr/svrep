@@ -1,5 +1,7 @@
 # svrep (development version)
 
+-   Added the successive difference replication method, with functions `as_sdr_design()` and `make_sdr_replicate_factors()`.
+
 -   For the generalized bootstrap functions, the default value for the argument `tau` is now `1` instead of `auto`.
     This means that generalized bootstrap replicates are not rescaled by default.
 
