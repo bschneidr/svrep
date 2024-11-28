@@ -8,8 +8,8 @@
 <title>Replication Methods for Two-phase Sampling • svrep</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Replication Methods for Two-phase Sampling">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
@@ -288,7 +288,7 @@ packages.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">twophase_boot_design</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">LIBRARIA</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            mean     SE</span></span>
-<span><span class="co">#&gt; LIBRARIA 7.6044 1.8419</span></span></code></pre></div>
+<span><span class="co">#&gt; LIBRARIA 7.6044 1.9818</span></span></code></pre></div>
 <p>When using <code><a href="../reference/as_gen_boot_design.html">as_gen_boot_design()</a></code> for two-phase designs,
 it’s useful to know that you will often see a warning message about
 needing to approximate the first-phase variance estimator’s quadratic
@@ -475,7 +475,7 @@ convenience we’ll use the generalized bootstrap.</p>
 <span><span class="co">#&gt; TOTCIR   6.606150e+16 5.853993e+12</span></span>
 <span><span class="co">#&gt; TOTSTAFF 5.853993e+12 5.747174e+08</span></span>
 <span><span class="co">#&gt; attr(,"means")</span></span>
-<span><span class="co">#&gt; [1] 1648121469.6     152702.4</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1645727222.4     152190.5</span></span></code></pre></div>
 <p>After we’ve estimated the first-phase totals, we can use the function
 <code><a href="../reference/calibrate_to_estimate.html">calibrate_to_estimate()</a></code> to calibrate the two-phase survey
 design object to the first-phase totals. This function is discussed in
@@ -520,7 +520,7 @@ calibration.</p>
 <span>  design <span class="op">=</span> <span class="va">calibrated_twophase_design</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;          total    SE</span></span>
-<span><span class="co">#&gt; LIBRARIA 57355 12308</span></span>
+<span><span class="co">#&gt; LIBRARIA 57355 37647</span></span>
 <span></span>
 <span><span class="co"># Compare to uncalibrated second-phase estimate</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span></span>
@@ -627,7 +627,7 @@ calibration.</p>
 <span>  design <span class="op">=</span> <span class="va">calibrated_twophase_design</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;          total    SE</span></span>
-<span><span class="co">#&gt; LIBRARIA 57355 11958</span></span>
+<span><span class="co">#&gt; LIBRARIA 57355 42417</span></span>
 <span></span>
 <span><span class="co"># Compare to uncalibrated second-phase estimate</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span></span>
@@ -1382,7 +1382,7 @@ matrix.</p>
 <span><span class="co">#&gt; TOTCIR   6.606150e+16 5.853993e+12</span></span>
 <span><span class="co">#&gt; TOTSTAFF 5.853993e+12 5.747174e+08</span></span>
 <span><span class="co">#&gt; attr(,"means")</span></span>
-<span><span class="co">#&gt; [1] 1648121469.6     152702.4</span></span>
+<span><span class="co">#&gt; [1] 1645727222.4     152190.5</span></span>
 <span></span>
 <span><span class="co"># Calibrate the two-phase replicate design</span></span>
 <span><span class="co"># to the totals estimated from the first-phase sample</span></span>

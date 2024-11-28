@@ -8,8 +8,8 @@
 <title>Bootstrap Methods for Surveys • svrep</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Bootstrap Methods for Surveys">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
@@ -701,7 +701,9 @@ user to use replication scale factor
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><msup><mi>τ</mi><mn>2</mn></msup><mi>B</mi></mfrac><annotation encoding="application/x-tex">\frac{\tau^2}{B}</annotation></semantics></math>
 rather than
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>1</mn><mi>B</mi></mfrac><annotation encoding="application/x-tex">\frac{1}{B}</annotation></semantics></math>
-when estimating sampling variances.</p>
+when estimating sampling variances. This rescaling method does not
+affect variance estimates for linear statistics such as totals, but its
+affect on non-smooth statistics such as quantiles is unclear.</p>
 </div>
 </div>
 <div class="section level3">
@@ -750,8 +752,8 @@ weights.</p>
 <span></span>
 <span><span class="co"># Estimate sampling variances</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">TOTSTAFF</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, design <span class="op">=</span> <span class="va">gen_boot_design_sd2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            mean    SE</span></span>
-<span><span class="co">#&gt; TOTSTAFF 19.756 4.238</span></span></code></pre></div>
+<span><span class="co">#&gt;            mean     SE</span></span>
+<span><span class="co">#&gt; TOTSTAFF 19.756 4.2384</span></span></code></pre></div>
 <p>For a PPS design that uses the Horvitz-Thompson or Yates-Grundy
 estimator, we can create a generalized bootstrap estimator with the same
 expectation. In the example below, we create a PPS design with the
@@ -818,18 +820,18 @@ can be retrieved from the replicate design object, as follows.</p>
 <code class="sourceCode R"><span><span class="co"># View overall scale factor</span></span>
 <span><span class="va">overall_scale_factor</span> <span class="op">&lt;-</span> <span class="va">multistage_boot_design</span><span class="op">$</span><span class="va">scale</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">overall_scale_factor</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.0458882</span></span>
+<span><span class="co">#&gt; [1] 0.002</span></span>
 <span></span>
 <span><span class="co"># Check that the scale factor was calculated correctly</span></span>
 <span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="va">multistage_boot_design</span><span class="op">$</span><span class="va">tau</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 4.79</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
 <span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">multistage_boot_design</span><span class="op">$</span><span class="va">repweights</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">B</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 500</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span> <span class="op">(</span><span class="va">tau</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="va">B</span> <span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.0458882</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.002</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="option-2-create-the-quadratic-form-matrix-and-then-use-it-to-create-bootstrap-weights">Option 2: Create the quadratic form matrix and then use it to create
