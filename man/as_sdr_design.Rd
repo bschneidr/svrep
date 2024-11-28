@@ -20,19 +20,20 @@ with class \code{'survey.design'} or \code{'svyimputationList'}.}
 \item{replicates}{The target number of replicates to create.
 This will determine the order of the Hadamard matrix to use when
 creating replicate factors.
-If \code{use_normal_hadamard = TRUE}, then the actual number of replicates will be the
-smallest \emph{multiple} of 4 that is greater or equal to the specified value of \code{replicates}.
+If \code{use_normal_hadamard = TRUE}, then the actual number of replicates will be
+greater than or equal to \code{replicates} and determined by identifying
+the smallest available Hadamard matrix available from the 'survey' package.
 If \code{use_normal_hadamard = FALSE}, then the actual number of replicates will be the
 smallest \emph{power} of 4 that is greater or equal to the specified value of \code{replicates}.}
 
-\item{sort_variable}{To create SDR replicates, the data must
-be sorted in the order used in sampling. The name of a sorting variable
-can be supplied as a character string. If no variable name is supplied,
-then this function assumes that the data are already sorted into the correct order.}
+\item{sort_variable}{A character string specifying the name
+of a sorting variable. This variable should give
+the sort order used in sampling.}
 
 \item{use_normal_hadamard}{Whether to use a normal Hadamard matrix:
 that is, a matrix whose first row and first column only have entries
-equal to 1.}
+equal to 1. This means that one of the replicates will be an "inactive" replicate.
+See the "Details" section for more information.}
 
 \item{compress}{Use a compressed representation of the replicate weights matrix.
 This reduces the computer memory required to represent the replicate weights and has no
@@ -54,8 +55,41 @@ Converts a survey design object to a replicate design object
 with replicate weights formed using the successive differences replication (SDR) method.
 The SDR method is suitable for designs that use
 systematic sampling or finely-stratified sampling designs.
-The rows of data in the survey design should be sorted
-in the same order that was used for sampling.
+}
+\details{
+The successive difference replication method was proposed by Fay and Train (1995)
+as a replication method appropriate for samples selected using systematic sampling.
+It is designed to yield variance estimates for totals that are equivalent to
+successive difference variance estimators described in Fay and Train (1995).
+There are different methods for forming the replicate factors depending on
+whether the replicate variance estimator is meant to be equivalent to the 
+SD2 variance estimator (i.e., the circular successive difference estimator) 
+or the SD1 variance estimator (the non-circular successive difference estiamtor) 
+described in Ash (2014). This function uses the approach based on the SD2 variance estimator.
+
+The number of replicates must match the order of an available Hadamard matrix.
+A Hadamard matrix can either be normal or non-normal: a normal Hadamard matrix
+is one where the entries in the first row and in the first column are all equal to one.
+If the user specifies \code{use_normal_hadamard = TRUE}, then there are more choices
+of Hadamard matrix sizes available, and so greater flexibility in choosing the
+number of replicates to create. When a normal Hadamard matrix is used, this will result
+in the creation of an inactive replicate (sometimes referred to as a "dead" replicate),
+which is a replicate where all the replicate factors equal one. Inactive replicates
+are perfectly valid for variance estimation, though some users may find them
+confusing.
+
+An important part of the process of creating replicate weights is the assignment of rows of the Hadamard matrix
+to primary sampling units. The method of Ash (2014) referred to as "RA1" is used for row assignments,
+which means that the replication-based variance estimates for totals will
+be equivalent to the SD2 variance estimator described by Ash (2014).
+
+If there are finite population correction factors for strata, then these finite population correction factors
+will be applied to the replicate factors. This means that variance estimates with the finite population correction
+do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
+used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
+
+The scale factor to be used for variance estimation with the replicate weights
+is \eqn{4/R}, where \eqn{R} is the number of replicates.
 }
 \examples{
 
@@ -103,4 +137,6 @@ Ash, S. (2014). "\emph{Using successive difference replication for estimating va
 Fay, R.E. and Train, G.F. (1995). "\emph{Aspects of Survey and Model-Based Postcensal Estimation of
 Income and Poverty Characteristics for States and Counties}." Joint Statistical Meetings,
 Proceedings of the Section on Government Statistics, 154-159.
+
+U.S. Census Bureau. (2022). "\emph{American Community Survey and Puerto Rico Community Survey Design and Methodology, Version 3.0.}"
 }
