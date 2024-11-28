@@ -339,7 +339,7 @@ $$
 \end{aligned}
 $$
 
-When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor $\frac{\tau^2}{B}$ rather than $\frac{1}{B}$ when estimating sampling variances.
+When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor $\frac{\tau^2}{B}$ rather than $\frac{1}{B}$ when estimating sampling variances. This rescaling method does not affect variance estimates for linear statistics such as totals, but its affect on non-smooth statistics such as quantiles is unclear.
 
 ## Implementation
 

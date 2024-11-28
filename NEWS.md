@@ -1,5 +1,8 @@
 # svrep (development version)
 
+-   For the generalized bootstrap functions, the default value for the argument `tau` is now `1` instead of `auto`.
+    This means that generalized bootstrap replicates are not rescaled by default.
+
 -   Added a kernel-based variance estimator (of Breidt, Opsomer, and Sanchez-Borrego 2016) for finely stratified or systematic samples. This can be used by calling `as_fays_gen_rep_design(..., variance_estimator = "BOSB")` or `as_gen_boot_design(..., variance_estimator = "BOSB")`. Or you can directly create the quadratic form matrix for this estimator using the function `make_kernel_var_matrix()`. Currently only supports a single auxiliary variable and only the Epanechnikov kernel function.
 
 -   Added the option `variance_estimator = "Beaumont-Emond"` to the generalized replication methods.

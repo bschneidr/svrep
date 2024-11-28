@@ -7,13 +7,16 @@
 #' @param Sigma The matrix of the quadratic form used to represent the variance estimator.
 #' Must be positive semidefinite.
 #' @param num_replicates The number of bootstrap replicates to create.
-#' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
+#' @param tau Either \code{"auto"}, or a single number; the default value is 1. 
+#' This is the rescaling constant
 #' used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 #' where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
 #' If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
 #' if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
+#' Instead of using \code{tau="auto"}, the user can instead use the function
+#' \code{rescale_reps()} to rescale the replicates later.
 #' @param exact_vcov If \code{exact_vcov=TRUE}, the replicate factors will be generated
 #' such that their variance-covariance matrix exactly matches the target variance estimator's
 #' quadratic form (within numeric precision).
@@ -172,7 +175,7 @@
 #' svytotal(x = ~ Bush + Kerry,
 #'          design = election_pps_ht_design)
 #' }
-make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vcov = FALSE) {
+make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = FALSE) {
 
   n <- nrow(Sigma)
 
@@ -294,13 +297,16 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' A vector of the names of auxiliary variables used in sampling.
 #' @param replicates Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 #' A commonly-recommended default is 500.
-#' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
+#' @param tau Either \code{"auto"}, or a single number; the default value is 1. 
+#' This is the rescaling constant
 #' used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 #' where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
 #' If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
 #' if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
+#' Instead of using \code{tau="auto"}, the user can instead use the function
+#' \code{rescale_reps()} to rescale the replicates later.
 #' @param exact_vcov If \code{exact_vcov=TRUE}, the replicate factors will be generated
 #' such that variance estimates for totals exactly match the results from the target variance estimator.
 #' This requires that \code{num_replicates} exceeds the rank of \code{Sigma}.
@@ -397,7 +403,8 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'  \textbf{After rescaling: } v_B\left(\hat{T}_y\right) = \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
 #' }
 #' When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
-#'
+#' This rescaling method does not affect variance estimates for linear statistics,
+#' but its impact on non-smooth statistics such as quantiles is unclear.
 
 #' @section Two-Phase Designs:
 #' For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
@@ -534,7 +541,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
                                aux_var_names = NULL,
-                               replicates = 500, tau = "auto", exact_vcov = FALSE,
+                               replicates = 500, tau = 1, exact_vcov = FALSE,
                                psd_option = "warn",
                                mse = getOption("survey.replicates.mse"),
                                compress = TRUE) {
@@ -544,7 +551,7 @@ as_gen_boot_design <- function(design, variance_estimator = NULL,
 #' @export
 as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
                                          aux_var_names = NULL,
-                                         replicates = 500, tau = "auto",
+                                         replicates = 500, tau = 1,
                                          exact_vcov = FALSE, psd_option = "warn",
                                          mse = getOption("survey.replicates.mse"),
                                          compress = TRUE) {
@@ -610,7 +617,7 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 #' @export
 as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              aux_var_names = NULL,
-                                             replicates = 500, tau = "auto", exact_vcov = FALSE,
+                                             replicates = 500, tau = 1, exact_vcov = FALSE,
                                              psd_option = 'warn',
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
@@ -697,7 +704,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
 #' @export
 as_gen_boot_design.DBIsvydesign <- function(design, variance_estimator = NULL,
                                             aux_var_names = NULL,
-                                            replicates = 500, tau = "auto",
+                                            replicates = 500, tau = 1,
                                             exact_vcov = FALSE, psd_option = "warn",
                                             mse = getOption("survey.replicates.mse"),
                                             compress = TRUE) {

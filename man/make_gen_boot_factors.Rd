@@ -4,7 +4,7 @@
 \alias{make_gen_boot_factors}
 \title{Creates replicate factors for the generalized survey bootstrap}
 \usage{
-make_gen_boot_factors(Sigma, num_replicates, tau = "auto", exact_vcov = FALSE)
+make_gen_boot_factors(Sigma, num_replicates, tau = 1, exact_vcov = FALSE)
 }
 \arguments{
 \item{Sigma}{The matrix of the quadratic form used to represent the variance estimator.
@@ -12,13 +12,16 @@ Must be positive semidefinite.}
 
 \item{num_replicates}{The number of bootstrap replicates to create.}
 
-\item{tau}{Either \code{"auto"}, or a single number. This is the rescaling constant
+\item{tau}{Either \code{"auto"}, or a single number; the default value is 1. 
+This is the rescaling constant
 used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
 If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
 if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 otherwise, \code{tau} is set to the smallest value needed to rescale
-the adjustment factors such that they are all at least \code{0.01}.}
+the adjustment factors such that they are all at least \code{0.01}.
+Instead of using \code{tau="auto"}, the user can instead use the function
+\code{rescale_reps()} to rescale the replicates later.}
 
 \item{exact_vcov}{If \code{exact_vcov=TRUE}, the replicate factors will be generated
 such that their variance-covariance matrix exactly matches the target variance estimator's

@@ -9,7 +9,7 @@ as_gen_boot_design(
   variance_estimator = NULL,
   aux_var_names = NULL,
   replicates = 500,
-  tau = "auto",
+  tau = 1,
   exact_vcov = FALSE,
   psd_option = "warn",
   mse = getOption("survey.replicates.mse"),
@@ -64,13 +64,16 @@ A vector of the names of auxiliary variables used in sampling.}
 \item{replicates}{Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 A commonly-recommended default is 500.}
 
-\item{tau}{Either \code{"auto"}, or a single number. This is the rescaling constant
+\item{tau}{Either \code{"auto"}, or a single number; the default value is 1. 
+This is the rescaling constant
 used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
 If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
 if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 otherwise, \code{tau} is set to the smallest value needed to rescale
-the adjustment factors such that they are all at least \code{0.01}.}
+the adjustment factors such that they are all at least \code{0.01}.
+Instead of using \code{tau="auto"}, the user can instead use the function
+\code{rescale_reps()} to rescale the replicates later.}
 
 \item{exact_vcov}{If \code{exact_vcov=TRUE}, the replicate factors will be generated
 such that variance estimates for totals exactly match the results from the target variance estimator.
@@ -174,6 +177,8 @@ If the adjustment factors are rescaled in this manner, it is important to adjust
  \textbf{After rescaling: } v_B\left(\hat{T}_y\right) = \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
 }
 When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
+This rescaling method does not affect variance estimates for linear statistics,
+but its impact on non-smooth statistics such as quantiles is unclear.
 }
 
 \section{Two-Phase Designs}{
