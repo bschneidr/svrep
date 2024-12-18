@@ -49,7 +49,7 @@
 #'   \item \strong{"Beaumont-Emond"}: The variance estimator of Beaumont and Emond (2022)
 #'     for multistage unequal-probability sampling without replacement.
 #' }
-#' @param probs Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
+#' @param probs Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Deville-Tille"}.
 #' This should be a matrix or data frame of sampling probabilities.
 #' If there are multiple stages of sampling,
 #' then \code{probs} can have multiple columns,
