@@ -75,17 +75,6 @@ then the row assignment method is the method denoted as RA1 in Ash (2014).
 This method uses the argument \code{number_of_cycles} and 
 does \emph{not} use the argument \code{circular}.
 }
-\examples{
-# Assign rows of a 4x4 Hadamard matrix
-# to 9 observations, using two cycles
-assign_hadamard_rows(
-  n = 9,
-  hadamard_order = 4,
-  number_of_cycles = 2,
-  circular = TRUE
-)
-
-}
 \references{
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.

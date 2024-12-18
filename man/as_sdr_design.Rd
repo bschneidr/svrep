@@ -81,7 +81,9 @@ confusing.
 An important part of the process of creating replicate weights is the assignment of rows of the Hadamard matrix
 to primary sampling units. The method of Ash (2014) referred to as "RA1" is used for row assignments,
 which means that the replication-based variance estimates for totals will
-be equivalent to the SD2 variance estimator described by Ash (2014).
+be equivalent to the SD2 variance estimator described by Ash (2014). The number of cycles
+used with the "RA1" method is the smallest integer greater than \eqn{n/R}, where
+\eqn{n} is the number of primary sample units and \eqn{R} is the number of replicates.
 
 If there are finite population correction factors for strata, then these finite population correction factors
 will be applied to the replicate factors. This means that variance estimates with the finite population correction
@@ -92,6 +94,7 @@ The scale factor to be used for variance estimation with the replicate weights
 is \eqn{4/R}, where \eqn{R} is the number of replicates.
 }
 \examples{
+library(survey)
 
 # Load example stratified systematic sample
 data('library_stsys_sample', package = 'svrep')
@@ -103,27 +106,27 @@ library_stsys_sample <- library_stsys_sample[
 
 ## Create a survey design object
 design_obj <- svydesign(
-  data = library_stsys_sample,
+  data   = library_stsys_sample,
   strata = ~ SAMPLING_STRATUM,
-  ids = ~ 1,
-  fpc = ~ STRATUM_POP_SIZE
+  ids    = ~ 1,
+  fpc    = ~ STRATUM_POP_SIZE
 )
 
 ## Convert to SDR replicate design
 sdr_design <- as_sdr_design(
-  design = design_obj,
-  replicates = 180,
-  sort_variable = "SAMPLING_SORT_ORDER",
+  design              = design_obj,
+  replicates          = 180,
+  sort_variable       = "SAMPLING_SORT_ORDER",
   use_normal_hadamard = TRUE
 )
 
 ## Compare to generalized bootstrap
 ## based on the SD2 estimator that SDR approximates
 gen_boot_design <- as_gen_boot_design(
-  design = design_obj,
+  design             = design_obj,
   variance_estimator = "SD2",
-  replicates = 180,
-  exact_vcov = TRUE
+  replicates         = 180,
+  exact_vcov         = TRUE
 )
 
 ## Estimate sampling variances
