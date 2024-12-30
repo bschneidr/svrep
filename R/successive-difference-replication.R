@@ -55,6 +55,7 @@
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#' @keywords internal
 assign_hadamard_rows <- function(
   n, hadamard_order, 
   number_of_cycles = ceiling(n/hadamard_order), 
