@@ -108,6 +108,12 @@ and the number of columns corresponding to the order of the Hadamard matrix used
 <span class="r-in"><span>  use_normal_hadamard <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using Hadamard matrix of order 4. If `use_normal_hadamard=TRUE`, the smallest possible order is 4.</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rep_factors</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]      [,2]      [,3]      [,4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1.7071068 1.0000000 1.7071068 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.2928932 1.0000000 1.0000000 1.7071068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 1.0000000 0.2928932 1.0000000 0.2928932</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 1.0000000 1.7071068 0.2928932 1.0000000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># These replicate factors are equivalent</span></span></span>
 <span class="r-in"><span><span class="co"># to the SD2 variance estimator</span></span></span>
@@ -119,11 +125,18 @@ and the number of columns corresponding to the order of the Hadamard matrix used
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -0.5  0.0 -0.5  1.0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare to the quadratic form of the SD2 estimator</span></span></span>
-<span class="r-in"><span><span class="va">sd1_quad_form</span> <span class="op">&lt;-</span> <span class="fu"><a href="make_quad_form_matrix.html">make_quad_form_matrix</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  variance_estimator <span class="op">=</span> <span class="st">"SD1"</span>,</span></span>
+<span class="r-in"><span><span class="va">sd2_quad_form</span> <span class="op">&lt;-</span> <span class="fu"><a href="make_quad_form_matrix.html">make_quad_form_matrix</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  variance_estimator <span class="op">=</span> <span class="st">"SD2"</span>,</span></span>
 <span class="r-in"><span>  cluster_ids        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  sort_order         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sd2_quad_form</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 x 4 sparse Matrix of class "dsCMatrix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  1.0 -0.5  .   -0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.5  1.0 -0.5  .  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  .   -0.5  1.0 -0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -0.5  .   -0.5  1.0</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
