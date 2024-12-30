@@ -28,7 +28,10 @@ smallest \emph{power} of 4 that is greater or equal to the specified value of \c
 
 \item{sort_variable}{A character string specifying the name
 of a sorting variable. This variable should give
-the sort order used in sampling.}
+the sort order used in sampling. If the design includes strata,
+then the replicate factors will be assigned after first sorting by the 
+first-stage strata identifier
+and then sorting by the value of \code{sort_variable} within each stratum.}
 
 \item{use_normal_hadamard}{Whether to use a normal Hadamard matrix:
 that is, a matrix whose first row and first column only have entries
