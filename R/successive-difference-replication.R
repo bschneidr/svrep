@@ -293,14 +293,21 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' 
 #' The scale factor to be used for variance estimation with the replicate weights
 #' is \eqn{4/R}, where \eqn{R} is the number of replicates. This scale factor will 
-#' be used even when there are finite population corrections; see the section below
-#' titled "Details on Finite Population Corrections."
+#' be used even when there are finite population corrections; see the subsection below.
 #' 
-#' @section Details on Finite Population Corrections:
-#' If there are finite population correction factors for strata, then these finite population correction factors
+#' @section Details on Stratification and Finite Population Corrections:
+#' 
+#' If the design includes strata,
+#' then the replicate factors will be assigned after first sorting by the 
+#' first-stage strata identifier and then sorting by the value of \code{sort_variable} 
+#' within each stratum.
+#' 
+#' If there are finite population correction factors, then these finite population correction factors
 #' will be applied to the replicate factors. This means that variance estimates with the finite population correction
 #' do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
 #' used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
+#' This approach is used regardless of whether the design has one overall finite population correction factor
+#' or has different finite population correction factors.
 #' 
 #' @section Details on Row Assignments for Creating Replicate Factors:
 #' The number of replicates must match the order of an available Hadamard matrix.
@@ -386,7 +393,7 @@ as_sdr_design <- function(
   sort_variable = NULL,
   use_normal_hadamard = FALSE,
   compress = TRUE,
-  mse = getOption("survey.replicates.mse")
+  mse = TRUE
 ) {
   UseMethod("as_sdr_design", design)
 }
@@ -398,7 +405,7 @@ as_sdr_design.survey.design <- function(
     sort_variable = NULL,
     use_normal_hadamard = FALSE,
     compress = TRUE,
-    mse = getOption("survey.replicates.mse")
+    mse = TRUE
 ) {
 
   if (is.null(sort_variable)) {
@@ -427,10 +434,10 @@ as_sdr_design.survey.design <- function(
     if (!is.character(sort_variable) || length(sort_variable) != 1) {
       stop("`sort_variable` must be a single string.")
     }
-    if (!sort_variable %in% colnames(design$variables)) {
+    if (!sort_variable %in% colnames(compressed_design_structure$design_subset$variables)) {
       sprintf("The variable `%s` does  not appear in the data.", sort_variable) |> stop()
     }
-    if (any(is.na(design$variables[[sort_variable]]))) {
+    if (any(is.na(compressed_design_structure$design_subset$variables[[sort_variable]]))) {
       stop("`sort_variable` cannot have any missing values in the data.")
     }
 
@@ -481,4 +488,40 @@ as_sdr_design.survey.design <- function(
   rep_design$call <- sys.call(which = -1)
 
   return(rep_design)
+}
+
+#' @export
+as_sdr_design.DBIsvydesign <- function(
+  design,
+  replicates,
+  sort_variable = NULL,
+  use_normal_hadamard = FALSE,
+  compress = TRUE,
+  mse = TRUE
+) {
+
+rep_design <- NextMethod(design)
+
+# Replace 'variables' with a database connection
+# and make the object have the appropriate class
+rep_design$variables <- NULL
+if (design$db$dbtype == "ODBC") {
+  stop("'RODBC' no longer supported. Use the odbc package")
+} else {
+  db <- DBI::dbDriver(design$db$dbtype)
+  dbconn <- DBI::dbConnect(db, design$db$dbname)
+}
+rep_design$db <- list(
+  dbname = design$db$dbname, tablename = design$db$tablename,
+  connection = dbconn,
+  dbtype = design$db$dbtype
+)
+class(rep_design) <- c(
+  "DBIrepdesign", "DBIsvydesign",
+  setdiff(class(rep_design), c("DBIrepdesign", "DBIsvydesign"))
+)
+
+rep_design$call <- sys.call(which = -1)
+
+return(rep_design)
 }

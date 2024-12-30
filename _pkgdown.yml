@@ -41,6 +41,12 @@ reference:
 - title: Creating Jackknife Replicate Weights
 - contents:
   - matches("jack")
+- title: Create Replicate Weights Using Successive Differences Replication
+- desc: >
+    *Functions to create replicate weights using the successive differences replication method, intended for designs with systematic sampling or other forms of fine stratification.*
+- contents:
+  - matches("as_sdr_")
+  - matches("make_sdr_")
 - title: Calibrating to Estimated Control Totals
 - contents:
   - starts_with("calibrate_to")

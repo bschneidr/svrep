@@ -464,6 +464,17 @@ compress_design.survey.design <- function(design, vars_to_keep = NULL) {
 
 #' @export
 compress_design.DBIsvydesign <- function(design, vars_to_keep = NULL) {
+  
+  if (!is.null(vars_to_keep)) {
+    design$variables <- getvars(
+      formula      = vars_to_keep,
+      dbconnection = design$db$connection,
+      tables       = design$db$tablename,
+      updates      = design$updates,
+      subset       = design$subset
+    )
+  }
+
   # Produce a (potentially) compressed survey design object
   if ((!is.null(design$pps)) && (design$pps != FALSE)) {
     compressed_design_structure <- list(
@@ -500,4 +511,4 @@ compress_design.DBIsvydesign <- function(design, vars_to_keep = NULL) {
   }
 
   return(compressed_design_structure)
-}
+  }

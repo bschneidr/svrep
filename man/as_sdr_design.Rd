@@ -10,7 +10,7 @@ as_sdr_design(
   sort_variable = NULL,
   use_normal_hadamard = FALSE,
   compress = TRUE,
-  mse = getOption("survey.replicates.mse")
+  mse = TRUE
 )
 }
 \arguments{
@@ -73,16 +73,23 @@ described in Ash (2014). This function uses the approach based on the SD2 varian
 
 The scale factor to be used for variance estimation with the replicate weights
 is \eqn{4/R}, where \eqn{R} is the number of replicates. This scale factor will 
-be used even when there are finite population corrections; see the section below
-titled "Details on Finite Population Corrections."
+be used even when there are finite population corrections; see the subsection below.
 }
 
-\section{Details on Finite Population Corrections}{
+\section{Details on Stratification and Finite Population Corrections}{
 
-If there are finite population correction factors for strata, then these finite population correction factors
+
+If the design includes strata,
+then the replicate factors will be assigned after first sorting by the 
+first-stage strata identifier and then sorting by the value of \code{sort_variable} 
+within each stratum.
+
+If there are finite population correction factors, then these finite population correction factors
 will be applied to the replicate factors. This means that variance estimates with the finite population correction
 do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
 used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
+This approach is used regardless of whether the design has one overall finite population correction factor
+or has different finite population correction factors.
 }
 
 \section{Details on Row Assignments for Creating Replicate Factors}{
