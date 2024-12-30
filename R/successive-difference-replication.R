@@ -280,7 +280,7 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' impact on estimates.
 #' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
-#' @details
+#' @section Statistical Overview:
 #' The successive difference replication method was proposed by Fay and Train (1995)
 #' as a replication method appropriate for samples selected using systematic sampling.
 #' It is designed to yield variance estimates for totals that are equivalent to
@@ -291,6 +291,18 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' or the SD1 variance estimator (the non-circular successive difference estiamtor) 
 #' described in Ash (2014). This function uses the approach based on the SD2 variance estimator.
 #' 
+#' The scale factor to be used for variance estimation with the replicate weights
+#' is \eqn{4/R}, where \eqn{R} is the number of replicates. This scale factor will 
+#' be used even when there are finite population corrections; see the section below
+#' titled "Details on Finite Population Corrections."
+#' 
+#' @section Details on Finite Population Corrections:
+#' If there are finite population correction factors for strata, then these finite population correction factors
+#' will be applied to the replicate factors. This means that variance estimates with the finite population correction
+#' do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
+#' used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
+#' 
+#' @section Details on Row Assignments for Creating Replicate Factors:
 #' The number of replicates must match the order of an available Hadamard matrix.
 #' A Hadamard matrix can either be normal or non-normal: a normal Hadamard matrix
 #' is one where the entries in the first row and in the first column are all equal to one.
@@ -309,13 +321,6 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' used with the "RA1" method is the smallest integer greater than \eqn{n/R}, where
 #' \eqn{n} is the number of primary sample units and \eqn{R} is the number of replicates.
 #' 
-#' If there are finite population correction factors for strata, then these finite population correction factors
-#' will be applied to the replicate factors. This means that variance estimates with the finite population correction
-#' do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
-#' used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
-#' 
-#' The scale factor to be used for variance estimation with the replicate weights
-#' is \eqn{4/R}, where \eqn{R} is the number of replicates.
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.

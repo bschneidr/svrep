@@ -59,7 +59,8 @@ with replicate weights formed using the successive differences replication (SDR)
 The SDR method is suitable for designs that use
 systematic sampling or finely-stratified sampling designs.
 }
-\details{
+\section{Statistical Overview}{
+
 The successive difference replication method was proposed by Fay and Train (1995)
 as a replication method appropriate for samples selected using systematic sampling.
 It is designed to yield variance estimates for totals that are equivalent to
@@ -69,6 +70,22 @@ whether the replicate variance estimator is meant to be equivalent to the
 SD2 variance estimator (i.e., the circular successive difference estimator) 
 or the SD1 variance estimator (the non-circular successive difference estiamtor) 
 described in Ash (2014). This function uses the approach based on the SD2 variance estimator.
+
+The scale factor to be used for variance estimation with the replicate weights
+is \eqn{4/R}, where \eqn{R} is the number of replicates. This scale factor will 
+be used even when there are finite population corrections; see the section below
+titled "Details on Finite Population Corrections."
+}
+
+\section{Details on Finite Population Corrections}{
+
+If there are finite population correction factors for strata, then these finite population correction factors
+will be applied to the replicate factors. This means that variance estimates with the finite population correction
+do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
+used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
+}
+
+\section{Details on Row Assignments for Creating Replicate Factors}{
 
 The number of replicates must match the order of an available Hadamard matrix.
 A Hadamard matrix can either be normal or non-normal: a normal Hadamard matrix
@@ -87,15 +104,8 @@ which means that the replication-based variance estimates for totals will
 be equivalent to the SD2 variance estimator described by Ash (2014). The number of cycles
 used with the "RA1" method is the smallest integer greater than \eqn{n/R}, where
 \eqn{n} is the number of primary sample units and \eqn{R} is the number of replicates.
-
-If there are finite population correction factors for strata, then these finite population correction factors
-will be applied to the replicate factors. This means that variance estimates with the finite population correction
-do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
-used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
-
-The scale factor to be used for variance estimation with the replicate weights
-is \eqn{4/R}, where \eqn{R} is the number of replicates.
 }
+
 \examples{
 library(survey)
 
