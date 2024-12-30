@@ -41,7 +41,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
-<ul><li><p>For the generalized bootstrap functions, the default value for the argument <code>tau</code> is now <code>1</code> instead of <code>auto</code>. This means that generalized bootstrap replicates are not rescaled by default.</p></li>
+<ul><li><p>Added the successive difference replication method, with functions <code><a href="../reference/as_sdr_design.html">as_sdr_design()</a></code> and <code><a href="../reference/make_sdr_replicate_factors.html">make_sdr_replicate_factors()</a></code>.</p></li>
+<li><p>For the generalized bootstrap functions, the default value for the argument <code>tau</code> is now <code>1</code> instead of <code>auto</code>. This means that generalized bootstrap replicates are not rescaled by default.</p></li>
 <li><p>Added a kernel-based variance estimator (of Breidt, Opsomer, and Sanchez-Borrego 2016) for finely stratified or systematic samples. This can be used by calling <code>as_fays_gen_rep_design(..., variance_estimator = "BOSB")</code> or <code>as_gen_boot_design(..., variance_estimator = "BOSB")</code>. Or you can directly create the quadratic form matrix for this estimator using the function <code><a href="../reference/make_kernel_var_matrix.html">make_kernel_var_matrix()</a></code>. Currently only supports a single auxiliary variable and only the Epanechnikov kernel function.</p></li>
 <li><p>Added the option <code>variance_estimator = "Beaumont-Emond"</code> to the generalized replication methods.</p></li>
 <li><p>For Fay’s generalized replication, the default value of <code>max_replicates</code> is now <code>Inf</code>, meaning that there is no limit on the number of replicates that will be included in the output.</p></li>

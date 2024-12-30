@@ -15,6 +15,8 @@
 <url><loc>https://bschneidr.github.io/svrep/reference/as_fays_gen_rep_design.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/as_gen_boot_design.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/as_random_group_jackknife_design.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/as_sdr_design.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/assign_hadamard_rows.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/calibrate_to_sample.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/compress_design.html</loc></url>
@@ -22,6 +24,7 @@
 <url><loc>https://bschneidr.github.io/svrep/reference/distribute_matrix_across_clusters.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/estimate_boot_reps_for_target_cv.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/estimate_boot_sim_cv.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/find_minimum_hadamard_order.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/get_design_quad_form.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/get_nearest_psd_matrix.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/getvars.html</loc></url>
@@ -40,6 +43,7 @@
 <url><loc>https://bschneidr.github.io/svrep/reference/make_quad_form_matrix.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_rwyb_bootstrap_weights.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_sd_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_sdr_replicate_factors.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_srswor_matrix.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_twophase_quad_form.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/redistribute_weights.html</loc></url>
