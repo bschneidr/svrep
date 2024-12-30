@@ -459,6 +459,17 @@ as_sdr_design.survey.design <- function(
       SORT_VARIABLE = compressed_design_structure$design$variables[[sort_variable]]
     )
 
+    if (packageVersion("base") <= "4.4.0") {
+      sort_by <- function(x, y, ...) {
+          if (inherits(y, "formula")) 
+              y <- .formula2varlist(y, x)
+          if (!is.list(y)) 
+              y <- list(y)
+          o <- do.call(order, c(unname(y), list(...)))
+          x[o, , drop = FALSE]
+      }
+    }
+
     sort_data <- sort_data |> sort_by(~ PSU_STRATUM + SORT_VARIABLE)
     sort_data[['SORT_ORDER']] <- seq_len(nrow(sort_data))
     sort_data <- sort_data |> sort_by(~ ORIG_ORDER)

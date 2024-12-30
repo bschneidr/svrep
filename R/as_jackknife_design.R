@@ -332,6 +332,16 @@ as_random_group_jackknife_design.survey.design <- function(
   ) |> as.numeric()
 
   # Order the data by varstrat, then stratum, then sort variable, then by PSU
+  if (packageVersion("base") <= "4.4.0") {
+    sort_by <- function(x, y, ...) {
+        if (inherits(y, "formula")) 
+            y <- .formula2varlist(y, x)
+        if (!is.list(y)) 
+            y <- list(y)
+        o <- do.call(order, c(unname(y), list(...)))
+        x[o, , drop = FALSE]
+    }
+  }
   design_vars <- design_vars |> sort_by(
     ~ VAR_STRAT + STRATUM + SORT_VAR + RAND_PSU_ID
   )
