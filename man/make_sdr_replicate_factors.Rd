@@ -49,16 +49,18 @@ rep_factors <- make_sdr_replicate_factors(
   target_number_of_replicates = 4,
   use_normal_hadamard = FALSE
 )
+print(rep_factors)
 
 # These replicate factors are equivalent
 # to the SD2 variance estimator
 tcrossprod(rep_factors - 1)
 
 # Compare to the quadratic form of the SD2 estimator
-sd1_quad_form <- make_quad_form_matrix(
-  variance_estimator = "SD1",
+sd2_quad_form <- make_quad_form_matrix(
+  variance_estimator = "SD2",
   cluster_ids        = matrix(1:4, ncol = 1),
   sort_order         = matrix(1:4, ncol = 1)
 )
+print(sd2_quad_form)
 
 }
