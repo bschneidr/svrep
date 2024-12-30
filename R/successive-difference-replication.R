@@ -288,12 +288,21 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' There are different methods for forming the replicate factors depending on
 #' whether the replicate variance estimator is meant to be equivalent to the 
 #' SD2 variance estimator (i.e., the circular successive difference estimator) 
-#' or the SD1 variance estimator (the non-circular successive difference estiamtor) 
+#' or the SD1 variance estimator (the non-circular successive difference estimator) 
 #' described in Ash (2014). This function uses the approach based on the SD2 variance estimator.
+#' For multistage designs, this replication method only takes into account information about the
+#' first stage of sampling.
 #' 
 #' The scale factor to be used for variance estimation with the replicate weights
 #' is \eqn{4/R}, where \eqn{R} is the number of replicates. This scale factor will 
 #' be used even when there are finite population corrections; see the subsection below.
+#' 
+#' As an alternative to the successive difference replication estimator,
+#' one can use a generalized replication method where the target variance estimator
+#' is the "SD1" or "SD2" estimator. See the functions \link[svrep]{as_gen_boot_design}
+#' or \link[svrep]{as_fays_gen_rep_design} for more details on generalized replication
+#' and see the help section \link[svrep]{variance-estimators} for more details
+#' on the "SD1" and "SD2" variance estimators.
 #' 
 #' @section Details on Stratification and Finite Population Corrections:
 #' 
@@ -307,7 +316,7 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' do not require any adjustment to the overall scale factor used in variance estimation. This is the approach
 #' used by the U.S. Census Bureau for the 5-year American Community Survey (ACS) replicate weights (U.S. Census Bureau, 2022, p. 12-8).
 #' This approach is used regardless of whether the design has one overall finite population correction factor
-#' or has different finite population correction factors.
+#' or has different finite population correction factors for different strata.
 #' 
 #' @section Details on Row Assignments for Creating Replicate Factors:
 #' The number of replicates must match the order of an available Hadamard matrix.
