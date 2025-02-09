@@ -49,5 +49,5 @@ Suggests:
     torch
 Config/testthat/edition: 3
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1.0)
 VignetteBuilder: knitr, rmarkdown
