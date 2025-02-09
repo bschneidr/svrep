@@ -53,9 +53,10 @@ reference:
 - title: General-Purpose Helper Functions
 - contents:
   - matches("shuffle_replicates|subsample_replicates|stack_replicate_designs")
-  - matches("rescale_reps")
+  - matches("rescale_replicates")
   - matches("add_inactive_replicates")
   - matches("svyby_repwts")
+  - matches("rescale_reps")
 - title: Diagnostic Functions to Check Replicate Weights
 - contents:
   - matches("summarize_rep_weights")
