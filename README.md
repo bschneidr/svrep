@@ -45,7 +45,8 @@ resulting publications. This is appreciated by the package maintainer
 and helps to incentivize ongoing development, maintenance, and support.
 
 > Schneider B. (2023). “svrep: Tools for Creating, Updating, and
-> Analyzing Survey Replicate Weights”. R package version 0.6.0.
+> Analyzing Survey Replicate Weights”. R package version 0.7.0.
+> <https://doi.org/10.32614/CRAN.package.svrep>.
 
 When using the ‘svrep’ package, please also cite the ‘survey’ package
 and R itself, since they are essential to the use of ‘svrep’. Call
