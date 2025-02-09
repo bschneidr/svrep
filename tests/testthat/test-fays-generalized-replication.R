@@ -400,10 +400,11 @@ test_that(
     })
 
     rescaled_design <- twophase_gen_repl |>
-      rescale_reps(tau = NULL, min_wgt = 0.05)
+      rescale_replicates(min_wgt = 0.05)
     rescaled_matrix <- twophase_gen_repl |>
       weights(type = "replication") |>
-      rescale_reps(tau = NULL, min_wgt = 0.05)
+      `attr<-`('scale', twophase_gen_repl$scale) |>
+      rescale_replicates(min_wgt = 0.05)
 
     expect_equal(
       object = rescaled_design |> weights(type = "replication"),
@@ -416,7 +417,8 @@ test_that(
 
     expect_equal(
       object = matrix(c(1,0.3,0.02,2,3,4), ncol = 3) |>
-        rescale_reps(min_wgt = 0.02) |>
+        `attr<-`('scale', 1) |>
+        rescale_replicates(min_wgt = 0.02) |>
         `attr<-`('tau', NULL),
       expected = matrix(c(1,0.3,0.02,2,3,4), ncol = 3)
     )

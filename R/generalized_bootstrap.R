@@ -221,30 +221,40 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
     replicate_factors <- rep(1, times = n) + replicate_factors
   }
 
+  attr(replicate_factors, 'scale') <- 1/num_replicates
+
   # (Potentially) rescale to avoid negative weights
-  if (tau == "auto") {
-    tau <- NULL
-    min_wgt <- 0.01
+  if (missing(tau)) {
+    replicate_factors <- replicate_factors
+    attr(replicate_factors, 'tau') <- 1 
   } else {
-    tau <- tau
-    min_wgt <- NULL
+    if (tau == "auto") {
+      tau <- NULL
+      new_scale <- NULL
+      min_wgt <- 0.01
+    } else {
+      tau <- tau
+      new_scale <- attr(replicate_factors, 'scale') * (tau^2)
+      min_wgt <- NULL
+    }
+    replicate_factors <- rescale_replicates(
+      x = replicate_factors,
+      new_scale = new_scale,
+      min_wgt = min_wgt
+    )
+    selected_tau <- sqrt(
+      attr(replicate_factors, 'scale')*num_replicates
+    )
+    attr(replicate_factors, 'tau') <- selected_tau
   }
-  rescaled_replicate_factors <- rescale_reps(
-    x = replicate_factors,
-    tau = tau,
-    min_wgt = min_wgt
-  )
 
-  selected_tau <- attr(rescaled_replicate_factors, 'tau')
-
-  attr(rescaled_replicate_factors, 'scale') <- (selected_tau^2)/num_replicates
-  attr(rescaled_replicate_factors, 'rscales') <- rep(1, times = num_replicates)
+  attr(replicate_factors, 'rscales') <- rep(1, times = num_replicates)
 
   # Set column names
-  colnames(rescaled_replicate_factors) <- sprintf("REP_%s", seq_len(num_replicates))
+  colnames(replicate_factors) <- sprintf("REP_%s", seq_len(num_replicates))
 
   # Return result
-  return(rescaled_replicate_factors)
+  return(replicate_factors)
 }
 
 #' @title Convert a survey design object to a generalized bootstrap replicate design
