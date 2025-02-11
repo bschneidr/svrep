@@ -36,11 +36,11 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/bschneidr/svrep/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/bschneidr/svrep/blob/v0.7.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.7.0" id="svrep-070">svrep 0.7.0<a class="anchor" aria-label="anchor" href="#svrep-070"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.7.0" id="svrep-070">svrep 0.7.0<a class="anchor" aria-label="anchor" href="#svrep-070"></a></h2><p class="text-muted">CRAN release: 2025-02-09</p>
 <ul><li><p>Added the successive difference replication method, with functions <code><a href="../reference/as_sdr_design.html">as_sdr_design()</a></code> and <code><a href="../reference/make_sdr_replicate_factors.html">make_sdr_replicate_factors()</a></code>.</p></li>
 <li><p>For the generalized bootstrap functions, the default value for the argument <code>tau</code> is now <code>1</code> instead of <code>auto</code>. This means that generalized bootstrap replicates are not rescaled by default.</p></li>
 <li><p>The function <code><a href="../reference/rescale_reps.html">rescale_reps()</a></code> has been deprecated in favor of the replacement <code><a href="../reference/rescale_replicates.html">rescale_replicates()</a></code>. The function <code><a href="../reference/rescale_replicates.html">rescale_replicates()</a></code> uses an argument <code>new_scale</code> instead of <code>tau</code>, so that users can directly specify the desired scale factor after rescaling. Using <code><a href="../reference/rescale_reps.html">rescale_reps()</a></code> will emit a warning message.</p></li>
