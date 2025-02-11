@@ -1,3 +1,5 @@
+# svrep (development version)
+
 # svrep 0.7.0
 
 -   Added the successive difference replication method, with functions `as_sdr_design()` and `make_sdr_replicate_factors()`.
