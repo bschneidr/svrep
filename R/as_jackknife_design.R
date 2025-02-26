@@ -481,7 +481,7 @@ as_random_group_jackknife_design.survey.design <- function(
     if (length(unique(scale_factors)) == 1) {
       overall_scale <- scale_factors[1]
       rscales <- rep(1, times = length(scale_factors))
-    } else{
+    } else {
       overall_scale <- 1
       rscales <- scale_factors
     }
