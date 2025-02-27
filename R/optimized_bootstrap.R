@@ -103,10 +103,10 @@ make_optim_boot_factors <- function(
     return(X)
   }
 
-  # log_A The logarithms of the matrix A we are trying to optimize
-  # target_sigma The target quadratic form matrix
-  loss_fn <- function(log_A, target_sigma) {
-    A = log_A$clamp(0) |> constrain_sums()
+  # A: The matrix we're trying to optimize
+  # target_sigma: The target quadratic form matrix
+  loss_fn <- function(A, target_sigma) {
+    A = A$clamp(0) |> constrain_sums()
     # Loss consists of:
     # (1) Squared Frobenius distance
     #     between weights' covariance matrix
@@ -136,21 +136,21 @@ make_optim_boot_factors <- function(
   initial_solution[sign(initial_solution) < 0] <- 0
   #initial_solution[initial_solution < 0] <- 1e-10
 
-  log_A = torch::torch_tensor(initial_solution, requires_grad = TRUE)
+  A = torch::torch_tensor(initial_solution, requires_grad = TRUE)
 
   # Create an optimizer
-  optimizer = torch_optimizer(params = log_A, ...)
+  optimizer = torch_optimizer(params = A, ...)
 
   # Iteratively update the matrix and evaluate loss
 
   # Initialize loss and iteration index
   iteration <- 1L
-  loss <- loss_fn(log_A, Sigma_tensor)
+  loss <- loss_fn(A, Sigma_tensor)
 
   if (inherits(optimizer, "optim_lbfgs")) {
     calc_loss <- function() {
       optimizer$zero_grad()
-      loss_value <- loss_fn(log_A, Sigma_tensor)
+      loss_value <- loss_fn(A, Sigma_tensor)
       loss_value$backward()
       loss_value
     }
@@ -172,12 +172,12 @@ make_optim_boot_factors <- function(
       optimizer$zero_grad()
 
       # Determine loss at current iteration
-      loss = loss_fn(log_A, Sigma_tensor)
+      loss = loss_fn(A, Sigma_tensor)
 
       # Calculate gradients
       loss$backward()
 
-      # Update `log_A`
+      # Update `A`
       optimizer$step()
     }
 
@@ -200,8 +200,8 @@ make_optim_boot_factors <- function(
     warning(warning_msg)
   }
 
-  # Create the matrix of replicates by exponentiating log_A
-  A <- log_A$clamp(0) |> constrain_sums() |> as.matrix()
+  # Create the matrix of replicates by applying constraints
+  A <- A$clamp(0) |> constrain_sums() |> as.matrix()
   attr(A, 'converged') <- converged
 
   return(A)
