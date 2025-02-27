@@ -11,7 +11,8 @@ as_optim_boot_design(
   psd_option = "warn",
   max_iter = 20000,
   max_loss = 1e-04,
-  torch_optimizer = function(params, ...) torch::optim_adam(params, lr = 5e-04, ...),
+  torch_optimizer = function(params, ...) torch::optim_ignite_adamw(params, lr = 5e-04,
+    ...),
   ...,
   mse = getOption("survey.replicates.mse"),
   compress = TRUE,
@@ -75,7 +76,7 @@ for details of the approximation.}
 \item{max_loss}{The maximum loss to allow for the optimization algorithm.}
 
 \item{torch_optimizer}{An optimization function from the 'torch' package,
-such as \code{optim_adam}.}
+such as \code{optim_ignite_adam}.}
 
 \item{...}{Optional arguments to pass to the optimization function
 supplied by \code{torch_optimizer}.}
@@ -182,7 +183,7 @@ library(survey)
        replicates = 50,
        max_loss = 1e-7,
        torch_optimizer = \(params, ...) {
-         torch::optim_adam(params, lr = 0.01)
+         torch::optim_ignite_adamw(params, lr = 0.01)
        }
      )
 

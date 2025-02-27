@@ -9,7 +9,8 @@ make_optim_boot_factors(
   num_replicates = Matrix::rankMatrix(Sigma) + 1,
   max_iter = 20000,
   max_loss = 1e-04,
-  torch_optimizer = function(params, ...) torch::optim_adam(params, lr = 5e-04, ...),
+  torch_optimizer = function(params, ...) torch::optim_ignite_adamw(params, lr = 5e-04,
+    ...),
   ...,
   .verbose = TRUE
 )
@@ -24,7 +25,7 @@ make_optim_boot_factors(
 \item{max_loss}{The maximum loss to allow for the optimization algorithm.}
 
 \item{torch_optimizer}{An optimization function from the 'torch' package,
-such as \code{optim_adam}.}
+such as \code{optim_ignite_adam}.}
 
 \item{...}{Optional arguments to pass to the optimization function
 supplied by \code{torch_optimizer}.}
