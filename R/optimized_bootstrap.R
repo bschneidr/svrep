@@ -6,7 +6,7 @@
 #' @param max_iter The maximum iterations to allow for the optimization algorithm.
 #' @param max_loss The maximum loss to allow for the optimization algorithm.
 #' @param torch_optimizer An optimization function from the 'torch' package,
-#' such as \code{optim_adam}.
+#' such as \code{optim_ignite_adam}.
 #' @param ... Optional arguments to pass to the optimization function
 #' supplied by \code{torch_optimizer}.
 #' @param .verbose Whether to periodically show the value of the loss function
@@ -67,7 +67,7 @@ make_optim_boot_factors <- function(
     num_replicates = Matrix::rankMatrix(Sigma) + 1,
     max_iter = 20000,
     max_loss = 0.0001,
-    torch_optimizer = \(params, ...) torch::optim_adamw(params, lr = 0.0005, ...),
+    torch_optimizer = \(params, ...) torch::optim_ignite_adamw(params, lr = 0.0005, ...),
     ...,
     .verbose = TRUE
 ) {
@@ -255,7 +255,7 @@ make_optim_boot_factors <- function(
 #' @param max_iter The maximum iterations to allow for the optimization algorithm.
 #' @param max_loss The maximum loss to allow for the optimization algorithm.
 #' @param torch_optimizer An optimization function from the 'torch' package,
-#' such as \code{optim_adam}.
+#' such as \code{optim_ignite_adam}.
 #' @param ... Optional arguments to pass to the optimization function
 #' supplied by \code{torch_optimizer}.
 #' @param compress This reduces the computer memory required to represent the replicate weights and has no
@@ -368,7 +368,7 @@ make_optim_boot_factors <- function(
 #'        replicates = 50,
 #'        max_loss = 1e-7,
 #'        torch_optimizer = \(params, ...) {
-#'          torch::optim_adamw(params, lr = 0.01)
+#'          torch::optim_ignite_adamw(params, lr = 0.01)
 #'        }
 #'      )
 #'
@@ -445,7 +445,7 @@ as_optim_boot_design <- function(design, variance_estimator = NULL,
                                  psd_option = "warn",
                                  max_iter = 20000,
                                  max_loss = 0.0001,
-                                 torch_optimizer = \(params, ...) torch::optim_adamw(params, lr = 0.0005, ...),
+                                 torch_optimizer = \(params, ...) torch::optim_ignite_adamw(params, lr = 0.0005, ...),
                                  ...,
                                  mse = getOption("survey.replicates.mse"),
                                  compress = TRUE,
@@ -459,7 +459,7 @@ as_optim_boot_design.twophase2 <- function(design, variance_estimator = NULL,
                                            psd_option = "warn",
                                            max_iter = 20000,
                                            max_loss = 0.0001,
-                                           torch_optimizer = \(params, ...) torch::optim_adamw(params, lr = 0.0005, ...),
+                                           torch_optimizer = \(params, ...) torch::optim_ignite_adamw(params, lr = 0.0005, ...),
                                            ...,
                                            mse = getOption("survey.replicates.mse"),
                                            compress = TRUE,
@@ -532,7 +532,7 @@ as_optim_boot_design.survey.design <- function(design, variance_estimator = NULL
                                                psd_option = "warn",
                                                max_iter = 20000,
                                                max_loss = 0.0001,
-                                               torch_optimizer = \(params, ...) torch::optim_adamw(params, lr = 0.0005, ...),
+                                               torch_optimizer = \(params, ...) torch::optim_iginite_adamw(params, lr = 0.0005, ...),
                                                ...,
                                                mse = getOption("survey.replicates.mse"),
                                                compress = TRUE,
