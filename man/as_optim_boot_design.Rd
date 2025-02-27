@@ -7,6 +7,7 @@
 as_optim_boot_design(
   design,
   variance_estimator = NULL,
+  aux_var_names = NULL,
   replicates = 500,
   psd_option = "warn",
   max_iter = 20000,
@@ -52,6 +53,9 @@ Options include:
   This estimator is the basis of the "successive-differences replication" estimator commonly used
   for variance estimation for systematic sampling.}
 }}
+
+\item{aux_var_names}{(Only used if \code{variance_estimator = "Deville-Tille")}.
+A vector of the names of auxiliary variables used in sampling.}
 
 \item{replicates}{Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 A commonly-recommended default is 500.}

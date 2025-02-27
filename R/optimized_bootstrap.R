@@ -63,15 +63,15 @@
 #' optim_boot_design |> svymean(x = ~ LIBRARIA, na.rm = TRUE)
 
 make_optim_boot_factors <- function(
-    Sigma,
-    num_replicates = Matrix::rankMatrix(Sigma) + 1,
-    max_iter = 20000,
-    max_loss = 0.0001,
-    torch_optimizer = \(params, ...) torch::optim_ignite_adamw(params, lr = 0.0005, ...),
-    ...,
-    .verbose = TRUE
+  Sigma,
+  num_replicates = Matrix::rankMatrix(Sigma) + 1,
+  max_iter = 20000,
+  max_loss = 0.0001,
+  torch_optimizer = \(params, ...)
+    torch::optim_ignite_adamw(params, lr = 0.0005, ...),
+  ...,
+  .verbose = TRUE
 ) {
-
   if (!requireNamespace("torch", quietly = TRUE)) {
     stop("The `torch` package must be installed to use this function.")
   }
@@ -90,12 +90,17 @@ make_optim_boot_factors <- function(
 
   Sigma_tensor = Sigma |> as.matrix() |> torch::torch_tensor()
 
-  constrain_sums <- function(X) {
-    X = (X / X$mean(1))
-    X = (X$t() / X$mean(2))$t()
-    X = (X / X$mean(1))
-    X = (X$t() / X$mean(2))$t()
-    X
+  constrain_sums <- function(X, max_iter = 10) {
+    X_dim <- nrow(X)
+    ones_vector <- torch::torch_ones(X_dim)
+    iter <- 1
+    while (iter <= max_iter) {
+      X = (X / X$mean(1))
+      X = (X$t() / X$mean(2))$t()
+
+      iter <- iter + 1
+    }
+    return(X)
   }
 
   # log_A The logarithms of the matrix A we are trying to optimize
@@ -106,9 +111,7 @@ make_optim_boot_factors <- function(
     # (1) Squared Frobenius distance
     #     between weights' covariance matrix
     #     and the target covariance matrix
-    cov_loss = (
-      A$cov(correction = 0) - target_sigma
-    )$square()$sum()
+    cov_loss = (A$cov(correction = 0) - target_sigma)$square()$sum()
 
     # (2) Squared Euclidean distance from mean across replicates
     #     and '1'
@@ -123,13 +126,17 @@ make_optim_boot_factors <- function(
   initial_solution <- make_gen_boot_factors(
     Sigma = Sigma,
     num_replicates = num_replicates,
-    tau = 1, exact_vcov = TRUE
-  )
+    tau = 1,
+    exact_vcov = TRUE
+  ) |>
+    svrep::rescale_replicates(
+      min_wgt = 0.00001,
+      digits = 5
+    )
   initial_solution[sign(initial_solution) < 0] <- 0
   #initial_solution[initial_solution < 0] <- 1e-10
-  
-  log_A = torch::torch_tensor(initial_solution,
-                              requires_grad = TRUE)
+
+  log_A = torch::torch_tensor(initial_solution, requires_grad = TRUE)
 
   # Create an optimizer
   optimizer = torch_optimizer(params = log_A, ...)
@@ -150,8 +157,7 @@ make_optim_boot_factors <- function(
   }
 
   # Conduct the loop
-  while ( (as.numeric(loss) > max_loss) & (iteration < max_iter) ) {
-
+  while ((as.numeric(loss) > max_loss) & (iteration < max_iter)) {
     # Print information for every 10-th iteration
     if (.verbose) {
       if ((iteration %% 500) == 0) {
@@ -182,10 +188,14 @@ make_optim_boot_factors <- function(
   converged <- as.numeric(loss) < max_loss
   if (!converged) {
     warning_msg <- sprintf(
-      paste0("After %s iterations, convergence was not achieved.",
-             "The final value of the loss function is %s,",
-             "but the specified convergence criterion is `loss < %s`"),
-      max_iter, loss$item(), max_loss
+      paste0(
+        "After %s iterations, convergence was not achieved.",
+        "The final value of the loss function is %s,",
+        "but the specified convergence criterion is `loss < %s`"
+      ),
+      max_iter,
+      loss$item(),
+      max_loss
     )
     warning(warning_msg)
   }
@@ -235,6 +245,8 @@ make_optim_boot_factors <- function(
 #'   This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'   for variance estimation for systematic sampling.}
 #' }
+#' @param aux_var_names (Only used if \code{variance_estimator = "Deville-Tille")}.
+#' A vector of the names of auxiliary variables used in sampling.
 #' @param replicates Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 #' A commonly-recommended default is 500.
 
@@ -440,32 +452,45 @@ make_optim_boot_factors <- function(
 #'   svytotal(x = ~ LIBRARIA, design = twophase_boot_design)
 #'
 #' }
-as_optim_boot_design <- function(design, variance_estimator = NULL,
-                                 replicates = 500,
-                                 psd_option = "warn",
-                                 max_iter = 20000,
-                                 max_loss = 0.0001,
-                                 torch_optimizer = \(params, ...) torch::optim_ignite_adamw(params, lr = 0.0005, ...),
-                                 ...,
-                                 mse = getOption("survey.replicates.mse"),
-                                 compress = TRUE,
-                                 .verbose = TRUE) {
+as_optim_boot_design <- function(
+  design,
+  variance_estimator = NULL,
+  aux_var_names = NULL,
+  replicates = 500,
+  psd_option = "warn",
+  max_iter = 20000,
+  max_loss = 0.0001,
+  torch_optimizer = \(params, ...)
+    torch::optim_ignite_adamw(params, lr = 0.0005, ...),
+  ...,
+  mse = getOption("survey.replicates.mse"),
+  compress = TRUE,
+  .verbose = TRUE
+) {
   UseMethod("as_optim_boot_design", design)
 }
 
 #' @export
-as_optim_boot_design.twophase2 <- function(design, variance_estimator = NULL,
-                                           replicates = 500,
-                                           psd_option = "warn",
-                                           max_iter = 20000,
-                                           max_loss = 0.0001,
-                                           torch_optimizer = \(params, ...) torch::optim_ignite_adamw(params, lr = 0.0005, ...),
-                                           ...,
-                                           mse = getOption("survey.replicates.mse"),
-                                           compress = TRUE,
-                                           .verbose = TRUE) {
-
-  Sigma <- get_design_quad_form(design, variance_estimator)
+as_optim_boot_design.twophase2 <- function(
+  design,
+  variance_estimator = NULL,
+  aux_var_names = NULL,
+  replicates = 500,
+  psd_option = "warn",
+  max_iter = 20000,
+  max_loss = 0.0001,
+  torch_optimizer = \(params, ...)
+    torch::optim_ignite_adamw(params, lr = 0.0005, ...),
+  ...,
+  mse = getOption("survey.replicates.mse"),
+  compress = TRUE,
+  .verbose = TRUE
+) {
+  Sigma <- get_design_quad_form(
+    design,
+    variance_estimator,
+    aux_var_names = aux_var_names
+  )
 
   if (!is_psd_matrix(Sigma)) {
     problem_msg <- paste0(
@@ -474,7 +499,6 @@ as_optim_boot_design.twophase2 <- function(design, variance_estimator = NULL,
       " is not positive semidefinite."
     )
     if (psd_option == "warn") {
-
       warning_msg <- paste0(
         problem_msg,
         " It will be approximated by the nearest",
@@ -482,7 +506,6 @@ as_optim_boot_design.twophase2 <- function(design, variance_estimator = NULL,
       )
       warning(warning_msg)
       Sigma <- get_nearest_psd_matrix(Sigma)
-
     } else {
       error_msg <- paste0(
         problem_msg,
@@ -501,15 +524,16 @@ as_optim_boot_design.twophase2 <- function(design, variance_estimator = NULL,
     .verbose = .verbose
   )
 
-  scale <- 1/ncol(adjustment_factors)
+  scale <- 1 / ncol(adjustment_factors)
   rscales <- rep(1, times = ncol(adjustment_factors))
 
   rep_design <- survey::svrepdesign(
-    variables = design$phase1$full$variables[design$subset,,drop=FALSE],
+    variables = design$phase1$full$variables[design$subset, , drop = FALSE],
     weights = stats::weights(design, type = "sampling"),
     repweights = as.matrix(adjustment_factors),
     combined.weights = FALSE,
-    compress = compress, mse = mse,
+    compress = compress,
+    mse = mse,
     scale = scale,
     rscales = rscales,
     type = "other"
@@ -527,25 +551,33 @@ as_optim_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 }
 
 #' @export
-as_optim_boot_design.survey.design <- function(design, variance_estimator = NULL,
-                                               replicates = 500,
-                                               psd_option = "warn",
-                                               max_iter = 20000,
-                                               max_loss = 0.0001,
-                                               torch_optimizer = \(params, ...) torch::optim_iginite_adamw(params, lr = 0.0005, ...),
-                                               ...,
-                                               mse = getOption("survey.replicates.mse"),
-                                               compress = TRUE,
-                                               .verbose = TRUE) {
+as_optim_boot_design.survey.design <- function(
+  design,
+  variance_estimator = NULL,
+  aux_var_names = NULL,
+  replicates = 500,
+  psd_option = "warn",
+  max_iter = 20000,
+  max_loss = 0.0001,
+  torch_optimizer = \(params, ...)
+    torch::optim_ignite_adamw(params, lr = 0.0005, ...),
+  ...,
+  mse = getOption("survey.replicates.mse"),
+  compress = TRUE,
+  .verbose = TRUE
+) {
+  # Produce a (potentially) compressed survey design object
+  compressed_design_structure <- compress_design(
+    design,
+    vars_to_keep = aux_var_names
+  )
 
-    # Produce a (potentially) compressed survey design object
-  compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
-
-    # Get the quadratic form of the variance estimator,
-    # for the compressed design object
+  # Get the quadratic form of the variance estimator,
+  # for the compressed design object
   Sigma <- get_design_quad_form(
     compressed_design_structure$design_subset,
     variance_estimator,
+    aux_var_names = aux_var_names,
     ...
   )
 
@@ -553,17 +585,16 @@ as_optim_boot_design.survey.design <- function(design, variance_estimator = NULL
   if (!is_psd_matrix(Sigma)) {
     problem_msg <- "The sample quadratic form matrix for this design and variance estimator is not positive semidefinite."
     if (psd_option == "warn") {
-
       warning_msg <- paste0(
         problem_msg,
         " It will be approximated by the nearest positive semidefinite matrix."
       )
       warning(warning_msg)
       Sigma <- get_nearest_psd_matrix(Sigma)
-
     } else {
       error_msg <- paste0(
-        problem_msg, " This can be handled using the `psd_option` argument."
+        problem_msg,
+        " This can be handled using the `psd_option` argument."
       )
       stop(error_msg)
     }
@@ -579,14 +610,15 @@ as_optim_boot_design.survey.design <- function(design, variance_estimator = NULL
     .verbose = .verbose
   )
 
-  scale <- 1/ncol(adjustment_factors)
+  scale <- 1 / ncol(adjustment_factors)
   rscales <- rep(1, times = ncol(adjustment_factors))
 
   # Uncompress the adjustment factors
   adjustment_factors <- distribute_matrix_across_clusters(
     cluster_level_matrix = adjustment_factors,
     cluster_ids = compressed_design_structure$index,
-    rows = TRUE, cols = FALSE
+    rows = TRUE,
+    cols = FALSE
   )
 
   # Create the survey design object
@@ -595,7 +627,8 @@ as_optim_boot_design.survey.design <- function(design, variance_estimator = NULL
     weights = stats::weights(design, type = "sampling"),
     repweights = as.matrix(adjustment_factors),
     combined.weights = FALSE,
-    compress = compress, mse = mse,
+    compress = compress,
+    mse = mse,
     scale = scale,
     rscales = rscales,
     type = "other"
