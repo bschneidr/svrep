@@ -23,7 +23,21 @@ knitr::opts_chunk$set(
 <!-- [![R-CMD-check](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml) -->
 <!-- badges: end -->
 
-svrep provides methods for creating, updating, and analyzing replicate weights for surveys. Functions from svrep can be used to implement adjustments to replicate designs (e.g. nonresponse weighting class adjustments) and analyze their effect on the replicate weights and on estimates of interest. Facilitates the creation of bootstrap and generalized bootstrap replicate weights.
+svrep extends the survey package in R by implementing flexible replication methods such as the generalized bootstrap that can be used to analyze data from complex sample designs. Functions from svrep can be used to create replicate weights and use special replication-based methods of estimating variances from complex sample surveys. 
+
+The following kinds of replication methods are currently supported:
+
+- **Bootstrap** replication, including the Rao-Wu-Yue-Beaumont (RWYB) bootstrap which can handle data from stratified, multistage samples with arbitrary sampling fractions and unequal probability sampling.
+
+- **Random-groups jackknife** replication, a method that can be more efficient than the bootstrap in certain settings while being more robust than the standard delete-one jackknife when estimating variances for quantiles and other non-smooth statistics. 
+
+- **Fay's generalized replication method**, a highly flexible and efficient replication method proposed by Fay (1989). This method can be used for stratified multistage samples with unequal probability sampling, as well samples selected with more complex methods such as two-phase sampling or the cube method.
+
+- **The generalized survey bootstrap**, a bootstrap form of generalized replication which can handle a much wider range of complex sample design features compared to standard bootstrap methods.
+
+- **Successive difference replication**, a replication method that is especially useful for surveys with systematic sampling or fine stratification. This is the method used by the largest household survey in the United States, the American Community Survey.
+
+The svrep package also implements sample-based calibration methods, wherein one sample’s weights are calibrated to estimates from another sample, for example when calibrating a second-phase sample to a first-phase sample or when calibrating one survey using estimates from a separate benchmark survey. svrep also provides general data manipulation and diagnostic tools to help survey statisticians work with replicate weights and export them to a CSV or other output file format. For bootstrap replicates specifically, there are also special tools to help analysts identify the number of bootstrap replicates necessary to obtain a desired precision level.
 
 ## Installation
 
