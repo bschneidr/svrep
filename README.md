@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# svrep
+# svrep <a href="https://bschneidr.github.io/svrep/"><img src="man/figures/logo.png" align="right" height="139" alt="svrep website" /></a>
 
 <!-- badges: start -->
 
