@@ -631,6 +631,7 @@ make_doubled_half_bootstrap_weights <- function(
 #' When \code{n} is even,
 #' half the values will be 0 and the other half will be 2.
 #' When \code{n} is odd, the values can be 0, 1, 2, or 3.
+#' @keywords internal
 draw_doubled_half_sample <- function(n) {
   
   if (((n %% 1) != 0) || n == 1) {
@@ -681,6 +682,7 @@ draw_doubled_half_sample <- function(n) {
 #' "A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
 #' \strong{Computational Statistics}, \emph{29}(5), 1345-1363. https://doi.org/10.1007/s00180-014-0495-0
 #'
+#' @keywords internal
 draw_antal_tille_resample <- function(sel_probs) {
   
   n <- length(sel_probs)

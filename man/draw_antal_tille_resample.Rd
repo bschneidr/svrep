@@ -26,3 +26,4 @@ Antal, E. and Tillé, Y. (2014).
 "A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
 \strong{Computational Statistics}, \emph{29}(5), 1345-1363. https://doi.org/10.1007/s00180-014-0495-0
 }
+\keyword{internal}

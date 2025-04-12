@@ -23,3 +23,4 @@ When \code{n} is odd, the values can be 0, 1, 2, or 3.
 Draw a doubled half-sample using the method
 described in Antal and Tille (2014)
 }
+\keyword{internal}
