@@ -1,5 +1,11 @@
 # svrep (development version)
 
+-   Added the doubled half bootstrap of Antal and Tillé (2014), which works for single stage designs with simple random sampling or unequal probability sampling, with or without replacement.
+    This bootstrap method has the advantage of generating integer replication factors.
+    Users can call `as_bootstrap_design(..., type = "Antal-Tille")` or `make_doubled_half_bootstrap_weights()`.
+
+-   Small improvements to vignette on bootstrap methods.
+
 # svrep 0.7.0
 
 -   Added the successive difference replication method, with functions `as_sdr_design()` and `make_sdr_replicate_factors()`.
