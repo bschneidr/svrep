@@ -88,13 +88,13 @@
 #' The generalized survey bootstrap represents one strategy for forming replication variance estimators
 #' in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein (1984).
 #' \cr \cr
-#' - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
+#' - Beaumont, Jean-François, and Zdenek Patak. 2012. "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys." International Statistical Review 80 (1): 127-48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 #' \cr \cr
-#' - Bertail, and Combris. 1997. “Bootstrap Généralisé d’un Sondage.” Annales d’Économie Et de Statistique, no. 46: 49. https://doi.org/10.2307/20076068.
+#' - Bertail, and Combris. 1997. "Bootstrap Généralisé d'un Sondage." Annales d'Économie Et de Statistique, no. 46: 49. https://doi.org/10.2307/20076068.
 #' \cr \cr
-#' - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
+#' - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. "Computing Variances from Complex Samples with Replicate Weights." In, 489-94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 #' \cr \cr
-#' - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
+#' - Fay, Robert. 1984. "Some Properties of Estimates of Variance Based on Replication Methods." In, 495-500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
 #' \cr
 #'
 #' @seealso The function \code{\link[svrep]{make_quad_form_matrix}} can be used to
@@ -434,30 +434,30 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
 #' in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein (1984).
 #' \cr \cr
 #' - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 #' \cr \cr
 #' - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
 #' \cr \cr
 #' - Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
 #' "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
-#' \strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
+#' \strong{Journal of the American Statistical Association}, 111(514), 822-833. https://doi.org/10.1080/01621459.2015.1058264
 #' \cr \cr
-#' - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
+#' - Beaumont, Jean-François, and Zdenek Patak. 2012. "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys." International Statistical Review 80 (1): 127-48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 #' \cr \cr
-#' - Bertail, and Combris. 1997. “Bootstrap Généralisé d’un Sondage.” Annales d’Économie Et de Statistique, no. 46: 49. https://doi.org/10.2307/20076068.
+#' - Bertail, and Combris. 1997. "Bootstrap Généralisé d'un Sondage." Annales d'Économie Et de Statistique, no. 46: 49. https://doi.org/10.2307/20076068.
 #' \cr \cr
-#' - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
-#' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+#' - Deville, J. C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+#' \strong{Journal of Statistical Planning and Inference}, 128, 569-591.
 #' \cr \cr
-#' - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
+#' - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. "Computing Variances from Complex Samples with Replicate Weights." In, 489-94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 #' \cr \cr
-#' - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
+#' - Fay, Robert. 1984. "Some Properties of Estimates of Variance Based on Replication Methods." In, 495-500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
 #' \cr \cr
 #' - Matei, Alina, and Yves Tillé. (2005).
-#' “\emph{Evaluation of Variance Approximations and Estimators
-#' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
-#' \strong{Journal of Official Statistics}, 21(4):543–70.
+#' "\emph{Evaluation of Variance Approximations and Estimators
+#' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}"
+#' \strong{Journal of Official Statistics}, 21(4):543-70.
 #' @export
 #'
 #' @examples

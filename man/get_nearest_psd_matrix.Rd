@@ -39,5 +39,5 @@ X <- matrix(
 get_nearest_psd_matrix(X)
 }
 \references{
-- Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103–118.
+- Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103-118.
 }

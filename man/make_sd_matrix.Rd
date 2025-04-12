@@ -34,6 +34,6 @@ with selection probability \eqn{\pi_k}, and \eqn{f} is the sampling fraction \eq
 }
 \references{
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-\strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 }
 \keyword{internal}

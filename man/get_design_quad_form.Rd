@@ -194,20 +194,20 @@ see the documentation for \link[svrep]{make_twophase_quad_form}.
 }
 \references{
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-\strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 \cr \cr
 - Beaumont, Jean-François, and Zdenek Patak. (2012). "\emph{On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.}"
-\strong{International Statistical Review} 80 (1): 127–48.
+\strong{International Statistical Review} 80 (1): 127-48.
 \cr \cr
 - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
 \cr \cr
 - Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
 "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
-\strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
+\strong{Journal of the American Statistical Association}, 111(514), 822-833. https://doi.org/10.1080/01621459.2015.1058264
 \cr \cr
-- Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
-\strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+- Deville, J.C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+\strong{Journal of Statistical Planning and Inference}, 128, 569-591.
 \cr \cr
-- Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
+- Särndal, C.E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 }

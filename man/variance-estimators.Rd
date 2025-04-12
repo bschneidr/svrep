@@ -242,10 +242,10 @@ where \eqn{n} is the number of observations and \eqn{q} is the number of auxilia
 
 \references{
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-\strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 
-Beaumont, J.-F.; Émond, N. (2022). "\emph{A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase}."
-\strong{Stats}, \emph{5}: 339–357.
+Beaumont, J.F.; Émond, N. (2022). "\emph{A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase}."
+\strong{Stats}, \emph{5}: 339-357.
 https://doi.org/10.3390/stats5020019
 
 Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
@@ -253,15 +253,15 @@ Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Comp
 
 Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
 "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
-\strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
+\strong{Journal of the American Statistical Association}, 111(514), 822-833. https://doi.org/10.1080/01621459.2015.1058264
 
-Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
-\strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+Deville, J.C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+\strong{Journal of Statistical Planning and Inference}, 128, 569-591.
 
 Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
 
 Matei, Alina, and Yves Tillé. (2005).
-“\emph{Evaluation of Variance Approximations and Estimators
-in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
-\strong{Journal of Official Statistics}, 21(4):543–70.
+"\emph{Evaluation of Variance Approximations and Estimators
+in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}"
+\strong{Journal of Official Statistics}, 21(4):543-70.
 }

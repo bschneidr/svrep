@@ -54,7 +54,7 @@
 #' gives the assignment of two rows of a Hadamard matrix to the row of data.
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 #' @keywords internal
 assign_hadamard_rows <- function(
   n, hadamard_order, 
@@ -342,7 +342,7 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
 #' 
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 #'
 #' Fay, R.E. and Train, G.F. (1995). "\emph{Aspects of Survey and Model-Based Postcensal Estimation of
 #' Income and Poverty Characteristics for States and Counties}." Joint Statistical Meetings,

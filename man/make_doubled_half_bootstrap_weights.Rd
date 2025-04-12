@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_bootstrap_weights.R
 \name{make_doubled_half_bootstrap_weights}
 \alias{make_doubled_half_bootstrap_weights}
-\title{Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tille (2014).}
+\title{Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tillé (2014).}
 \usage{
 make_doubled_half_bootstrap_weights(
   num_replicates = 100,
@@ -35,7 +35,7 @@ Specifying \code{output = "weights"} returns the matrix of replicate weights,
 where the full-sample weights are inferred using \code{samp_unit_sel_probs}.
 }
 \description{
-Creates bootstrap replicate weights using the method of Antal and Tille (2014).
+Creates bootstrap replicate weights using the method of Antal and Tillé (2014).
 This method is applicable to single-stage sample designs, potentially
 with stratification and clustering. It can be used for designs that use
 simple random sampling without replacement or unequal probability sampling without replacement.
@@ -52,6 +52,9 @@ than systematic sampling).
 
 See Section 7 of Antal and Tillé (2014) 
 for a clear description of how the replicates are formed.
+The paper presents two options for the resampling probabilities
+used in replication: the R function uses the option
+referred to in the paper as "the \eqn{\pi}-bootstrap."
 }
 \examples{
 \dontrun{
@@ -112,7 +115,7 @@ for a clear description of how the replicates are formed.
 \references{
 Antal, E. and Tillé, Y. (2014). 
 "A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
-\strong{Computational Statistics}, \emph{29}(5), 1345–1363. https://doi.org/10.1007/s00180-014-0495-0
+\strong{Computational Statistics}, \emph{29}(5), 1345-1363. https://doi.org/10.1007/s00180-014-0495-0
 }
 \seealso{
 If the survey design can be accurately represented using \code{\link[survey]{svydesign}},

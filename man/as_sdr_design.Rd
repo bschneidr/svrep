@@ -164,7 +164,7 @@ svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design)
 }
 \references{
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-\strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 
 Fay, R.E. and Train, G.F. (1995). "\emph{Aspects of Survey and Model-Based Postcensal Estimation of
 Income and Poverty Characteristics for States and Counties}." Joint Statistical Meetings,

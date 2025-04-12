@@ -180,7 +180,7 @@ SE(rep_estimate) / SE(ht_estimate)
 \references{
 Fay, Robert. 1989.
 "Theory And Application Of Replicate Weighting For Variance Calculations."
-In, 495–500. Alexandria, VA: American Statistical Association.
+In, 495-500. Alexandria, VA: American Statistical Association.
 http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 }
 \seealso{

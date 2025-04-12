@@ -111,5 +111,5 @@ set.seed(2023)
 }
 \references{
 Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-\strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 }

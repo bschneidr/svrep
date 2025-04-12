@@ -198,12 +198,12 @@ method described in Section 7 ("Bootstrap for Multistage Sampling").
 \references{
 Beaumont, J.-F.; Émond, N. (2022).
 "A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
-\strong{Stats}, \emph{5}: 339–357.
+\strong{Stats}, \emph{5}: 339-357.
 https://doi.org/10.3390/stats5020019
 
 Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 "Some recent work on resampling methods for complex surveys."
-\strong{Surv. Methodol.}, \emph{18}: 209–217.
+\strong{Surv. Methodol.}, \emph{18}: 209-217.
 }
 \seealso{
 If the survey design can be accurately represented using \code{\link[survey]{svydesign}},

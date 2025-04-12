@@ -188,10 +188,10 @@ cases”, and “unknown eligibility” cases.
 ``` r
 # Create variable giving response status
 orig_rep_design$variables[['response_status']] <- sample(
-  x = c("Respondent", "Nonrespondent",
-        "Ineligible", "Unknown eligibility"),
-  prob = c(0.6, 0.2, 0.1, 0.1),
-  size = nrow(orig_rep_design),
+  x       = c("Respondent", "Nonrespondent",
+              "Ineligible", "Unknown eligibility"),
+  prob    = c(0.6, 0.2, 0.1, 0.1),
+  size    = nrow(orig_rep_design),
   replace = TRUE
 )
 

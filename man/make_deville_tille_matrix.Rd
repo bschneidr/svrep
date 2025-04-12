@@ -49,12 +49,12 @@ application of variance estimation for balanced samples selected using the cube 
 "Improved variance estimation for balanced samples drawn via the cube method."
 Journal of Statistical Planning and Inference, 141, 411-425.
 
-- Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
-\strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+- Deville, J.C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+\strong{Journal of Statistical Planning and Inference}, 128, 569-591.
 
 - Li, J., Chen, S., and Krenzke, T. (2014).
 "Replication Variance Estimation for Balanced Sampling: An Application to the PIAAC Study."
-Proceedings of the Survey Research Methods Section, 2014: 985–994. Alexandria, VA: American Statistical Association.
+Proceedings of the Survey Research Methods Section, 2014: 985-994. Alexandria, VA: American Statistical Association.
 http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 
 - Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.

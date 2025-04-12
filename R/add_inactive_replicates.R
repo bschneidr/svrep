@@ -54,7 +54,7 @@
 #' \code{my_design$mse <- TRUE}.
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 #'
 #' @export
 #'

@@ -293,10 +293,10 @@ provided that the joint inclusion probabilities from the second-phase design
 are available and are all nonzero.
 \cr \cr
 \itemize{
-\item Beaumont, Jean-François, and Zdenek Patak. (2012). “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.”
-International Statistical Review 80 (1): 127–48.
+\item Beaumont, Jean-François, and Zdenek Patak. (2012). "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys."
+International Statistical Review 80 (1): 127-48.
 \cr \cr
-\item Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103–118.
+\item Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103-118.
 \cr \cr
 \item Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 \cr \cr

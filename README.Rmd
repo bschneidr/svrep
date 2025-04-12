@@ -37,7 +37,7 @@ The following kinds of replication methods are currently supported:
 
 - **Successive difference replication**, a replication method that is especially useful for surveys with systematic sampling or fine stratification. This is the method used by the largest household survey in the United States, the American Community Survey.
 
-The svrep package also implements sample-based calibration methods, wherein one sample’s weights are calibrated to estimates from another sample, for example when calibrating a second-phase sample to a first-phase sample or when calibrating one survey using estimates from a separate benchmark survey. svrep also provides general data manipulation and diagnostic tools to help survey statisticians work with replicate weights and export them to a CSV or other output file format. For bootstrap replicates specifically, there are also special tools to help analysts identify the number of bootstrap replicates necessary to obtain a desired precision level.
+The svrep package also implements sample-based calibration methods, wherein one sample's weights are calibrated to estimates from another sample, for example when calibrating a second-phase sample to a first-phase sample or when calibrating one survey using estimates from a separate benchmark survey. svrep also provides general data manipulation and diagnostic tools to help survey statisticians work with replicate weights and export them to a CSV or other output file format. For bootstrap replicates specifically, there are also special tools to help analysts identify the number of bootstrap replicates necessary to obtain a desired precision level.
 
 ## Installation
 
@@ -145,10 +145,10 @@ In social surveys, unit nonresponse is extremely common. It is also somewhat com
 ```{r}
 # Create variable giving response status
 orig_rep_design$variables[['response_status']] <- sample(
-  x = c("Respondent", "Nonrespondent",
-        "Ineligible", "Unknown eligibility"),
-  prob = c(0.6, 0.2, 0.1, 0.1),
-  size = nrow(orig_rep_design),
+  x       = c("Respondent", "Nonrespondent",
+              "Ineligible", "Unknown eligibility"),
+  prob    = c(0.6, 0.2, 0.1, 0.1),
+  size    = nrow(orig_rep_design),
   replace = TRUE
 )
 

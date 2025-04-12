@@ -85,5 +85,5 @@ attr(Q, 'bandwidth')
 \references{
 Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016).
 "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}."
-\strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
+\strong{Journal of the American Statistical Association}, 111(514), 822-833. https://doi.org/10.1080/01621459.2015.1058264
 }

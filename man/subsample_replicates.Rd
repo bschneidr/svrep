@@ -72,7 +72,7 @@ set.seed(2023)
 \references{
 Fay, Robert. 1989.
 "Theory And Application Of Replicate Weighting For Variance Calculations."
-In, 495–500. Alexandria, VA: American Statistical Association.
+In, 495-500. Alexandria, VA: American Statistical Association.
 http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 
 Kim, J.K. and Wu, C. 2013.

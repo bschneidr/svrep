@@ -85,8 +85,8 @@ applied to the clusters rather than the units within clusters.
 
 \references{
 Matei, Alina, and Yves Tillé. 2005.
-“Evaluation of Variance Approximations and Estimators
-in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.”
-Journal of Official Statistics 21(4):543–70.
+"Evaluation of Variance Approximations and Estimators
+in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size."
+Journal of Official Statistics 21(4):543-70.
 }
 \keyword{internal}

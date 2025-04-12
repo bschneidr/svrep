@@ -148,11 +148,11 @@ library(survey)
 \references{
 Antal, E. and Tillé, Y. (2014). 
 "A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
-\strong{Computational Statistics}, \emph{29}(5), 1345–1363. https://doi.org/10.1007/s00180-014-0495-0
+\strong{Computational Statistics}, \emph{29}(5), 1345-1363. https://doi.org/10.1007/s00180-014-0495-0
 
 Beaumont, J.-F.; Émond, N. (2022).
 "A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
-\strong{Stats}, \emph{5}: 339–357.
+\strong{Stats}, \emph{5}: 339-357.
 https://doi.org/10.3390/stats5020019
 
 Canty, A.J.; Davison, A.C. (1999).
@@ -165,7 +165,7 @@ Preston, J. (2009).
 
 Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 "Some recent work on resampling methods for complex surveys."
-\strong{Survey Methodology}, \emph{18}: 209–217.
+\strong{Survey Methodology}, \emph{18}: 209-217.
 }
 \seealso{
 Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.

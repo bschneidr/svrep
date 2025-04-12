@@ -561,7 +561,7 @@ make_quad_form_matrix <- function(variance_estimator = "Yates-Grundy",
 #' with selection probability \eqn{\pi_k}, and \eqn{f} is the sampling fraction \eqn{\frac{n}{N}}.
 #' @references
 #' Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
-#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#' \strong{Survey Methodology}, Statistics Canada, 40(1), 47-59.
 #' @keywords internal
 make_sd_matrix <- function(n, f = 0, type = "SD1") {
 
@@ -726,9 +726,9 @@ make_srswor_matrix <- function(n, f = 0) {
 #'
 #' @references
 #' Matei, Alina, and Yves Tillé. 2005.
-#' “Evaluation of Variance Approximations and Estimators
-#' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.”
-#' Journal of Official Statistics 21(4):543–70.
+#' "Evaluation of Variance Approximations and Estimators
+#' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size."
+#' Journal of Official Statistics 21(4):543-70.
 #'
 #' @keywords internal
 make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
@@ -808,12 +808,12 @@ make_ppswor_approx_matrix <- function(probs, method = "Deville-1") {
 #' "Improved variance estimation for balanced samples drawn via the cube method."
 #' Journal of Statistical Planning and Inference, 141, 411-425.
 #'
-#' - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
-#' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+#' - Deville, J.C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+#' \strong{Journal of Statistical Planning and Inference}, 128, 569-591.
 #'
 #' - Li, J., Chen, S., and Krenzke, T. (2014).
 #' "Replication Variance Estimation for Balanced Sampling: An Application to the PIAAC Study."
-#' Proceedings of the Survey Research Methods Section, 2014: 985–994. Alexandria, VA: American Statistical Association.
+#' Proceedings of the Survey Research Methods Section, 2014: 985-994. Alexandria, VA: American Statistical Association.
 #' http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 #'
 #' - Tillé, Y. (2020). "\emph{Sampling and estimation from finite populations}." (I. Hekimi, Trans.). Wiley.
@@ -921,7 +921,7 @@ make_deville_tille_matrix <- function(probs, aux_vars) {
 #' @references
 #' Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
 #' "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
-#' \strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
+#' \strong{Journal of the American Statistical Association}, 111(514), 822-833. https://doi.org/10.1080/01621459.2015.1058264
 #' @examples
 #' # The auxiliary variable has the same value for all units
 #' make_kernel_var_matrix(c(1, 1, 1))
@@ -1161,7 +1161,7 @@ is_psd_matrix <- function(X, tolerance = sqrt(.Machine$double.eps)) {
 #' of the same dimension as \code{X}.
 #'
 #' @references
-#' - Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103–118.
+#' - Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103-118.
 #' @export
 #'
 #' @examples
@@ -1330,10 +1330,10 @@ wls_hat_matrix <- function(X, w) {
 #' provided that the joint inclusion probabilities from the second-phase design
 #' are available and are all nonzero.
 #' \cr \cr
-#' - Beaumont, Jean-François, and Zdenek Patak. (2012). “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.”
-#' International Statistical Review 80 (1): 127–48.
+#' - Beaumont, Jean-François, and Zdenek Patak. (2012). "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys."
+#' International Statistical Review 80 (1): 127-48.
 #' \cr \cr
-#' - Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103–118.
+#' - Higham, N. J. (1988). "\emph{Computing a nearest symmetric positive semidefinite matrix.}" Linear Algebra and Its Applications, 103, 103-118.
 #' \cr \cr
 #' - Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 #' \cr \cr

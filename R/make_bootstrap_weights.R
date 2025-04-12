@@ -81,12 +81,12 @@
 #' @references
 #' Beaumont, J.-F.; Émond, N. (2022).
 #' "A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
-#' \strong{Stats}, \emph{5}: 339–357.
+#' \strong{Stats}, \emph{5}: 339-357.
 #' https://doi.org/10.3390/stats5020019
 #'
 #' Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 #' "Some recent work on resampling methods for complex surveys."
-#' \strong{Surv. Methodol.}, \emph{18}: 209–217.
+#' \strong{Surv. Methodol.}, \emph{18}: 209-217.
 #'
 #' @return A matrix of with the same number of rows as \code{samp_unit_ids}
 #' and the number of columns equal to the value of the argument \code{num_replicates}.
@@ -412,8 +412,8 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
   return(result)
 }
 
-#' @title Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tille (2014).
-#' @description Creates bootstrap replicate weights using the method of Antal and Tille (2014).
+#' @title Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tillé (2014).
+#' @description Creates bootstrap replicate weights using the method of Antal and Tillé (2014).
 #' This method is applicable to single-stage sample designs, potentially
 #' with stratification and clustering. It can be used for designs that use
 #' simple random sampling without replacement or unequal probability sampling without replacement.
@@ -437,6 +437,9 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
 #' 
 #' See Section 7 of Antal and Tillé (2014) 
 #' for a clear description of how the replicates are formed.
+#' The paper presents two options for the resampling probabilities
+#' used in replication: the R function uses the option
+#' referred to in the paper as "the \eqn{\pi}-bootstrap."
 #' 
 #' @seealso If the survey design can be accurately represented using \code{\link[survey]{svydesign}},
 #'  then it is easier to simply use \code{\link[svrep]{as_bootstrap_design}} with argument \code{type = "Antal-Tille"}.
@@ -444,7 +447,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
 #' 
 #' Antal, E. and Tillé, Y. (2014). 
 #' "A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
-#' \strong{Computational Statistics}, \emph{29}(5), 1345–1363. https://doi.org/10.1007/s00180-014-0495-0
+#' \strong{Computational Statistics}, \emph{29}(5), 1345-1363. https://doi.org/10.1007/s00180-014-0495-0
 #'
 #' @return A matrix of with the same number of rows as \code{samp_unit_ids}
 #' and the number of columns equal to the value of the argument \code{num_replicates}.
@@ -676,7 +679,7 @@ draw_doubled_half_sample <- function(n) {
 #' 
 #' Antal, E. and Tillé, Y. (2014). 
 #' "A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
-#' \strong{Computational Statistics}, \emph{29}(5), 1345–1363. https://doi.org/10.1007/s00180-014-0495-0
+#' \strong{Computational Statistics}, \emph{29}(5), 1345-1363. https://doi.org/10.1007/s00180-014-0495-0
 #'
 draw_antal_tille_resample <- function(sel_probs) {
   

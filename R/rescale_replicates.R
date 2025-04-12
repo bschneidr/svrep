@@ -69,11 +69,11 @@
 #'
 #' - Beaumont, Jean-François, and Zdenek Patak. 2012.
 #' "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys."
-#' International Statistical Review 80 (1): 127–48.
+#' International Statistical Review 80 (1): 127-48.
 #' https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 #' \cr \cr
 #' - Fay, Robert. 1989. "Theory And Application Of Replicate Weighting For Variance Calculations."
-#' In, 495–500. Alexandria, VA: American Statistical Association.
+#' In, 495-500. Alexandria, VA: American Statistical Association.
 #' http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 #'
 #' @export
@@ -290,11 +290,11 @@ rescale_replicates.svyrep.design <- function(x, new_scale = NULL, min_wgt = 0.01
 #'
 #' - Beaumont, Jean-François, and Zdenek Patak. 2012.
 #' "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys."
-#' International Statistical Review 80 (1): 127–48.
+#' International Statistical Review 80 (1): 127-48.
 #' https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 #' \cr \cr
 #' - Fay, Robert. 1989. "Theory And Application Of Replicate Weighting For Variance Calculations."
-#' In, 495–500. Alexandria, VA: American Statistical Association.
+#' In, 495-500. Alexandria, VA: American Statistical Association.
 #' http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 #'
 #' @export
