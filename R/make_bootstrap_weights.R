@@ -411,3 +411,306 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
 
   return(result)
 }
+
+#' @title Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tille (2014).
+#' @description Creates bootstrap replicate weights using the method of Antal and Tille (2014).
+#' This method is applicable to single-stage sample designs, potentially
+#' with stratification and clustering. It can be used for designs that use
+#' simple random sampling without replacement or unequal probability sampling without replacement.
+#' One advantage of this method is that it yields integer replicate factors of 0, 1, 2, or 3.
+#' @param num_replicates Positive integer giving the number of bootstrap replicates to create.
+#' @param samp_unit_ids Vector of sampling unit IDs.
+#' @param strata_ids Vector of strata IDs for each sampling unit at each stage of sampling.
+#' @param samp_unit_sel_probs Vector of selection probabilities for each sampling unit.
+#' @param output Either \code{"weights"} (the default) or \code{"factors"}.
+#' Specifying \code{output = "factors"} returns a matrix of replicate adjustment factors which can later be multiplied by
+#' the full-sample weights to produce a matrix of replicate weights. Specifying \code{output = "weights"}
+#' returns the matrix of replicate weights, where the full-sample weights are inferred using \code{samp_unit_sel_probs}.
+#' @details
+#' For stratified sampling, the replicate factors are generated independently in each stratum.
+#' For cluster sampling at a given stage, the replicate factors are generated 
+#' at the cluster level and then the cluster's replicate factors are applied to all units in the cluster.
+#' 
+#' In the case of unequal probability sampling, this bootstrap method is
+#' only recommended for high entropy sampling methods (i.e., most methods other 
+#' than systematic sampling).
+#' 
+#' See Section 7 of Antal and Tillé (2014) 
+#' for a clear description of how the replicates are formed.
+#' 
+#' @seealso If the survey design can be accurately represented using \code{\link[survey]{svydesign}},
+#'  then it is easier to simply use \code{\link[svrep]{as_bootstrap_design}} with argument \code{type = "Antal-Tille"}.
+#' @references
+#' 
+#' Antal, E. and Tillé, Y. (2014). 
+#' "A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
+#' \strong{Computational Statistics}, \emph{29}(5), 1345–1363. https://doi.org/10.1007/s00180-014-0495-0
+#'
+#' @return A matrix of with the same number of rows as \code{samp_unit_ids}
+#' and the number of columns equal to the value of the argument \code{num_replicates}.
+#' Specifying \code{output = "factors"} returns a matrix of replicate adjustment factors which can later be multiplied by
+#' the full-sample weights to produce a matrix of replicate weights.
+#' Specifying \code{output = "weights"} returns the matrix of replicate weights,
+#' where the full-sample weights are inferred using \code{samp_unit_sel_probs}.
+#' @export
+#' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
+#' @examples
+#' \dontrun{
+#'  library(survey)
+#'  
+#'  # Example 1: A cluster sample
+#'  
+#'    data('library_multistage_sample', package = 'svrep')
+#'   
+#'    replicate_factors <- make_doubled_half_bootstrap_weights(
+#'      num_replicates      = 5,
+#'      samp_unit_ids       = library_multistage_sample$PSU_ID,
+#'      strata_ids          = rep(1, times = nrow(library_multistage_sample)),
+#'      samp_unit_sel_probs = library_multistage_sample$PSU_SAMPLING_PROB,
+#'      output              = "factors"
+#'    )
+#'
+#'  # Example 2: A single-stage sample selected with unequal probabilities, without replacement
+#'
+#'    ## Load an example dataset of U.S. counties states with 2004 Presidential vote counts
+#'    data("election", package = 'survey')
+#'    pps_wor_design <- svydesign(data = election_pps,
+#'                                pps = "overton",
+#'                                fpc = ~ p, # Inclusion probabilities
+#'                                ids = ~ 1)
+#'
+#'    ## Create bootstrap replicate weights
+#'    set.seed(2022)
+#'    bootstrap_replicate_weights <- make_doubled_half_bootstrap_weights(
+#'      num_replicates      = 5000,
+#'      samp_unit_ids       = pps_wor_design$cluster[,1],
+#'      strata_ids          = pps_wor_design$strata[,1],
+#'      samp_unit_sel_probs = pps_wor_design$prob
+#'    )
+#'
+#'    ## Create a replicate design object with the survey package
+#'    bootstrap_rep_design <- svrepdesign(
+#'      data       = pps_wor_design$variables,
+#'      repweights = bootstrap_replicate_weights,
+#'      weights    = weights(pps_wor_design, type = "sampling"),
+#'      type       = "bootstrap"
+#'    )
+#'
+#'    ## Compare std. error estimates from bootstrap versus linearization
+#'    data.frame(
+#'      'Statistic' = c('total', 'mean'),
+#'      'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
+#'                           SE(svymean(x = ~ I(Bush/votes),
+#'                                      design = bootstrap_rep_design))),
+#'      'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush,
+#'                                                          design = pps_wor_design)),
+#'                                              SE(svymean(x = ~ I(Bush/votes),
+#'                                                         design = pps_wor_design))),
+#'      check.names = FALSE
+#'    )
+#' }
+make_doubled_half_bootstrap_weights <- function(
+    num_replicates = 100,
+    samp_unit_ids, 
+    strata_ids,
+    samp_unit_sel_probs,
+    output = "weights"
+) {
+  
+  number_of_ultimate_units <- length(samp_unit_ids)
+  
+  # Check validity of inputs
+  if (length(strata_ids) != number_of_ultimate_units) {
+    stop("`strata_ids` must be the same length as `samp_unit_ids`.")
+  }
+  if (length(samp_unit_sel_probs) != number_of_ultimate_units) {
+    stop("`samp_unit_sel_probs` must be the same length as `samp_unit_ids`.")
+  }
+  if (any(is.na(strata_ids))) {
+    stop("`strata_ids` should not have any missing values.")
+  }
+  if (any(is.na(samp_unit_ids))) {
+    stop("`samp_unit_ids` should not have any missing values.")
+  }
+  if ((length(num_replicates) != 1) || !is.numeric(num_replicates) || (!num_replicates > 0)) {
+    stop("Must specify a single, positive number for the argument `num_replicates`.")
+  }
+  
+  # Initialize matrix of replicate adjustment factors
+  adjustment_factors <- matrix(
+    data = 1,
+    nrow = number_of_ultimate_units,
+    ncol = num_replicates
+  )
+  
+  # Make sure each stage's sampling units are nested within strata
+  # and each stage's sampling units are nested
+  # within previous stage sampling units
+  samp_unit_ids <- interaction(strata_ids,
+                               samp_unit_ids,
+                               sep = " | ", drop = TRUE) |>
+    as.numeric()
+  
+  samp_units <- samp_unit_ids
+  sel_probs  <- samp_unit_sel_probs
+  strata     <- strata_ids
+  
+  # Form adjustment factors independly by stratum
+  distinct_strata_ids <- unique(strata)
+  H <- length(distinct_strata_ids)
+  for (h in seq_len(H)) {
+    
+    stratum_indices <- which(strata == distinct_strata_ids[h])
+    
+    # Get each stratum's list of sampling units and their probabilities
+    distinct_samp_units <- unique(samp_units[stratum_indices])
+    distinct_sel_probs  <- sel_probs[stratum_indices][!duplicated(samp_units[stratum_indices])]
+    certainty_flags     <- (distinct_sel_probs >= 1)
+    
+    # Throw an error message for noncertainty singleton strata
+    n_h <- length(distinct_samp_units)
+    is_noncertainty_singleton <- (n_h == 1) && !all(certainty_flags)
+    if (is_noncertainty_singleton) {
+        error_msg <- paste("Cannot form bootstrap adjustment factors for a stratum:",
+                           "the stratum has only one sampling unit,",
+                           "and that sampling unit was not selected with certainty.")
+        stop(error_msg)
+    }
+    
+    # Generate replicate factors
+    if (n_h > 1) {
+      a <- replicate(
+        n = num_replicates,
+        simplify = 'array',
+        draw_antal_tille_resample(sel_probs = distinct_sel_probs)
+      )
+    } else {
+      a <- matrix(1, nrow = 1, ncol = num_replicates)
+    }
+    
+    # For each row of the data, get the adjustment factor for the sampling unit it belongs to
+    for (hi in seq_along(stratum_indices)) {
+      k <- (distinct_samp_units == samp_units[stratum_indices][hi])
+      i <- stratum_indices[hi]
+      adjustment_factors[i,] <- as.vector(a[k,])
+    }
+  }
+  
+  result <- adjustment_factors
+  
+  if (output == "weights") {
+    # Calculate overall sampling weight for a unit
+    # as the inverse of product of selection probabilities from all stages
+    overall_sampling_weights <- samp_unit_sel_probs^(-1)
+    
+    
+    # Create replicate weights by multiplying adjustment factors by sampling weights
+    replicate_weights <- apply(X = adjustment_factors,
+                               MARGIN = 2,
+                               FUN = function(rep_factor) rep_factor * overall_sampling_weights)
+    result <- replicate_weights
+  } else {
+    result <- adjustment_factors
+  }
+  
+  return(result)
+}
+
+#' @title Draw a doubled half-sample
+#' @description Draw a doubled half-sample using the method
+#' described in Antal and Tille (2014)
+#' @param n An integer greater than 1.
+#' @returns A vector of length \code{n},
+#' with elements equal to 0, 1, 2, or 3.
+#' This vector indicate how many times each unit
+#' is resampled. 
+#' 
+#' When \code{n} is even,
+#' half the values will be 0 and the other half will be 2.
+#' When \code{n} is odd, the values can be 0, 1, 2, or 3.
+draw_doubled_half_sample <- function(n) {
+  
+  if (((n %% 1) != 0) || n == 1) {
+    stop("`n` must be an integer greater than 1.")
+  }
+  
+  resamples <- rep(0L, times = n)
+  if ((n %% 2) == 0) {
+    resamples[sample.int(n = n, size = n/2)] <- 2L
+  } else {
+    twice_resampled <- sample.int(n = n, size = (n-1)/2)
+    resamples[twice_resampled] <- 2
+    if (sample(c(TRUE, FALSE), size = 1, prob = c(0.25, 0.75))) {
+      
+      thrice_resampled <- twice_resampled[
+        sample.int(n = (n-1)/2, size = 1)
+      ]
+      
+      resamples[thrice_resampled] <- 3L
+      
+    } else {
+      
+      once_resampled <- setdiff(
+        seq_len(n), 
+        twice_resampled
+      )[sample.int(n = (n+1)/2, size = 1)]
+     
+      resamples[once_resampled] <- 1L
+      
+    }
+  }
+  return(resamples)
+}
+
+#' @title Draw a replicate sample using the method
+#' of Antal and Tille (2014)
+#' @description Draw a replicate sample using the method
+#' described in Section 7 of Antal and Tillé (2014).
+#' @param sel_probs A vector of selection probabilities
+#' (i.e., inclusion probabilities) for every unit in the sample.
+#' @returns A vector the same length as \code{sel_probs},
+#' with elements equal to 0, 1, 2, or 3.
+#' This vector indicate how many times each unit
+#' is resampled.
+#' @references
+#' 
+#' Antal, E. and Tillé, Y. (2014). 
+#' "A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
+#' \strong{Computational Statistics}, \emph{29}(5), 1345–1363. https://doi.org/10.1007/s00180-014-0495-0
+#'
+draw_antal_tille_resample <- function(sel_probs) {
+  
+  n <- length(sel_probs)
+  
+  resamples <- sampling::UPpoisson(sel_probs)
+  m   <- sum(resamples)
+  
+  nonsampled <- which(resamples == 0)
+  
+  n_minus_m <- n - m
+  
+  if (n_minus_m > 2) {
+    
+    resamples[nonsampled] <- draw_doubled_half_sample(n_minus_m)
+    
+  } else if (n_minus_m == 1) {
+    
+    if (sample(c(TRUE, FALSE), size = 1)) {
+      
+      resamples <- rep(1, times = n)
+      
+    } else {
+      
+      pi_k_rescaled <- (sel_probs^(-1)) - 1
+      pi_k_rescaled <- pi_k_rescaled / sum(pi_k_rescaled)
+      psi_k <- 1 - sampling::inclusionprobabilities(a = pi_k_rescaled, n = 2)
+      
+      resamples <- sampling::UPmaxentropy(psi_k)
+      nonsampled <- which(resamples == 0)
+      
+      resamples[nonsampled] <- draw_doubled_half_sample(2)
+      
+    }
+  }
+  return(resamples)
+}

@@ -33,6 +33,11 @@ The available types are the following: \cr
    multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
    Accommodates stratified designs. All sampling within a stratum must be simple random sampling with or without replacement,
    although the first-stage sampling is effectively treated as sampling without replacement.
+ \item \strong{"Antal-Tille"}: \cr
+   The doubled half bootstrap method proposed by Antal and Tillé (2014), which is only applicable to single-stage designs or
+   multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
+   Accomodates stratified designs. Sampling within each stratum can be simple random sampling or unequal probability sampling
+   with or without replacement.
  \item \strong{"Preston"}: \cr
    Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
    with arbitrary sampling fractions. Accommodates stratified designs. All sampling within a stratum must be
@@ -141,6 +146,10 @@ library(survey)
   )
 }
 \references{
+Antal, E. and Tillé, Y. (2014). 
+"A new resampling method for sampling designs without replacement: The doubled half bootstrap." 
+\strong{Computational Statistics}, \emph{29}(5), 1345–1363. https://doi.org/10.1007/s00180-014-0495-0
+
 Beaumont, J.-F.; Émond, N. (2022).
 "A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
 \strong{Stats}, \emph{5}: 339–357.
@@ -162,7 +171,9 @@ Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 
 The underlying function for the Rao-Wu-Yue-Beaumont bootstrap
-is \code{\link[svrep]{make_rwyb_bootstrap_weights}}.
+is \code{\link[svrep]{make_rwyb_bootstrap_weights}},
+and the underlying function for the Antal-Tillé bootstrap 
+is \code{\link[svrep]{make_doubled_half_bootstrap_weights}}.
 Other bootstrap methods are implemented using functions from the 'survey' package,
 including: \code{\link[survey]{bootweights}} (Canty-Davison),
 \code{\link[survey]{subbootweights}} (Rao-Wu),

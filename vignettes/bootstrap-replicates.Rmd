@@ -77,7 +77,8 @@ The 'svrep' and 'survey' packages implement four basic bootstrap methods, each o
 | Rao-Wu-Yue-Beaumont | Yes                                                                                  | Yes                                                                       | Yes                                 |
 | Rao-Wu              | Only if first-stage sampling is without replacement or has a small sampling fraction | No                                                                        | No                                  |
 | Preston             | Yes                                                                                  | Yes                                                                       | No                                  |
-| Canty-Davison       | Only if first-stage sampling is without replacement or has a small sampling fraction | Yes                                                                       | No                                  |
+| Canty-Davison       | Only if first-stage sampling is without replacement or has a small sampling fraction | Yes    
+| Antal-Tille         | Only if first-stage sampling is without replacement or has a small sampling fraction | Yes | Yes                                |
 
 : Designs Covered by Each Bootstrap Method
 
@@ -87,6 +88,7 @@ The 'svrep' and 'survey' packages implement four basic bootstrap methods, each o
 | Rao-Wu              | Yes (first stage only) | Yes (first stage only) | Yes                    | No                                                         | No                                                   |
 | Preston             | Yes                    | Yes                    | Yes                    | Yes, if sampling is without replacement                    | No                                                   |
 | Canty-Davison       | Yes (first-stage only) | Yes (first stage only) | Yes                    | Yes (first stage only), if sampling is without replacement | No                                                   |
+| Antal-Tille         | Yes (first-stage only) | Yes (first stage only) | Yes                    | Yes (first stage only), if sampling is without replacement | No                                                   |
 
 : Data Required for Each Bootstrap Method
 
