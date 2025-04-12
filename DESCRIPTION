@@ -31,6 +31,7 @@ Imports:
     Matrix,
     methods,
     mvtnorm,
+    sampling,
     stats,
     survey (>= 4.1),
     utils
@@ -43,7 +44,6 @@ Suggests:
     dplyr,
     srvyr,
     withr,
-    sampling,
     prettydoc,
     RSQLite,
     torch
