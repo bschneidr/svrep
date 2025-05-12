@@ -22,6 +22,8 @@
 <url><loc>https://bschneidr.github.io/svrep/reference/compress_design.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/compute_eigen_decomposition.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/distribute_matrix_across_clusters.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/draw_antal_tille_resample.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/draw_doubled_half_sample.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/estimate_boot_reps_for_target_cv.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/estimate_boot_sim_cv.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/find_minimum_hadamard_order.html</loc></url>
@@ -36,6 +38,7 @@
 <url><loc>https://bschneidr.github.io/svrep/reference/lou_vax_survey.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/lou_vax_survey_control_totals.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_deville_tille_matrix.html</loc></url>
+<url><loc>https://bschneidr.github.io/svrep/reference/make_doubled_half_bootstrap_weights.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_fays_gen_rep_factors.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_gen_boot_factors.html</loc></url>
 <url><loc>https://bschneidr.github.io/svrep/reference/make_kernel_var_matrix.html</loc></url>

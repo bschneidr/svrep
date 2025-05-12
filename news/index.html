@@ -40,7 +40,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
-</div>
+<ul><li><p>Added the doubled half bootstrap of Antal and Tillé (2014), which works for single stage designs with simple random sampling or unequal probability sampling, with or without replacement. This bootstrap method has the advantage of generating integer replication factors. Users can call <code>as_bootstrap_design(..., type = "Antal-Tille")</code> or <code><a href="../reference/make_doubled_half_bootstrap_weights.html">make_doubled_half_bootstrap_weights()</a></code>.</p></li>
+<li><p>Small improvements to vignette on bootstrap methods.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="svrep-070">svrep 0.7.0<a class="anchor" aria-label="anchor" href="#svrep-070"></a></h2><p class="text-muted">CRAN release: 2025-02-09</p>
 <ul><li><p>Added the successive difference replication method, with functions <code><a href="../reference/as_sdr_design.html">as_sdr_design()</a></code> and <code><a href="../reference/make_sdr_replicate_factors.html">make_sdr_replicate_factors()</a></code>.</p></li>
@@ -196,7 +198,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

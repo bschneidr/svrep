@@ -91,6 +91,11 @@ The available types are the following: <br></p><ul><li><p><strong>"Rao-Wu-Yue-Be
    multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
    Accommodates stratified designs. All sampling within a stratum must be simple random sampling with or without replacement,
    although the first-stage sampling is effectively treated as sampling without replacement.</p></li>
+<li><p><strong>"Antal-Tille"</strong>: <br>
+   The doubled half bootstrap method proposed by Antal and Tillé (2014), which is only applicable to single-stage designs or
+   multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
+   Accomodates stratified designs. Sampling within each stratum can be simple random sampling or unequal probability sampling
+   with or without replacement.</p></li>
 <li><p><strong>"Preston"</strong>: <br>
    Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
    with arbitrary sampling fractions. Accommodates stratified designs. All sampling within a stratum must be
@@ -139,9 +144,12 @@ for the full-sample and replicate weights.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Beaumont, J.-F.; Émond, N. (2022).
+    <p>Antal, E. and Tillé, Y. (2014).
+"A new resampling method for sampling designs without replacement: The doubled half bootstrap."
+<strong>Computational Statistics</strong>, <em>29</em>(5), 1345-1363. https://doi.org/10.1007/s00180-014-0495-0</p>
+<p>Beaumont, J.-F.; Émond, N. (2022).
 "A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase."
-<strong>Stats</strong>, <em>5</em>: 339–357.
+<strong>Stats</strong>, <em>5</em>: 339-357.
 https://doi.org/10.3390/stats5020019</p>
 <p>Canty, A.J.; Davison, A.C. (1999).
 "Resampling-based variance estimation for labour force surveys."
@@ -151,13 +159,15 @@ https://doi.org/10.3390/stats5020019</p>
 <strong>Survey Methodology</strong>, <em>35</em>(2): 227-234.</p>
 <p>Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 "Some recent work on resampling methods for complex surveys."
-<strong>Survey Methodology</strong>, <em>18</em>: 209–217.</p>
+<strong>Survey Methodology</strong>, <em>18</em>: 209-217.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Use <code><a href="estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv</a></code> to help choose the number of bootstrap replicates.</p>
 <p>The underlying function for the Rao-Wu-Yue-Beaumont bootstrap
-is <code><a href="make_rwyb_bootstrap_weights.html">make_rwyb_bootstrap_weights</a></code>.
+is <code><a href="make_rwyb_bootstrap_weights.html">make_rwyb_bootstrap_weights</a></code>,
+and the underlying function for the Antal-Tillé bootstrap
+is <code><a href="make_doubled_half_bootstrap_weights.html">make_doubled_half_bootstrap_weights</a></code>.
 Other bootstrap methods are implemented using functions from the 'survey' package,
 including: <code><a href="https://rdrr.io/pkg/survey/man/bootweights.html" class="external-link">bootweights</a></code> (Canty-Davison),
 <code><a href="https://rdrr.io/pkg/survey/man/bootweights.html" class="external-link">subbootweights</a></code> (Rao-Wu),
@@ -246,7 +256,7 @@ one can use the generalized survey bootstrap method. See <code><a href="as_gen_b
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>
