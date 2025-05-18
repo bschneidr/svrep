@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,7 +39,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.8.0" id="svrep-080">svrep 0.8.0<a class="anchor" aria-label="anchor" href="#svrep-080"></a></h2>
 <ul><li><p>Added the doubled half bootstrap of Antal and Tillé (2014), which works for single stage designs with simple random sampling or unequal probability sampling, with or without replacement. This bootstrap method has the advantage of generating integer replication factors. Users can call <code>as_bootstrap_design(..., type = "Antal-Tille")</code> or <code><a href="../reference/make_doubled_half_bootstrap_weights.html">make_doubled_half_bootstrap_weights()</a></code>.</p></li>
 <li><p>Small improvements to vignette on bootstrap methods.</p></li>
 <li><p>For two-phase designs, Fay’s generalized replication method now defaults to using <code>mse = FALSE</code>, as is the default for other designs.</p></li>
