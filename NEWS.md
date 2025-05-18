@@ -6,6 +6,8 @@
 
 -   Small improvements to vignette on bootstrap methods.
 
+- For two-phase designs, Fay's generalized replication method now defaults to using `mse = FALSE`, as is the default for other designs.
+
 # svrep 0.7.0
 
 -   Added the successive difference replication method, with functions `as_sdr_design()` and `make_sdr_replicate_factors()`.

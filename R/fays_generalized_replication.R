@@ -450,7 +450,7 @@ as_fays_gen_rep_design.twophase2 <- function(design, variance_estimator = NULL,
                                              max_replicates = Inf,
                                              balanced = TRUE,
                                              psd_option = "warn",
-                                             mse = getOption("survey.replicates.mse"),
+                                             mse = TRUE,
                                              compress = TRUE) {
 
   Sigma <- get_design_quad_form(design, variance_estimator, aux_var_names = aux_var_names)
