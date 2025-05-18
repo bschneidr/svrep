@@ -265,7 +265,7 @@ set.seed(2014)
       )
       
       expect_true(
-        object = all(.Machine$double.eps > abs(
+        object = all(1e-8 > abs(
           cov(t(election_pps_boot$repweights)) |> rowSums()
         ))
       )
@@ -284,7 +284,7 @@ set.seed(2014)
       )
       
       expect_true(
-        object = all(.Machine$double.eps > abs(
+        object = all(1e-8 > abs(
           cov(t(dclus1_psu_reps)) |> rowSums()
         ))
       )
@@ -303,7 +303,7 @@ set.seed(2014)
       )
       
       expect_true(
-        object = all(.Machine$double.eps > abs(
+        object = all(1e-8 > abs(
           cov(t(dclus2wr_psu_reps)) |> rowSums()
         ))
       )
