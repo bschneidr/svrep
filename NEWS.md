@@ -1,4 +1,4 @@
-# svrep (development version)
+# svrep 0.8.0
 
 -   Added the doubled half bootstrap of Antal and Tillé (2014), which works for single stage designs with simple random sampling or unequal probability sampling, with or without replacement.
     This bootstrap method has the advantage of generating integer replication factors.
