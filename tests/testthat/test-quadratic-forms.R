@@ -703,7 +703,7 @@ library_stsys_sample <- library_stsys_sample |>
     c_values <- ((length(probs))/(length(probs) - ncol(aux_vars))) * (1-probs)
 
     denom_matrix <- lapply(seq_along(probs), function(k) {
-      c_values[k] * (aux_vars[k,] %*% t(aux_vars[k,])) / (probs[k]^2)
+      c_values[k] * tcrossprod(aux_vars[k,]) / (probs[k]^2)
     }) |> Reduce(f = `+`)
 
     inv_denom_matrix <- solve(denom_matrix)
@@ -835,4 +835,20 @@ library_stsys_sample <- library_stsys_sample |>
     )
   })
 
+  test_that("`get_nearest_psd_matrix()` works", {
+    X <- matrix(
+      c(2, 5, 5,
+        5, 2, 5,
+        5, 5, 2),
+      nrow = 3, byrow = TRUE
+    )
+    get_nearest_psd_matrix(X)
+    eigen_X <- eigen(X)
+    expect_equal(
+      object   = get_nearest_psd_matrix(X),
+      expected = {
+        eigen_X$vectors %*% diag(pmax(eigen_X$values, 0)) %*% t(eigen_X$vectors)
+      }
+    )
+  })
 

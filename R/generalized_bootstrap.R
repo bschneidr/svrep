@@ -210,7 +210,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
     draws <- scale(draws, FALSE, TRUE)
     # Color the draws
     replicate_factors <- with(svd(Sigma, nu = 0, nv = n), {
-      (v %*% diag(sqrt(pmax(d, 0)), n)) %*% t(draws)
+      tcrossprod(sweep(v, 2, sqrt(pmax(d, 0)), "*"), draws)
     })
     # Adjust the scale of the replicates,
     # since the generalized bootstrap uses the scale (1/B),

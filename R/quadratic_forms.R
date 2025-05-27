@@ -845,12 +845,16 @@ make_deville_tille_matrix <- function(probs, aux_vars) {
   H <- wls_hat_matrix(X = aux_vars, w = c_k/(probs^2))
 
   # Subtract the hat matrix from the identity matrix
-  I_minus_H <- diag(n) - H
+  I_minus_H <- -H
+  diag(I_minus_H) <- 1 + diag(I_minus_H)
+  
 
   # Weight each entry
   wtd_I_minus_H <- I_minus_H * sqrt(c_k/(probs^2))
 
-  Sigma <- diag(probs) %*% crossprod(wtd_I_minus_H, wtd_I_minus_H) %*% diag(probs)
+  Sigma <- crossprod(wtd_I_minus_H) |>
+    sweep(MARGIN = 1, STATS = probs, FUN = "*") |>
+    sweep(MARGIN = 2, STATS = probs, FUN = "*")
 
   return(Sigma)
 }
@@ -1014,20 +1018,20 @@ make_kernel_var_matrix <- function(x, kernel = "Epanechnikov", bandwidth = "auto
       bw <- 1
     }
   }
-  K     <- kernel_fn(diffs/bw)
+  K <- kernel_fn(diffs/bw)
   
   # Construct quadratic form for the variance estimator
   
   D_ij  <- K / rowSums(K)
   
   if (H > 1) {
-    C_d   <- 1 - (1/H) * (2*sum(diag(D_ij)) - sum(D_ij^2))
+    C_d <- 1 - (1/H) * (2*sum(diag(D_ij)) - sum(D_ij^2))
   }
   if (H == 1) {
-    C_d   <- 1
+    C_d <- 1
   }
   
-  Q     <- (1/C_d) * crossprod(diag(H) - D_ij)
+  Q <- (1/C_d) * crossprod(diag(H) - D_ij)
   
   Q <- as(Q, "symmetricMatrix")
   
@@ -1178,11 +1182,11 @@ get_nearest_psd_matrix <- function(X) {
   eigen_vectors <- eigen_decomposition$vectors
   eigen_values <- eigen_decomposition$values
 
-  updated_eigen_values <- pmax(eigen_values, 0)
-  updated_eigen_values <- abs(updated_eigen_values)
-
-  X <- eigen_vectors %*% diag(updated_eigen_values) %*% t(eigen_vectors)
-  return(X)
+  result <- tcrossprod(
+    sweep(eigen_vectors, 2, abs(pmax(eigen_values, 0)), "*"),
+    eigen_vectors
+  )
+  return(result)
 }
 
 #' @title Compute the matrix of joint inclusion probabilities

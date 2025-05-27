@@ -379,7 +379,7 @@ set.seed(2014)
       ### Calculate Horvitz-Thompson estimate
       poisson_quad_matrix <- make_quad_form_matrix(
         variance_estimator = "Horvitz-Thompson",
-        joint_probs = (poisson_design$prob %*% t(poisson_design$prob)) |>
+        joint_probs = tcrossprod(poisson_design$prob) |>
           `diag<-`(poisson_design$prob)
       )
       wtd_y <- poisson_design$variables$TOTCIR / poisson_design$prob
