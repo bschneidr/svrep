@@ -1,3 +1,7 @@
+# svrep (development version)
+
+-   Fully removed `rescale_reps()`, since it was already deprecated in favor of the replacement `rescale_replicates()`. 
+
 # svrep 0.8.0
 
 -   Added the doubled half bootstrap of Antal and Tillé (2014), which works for single stage designs with simple random sampling or unequal probability sampling, with or without replacement.
@@ -6,7 +10,7 @@
 
 -   Small improvements to vignette on bootstrap methods.
 
-- For two-phase designs, Fay's generalized replication method now defaults to using `mse = FALSE`, as is the default for other designs.
+-   For two-phase designs, Fay's generalized replication method now defaults to using `mse = FALSE`, as is the default for other designs.
 
 # svrep 0.7.0
 

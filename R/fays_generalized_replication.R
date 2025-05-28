@@ -50,7 +50,7 @@
 #' then \eqn{c = \frac{1}{\sqrt{k^{\prime}}}}.
 #'
 #' If any of the replicates
-#' are negative, you can use \code{\link[svrep]{rescale_reps}},
+#' are negative, you can use \code{\link[svrep]{rescale_replicates}},
 #' which recalculates the replicate factors with a smaller value of \eqn{c}.
 #'
 #' If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
@@ -107,7 +107,7 @@
 #' In, 495-500. Alexandria, VA: American Statistical Association.
 #' http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 #'
-#' @seealso Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
+#' @seealso Use \code{\link[svrep]{rescale_replicates}} to eliminate negative adjustment factors.
 #' @export
 #' @examples
 #' \donttest{
@@ -345,7 +345,7 @@ make_fays_gen_rep_factors <- function(
 #' description of each variance estimator available for use with
 #' this function.
 #'
-#' Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
+#' Use \code{\link[svrep]{rescale_replicates}} to eliminate negative adjustment factors.
 #'
 #' @seealso
 #' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to

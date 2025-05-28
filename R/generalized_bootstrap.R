@@ -16,7 +16,7 @@
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
 #' Instead of using \code{tau="auto"}, the user can instead use the function
-#' \code{rescale_reps()} to rescale the replicates later.
+#' \code{rescale_replicates()} to rescale the replicates later.
 #' @param exact_vcov If \code{exact_vcov=TRUE}, the replicate factors will be generated
 #' such that their variance-covariance matrix exactly matches the target variance estimator's
 #' quadratic form (within numeric precision).
@@ -316,7 +316,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
 #' Instead of using \code{tau="auto"}, the user can instead use the function
-#' \code{rescale_reps()} to rescale the replicates later.
+#' \code{rescale_replicates()} to rescale the replicates later.
 #' @param exact_vcov If \code{exact_vcov=TRUE}, the replicate factors will be generated
 #' such that variance estimates for totals exactly match the results from the target variance estimator.
 #' This requires that \code{num_replicates} exceeds the rank of \code{Sigma}.
@@ -355,7 +355,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
 #' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 #' represent several common variance estimators as a quadratic form's matrix,
 #' which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
-#' The function \code{\link[svrep]{rescale_reps}} is used to implement
+#' The function \code{\link[svrep]{rescale_replicates}} is used to implement
 #' the rescaling of the bootstrap adjustment factors.
 #'
 #' See \link[svrep]{variance-estimators} for a
