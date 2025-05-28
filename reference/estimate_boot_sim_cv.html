@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Estimate the bootstrap simulation error</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bschneidr/svrep/blob/v0.8.0/R/bootstrap_helpers.R" class="external-link"><code>R/bootstrap_helpers.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bschneidr/svrep/blob/main/R/bootstrap_helpers.R" class="external-link"><code>R/bootstrap_helpers.R</code></a></small>
       <div class="d-none name"><code>estimate_boot_sim_cv.Rd</code></div>
     </div>
 
@@ -113,7 +113,9 @@ The column <code>N_REPLICATES</code> gives the number of bootstrap replicates.</
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2022</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create an example bootstrap survey design object ----</span></span></span>
@@ -122,30 +124,45 @@ The column <code>N_REPLICATES</code> gives the number of bootstrap replicates.</
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">boot_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span>id<span class="op">=</span><span class="op">~</span><span class="fl">1</span>,strata<span class="op">=</span><span class="op">~</span><span class="va">stype</span>, weights<span class="op">=</span><span class="op">~</span><span class="va">pw</span>,</span></span>
 <span class="r-in"><span>                         data<span class="op">=</span><span class="va">apistrat</span>, fpc<span class="op">=</span><span class="op">~</span><span class="va">fpc</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span> <span class="fu">svrep</span><span class="fu">::</span><span class="fu"><a href="as_bootstrap_design.html">as_bootstrap_design</a></span><span class="op">(</span>replicates <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="as_bootstrap_design.html">as_bootstrap_design</a></span><span class="op">(</span>replicates <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate estimates of interest and retain estimates from each replicate ----</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">estimated_means_and_proportions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">~</span> <span class="va">api00</span> <span class="op">+</span> <span class="va">api99</span> <span class="op">+</span> <span class="va">stype</span>, design <span class="op">=</span> <span class="va">boot_design</span>,</span></span>
-<span class="r-in"><span>                                           return.replicates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">custom_statistic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/withReplicates.html" class="external-link">withReplicates</a></span><span class="op">(</span>design <span class="op">=</span> <span class="va">boot_design</span>,</span></span>
-<span class="r-in"><span>                                   return.replicates <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                                   theta <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">wts</span>, <span class="va">data</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>                                      <span class="va">numerator</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">api00</span> <span class="op">*</span> <span class="va">wts</span><span class="op">)</span></span></span>
-<span class="r-in"><span>                                      <span class="va">denominator</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">api99</span> <span class="op">*</span> <span class="va">wts</span><span class="op">)</span></span></span>
-<span class="r-in"><span>                                      <span class="va">statistic</span> <span class="op">&lt;-</span> <span class="va">numerator</span><span class="op">/</span><span class="va">denominator</span></span></span>
-<span class="r-in"><span>                                      <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">statistic</span><span class="op">)</span></span></span>
-<span class="r-in"><span>                                   <span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">estimated_means_and_proportions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="op">~</span> <span class="va">api00</span> <span class="op">+</span> <span class="va">api99</span> <span class="op">+</span> <span class="va">stype</span>, </span></span>
+<span class="r-in"><span>  design <span class="op">=</span> <span class="va">boot_design</span>,</span></span>
+<span class="r-in"><span>  return.replicates <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">custom_statistic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/withReplicates.html" class="external-link">withReplicates</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  design <span class="op">=</span> <span class="va">boot_design</span>,</span></span>
+<span class="r-in"><span>  return.replicates <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  theta <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">wts</span>, <span class="va">data</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>     <span class="va">numerator</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">api00</span> <span class="op">*</span> <span class="va">wts</span><span class="op">)</span></span></span>
+<span class="r-in"><span>     <span class="va">denominator</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">api99</span> <span class="op">*</span> <span class="va">wts</span><span class="op">)</span></span></span>
+<span class="r-in"><span>     <span class="va">statistic</span>   <span class="op">&lt;-</span> <span class="va">numerator</span><span class="op">/</span><span class="va">denominator</span></span></span>
+<span class="r-in"><span>     <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">statistic</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Estimate simulation CV of bootstrap estimates ----</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="fu">estimate_boot_sim_cv</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    svrepstat <span class="op">=</span> <span class="va">estimated_means_and_proportions</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   STATISTIC SIMULATION_CV N_REPLICATES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     api00    0.01153215         5000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     api99    0.01153118         5000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    stypeE    0.01735963         5000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    stypeH    0.01735958         5000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    stypeM    0.01735958         5000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="fu">estimate_boot_sim_cv</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    svrepstat <span class="op">=</span> <span class="va">custom_statistic</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The elements of `svrepstat` are unnamed. Placeholder names (STATISTIC_1, etc.) will be used instead.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     STATISTIC SIMULATION_CV N_REPLICATES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 STATISTIC_1    0.01988987         5000</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -157,7 +174,7 @@ The column <code>N_REPLICATES</code> gives the number of bootstrap replicates.</
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
