@@ -110,7 +110,7 @@ For multistage sampling, replicate factors are generated using the
 method described in Section 7 ("Bootstrap for Multistage Sampling").
 }
 \examples{
-\dontrun{
+\donttest{
  library(survey)
 
  # Example 1: A multistage sample with two stages of SRSWOR

@@ -83,7 +83,7 @@ For example, for bootstrap replicates, the adjustment factor becomes \eqn{\frac{
 }
 }
 \examples{
-\dontrun{
+\donttest{
 # Example 1: Rescaling a matrix of replicate weights to avoid negative weights
 
  rep_wgts <- matrix(

@@ -52,7 +52,7 @@
 #' @name lou_pums_microdata
 #' @usage data(lou_pums_microdata)
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(lou_pums_microdata)
 #'
 #' # Prepare the data for analysis with the survey package

@@ -78,7 +78,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' # Load example data for primary survey ----
 #'

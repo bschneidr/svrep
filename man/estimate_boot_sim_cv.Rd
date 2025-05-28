@@ -53,7 +53,9 @@ Estimates the bootstrap simulation error, expressed as a "simulation coefficient
 }
 
 \examples{
-\dontrun{
+\donttest{
+library(survey)
+
 set.seed(2022)
 
 # Create an example bootstrap survey design object ----
@@ -62,20 +64,26 @@ data('api', package = 'survey')
 
 boot_design <- svydesign(id=~1,strata=~stype, weights=~pw,
                          data=apistrat, fpc=~fpc) |>
- svrep::as_bootstrap_design(replicates = 5000)
+  as_bootstrap_design(replicates = 5000)
 
 # Calculate estimates of interest and retain estimates from each replicate ----
 
-estimated_means_and_proportions <- svymean(x = ~ api00 + api99 + stype, design = boot_design,
-                                           return.replicates = TRUE)
-custom_statistic <- withReplicates(design = boot_design,
-                                   return.replicates = TRUE,
-                                   theta = function(wts, data) {
-                                      numerator <- sum(data$api00 * wts)
-                                      denominator <- sum(data$api99 * wts)
-                                      statistic <- numerator/denominator
-                                      return(statistic)
-                                   })
+estimated_means_and_proportions <- svymean(
+  x = ~ api00 + api99 + stype, 
+  design = boot_design,
+  return.replicates = TRUE
+)
+
+custom_statistic <- withReplicates(
+  design = boot_design,
+  return.replicates = TRUE,
+  theta = function(wts, data) {
+     numerator   <- sum(data$api00 * wts)
+     denominator <- sum(data$api99 * wts)
+     statistic   <- numerator/denominator
+     return(statistic)
+  }
+)
 # Estimate simulation CV of bootstrap estimates ----
 
   estimate_boot_sim_cv(

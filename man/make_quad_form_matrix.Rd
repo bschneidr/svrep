@@ -131,7 +131,7 @@ Below are the arguments that are required or optional for each variance estimato
 }
 
 \examples{
-\dontrun{
+\donttest{
 # Example 1: The Horvitz-Thompson Estimator
   library(survey)
   data("election", package = "survey")

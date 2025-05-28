@@ -113,7 +113,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   library(survey)
 #'
 #' # Load an example dataset that uses unequal probability sampling ----
@@ -461,7 +461,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(survey)
 #'
 #'# Example 1: Bootstrap based on the Yates-Grundy estimator ----

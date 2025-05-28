@@ -106,7 +106,7 @@
 #' \link[svrep]{make_twophase_quad_form} combines
 #' the quadratic form matrix from each phase.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example 1: The Horvitz-Thompson Estimator
 #'   library(survey)
 #'   data("election", package = "survey")
@@ -1349,8 +1349,9 @@ wls_hat_matrix <- function(X, w) {
 #' \link[svrep]{make_quad_form_matrix} can be used to create
 #' the appropriate quadratic form matrix.
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
+#' library(survey)
+#' 
 #' ## ---------------------- Example 1 ------------------------##
 #' ## First phase is a stratified multistage sample            ##
 #' ## Second phase is a simple random sample                   ##
@@ -1506,8 +1507,6 @@ wls_hat_matrix <- function(X, w) {
 #'     Sigma = twophase_quad_form,
 #'     num_replicates = 500
 #'   )
-#'
-#'   library(survey)
 #'
 #'   twophase_rep_design <- svrepdesign(
 #'     data = phase2_sample,

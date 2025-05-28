@@ -57,7 +57,7 @@ used in replication: the R function uses the option
 referred to in the paper as "the \eqn{\pi}-bootstrap."
 }
 \examples{
-\dontrun{
+\donttest{
  library(survey)
  
  # Example 1: A cluster sample

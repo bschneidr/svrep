@@ -300,7 +300,7 @@ rescale_replicates.svyrep.design <- function(x, new_scale = NULL, min_wgt = 0.01
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example 1: Rescaling a matrix of replicate weights to avoid negative weights
 #'
 #'  rep_wgts <- matrix(

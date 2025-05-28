@@ -70,7 +70,7 @@ Whereas \code{svyby()} calculates statistics separately for each subset formed b
 \code{svyby_repwts()} calculates statistics separately for each replicate design, in addition to any additional user-specified grouping variables.
 }
 \examples{
-\dontrun{
+\donttest{
 suppressPackageStartupMessages(library(survey))
 data(api)
 

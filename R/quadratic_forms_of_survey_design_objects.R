@@ -82,7 +82,9 @@
 #' \cr \cr
 #' - Särndal, C.E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' library(survey)
+#' 
 #' # Example 1: Quadratic form for successive-difference variance estimator ----
 #'
 #'    data('library_stsys_sample', package = 'svrep')
@@ -122,27 +124,14 @@
 #'    # Compare to estimate from assuming SRS
 #'    svytotal(x = ~ LIBRARIA, na.rm = TRUE,
 #'             design = design_obj)
-#'             
-#' # Example 2: Kernel-based variance estimator ----
-#' 
-#'    Q_BOSB <- get_design_quad_form(
-#'      design             = design_obj,
-#'      variance_estimator = "BOSB",
-#'      aux_var_names      = "SAMPLING_SORT_ORDER"
-#'    )
-#'    
-#'    var_est <- t(y_wtd) %*% Q_BOSB %*% y_wtd
-#'    std_error <- sqrt(var_est)
-#'    
-#'    print(pop_total); print(std_error)
 #'
-#' # Example 3: Two-phase design (second phase is nonresponse) ----
+#' # Example 2: Two-phase design (second phase is nonresponse) ----
 #'
 #'   ## Estimate response propensities, separately by stratum
 #'   library_stsys_sample[['RESPONSE_PROB']] <- svyglm(
 #'     design = design_obj,
 #'     formula = I(RESPONSE_STATUS == "Survey Respondent") ~ SAMPLING_STRATUM,
-#'     family = quasibinomial('logistic')
+#'     family = quasibinomial(link = 'logit')
 #'   ) |> predict(type = 'response')
 #'
 #'   ## Create a survey design object,

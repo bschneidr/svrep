@@ -74,7 +74,7 @@ and this simulation error is measured as a simulation coefficient of variation (
 }
 
 \examples{
-\dontrun{
+\donttest{
 set.seed(2022)
 
 # Create an example bootstrap survey design object ----

@@ -31,7 +31,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' suppressPackageStartupMessages(library(survey))
 #' data(api)
 #'

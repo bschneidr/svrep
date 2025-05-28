@@ -110,7 +110,7 @@
 #' @seealso Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   library(survey)
 #'
 #' # Load an example dataset that uses unequal probability sampling ----

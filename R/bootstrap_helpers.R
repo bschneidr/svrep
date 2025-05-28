@@ -70,7 +70,7 @@
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_sim_cv}} to estimate the simulation CV for the number of bootstrap replicates actually used.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' set.seed(2022)
 #'
 #' # Create an example bootstrap survey design object ----
@@ -217,7 +217,9 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' library(survey)
+#' 
 #' set.seed(2022)
 #'
 #' # Create an example bootstrap survey design object ----
@@ -226,20 +228,26 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
 #'
 #' boot_design <- svydesign(id=~1,strata=~stype, weights=~pw,
 #'                          data=apistrat, fpc=~fpc) |>
-#'  svrep::as_bootstrap_design(replicates = 5000)
+#'   as_bootstrap_design(replicates = 5000)
 #'
 #' # Calculate estimates of interest and retain estimates from each replicate ----
 #'
-#' estimated_means_and_proportions <- svymean(x = ~ api00 + api99 + stype, design = boot_design,
-#'                                            return.replicates = TRUE)
-#' custom_statistic <- withReplicates(design = boot_design,
-#'                                    return.replicates = TRUE,
-#'                                    theta = function(wts, data) {
-#'                                       numerator <- sum(data$api00 * wts)
-#'                                       denominator <- sum(data$api99 * wts)
-#'                                       statistic <- numerator/denominator
-#'                                       return(statistic)
-#'                                    })
+#' estimated_means_and_proportions <- svymean(
+#'   x = ~ api00 + api99 + stype, 
+#'   design = boot_design,
+#'   return.replicates = TRUE
+#' )
+#' 
+#' custom_statistic <- withReplicates(
+#'   design = boot_design,
+#'   return.replicates = TRUE,
+#'   theta = function(wts, data) {
+#'      numerator   <- sum(data$api00 * wts)
+#'      denominator <- sum(data$api99 * wts)
+#'      statistic   <- numerator/denominator
+#'      return(statistic)
+#'   }
+#' )
 #' # Estimate simulation CV of bootstrap estimates ----
 #'
 #'   estimate_boot_sim_cv(

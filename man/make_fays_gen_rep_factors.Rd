@@ -122,7 +122,7 @@ To ensure exact reproducibility, it is recommended to call
 }
 
 \examples{
-\dontrun{
+\donttest{
   library(survey)
 
 # Load an example dataset that uses unequal probability sampling ----

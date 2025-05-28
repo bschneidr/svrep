@@ -96,7 +96,7 @@ For raking, use the following option:
 }
 
 \examples{
-\dontrun{
+\donttest{
 
 # Load example data for primary survey ----
 

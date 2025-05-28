@@ -31,7 +31,7 @@ represents all adults (persons aged 18 or over) in Louisville, KY. \cr
 These data include replicate weights to use for variance estimation.
 }
 \examples{
-\dontrun{
+\donttest{
 data(lou_pums_microdata)
 
 # Prepare the data for analysis with the survey package

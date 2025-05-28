@@ -109,7 +109,8 @@ where the \eqn{ii}-th entry of \eqn{\Lambda_{+}} is \eqn{\max(\Lambda_{ii}, 0)}.
 }
 
 \examples{
-\dontrun{
+\donttest{
+library(survey)
 
 ## ---------------------- Example 1 ------------------------##
 ## First phase is a stratified multistage sample            ##
@@ -266,8 +267,6 @@ data('library_stsys_sample', package = 'svrep')
     Sigma = twophase_quad_form,
     num_replicates = 500
   )
-
-  library(survey)
 
   twophase_rep_design <- svrepdesign(
     data = phase2_sample,
