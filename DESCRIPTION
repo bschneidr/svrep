@@ -33,7 +33,6 @@ Imports:
     mvtnorm,
     sampling,
     stats,
-    survey (>= 4.1),
     utils
 Suggests: 
     knitr,
@@ -49,5 +48,6 @@ Suggests:
     torch
 Config/testthat/edition: 3
 Depends: 
-    R (>= 4.1.0)
+    R (>= 4.1.0),
+    survey (>= 4.1)
 VignetteBuilder: knitr, rmarkdown

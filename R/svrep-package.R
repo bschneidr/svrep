@@ -22,6 +22,10 @@
 #' @importFrom stats setNames
 #' @importFrom stats terms
 #' @importFrom stats weights
+#' @importFrom survey as.svrepdesign
+#' @importFrom survey compressWeights
+#' @importFrom survey degf
+#' @importFrom survey svrepdesign
 #' @importFrom utils packageVersion
 ## usethis namespace: end
 NULL
