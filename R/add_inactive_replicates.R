@@ -77,7 +77,7 @@
 #'   rep_design <- survey_design |>
 #'     as.svrepdesign(type = "JK1", mse = TRUE)
 #'
-#' # Inspect replicates before subsampling
+#' # Inspect replicate weights
 #'
 #'   rep_design |> weights(type = "analysis")
 #'

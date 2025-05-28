@@ -398,7 +398,7 @@ make_fays_gen_rep_factors <- function(
 #' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}"
 #' \strong{Journal of Official Statistics}, 21(4):543-70.
 #' @examples
-#' if (FALSE) {
+#' \donttest{
 #'
 #'   library(survey)
 #'

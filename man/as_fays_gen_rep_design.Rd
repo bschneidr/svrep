@@ -139,7 +139,7 @@ see the documentation for \link[svrep]{make_twophase_quad_form}.
 }
 
 \examples{
-if (FALSE) {
+\donttest{
 
   library(survey)
 
