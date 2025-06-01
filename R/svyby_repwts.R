@@ -1,4 +1,4 @@
-#' Compare survey statistics calculated separately from different sets of replicate weights
+#' @title Survey Statistics for Multiple Replicate Design Objects
 #'
 #' @description A modified version of the \code{svyby()} function from the \code{survey} package.
 #' Whereas \code{svyby()} calculates statistics separately for each subset formed by a specified grouping variable,

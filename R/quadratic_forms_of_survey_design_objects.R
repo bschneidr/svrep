@@ -1,4 +1,4 @@
-#' @title Determine the quadratic form matrix of a variance estimator for a survey design object
+#' @title Quadratic Form Matrix of Variance Estimator for a Survey Design
 #' @description Determines the quadratic form matrix of a specified variance estimator,
 #' by parsing the information stored in a survey design object created using
 #' the 'survey' package.

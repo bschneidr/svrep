@@ -1,4 +1,4 @@
-#' @title Package-level options for svrep
+#' @title Package-level Options for svrep
 #' @description This help page describes the overall
 #' options that can be set for your R session, 
 #' using the function `options()`.

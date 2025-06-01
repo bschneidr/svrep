@@ -1,4 +1,4 @@
-#' @title Public Libraries Survey (PLS): A Census of U.S. Public Libraries in FY2020
+#' @title U.S. Public Libraries Survey
 #'
 #' @description Data taken from a complete census of public libraries in the United States in FY2020 (April 2020 to March 2021).
 #' The Public Libraries Survey (PLS) is an annual census of public libraries in the U.S.,

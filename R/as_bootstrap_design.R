@@ -1,4 +1,4 @@
-#' @title Convert a survey design object to a bootstrap replicate design
+#' @title Convert Survey Design to Bootstrap Replicate Design
 #' @description Converts a survey design object to a replicate design object
 #' with replicate weights formed using a bootstrap method. Supports stratified,
 #' cluster samples with one or more stages of sampling. At each stage of sampling,

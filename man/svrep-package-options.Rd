@@ -2,7 +2,7 @@
 % Please edit documentation in R/svrep-package-options.R
 \name{svrep-package-options}
 \alias{svrep-package-options}
-\title{Package-level options for svrep}
+\title{Package-level Options for svrep}
 \description{
 This help page describes the overall
 options that can be set for your R session,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/svyby_repwts.R
 \name{svyby_repwts}
 \alias{svyby_repwts}
-\title{Compare survey statistics calculated separately from different sets of replicate weights}
+\title{Survey Statistics for Multiple Replicate Design Objects}
 \usage{
 svyby_repwts(
   rep_designs,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/successive-difference-replication.R
 \name{make_sdr_replicate_factors}
 \alias{make_sdr_replicate_factors}
-\title{Create matrix of replicate factors to use for Successive Difference Replication Method}
+\title{Factors for the Successive Difference Replication Method}
 \usage{
 make_sdr_replicate_factors(
   n,

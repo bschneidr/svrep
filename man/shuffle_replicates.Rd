@@ -2,7 +2,7 @@
 % Please edit documentation in R/shuffle_replicates.R
 \name{shuffle_replicates}
 \alias{shuffle_replicates}
-\title{Shuffle the order of replicates in a survey design object}
+\title{Shuffle Order of Replicates in a Replicate Design Object}
 \usage{
 shuffle_replicates(design)
 }

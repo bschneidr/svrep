@@ -1,4 +1,4 @@
-#' @title Rescale replicate factors
+#' @title Rescale Replicate Factors
 #' @description Rescale replicate factors.
 #' The main application of this rescaling is to ensure
 #' that all replicate weights are strictly positive.

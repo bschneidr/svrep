@@ -2,7 +2,7 @@
 % Please edit documentation in R/successive-difference-replication.R
 \name{assign_hadamard_rows}
 \alias{assign_hadamard_rows}
-\title{Create a row-assignment matrix for Successive Difference Replication-Method}
+\title{Row Assignment for Successive Difference Replication}
 \usage{
 assign_hadamard_rows(
   n,

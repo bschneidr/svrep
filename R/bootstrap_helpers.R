@@ -1,4 +1,4 @@
-#' @title Estimate the number of bootstrap replicates needed to reduce the bootstrap simulation error to a target level
+#' @title Control Bootstrap Simulation Error
 #'
 #' @description This function estimates the number of bootstrap replicates
 #' needed to reduce the simulation error of a bootstrap variance estimator to a target level,
@@ -166,7 +166,7 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
   return(result)
 }
 
-#' @title Estimate the bootstrap simulation error
+#' @title Estimate Bootstrap Simulation Error
 #' @description Estimates the bootstrap simulation error, expressed as a "simulation coefficient of variation" (CV).
 #' @param svrepstat An estimate obtained from a bootstrap replicate survey design object,
 #' with a function such as \code{svymean(..., return.replicates = TRUE)} or \code{withReplicates(..., return.replicates = TRUE)}.

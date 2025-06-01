@@ -6,7 +6,7 @@
 \alias{library_census}
 \alias{library_multistage_sample}
 \alias{library_stsys_sample}
-\title{Public Libraries Survey (PLS): A Census of U.S. Public Libraries in FY2020}
+\title{U.S. Public Libraries Survey}
 \format{
 \emph{Library Census (\code{library_census}): } \cr \cr
 The dataset includes 9,245 records (one per library) and 23 variables.

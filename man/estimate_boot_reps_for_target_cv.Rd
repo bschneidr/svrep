@@ -2,7 +2,7 @@
 % Please edit documentation in R/bootstrap_helpers.R
 \name{estimate_boot_reps_for_target_cv}
 \alias{estimate_boot_reps_for_target_cv}
-\title{Estimate the number of bootstrap replicates needed to reduce the bootstrap simulation error to a target level}
+\title{Control Bootstrap Simulation Error}
 \usage{
 estimate_boot_reps_for_target_cv(svrepstat, target_cv = 0.05)
 }

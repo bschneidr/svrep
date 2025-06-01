@@ -1,4 +1,4 @@
-#' @title Creates replicate factors for the generalized survey bootstrap
+#' @title Factors for the Generalized Survey Bootstrap
 #' @description Creates replicate factors for the generalized survey bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights
 #' from a textbook variance estimator, provided that the variance estimator
@@ -257,7 +257,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
   return(replicate_factors)
 }
 
-#' @title Convert a survey design object to a generalized bootstrap replicate design
+#' @title Convert Survey Design to Generalized Bootstrap Replicate Design
 #' @description Converts a survey design object to a replicate design object
 #' with replicate weights formed using the generalized bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights

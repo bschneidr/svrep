@@ -3,7 +3,7 @@
 \docType{data}
 \name{lou_vax_survey}
 \alias{lou_vax_survey}
-\title{Louisville Vaccination Survey}
+\title{Data of Louisville Vaccination Survey}
 \format{
 A data frame with 1,000 rows and 6 variables
 \describe{

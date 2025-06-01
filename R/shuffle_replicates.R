@@ -1,4 +1,4 @@
-#' @title Shuffle the order of replicates in a survey design object
+#' @title Shuffle Order of Replicates in a Replicate Design Object
 #' @description Shuffle the order of replicates in a survey design object.
 #' In other words, the order of the columns of replicate weights is randomly permuted.
 #' @param design A survey design object, created with either the \code{survey} or \code{srvyr} packages.

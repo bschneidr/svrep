@@ -2,7 +2,7 @@
 % Please edit documentation in R/quadratic_forms.R
 \name{is_psd_matrix}
 \alias{is_psd_matrix}
-\title{Check whether a matrix is positive semidefinite}
+\title{Check if Matrix is Positive Semidefinite}
 \usage{
 is_psd_matrix(X, tolerance = sqrt(.Machine$double.eps))
 }

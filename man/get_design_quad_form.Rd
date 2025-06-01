@@ -2,7 +2,7 @@
 % Please edit documentation in R/quadratic_forms_of_survey_design_objects.R
 \name{get_design_quad_form}
 \alias{get_design_quad_form}
-\title{Determine the quadratic form matrix of a variance estimator for a survey design object}
+\title{Quadratic Form Matrix of Variance Estimator for a Survey Design}
 \usage{
 get_design_quad_form(
   design,

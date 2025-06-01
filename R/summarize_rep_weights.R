@@ -1,4 +1,4 @@
-#' Summarize the replicate weights
+#' @title Summarize Replicate Weights in a Replicate Design
 #'
 #' @description Summarize the replicate weights of a design
 #'

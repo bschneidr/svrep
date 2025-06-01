@@ -1,4 +1,4 @@
-#' @title Louisville Vaccination Survey
+#' @title Data of Louisville Vaccination Survey
 #'
 #' @description A survey measuring Covid-19 vaccination status and a handful of demographic variables,
 #' based on a simple random sample of 1,000 residents of Louisville, Kentucky
@@ -24,9 +24,12 @@
 #' @usage data(lou_vax_survey)
 "lou_vax_survey"
 
-#' @title ACS PUMS Data for Louisville
+#' @title Auxiliary Data for Louisville Vaccination Survey
 #'
-#' @description Person-level microdata from the American Community Survey (ACS) 2015-2019
+#' @description 
+#' Auxiliary data that can be used to produce control totals
+#' for the Louisville Vaccination Survey.
+#' Consists of person-level microdata from the American Community Survey (ACS) 2015-2019
 #' public-use microdata sample (PUMS) data for Louisville, KY. This microdata sample
 #' represents all adults (persons aged 18 or over) in Louisville, KY. \cr
 #'
@@ -59,11 +62,12 @@
 #'   library(survey)
 #'
 #'   lou_pums_rep_design <- survey::svrepdesign(
-#'     data = lou_pums_microdata,
-#'     variables = ~ UNIQUE_ID + AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
-#'     weights = ~ PWGTP, repweights = "PWGTP\\d{1,2}",
-#'     type = "successive-difference",
-#'     mse = TRUE
+#'     data       = lou_pums_microdata,
+#'     variables  = ~ UNIQUE_ID + AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
+#'     weights    = ~ PWGTP, 
+#'     repweights = "PWGTP\\d{1,2}",
+#'     type       = "successive-difference",
+#'     mse        = TRUE
 #'   )
 #'
 #' # Estimate population proportions
@@ -71,7 +75,7 @@
 #' }
 "lou_pums_microdata"
 
-#' @title Control totals for the Louisville Vaccination Survey
+#' @title Control Totals for Louisville Vaccination Survey
 #'
 #' @description Control totals to use for raking or post-stratification
 #' for the Louisville Vaccination Survey data. Control totals are population size estimates

@@ -2,8 +2,7 @@
 % Please edit documentation in R/quadratic_forms.R
 \name{get_nearest_psd_matrix}
 \alias{get_nearest_psd_matrix}
-\title{Approximates a symmetric, real matrix by the nearest positive
-semidefinite matrix.}
+\title{Positive Semidefinite Matrix Approximation}
 \usage{
 get_nearest_psd_matrix(X)
 }

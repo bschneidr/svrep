@@ -1,5 +1,4 @@
-#' @title Calibrate weights from a primary survey to estimated totals from a control survey,
-#' with replicate-weight adjustments that account for variance of the control totals
+#' @title Sample-based Calibration to An Estimate
 #' @description Calibrate the weights of a primary survey to match estimated totals from a control survey,
 #' using adjustments to the replicate weights to account for the variance of the estimated control totals.
 #' The adjustments to replicate weights are conducted using the method proposed by Fuller (1998).
@@ -64,6 +63,8 @@
 #' Opsomer, J.D. and A. Erciulescu (2021).
 #' "Replication variance estimation after sample-based calibration."
 #' \strong{Survey Methodology}, \emph{47}: 265-277.
+#' @seealso [calibrate_to_sample()] as
+#' an alternative when the control survey has replicate weights.
 #' @export
 #'
 #' @examples

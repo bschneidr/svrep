@@ -2,7 +2,7 @@
 % Please edit documentation in R/redistribute_weights.R
 \name{redistribute_weights}
 \alias{redistribute_weights}
-\title{Redistribute weight from one group to another}
+\title{Weighting Class Adjustment}
 \usage{
 redistribute_weights(design, reduce_if, increase_if, by)
 }

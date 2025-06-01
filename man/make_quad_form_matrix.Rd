@@ -2,7 +2,7 @@
 % Please edit documentation in R/quadratic_forms.R
 \name{make_quad_form_matrix}
 \alias{make_quad_form_matrix}
-\title{Represent a variance estimator as a quadratic form}
+\title{Get Variance Estimator's Quadratic Form Matrix}
 \usage{
 make_quad_form_matrix(
   variance_estimator = "Yates-Grundy",

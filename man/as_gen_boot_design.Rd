@@ -2,7 +2,7 @@
 % Please edit documentation in R/generalized_bootstrap.R
 \name{as_gen_boot_design}
 \alias{as_gen_boot_design}
-\title{Convert a survey design object to a generalized bootstrap replicate design}
+\title{Convert Survey Design to Generalized Bootstrap Replicate Design}
 \usage{
 as_gen_boot_design(
   design,
@@ -73,7 +73,7 @@ if all of the adjustment factors are nonnegative, then \code{tau} is set equal t
 otherwise, \code{tau} is set to the smallest value needed to rescale
 the adjustment factors such that they are all at least \code{0.01}.
 Instead of using \code{tau="auto"}, the user can instead use the function
-\code{rescale_reps()} to rescale the replicates later.}
+\code{rescale_replicates()} to rescale the replicates later.}
 
 \item{exact_vcov}{If \code{exact_vcov=TRUE}, the replicate factors will be generated
 such that variance estimates for totals exactly match the results from the target variance estimator.
@@ -323,7 +323,7 @@ Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the num
 For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 represent several common variance estimators as a quadratic form's matrix,
 which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
-The function \code{\link[svrep]{rescale_reps}} is used to implement
+The function \code{\link[svrep]{rescale_replicates}} is used to implement
 the rescaling of the bootstrap adjustment factors.
 
 See \link[svrep]{variance-estimators} for a

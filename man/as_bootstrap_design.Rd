@@ -2,7 +2,7 @@
 % Please edit documentation in R/as_bootstrap_design.R
 \name{as_bootstrap_design}
 \alias{as_bootstrap_design}
-\title{Convert a survey design object to a bootstrap replicate design}
+\title{Convert Survey Design to Bootstrap Replicate Design}
 \usage{
 as_bootstrap_design(
   design,

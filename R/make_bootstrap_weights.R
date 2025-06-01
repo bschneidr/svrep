@@ -1,5 +1,4 @@
-#' Create bootstrap replicate weights for a general survey design,
-#' using the Rao-Wu-Yue-Beaumont bootstrap method
+#' @title Weights for Rao-Wu-Yue-Beaumont Bootstrap
 #' @description Creates bootstrap replicate weights for a multistage stratified sample design
 #' using the method of Beaumont and Émond (2022), which is a generalization of the Rao-Wu-Yue bootstrap. \cr \cr
 #' The design may have different sampling methods used at different stages.
@@ -412,7 +411,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
   return(result)
 }
 
-#' @title Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tillé (2014).
+#' @title Weights for "Doubled Half Bootstrap" of Antal and Tillé (2014)
 #' @description Creates bootstrap replicate weights using the method of Antal and Tillé (2014).
 #' This method is applicable to single-stage sample designs, potentially
 #' with stratification and clustering. It can be used for designs that use

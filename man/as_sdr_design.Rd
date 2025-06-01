@@ -2,7 +2,7 @@
 % Please edit documentation in R/successive-difference-replication.R
 \name{as_sdr_design}
 \alias{as_sdr_design}
-\title{Convert a survey design object to a successive differences replicate design}
+\title{Convert Survey Design to Successive Differences Replicate Design}
 \usage{
 as_sdr_design(
   design,

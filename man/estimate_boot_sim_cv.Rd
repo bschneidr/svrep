@@ -2,7 +2,7 @@
 % Please edit documentation in R/bootstrap_helpers.R
 \name{estimate_boot_sim_cv}
 \alias{estimate_boot_sim_cv}
-\title{Estimate the bootstrap simulation error}
+\title{Estimate Bootstrap Simulation Error}
 \usage{
 estimate_boot_sim_cv(svrepstat)
 }

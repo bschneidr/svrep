@@ -2,7 +2,7 @@
 % Please edit documentation in R/rescale_replicates.R
 \name{rescale_replicates}
 \alias{rescale_replicates}
-\title{Rescale replicate factors}
+\title{Rescale Replicate Factors}
 \usage{
 rescale_replicates(x, new_scale = NULL, min_wgt = 0.01, digits = 2)
 }

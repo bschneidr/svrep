@@ -1,4 +1,4 @@
-#' @title Create a row-assignment matrix for Successive Difference Replication-Method
+#' @title Row Assignment for Successive Difference Replication
 #' @description Creates a row assignment matrix:
 #' for each row of a dataset of size \eqn{n}, assigns two rows
 #' of a Hadamard matrix.
@@ -152,8 +152,9 @@ assign_hadamard_rows <- function(
   return(row_assignment_matrix)
 }
 
+#' @title Factors for the Successive Difference Replication Method
+#' @description
 #' Create matrix of replicate factors to use for Successive Difference Replication Method
-#'
 #' @param n The number of sampling units
 #' @param target_number_of_replicates The target number of replicates to create.
 #' This will determine the order of the Hadamard matrix to use when
@@ -252,7 +253,7 @@ make_sdr_replicate_factors <- function(n, target_number_of_replicates, use_norma
   return(replicate_factors)
 }
 
-#' @title Convert a survey design object to a successive differences replicate design
+#' @title Convert Survey Design to Successive Differences Replicate Design
 #' @description
 #' Converts a survey design object to a replicate design object
 #' with replicate weights formed using the successive differences replication (SDR) method.

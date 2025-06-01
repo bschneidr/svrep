@@ -2,7 +2,7 @@
 % Please edit documentation in R/generalized_bootstrap.R
 \name{make_gen_boot_factors}
 \alias{make_gen_boot_factors}
-\title{Creates replicate factors for the generalized survey bootstrap}
+\title{Factors for the Generalized Survey Bootstrap}
 \usage{
 make_gen_boot_factors(Sigma, num_replicates, tau = 1, exact_vcov = FALSE)
 }
@@ -21,7 +21,7 @@ if all of the adjustment factors are nonnegative, then \code{tau} is set equal t
 otherwise, \code{tau} is set to the smallest value needed to rescale
 the adjustment factors such that they are all at least \code{0.01}.
 Instead of using \code{tau="auto"}, the user can instead use the function
-\code{rescale_reps()} to rescale the replicates later.}
+\code{rescale_replicates()} to rescale the replicates later.}
 
 \item{exact_vcov}{If \code{exact_vcov=TRUE}, the replicate factors will be generated
 such that their variance-covariance matrix exactly matches the target variance estimator's

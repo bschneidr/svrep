@@ -2,8 +2,7 @@
 % Please edit documentation in R/make_bootstrap_weights.R
 \name{make_rwyb_bootstrap_weights}
 \alias{make_rwyb_bootstrap_weights}
-\title{Create bootstrap replicate weights for a general survey design,
-using the Rao-Wu-Yue-Beaumont bootstrap method}
+\title{Weights for Rao-Wu-Yue-Beaumont Bootstrap}
 \usage{
 make_rwyb_bootstrap_weights(
   num_replicates = 100,

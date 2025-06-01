@@ -3,7 +3,7 @@
 \docType{data}
 \name{lou_vax_survey_control_totals}
 \alias{lou_vax_survey_control_totals}
-\title{Control totals for the Louisville Vaccination Survey}
+\title{Control Totals for Louisville Vaccination Survey}
 \format{
 A nested list object with two lists, \code{poststratification} and \code{raking},
 each of which contains two elements: \code{estimates} and \code{variance-covariance}.

@@ -1,4 +1,4 @@
-#' (Internal function) Shift weight from one set of cases to another
+#' @title (Internal function) Shift weight from one set of cases to another
 #'
 #' @description You likely want to use \code{redistribute_weights} instead.
 #' The function \code{shift_weight} is internal to this package and is used only "under-the-hood."
@@ -29,7 +29,7 @@ shift_weight <- function(wt_set, is_upweight_case, is_downweight_case) {
   return(wt_set * adj_factors)
 }
 
-#' Redistribute weight from one group to another
+#' @title Weighting Class Adjustment
 #'
 #' @description Redistributes weight from one group to another: for example, from non-respondents to respondents.
 #' Redistribution is conducted for the full-sample weights as well as each set of replicate weights.

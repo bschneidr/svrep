@@ -1,4 +1,4 @@
-#' Stack replicate designs, combining data and weights into a single object
+#' @title Combine Replicate Designs by Stacking
 #'
 #' @description Stack replicate designs: combine rows of data, rows of replicate weights, and the respective full-sample weights.
 #' This can be useful when comparing estimates before and after a set of adjustments made to the weights.

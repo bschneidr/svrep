@@ -2,7 +2,7 @@
 % Please edit documentation in R/summarize_rep_weights.R
 \name{summarize_rep_weights}
 \alias{summarize_rep_weights}
-\title{Summarize the replicate weights}
+\title{Summarize Replicate Weights in a Replicate Design}
 \usage{
 summarize_rep_weights(rep_design, type = "both", by)
 }

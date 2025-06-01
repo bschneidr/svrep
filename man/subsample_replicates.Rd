@@ -2,7 +2,7 @@
 % Please edit documentation in R/subsample_replicates.R
 \name{subsample_replicates}
 \alias{subsample_replicates}
-\title{Retain only a random subset of the replicates in a design}
+\title{Subsample Replicates in a Replicate Design Object}
 \usage{
 subsample_replicates(design, n_reps)
 }

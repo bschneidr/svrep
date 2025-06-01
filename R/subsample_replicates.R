@@ -1,4 +1,4 @@
-#' @title Retain only a random subset of the replicates in a design
+#' @title Subsample Replicates in a Replicate Design Object
 #' @description Randomly subsamples the replicates of a survey design object,
 #' to keep only a subset. The scale factor used in estimation is increased
 #' to account for the subsampling.

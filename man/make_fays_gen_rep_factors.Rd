@@ -2,7 +2,7 @@
 % Please edit documentation in R/fays_generalized_replication.R
 \name{make_fays_gen_rep_factors}
 \alias{make_fays_gen_rep_factors}
-\title{Form replication factors using Fay's generalized replication method}
+\title{Factors for Fay's Generalized Replication Method}
 \usage{
 make_fays_gen_rep_factors(Sigma, max_replicates = Inf, balanced = TRUE)
 }
@@ -66,7 +66,7 @@ If \code{balanced = FALSE}, then \eqn{c = 1}. If \code{balanced = TRUE},
 then \eqn{c = \frac{1}{\sqrt{k^{\prime}}}}.
 
 If any of the replicates
-are negative, you can use \code{\link[svrep]{rescale_reps}},
+are negative, you can use \code{\link[svrep]{rescale_replicates}},
 which recalculates the replicate factors with a smaller value of \eqn{c}.
 
 If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
@@ -184,5 +184,5 @@ In, 495-500. Alexandria, VA: American Statistical Association.
 http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 }
 \seealso{
-Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
+Use \code{\link[svrep]{rescale_replicates}} to eliminate negative adjustment factors.
 }

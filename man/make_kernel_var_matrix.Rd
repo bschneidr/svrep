@@ -2,8 +2,7 @@
 % Please edit documentation in R/quadratic_forms.R
 \name{make_kernel_var_matrix}
 \alias{make_kernel_var_matrix}
-\title{Make a quadratic form matrix for the kernel-based variance estimator
-of Breidt, Opsomer, and Sanchez-Borrego (2016)}
+\title{Quadratic Form Matrix of Kernel-based Variance Estimator}
 \usage{
 make_kernel_var_matrix(x, kernel = "Epanechnikov", bandwidth = "auto")
 }

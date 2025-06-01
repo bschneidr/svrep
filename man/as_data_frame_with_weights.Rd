@@ -2,7 +2,7 @@
 % Please edit documentation in R/as_data_frame_with_weights.R
 \name{as_data_frame_with_weights}
 \alias{as_data_frame_with_weights}
-\title{Convert a survey design object to a data frame with weights stored as columns}
+\title{Convert Survey Design to Data Frame}
 \usage{
 as_data_frame_with_weights(
   design,

@@ -2,8 +2,7 @@
 % Please edit documentation in R/fays_generalized_replication.R
 \name{as_fays_gen_rep_design}
 \alias{as_fays_gen_rep_design}
-\title{Convert a survey design object to a replication design
-using Fay's generalized replication method}
+\title{Convert Survey Design to Fay's Generalized Replication Design}
 \usage{
 as_fays_gen_rep_design(
   design,
@@ -121,7 +120,7 @@ See \link[svrep]{variance-estimators} for a
 description of each variance estimator available for use with
 this function.
 
-Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
+Use \code{\link[svrep]{rescale_replicates}} to eliminate negative adjustment factors.
 }
 
 \section{Two-Phase Designs}{

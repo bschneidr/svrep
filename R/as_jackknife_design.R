@@ -1,4 +1,4 @@
-#' @title Convert a survey design object to a random-groups jackknife design
+#' @title Convert Survey Design to Random Group Jackknife Replicate Design
 #' @description
 #' Forms a specified number of jackknife replicates
 #' based on grouping primary sampling units (PSUs)

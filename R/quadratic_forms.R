@@ -1,4 +1,4 @@
-#' @title Represent a variance estimator as a quadratic form
+#' @title Get Variance Estimator's Quadratic Form Matrix
 #' @description Common variance estimators for estimated population totals can be represented as a quadratic form.
 #' Given a choice of variance estimator and information about the sample design,
 #' this function constructs the matrix of the quadratic form.
@@ -859,8 +859,7 @@ make_deville_tille_matrix <- function(probs, aux_vars) {
   return(Sigma)
 }
 
-#' @title Make a quadratic form matrix for the kernel-based variance estimator
-#' of Breidt, Opsomer, and Sanchez-Borrego (2016)
+#' @title Quadratic Form Matrix of Kernel-based Variance Estimator
 #' @description Constructs the quadratic form matrix
 #' for the kernel-based variance estimator of Breidt, Opsomer, and Sanchez-Borrego (2016).
 #' The bandwidth is automatically chosen to result
@@ -1092,7 +1091,7 @@ distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids,
   return(result)
 }
 
-#' @title Check whether a matrix is positive semidefinite
+#' @title Check if Matrix is Positive Semidefinite
 #' @description Check whether a matrix is positive semidefinite, based on checking for symmetric and negative eigenvalues.
 #'
 #' @param X A matrix with no missing or infinite values.
@@ -1142,8 +1141,7 @@ is_psd_matrix <- function(X, tolerance = sqrt(.Machine$double.eps)) {
   return(result)
 }
 
-#' @title Approximates a symmetric, real matrix by the nearest positive
-#' semidefinite matrix.
+#' @title Positive Semidefinite Matrix Approximation
 #'
 #' @description Approximates a symmetric, real matrix by the nearest positive
 #' semidefinite matrix in the Frobenius norm, using the method of Higham (1988).
@@ -1240,7 +1238,7 @@ wls_hat_matrix <- function(X, w) {
   return(result)
 }
 
-#' @title Combine quadratic forms from each phase of a two phase design
+#' @title Quadratic Form Matrix for a Two-phase Design
 #' @description This function combines quadratic forms from each phase of a two phase design,
 #' so that the combined variance of the entire two-phase sampling design can be estimated.
 #' @param sigma_1 The quadratic form for the first phase variance estimator,

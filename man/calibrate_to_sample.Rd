@@ -2,8 +2,7 @@
 % Please edit documentation in R/calibrate_to_sample.R
 \name{calibrate_to_sample}
 \alias{calibrate_to_sample}
-\title{Calibrate weights from a primary survey to estimated totals from a control survey,
-with replicate-weight adjustments that account for variance of the control totals}
+\title{Sample-based Calibration with Replicates}
 \usage{
 calibrate_to_sample(
   primary_rep_design,
@@ -67,6 +66,7 @@ potential increases in the number of columns of replicate weights.
 \description{
 Calibrate the weights of a primary survey to match estimated totals from a control survey,
 using adjustments to the replicate weights to account for the variance of the estimated control totals.
+Both surveys must have replicate weights.
 The adjustments to replicate weights are conducted using the method proposed by Opsomer and Erciulescu (2021).
 This method can be used to implement general calibration as well as post-stratification or raking specifically
 (see the details for the \code{calfun} parameter).
@@ -169,4 +169,10 @@ For raking, use the following option:
 Opsomer, J.D. and A. Erciulescu (2021).
 "Replication variance estimation after sample-based calibration."
 \strong{Survey Methodology}, \emph{47}: 265-277.
+}
+\seealso{
+[calibrate_to_estimate()] as an alternative
+when the control survey's data are not available or
+it doesn't have replicate weights,
+but an estimate and its variance-covariance are available.
 }

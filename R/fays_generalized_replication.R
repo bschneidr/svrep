@@ -1,4 +1,4 @@
-#' @title Form replication factors using Fay's generalized replication method
+#' @title Factors for Fay's Generalized Replication Method
 #' @description Generate a matrix of replication factors
 #' using Fay's generalized replication method.
 #' This method yields a fully efficient variance estimator
@@ -249,8 +249,7 @@ make_fays_gen_rep_factors <- function(
   return(replicate_factors)
 }
 
-#' @title Convert a survey design object to a replication design
-#' using Fay's generalized replication method
+#' @title Convert Survey Design to Fay's Generalized Replication Design
 #' @description Converts a survey design object to a replicate design object
 #' with replicate weights formed using the generalized replication method of Fay (1989).
 #' The generalized replication method forms replicate weights

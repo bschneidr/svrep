@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_bootstrap_weights.R
 \name{make_doubled_half_bootstrap_weights}
 \alias{make_doubled_half_bootstrap_weights}
-\title{Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tillé (2014).}
+\title{Weights for "Doubled Half Bootstrap" of Antal and Tillé (2014)}
 \usage{
 make_doubled_half_bootstrap_weights(
   num_replicates = 100,

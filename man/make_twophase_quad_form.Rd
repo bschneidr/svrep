@@ -2,7 +2,7 @@
 % Please edit documentation in R/quadratic_forms.R
 \name{make_twophase_quad_form}
 \alias{make_twophase_quad_form}
-\title{Combine quadratic forms from each phase of a two phase design}
+\title{Quadratic Form Matrix for a Two-phase Design}
 \usage{
 make_twophase_quad_form(
   sigma_1,

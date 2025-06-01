@@ -2,7 +2,7 @@
 % Please edit documentation in R/stack_replicate_designs.R
 \name{stack_replicate_designs}
 \alias{stack_replicate_designs}
-\title{Stack replicate designs, combining data and weights into a single object}
+\title{Combine Replicate Designs by Stacking}
 \usage{
 stack_replicate_designs(..., .id = "Design_Name")
 }

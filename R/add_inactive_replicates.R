@@ -1,4 +1,4 @@
-#' @title Add inactive replicates to a survey design object
+#' @title Add Inactive Replicates to a Survey Design Object
 #' @description Adds inactive replicates to a survey design object. An inactive
 #' replicate is a replicate that does not contribute to variance estimates but
 #' adds to the matrix of replicate weights so that the matrix has the desired
