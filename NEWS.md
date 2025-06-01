@@ -1,6 +1,15 @@
 # svrep (development version)
 
+-   The 'survey' package is now listed under 'Depends' rather than 'Imports'.
+    This means it will be attached whenever 'svrep' is loaded, for example by calling `library(svrep)`.
+    For GitHub issue #51.
+
 -   Fully removed `rescale_reps()`, since it was already deprecated in favor of the replacement `rescale_replicates()`. 
+    For GitHub issue #45.
+
+-   Some minor internal refactoring to improve memory efficiency and speed. For GitHub issue #46.
+
+-   Improvements to examples. Most notably, replaced all instances of `dontrun{}` with `donttest{}`. For GitHub issue #49. 
 
 # svrep 0.8.0
 
