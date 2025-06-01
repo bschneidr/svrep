@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,7 @@
           <code><a href="as_data_frame_with_weights.html">as_data_frame_with_weights()</a></code>
 
         </dt>
-        <dd>Convert a survey design object to a data frame with weights stored as columns</dd>
+        <dd>Convert Survey Design to Data Frame</dd>
       </dl></div><div class="section level2">
       <h2 id="nonresponse-adjustments">Nonresponse Adjustments<a class="anchor" aria-label="anchor" href="#nonresponse-adjustments"></a></h2>
 
@@ -70,7 +70,7 @@
           <code><a href="redistribute_weights.html">redistribute_weights()</a></code>
 
         </dt>
-        <dd>Redistribute weight from one group to another</dd>
+        <dd>Weighting Class Adjustment</dd>
       </dl></div><div class="section level2">
       <h2 id="creating-bootstrap-replicate-weights">Creating Bootstrap Replicate Weights<a class="anchor" aria-label="anchor" href="#creating-bootstrap-replicate-weights"></a></h2>
 
@@ -87,31 +87,31 @@
           <code><a href="as_bootstrap_design.html">as_bootstrap_design()</a></code>
 
         </dt>
-        <dd>Convert a survey design object to a bootstrap replicate design</dd>
+        <dd>Convert Survey Design to Bootstrap Replicate Design</dd>
       </dl><dl><dt>
 
           <code><a href="make_doubled_half_bootstrap_weights.html">make_doubled_half_bootstrap_weights()</a></code>
 
         </dt>
-        <dd>Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tillé (2014).</dd>
+        <dd>Weights for "Doubled Half Bootstrap" of Antal and Tillé (2014)</dd>
       </dl><dl><dt>
 
           <code><a href="make_rwyb_bootstrap_weights.html">make_rwyb_bootstrap_weights()</a></code>
 
         </dt>
-        <dd>Create bootstrap replicate weights for a general survey design, using the Rao-Wu-Yue-Beaumont bootstrap method</dd>
+        <dd>Weights for Rao-Wu-Yue-Beaumont Bootstrap</dd>
       </dl><dl><dt>
 
           <code><a href="estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv()</a></code>
 
         </dt>
-        <dd>Estimate the number of bootstrap replicates needed to reduce the bootstrap simulation error to a target level</dd>
+        <dd>Control Bootstrap Simulation Error</dd>
       </dl><dl><dt>
 
           <code><a href="estimate_boot_sim_cv.html">estimate_boot_sim_cv()</a></code>
 
         </dt>
-        <dd>Estimate the bootstrap simulation error</dd>
+        <dd>Estimate Bootstrap Simulation Error</dd>
       </dl></div><div class="section level2">
       <h2 id="generalized-replication-method-including-the-generalized-bootstrap-">Generalized Replication Method (including the Generalized Bootstrap)<a class="anchor" aria-label="anchor" href="#generalized-replication-method-including-the-generalized-bootstrap-"></a></h2>
 
@@ -134,13 +134,13 @@
           <code><a href="as_fays_gen_rep_design.html">as_fays_gen_rep_design()</a></code>
 
         </dt>
-        <dd>Convert a survey design object to a replication design using Fay's generalized replication method</dd>
+        <dd>Convert Survey Design to Fay's Generalized Replication Design</dd>
       </dl><dl><dt>
 
           <code><a href="make_fays_gen_rep_factors.html">make_fays_gen_rep_factors()</a></code>
 
         </dt>
-        <dd>Form replication factors using Fay's generalized replication method</dd>
+        <dd>Factors for Fay's Generalized Replication Method</dd>
       </dl></div><div class="section level2">
 
       <h3 id="generalized-bootstrap">Generalized Bootstrap<a class="anchor" aria-label="anchor" href="#generalized-bootstrap"></a></h3>
@@ -157,13 +157,13 @@
           <code><a href="as_gen_boot_design.html">as_gen_boot_design()</a></code>
 
         </dt>
-        <dd>Convert a survey design object to a generalized bootstrap replicate design</dd>
+        <dd>Convert Survey Design to Generalized Bootstrap Replicate Design</dd>
       </dl><dl><dt>
 
           <code><a href="make_gen_boot_factors.html">make_gen_boot_factors()</a></code>
 
         </dt>
-        <dd>Creates replicate factors for the generalized survey bootstrap</dd>
+        <dd>Factors for the Generalized Survey Bootstrap</dd>
       </dl></div><div class="section level2">
 
       <h3 id="variance-estimators-available-for-the-generalized-replication-methods">Variance Estimators Available for the Generalized Replication Methods<a class="anchor" aria-label="anchor" href="#variance-estimators-available-for-the-generalized-replication-methods"></a></h3>
@@ -197,37 +197,37 @@
           <code><a href="get_design_quad_form.html">get_design_quad_form()</a></code>
 
         </dt>
-        <dd>Determine the quadratic form matrix of a variance estimator for a survey design object</dd>
+        <dd>Quadratic Form Matrix of Variance Estimator for a Survey Design</dd>
       </dl><dl><dt>
 
           <code><a href="make_quad_form_matrix.html">make_quad_form_matrix()</a></code>
 
         </dt>
-        <dd>Represent a variance estimator as a quadratic form</dd>
+        <dd>Get Variance Estimator's Quadratic Form Matrix</dd>
       </dl><dl><dt>
 
           <code><a href="make_twophase_quad_form.html">make_twophase_quad_form()</a></code>
 
         </dt>
-        <dd>Combine quadratic forms from each phase of a two phase design</dd>
+        <dd>Quadratic Form Matrix for a Two-phase Design</dd>
       </dl><dl><dt>
 
           <code><a href="get_nearest_psd_matrix.html">get_nearest_psd_matrix()</a></code>
 
         </dt>
-        <dd>Approximates a symmetric, real matrix by the nearest positive semidefinite matrix.</dd>
+        <dd>Positive Semidefinite Matrix Approximation</dd>
       </dl><dl><dt>
 
           <code><a href="is_psd_matrix.html">is_psd_matrix()</a></code>
 
         </dt>
-        <dd>Check whether a matrix is positive semidefinite</dd>
+        <dd>Check if Matrix is Positive Semidefinite</dd>
       </dl><dl><dt>
 
           <code><a href="make_kernel_var_matrix.html">make_kernel_var_matrix()</a></code>
 
         </dt>
-        <dd>Make a quadratic form matrix for the kernel-based variance estimator of Breidt, Opsomer, and Sanchez-Borrego (2016)</dd>
+        <dd>Quadratic Form Matrix of Kernel-based Variance Estimator</dd>
       </dl></div><div class="section level2">
       <h2 id="creating-jackknife-replicate-weights">Creating Jackknife Replicate Weights<a class="anchor" aria-label="anchor" href="#creating-jackknife-replicate-weights"></a></h2>
 
@@ -244,7 +244,7 @@
           <code><a href="as_random_group_jackknife_design.html">as_random_group_jackknife_design()</a></code>
 
         </dt>
-        <dd>Convert a survey design object to a random-groups jackknife design</dd>
+        <dd>Convert Survey Design to Random Group Jackknife Replicate Design</dd>
       </dl></div><div class="section level2">
       <h2 id="create-replicate-weights-using-successive-differences-replication">Create Replicate Weights Using Successive Differences Replication<a class="anchor" aria-label="anchor" href="#create-replicate-weights-using-successive-differences-replication"></a></h2>
 
@@ -261,13 +261,13 @@
           <code><a href="as_sdr_design.html">as_sdr_design()</a></code>
 
         </dt>
-        <dd>Convert a survey design object to a successive differences replicate design</dd>
+        <dd>Convert Survey Design to Successive Differences Replicate Design</dd>
       </dl><dl><dt>
 
           <code><a href="make_sdr_replicate_factors.html">make_sdr_replicate_factors()</a></code>
 
         </dt>
-        <dd>Create matrix of replicate factors to use for Successive Difference Replication Method</dd>
+        <dd>Factors for the Successive Difference Replication Method</dd>
       </dl></div><div class="section level2">
       <h2 id="calibrating-to-estimated-control-totals">Calibrating to Estimated Control Totals<a class="anchor" aria-label="anchor" href="#calibrating-to-estimated-control-totals"></a></h2>
 
@@ -284,13 +284,13 @@
           <code><a href="calibrate_to_estimate.html">calibrate_to_estimate()</a></code>
 
         </dt>
-        <dd>Calibrate weights from a primary survey to estimated totals from a control survey, with replicate-weight adjustments that account for variance of the control totals</dd>
+        <dd>Sample-based Calibration to An Estimate</dd>
       </dl><dl><dt>
 
           <code><a href="calibrate_to_sample.html">calibrate_to_sample()</a></code>
 
         </dt>
-        <dd>Calibrate weights from a primary survey to estimated totals from a control survey, with replicate-weight adjustments that account for variance of the control totals</dd>
+        <dd>Sample-based Calibration with Replicates</dd>
       </dl></div><div class="section level2">
       <h2 id="general-purpose-helper-functions">General-Purpose Helper Functions<a class="anchor" aria-label="anchor" href="#general-purpose-helper-functions"></a></h2>
 
@@ -307,43 +307,37 @@
           <code><a href="shuffle_replicates.html">shuffle_replicates()</a></code>
 
         </dt>
-        <dd>Shuffle the order of replicates in a survey design object</dd>
+        <dd>Shuffle Order of Replicates in a Replicate Design Object</dd>
       </dl><dl><dt>
 
           <code><a href="stack_replicate_designs.html">stack_replicate_designs()</a></code>
 
         </dt>
-        <dd>Stack replicate designs, combining data and weights into a single object</dd>
+        <dd>Combine Replicate Designs by Stacking</dd>
       </dl><dl><dt>
 
           <code><a href="subsample_replicates.html">subsample_replicates()</a></code>
 
         </dt>
-        <dd>Retain only a random subset of the replicates in a design</dd>
+        <dd>Subsample Replicates in a Replicate Design Object</dd>
       </dl><dl><dt>
 
           <code><a href="rescale_replicates.html">rescale_replicates()</a></code>
 
         </dt>
-        <dd>Rescale replicate factors</dd>
+        <dd>Rescale Replicate Factors</dd>
       </dl><dl><dt>
 
           <code><a href="add_inactive_replicates.html">add_inactive_replicates()</a></code>
 
         </dt>
-        <dd>Add inactive replicates to a survey design object</dd>
+        <dd>Add Inactive Replicates to a Survey Design Object</dd>
       </dl><dl><dt>
 
           <code><a href="svyby_repwts.html">svyby_repwts()</a></code>
 
         </dt>
-        <dd>Compare survey statistics calculated separately from different sets of replicate weights</dd>
-      </dl><dl><dt>
-
-          <code><a href="rescale_reps.html">rescale_reps()</a></code>
-
-        </dt>
-        <dd>Rescale replicate factors</dd>
+        <dd>Survey Statistics for Multiple Replicate Design Objects</dd>
       </dl></div><div class="section level2">
       <h2 id="diagnostic-functions-to-check-replicate-weights">Diagnostic Functions to Check Replicate Weights<a class="anchor" aria-label="anchor" href="#diagnostic-functions-to-check-replicate-weights"></a></h2>
 
@@ -360,7 +354,7 @@
           <code><a href="summarize_rep_weights.html">summarize_rep_weights()</a></code>
 
         </dt>
-        <dd>Summarize the replicate weights</dd>
+        <dd>Summarize Replicate Weights in a Replicate Design</dd>
       </dl></div><div class="section level2">
       <h2 id="package-level-options">Package-level Options<a class="anchor" aria-label="anchor" href="#package-level-options"></a></h2>
 
@@ -377,7 +371,7 @@
           <code><a href="svrep-package-options.html">svrep-package-options</a></code>
 
         </dt>
-        <dd>Package-level options for svrep</dd>
+        <dd>Package-level Options for svrep</dd>
       </dl></div><div class="section level2">
       <h2 id="example-datasets">Example Datasets<a class="anchor" aria-label="anchor" href="#example-datasets"></a></h2>
 
@@ -394,25 +388,25 @@
           <code><a href="lou_pums_microdata.html">lou_pums_microdata</a></code>
 
         </dt>
-        <dd>ACS PUMS Data for Louisville</dd>
+        <dd>Auxiliary Data for Louisville Vaccination Survey</dd>
       </dl><dl><dt>
 
           <code><a href="lou_vax_survey.html">lou_vax_survey</a></code>
 
         </dt>
-        <dd>Louisville Vaccination Survey</dd>
+        <dd>Data of Louisville Vaccination Survey</dd>
       </dl><dl><dt>
 
           <code><a href="lou_vax_survey_control_totals.html">lou_vax_survey_control_totals</a></code>
 
         </dt>
-        <dd>Control totals for the Louisville Vaccination Survey</dd>
+        <dd>Control Totals for Louisville Vaccination Survey</dd>
       </dl><dl><dt>
 
           <code><a href="libraries.html">library_census</a></code> <code><a href="libraries.html">library_multistage_sample</a></code> <code><a href="libraries.html">library_stsys_sample</a></code>
 
         </dt>
-        <dd>Public Libraries Survey (PLS): A Census of U.S. Public Libraries in FY2020</dd>
+        <dd>U.S. Public Libraries Survey</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
