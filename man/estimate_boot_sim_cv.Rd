@@ -11,7 +11,9 @@ estimate_boot_sim_cv(svrepstat)
 with a function such as \code{svymean(..., return.replicates = TRUE)} or \code{withReplicates(..., return.replicates = TRUE)}.}
 }
 \value{
-A data frame with one row for each statistic.
+An object of class \code{sim_cv_estimate},
+with methods \code{print()} and \code{summary()}.
+Call \code{summary()} to get a data frame with one row for each statistic.
 The column \code{STATISTIC} gives the name of the statistic.
 The column \code{SIMULATION_CV} gives the estimated simulation CV of the statistic.
 The column \code{N_REPLICATES} gives the number of bootstrap replicates.

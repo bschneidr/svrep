@@ -668,10 +668,13 @@ data('api', package = 'survey')
                                              return.replicates = TRUE)
 
 # Estimate the number of replicates needed to obtain a target simulation CV ----
-  estimate_boot_reps_for_target_cv(
+  required_boot_reps <- estimate_boot_reps_for_target_cv(
     svrepstat = estimated_means_and_proportions,
     target_cv = c(0.01, 0.05, 0.10)
   )
+
+  print(required_boot_reps)
+  plot(required_boot_reps)
 ```
 
 To estimate the simulation CV for the current number of replicates used, it is possible to use the function `estimate_boot_sim_cv()`.

@@ -31,6 +31,7 @@ Imports:
     Matrix,
     methods,
     mvtnorm,
+    rlang,
     sampling,
     stats,
     utils
@@ -45,7 +46,9 @@ Suggests:
     withr,
     prettydoc,
     RSQLite,
-    torch
+    torch,
+    ggplot2,
+    scales
 Config/testthat/edition: 3
 Depends: 
     R (>= 4.1.0),

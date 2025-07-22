@@ -30,7 +30,8 @@ suppressWarnings({
 
 # Consistent results between functions ----
 
-  current_sim_cv <- estimate_boot_sim_cv(estimated_means_and_proportions)
+  current_sim_cv <- estimate_boot_sim_cv(estimated_means_and_proportions) |>
+    summary()
 
   test_that(
     "Consistent calculations from different functions", {
@@ -39,10 +40,32 @@ suppressWarnings({
           estimated_means_and_proportions,
           target_cv = c(current_sim_cv$SIMULATION_CV[1],
                         current_sim_cv$SIMULATION_CV[3])
-        )[c(1,2),c('api00', 'stypeE')] |> as.matrix() |> diag(),
+        ) |> 
+          summary() |>
+          (\(df) df[c(1,2),c('api00', 'stypeE')])() |>
+          as.matrix() |> diag(),
         expected = rep(current_sim_cv$N_REPLICATES[1], 2)
       )
   })
+
+# Consistent outputs from main function ----
+
+  test_that(
+    "Consistent outputs from `estimate_boot_reps_for_target_cv()`", {
+
+      output <- estimate_boot_reps_for_target_cv(
+        estimated_means_and_proportions,
+        target_cv = c(0.5, 0.1)
+      )
+
+      expect_equal(
+        object = output[['function']](0.1) |> as.vector(),
+        expected = unlist(
+          output$summary[2,c('api00', 'api99', 'stypeE', 'stypeH', 'stypeM')]
+        ) |> as.vector()
+      )
+    }
+  )
 
 # Sanity check ----
 
@@ -73,7 +96,7 @@ suppressWarnings({
     estimate <- svytotal(x = ~ Bush, design = election_pps_bootstrap_design,
                          return.replicates = TRUE)
 
-    sim_cv_estimate <- estimate_boot_sim_cv(estimate)[['SIMULATION_CV']]
+    sim_cv_estimate <- estimate_boot_sim_cv(estimate)[['summary']][['SIMULATION_CV']]
     var_estimate <- as.numeric(vcov(estimate))
     c('sim_cv' = sim_cv_estimate, 'var_estimate' = var_estimate)
   })

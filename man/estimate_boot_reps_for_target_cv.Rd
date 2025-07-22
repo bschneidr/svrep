@@ -14,11 +14,16 @@ with a function such as \code{svymean(..., return.replicates = TRUE)} or \code{w
 This is the target simulation CV for the bootstrap variance estimator.}
 }
 \value{
-A data frame with one row for each value of \code{target_cv}.
+An object of class \code{sim_cv_curve}.
+The functions \code{summary()}, \code{plot()}, and \code{print()} can be used on this object.
+Call \code{summary()} to obtain a summary data frame.
+The summary data frame has one row for each value of \code{target_cv}.
 The column \code{TARGET_CV} gives the target coefficient of variation.
 The column \code{MAX_REPS} gives the maximum number of replicates needed
 for all of the statistics included in \code{svrepstat}. The remaining columns
 give the number of replicates needed for each statistic.
+
+Calling \code{plot()} produces a plot with 'ggplot2'.
 }
 \description{
 This function estimates the number of bootstrap replicates
@@ -92,18 +97,26 @@ estimated_means_and_proportions <- svymean(x = ~ api00 + api99 + stype, design =
 custom_statistic <- withReplicates(design = boot_design,
                                    return.replicates = TRUE,
                                    theta = function(wts, data) {
-                                      numerator <- sum(data$api00 * wts)
+                                      numerator   <- sum(data$api00 * wts)
                                       denominator <- sum(data$api99 * wts)
-                                      statistic <- numerator/denominator
+                                      statistic   <- numerator/denominator
                                       return(statistic)
                                    })
 # Determine minimum number of bootstrap replicates needed to obtain given simulation CVs ----
 
-  estimate_boot_reps_for_target_cv(
+  ## For means and proportions
+  sim_cv_curve <- estimate_boot_reps_for_target_cv(
     svrepstat = estimated_means_and_proportions,
     target_cv = c(0.01, 0.05, 0.10)
   )
 
+  sim_cv_curve
+
+  if (require('ggplot2')) {
+    plot(sim_cv_curve)
+  }
+
+  ## For custom statistic
   estimate_boot_reps_for_target_cv(
     svrepstat = custom_statistic,
     target_cv = c(0.01, 0.05, 0.10)

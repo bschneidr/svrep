@@ -62,11 +62,16 @@
 #'  \strong{International Statistical Review}, \emph{80}: 127-148. \doi{https://doi.org/10.1111/j.1751-5823.2011.00166.x}.
 #'
 #' @return
-#' A data frame with one row for each value of \code{target_cv}.
+#' An object of class \code{sim_cv_curve}.
+#' The functions \code{summary()}, \code{plot()}, and \code{print()} can be used on this object.
+#' Call \code{summary()} to obtain a summary data frame.
+#' The summary data frame has one row for each value of \code{target_cv}.
 #' The column \code{TARGET_CV} gives the target coefficient of variation.
 #' The column \code{MAX_REPS} gives the maximum number of replicates needed
 #' for all of the statistics included in \code{svrepstat}. The remaining columns
 #' give the number of replicates needed for each statistic.
+#' 
+#' Calling \code{plot()} produces a plot with 'ggplot2'.
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_sim_cv}} to estimate the simulation CV for the number of bootstrap replicates actually used.
 #' @examples
@@ -88,18 +93,26 @@
 #' custom_statistic <- withReplicates(design = boot_design,
 #'                                    return.replicates = TRUE,
 #'                                    theta = function(wts, data) {
-#'                                       numerator <- sum(data$api00 * wts)
+#'                                       numerator   <- sum(data$api00 * wts)
 #'                                       denominator <- sum(data$api99 * wts)
-#'                                       statistic <- numerator/denominator
+#'                                       statistic   <- numerator/denominator
 #'                                       return(statistic)
 #'                                    })
 #' # Determine minimum number of bootstrap replicates needed to obtain given simulation CVs ----
 #'
-#'   estimate_boot_reps_for_target_cv(
+#'   ## For means and proportions
+#'   sim_cv_curve <- estimate_boot_reps_for_target_cv(
 #'     svrepstat = estimated_means_and_proportions,
 #'     target_cv = c(0.01, 0.05, 0.10)
 #'   )
+#' 
+#'   sim_cv_curve
+#' 
+#'   if (require('ggplot2')) {
+#'     plot(sim_cv_curve)
+#'   }
 #'
+#'   ## For custom statistic
 #'   estimate_boot_reps_for_target_cv(
 #'     svrepstat = custom_statistic,
 #'     target_cv = c(0.01, 0.05, 0.10)
@@ -132,21 +145,35 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
 
   # Use Beaumont-Patak (2012) formula to estimate number of replicates
   # required to obtain a given target CV
-  B_values <- sapply(target_cv, simplify = 'array',
-                     FUN = function(target_cv_value) {
-                       B <- (cv_squared_residuals / target_cv_value)^2
-                       B <- ceiling(B)
-                       return(B)
-                     })
-  if (is.matrix(B_values)) {
-    B_values <- t(B_values)
-  } else {
-    B_values <- as.matrix(B_values)
-  }
-  B_values <- unname(B_values)
+  summary_fn <- function(target_cv_value) {
 
-  # Add statistics' names to the columns of the result
-  colnames(B_values) <- colnames(replicate_estimates)
+    if (any(is.na(target_cv_value)) || any(target_cv_value <= 0)) {
+      stop('`target_cv_value` must be a numeric vector of positive values.')
+    }
+
+    B_values <- sapply(
+      X = target_cv_value, 
+      simplify = 'array',
+      FUN = function(target_cv_value) {
+        B <- (cv_squared_residuals / target_cv_value)^2
+        B <- ceiling(B)
+        return(B)
+      }
+    )
+    if (is.matrix(B_values)) {
+      B_values <- t(B_values)
+    } else {
+      B_values <- as.matrix(B_values)
+    }
+    B_values <- unname(B_values)
+
+    # Add statistics' names to the columns of the result
+    colnames(B_values) <- colnames(replicate_estimates)
+    return(B_values)
+  }
+
+  B_values <- summary_fn(target_cv)
+
 
   # For a given target CV, calculate maximum number of replicates
   # needed across all the statistics
@@ -155,15 +182,80 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
                         FUN = max)
 
   # Combine the results into a dataframe
-  result <- cbind(
+  summary_df <- cbind(
     'TARGET_CV' = target_cv,
     'MAX_REPS' = max_B_values,
     B_values
+  ) |> as.data.frame()
+  
+  result <- list(
+    'summary' = summary_df,
+    'function' = summary_fn
   )
-  result <- as.data.frame(result)
-
   # Return the result
+  class(result) <- union('sim_cv_curve', class(result))
   return(result)
+}
+
+#' @export
+summary.sim_cv_curve <- function(object, ...) {
+  object[['summary']]
+}
+
+#' @export
+print.sim_cv_curve <- function(x, ...) {
+  print(x[['summary']])
+}
+
+#' @export
+as.data.frame.sim_cv_curve <- function(x, ...) {
+  x[['summary']]
+}
+
+#' @export
+plot.sim_cv_curve <- function(x, ...) {
+
+  rlang::check_installed(c("ggplot2", "scales"), "plotting this object.")
+
+  # Get a long-format data frame useful for plotting
+  summary_df <- x[['summary']]
+  stat_names <- setdiff(colnames(summary_df), c("TARGET_CV", "MAX_REPS"))
+  long_data <- data.frame(
+    'STATISTIC' = character(0),
+    'TARGET_CV' = numeric(0),
+    'REQUIRED_REPS' = numeric(0)
+  )
+  for (col_name in stat_names) {
+    long_data <- rbind(
+      long_data,
+      data.frame(
+        'STATISTIC' = rep(col_name, nrow(summary_df)),
+        'TARGET_CV' = summary_df[['TARGET_CV']],
+        'REQUIRED_REPS' = summary_df[[col_name]]
+      )
+    )
+  }
+  # Create a plot using ggplot2
+  long_data |>
+    ggplot2::ggplot(
+      ggplot2::aes(x = .data[['TARGET_CV']],
+                   y = .data[['REQUIRED_REPS']])
+    ) +
+    ggplot2::theme_linedraw() +
+    ggplot2::geom_point() +
+    ggplot2::facet_wrap(reformulate('STATISTIC')) +
+    ggplot2::geom_line(linetype = 2) +
+    ggplot2::labs(
+      x = 'Target Simulation CV',
+      y = 'Required Bootstrap Replicates',
+      title = 'Required Bootstrap Replicates for Target Simulation CV'
+    ) +
+    ggplot2::scale_x_continuous(
+      labels = scales::label_percent()
+    ) +
+    ggplot2::scale_y_continuous(
+      labels = scales::label_comma()
+    )
 }
 
 #' @title Estimate Bootstrap Simulation Error
@@ -210,7 +302,9 @@ estimate_boot_reps_for_target_cv <- function(svrepstat, target_cv = 0.05) {
 #'  \strong{International Statistical Review}, \emph{80}: 127-148. \doi{https://doi.org/10.1111/j.1751-5823.2011.00166.x}.
 #'
 #' @return
-#' A data frame with one row for each statistic.
+#' An object of class \code{sim_cv_estimate},
+#' with methods \code{print()} and \code{summary()}.
+#' Call \code{summary()} to get a data frame with one row for each statistic.
 #' The column \code{STATISTIC} gives the name of the statistic.
 #' The column \code{SIMULATION_CV} gives the estimated simulation CV of the statistic.
 #' The column \code{N_REPLICATES} gives the number of bootstrap replicates.
@@ -292,14 +386,35 @@ estimate_boot_sim_cv <- function(svrepstat) {
   # Add statistics' names to the columns of the result
   names(simulation_cv) <- colnames(replicate_estimates)
 
-  # Ensure result is a data frame
-  simulation_cv <- data.frame(
+  # Create a summary data frame
+  summary_df <- data.frame(
     'STATISTIC' = colnames(replicate_estimates),
     'SIMULATION_CV' = simulation_cv,
     'N_REPLICATES' = B,
     row.names = NULL
   )
 
+  result <- list(
+    'summary'             = summary_df,
+    'replicate_estimates' = replicate_estimates
+  )
+  class(result) <- union("sim_cv_estimate", class(result))
+
   # Return the result
-  return(simulation_cv)
+  return(result)
+}
+
+#' @export
+summary.sim_cv_estimate <- function(object, ...) {
+  object[['summary']]
+}
+
+#' @export
+print.sim_cv_estimate <- function(x, ...) {
+  print(x[['summary']])
+}
+
+#' @export
+as.data.frame.sim_cv_estimate <- function(x, ...) {
+  x[['summary']]
 }
