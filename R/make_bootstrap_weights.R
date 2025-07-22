@@ -221,7 +221,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     stop("Must specify a single, positive number for the argument `num_replicates`.")
   }
 
-  # Initialize 3-dimensional array: ultimate unit X stage X replicates
+  # Initialize matrix of replicate factors for each ultimate unit
   adjustment_factors <- matrix(
     data = 1,
     nrow = number_of_ultimate_units,

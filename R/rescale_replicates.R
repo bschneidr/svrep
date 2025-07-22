@@ -96,7 +96,7 @@
 #'  print(rep_wgts)
 #'  print(rescaled_wgts)
 #'  
-#'  # Example 2: Rescaling replicate weights with a specified value of 'tau'
+#'  # Example 2: Rescale with a new, specific scale value
 #'  
 #'  rescaled_wgts <- rescale_replicates(rep_wgts, new_scale = 1/10)
 #'  print(rescaled_wgts)
