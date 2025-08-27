@@ -107,19 +107,8 @@ make_optim_boot_factors <- function(
   # target_sigma: The target quadratic form matrix
   loss_fn <- function(A, target_sigma) {
     A = A$clamp(0) |> constrain_sums()
-    # Loss consists of:
-    # (1) Squared Frobenius distance
-    #     between weights' covariance matrix
-    #     and the target covariance matrix
-    cov_loss = (A$cov(correction = 0) - target_sigma)$square()$sum()
-
-    # (2) Squared Euclidean distance from mean across replicates
-    #     and '1'
-    mean_loss = (A$t()$mean(1) - torch::torch_ones(n))$square()$sum()
-
-    # Total loss is the sum of (1) and (2)
-    sse = cov_loss + mean_loss
-    return(sse)
+    spectral_norm = torch::torch_norm(A$cov(0) - target_sigma, p = 2L)
+    return(spectral_norm)
   }
 
   # Create an initial solution
@@ -134,7 +123,6 @@ make_optim_boot_factors <- function(
       digits = 5
     )
   initial_solution[sign(initial_solution) < 0] <- 0
-  #initial_solution[initial_solution < 0] <- 1e-10
 
   A = torch::torch_tensor(initial_solution, requires_grad = TRUE)
 
