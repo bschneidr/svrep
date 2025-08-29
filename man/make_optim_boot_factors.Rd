@@ -7,6 +7,7 @@
 make_optim_boot_factors(
   Sigma,
   num_replicates = Matrix::rankMatrix(Sigma) + 1,
+  min_factor = 0,
   max_iter = 20000,
   max_loss = 1e-04,
   torch_optimizer = function(params, ...) torch::optim_ignite_adamw(params, lr = 5e-04,
@@ -19,6 +20,8 @@ make_optim_boot_factors(
 \item{Sigma}{The matrix of the quadratic form used to represent the variance estimator. Must be positive semidefinite.}
 
 \item{num_replicates}{The number of bootstrap replicates to create.}
+
+\item{min_factor}{The minimum bootstrap replication factor (default is 0).}
 
 \item{max_iter}{The maximum iterations to allow for the optimization algorithm.}
 

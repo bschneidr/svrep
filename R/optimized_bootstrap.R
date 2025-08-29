@@ -3,6 +3,7 @@
 #' using an optimization algorithm.
 #' @param Sigma The matrix of the quadratic form used to represent the variance estimator. Must be positive semidefinite.
 #' @param num_replicates The number of bootstrap replicates to create.
+#' @param min_factor The minimum bootstrap replication factor (default is 0).
 #' @param max_iter The maximum iterations to allow for the optimization algorithm.
 #' @param max_loss The maximum loss to allow for the optimization algorithm.
 #' @param torch_optimizer An optimization function from the 'torch' package,
@@ -65,6 +66,7 @@
 make_optim_boot_factors <- function(
   Sigma,
   num_replicates = Matrix::rankMatrix(Sigma) + 1,
+  min_factor = 0,
   max_iter = 20000,
   max_loss = 0.0001,
   torch_optimizer = \(params, ...)
@@ -87,6 +89,11 @@ make_optim_boot_factors <- function(
     )
     stop(err_msg)
   }
+  if (length(min_factor) != 1 || is.na(min_factor)) {
+    stop("`min_factor` must be a number less than 1.")
+  } else if (min_factor >= 1) {
+    stop("`min_factor` must be a number less than 1.")
+  }
 
   Sigma_tensor = Sigma |> as.matrix() |> torch::torch_tensor()
 
@@ -106,7 +113,7 @@ make_optim_boot_factors <- function(
   # A: The matrix we're trying to optimize
   # target_sigma: The target quadratic form matrix
   loss_fn <- function(A, target_sigma) {
-    A = A$clamp(0) |> constrain_sums()
+    A = A$clamp(min_factor) |> constrain_sums()
     spectral_norm = torch::torch_norm(A$cov(0) - target_sigma, p = 2L)
     return(spectral_norm)
   }
@@ -189,7 +196,7 @@ make_optim_boot_factors <- function(
   }
 
   # Create the matrix of replicates by applying constraints
-  A <- A$clamp(0) |> constrain_sums() |> as.matrix()
+  A <- A$clamp(min_factor) |> constrain_sums() |> as.matrix()
   attr(A, 'converged') <- converged
 
   return(A)
@@ -446,6 +453,7 @@ as_optim_boot_design <- function(
   aux_var_names = NULL,
   replicates = 500,
   psd_option = "warn",
+  min_factor = 0,
   max_iter = 20000,
   max_loss = 0.0001,
   torch_optimizer = \(params, ...)
@@ -465,6 +473,7 @@ as_optim_boot_design.twophase2 <- function(
   aux_var_names = NULL,
   replicates = 500,
   psd_option = "warn",
+  min_factor = 0,
   max_iter = 20000,
   max_loss = 0.0001,
   torch_optimizer = \(params, ...)
@@ -506,6 +515,7 @@ as_optim_boot_design.twophase2 <- function(
   adjustment_factors <- make_optim_boot_factors(
     Sigma = Sigma,
     num_replicates = replicates,
+    min_factor = min_factor,
     max_iter = max_iter,
     max_loss = max_loss,
     torch_optimizer = torch_optimizer,
@@ -545,6 +555,7 @@ as_optim_boot_design.survey.design <- function(
   aux_var_names = NULL,
   replicates = 500,
   psd_option = "warn",
+  min_factor = 0,
   max_iter = 20000,
   max_loss = 0.0001,
   torch_optimizer = \(params, ...)
@@ -592,6 +603,7 @@ as_optim_boot_design.survey.design <- function(
   adjustment_factors <- make_optim_boot_factors(
     Sigma = Sigma,
     num_replicates = replicates,
+    min_factor = min_factor,
     max_iter = max_iter,
     max_loss = max_loss,
     torch_optimizer = torch_optimizer,

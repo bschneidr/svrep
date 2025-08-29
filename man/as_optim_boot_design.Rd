@@ -10,6 +10,7 @@ as_optim_boot_design(
   aux_var_names = NULL,
   replicates = 500,
   psd_option = "warn",
+  min_factor = 0,
   max_iter = 20000,
   max_loss = 1e-04,
   torch_optimizer = function(params, ...) torch::optim_ignite_adamw(params, lr = 5e-04,
