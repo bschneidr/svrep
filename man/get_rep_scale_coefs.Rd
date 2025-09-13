@@ -4,18 +4,13 @@
 \alias{get_rep_scale_coefs}
 \title{Access Replication Scale Coefficients}
 \usage{
-get_rep_scale_coefs(rep_design, output = "separate")
+get_rep_scale_coefs(rep_design, type = "combined")
 }
 \arguments{
 \item{rep_design}{A replicate design object}
 
-\item{output}{Either \code{'separate'} (which is the default)
-or \code{'combined'}. If \code{'separate'}, the result is a
-list with elements 'scale' and 'rscales', where 'scale' is the 
-overall scale coefficient and 'rscales' is a vector of coefficients
-for each replicate. If \code{'combined'}, the result is a vector
-of coefficients for each replicate, which incorporates the overall
-scale coefficient.}
+\item{type}{Either \code{'overall'}, \code{'specific'}, 
+or \code{'combined'}.}
 }
 \description{
 Get the scale coefficents
@@ -36,13 +31,12 @@ The terms \eqn{C} and \eqn{c_r, r=1,\dots,R} are scale coefficients.
 \eqn{C} is the overall coefficient,
 and \eqn{c_r, r=1,\dots,R} are replicate-specific coefficients.
 
-When calling \code{get_rep_scale_coefs(output = 'separate')},
-the list object includes an element \code{'scale'} corresponding
-to \eqn{C} and a vector named \code{'rscales'} corresponding
-to \eqn{c_r, r=1,\dots,R}.
+Specifying \code{get_rep_scale_coefs(type='overall')} returnrs
+the overall coefficient \eqn{C}. Specifying \code{type='specific'}
+returns the replicate-specific coefficients \eqn{c_r, r=1,\dots,R}.
 
-When calling \code{get_rep_scale_coefs(output = 'combined')},
-the output is a vector with \eqn{R} elements,
+Specifying \code{type='combined'} returns a vector with 
+\eqn{R} elements,
 where the \eqn{r}-th element is \eqn{C \times c_r}.
 }
 \examples{
@@ -53,15 +47,19 @@ api_design <- svydesign(
   id      = ~ 1, 
   strata  = ~ stype,
   weights = ~ pw,
-  fpc     = ~ fpc,
   nest    = TRUE
 )
 
 jk_design <- api_design |>
-  as_random_group_jackknife_design(replicates = 12)
+  as_random_group_jackknife_design(
+    replicates = 12
+  )
 
 jk_design |>
-  get_rep_scale_coefs('separate')
+  get_rep_scale_coefs('overall')
+
+jk_design |>
+  get_rep_scale_coefs('specific')
 
 jk_design |>
   get_rep_scale_coefs('combined')

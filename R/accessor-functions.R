@@ -37,14 +37,9 @@ get_rep_type <- function(rep_design) {
 #' @title Access Replication Scale Coefficients
 #' @description Get the scale coefficents
 #' used for variance estimation in a replicate design object.
-#' @param rep_design A replicate design object
-#' @param output Either \code{'separate'} (which is the default)
-#' or \code{'combined'}. If \code{'separate'}, the result is a
-#' list with elements 'scale' and 'rscales', where 'scale' is the 
-#' overall scale coefficient and 'rscales' is a vector of coefficients
-#' for each replicate. If \code{'combined'}, the result is a vector
-#' of coefficients for each replicate, which incorporates the overall
-#' scale coefficient.
+#' @inheritParams get_rep_type
+#' @param type Either \code{'overall'}, \code{'specific'}, 
+#' or \code{'combined'}.
 #' @details
 #' For a statistic \eqn{\hat{\theta}},
 #' replication methods estimate the sampling variance
@@ -60,13 +55,12 @@ get_rep_type <- function(rep_design) {
 #' \eqn{C} is the overall coefficient,
 #' and \eqn{c_r, r=1,\dots,R} are replicate-specific coefficients.
 #' 
-#' When calling \code{get_rep_scale_coefs(output = 'separate')},
-#' the list object includes an element \code{'scale'} corresponding
-#' to \eqn{C} and a vector named \code{'rscales'} corresponding
-#' to \eqn{c_r, r=1,\dots,R}.
+#' Specifying \code{get_rep_scale_coefs(type='overall')} returnrs
+#' the overall coefficient \eqn{C}. Specifying \code{type='specific'}
+#' returns the replicate-specific coefficients \eqn{c_r, r=1,\dots,R}.
 #' 
-#' When calling \code{get_rep_scale_coefs(output = 'combined')},
-#' the output is a vector with \eqn{R} elements,
+#' Specifying \code{type='combined'} returns a vector with 
+#' \eqn{R} elements,
 #' where the \eqn{r}-th element is \eqn{C \times c_r}.
 #' @export
 #' @examples
@@ -77,28 +71,34 @@ get_rep_type <- function(rep_design) {
 #'   id      = ~ 1, 
 #'   strata  = ~ stype,
 #'   weights = ~ pw,
-#'   fpc     = ~ fpc,
 #'   nest    = TRUE
 #' )
 #' 
 #' jk_design <- api_design |>
-#'   as_random_group_jackknife_design(replicates = 12)
+#'   as_random_group_jackknife_design(
+#'     replicates = 12
+#'   )
 #'
 #' jk_design |>
-#'   get_rep_scale_coefs('separate')
+#'   get_rep_scale_coefs('overall')
+#' 
+#' jk_design |>
+#'   get_rep_scale_coefs('specific')
 #' 
 #' jk_design |>
 #'   get_rep_scale_coefs('combined')
 #' 
-get_rep_scale_coefs <- function(rep_design, output = "separate") {
+get_rep_scale_coefs <- function(rep_design, type = "combined") {
   if (!inherits(rep_design, 'svyrep.design')) {
     stop("Must be a replicate design object with class 'svyrep.design'")
   }
-  if (output == "separate") {
-    return(list('scale'  = rep_design[['scale']],
-                'rscales' = rep_design[['rscales']]))
+  if (length(type) != 1 || (!type %in% c("overall", "specific", "combined"))) {
+    stop("`type` must be 'overall', 'specific', or 'combined'")
   }
-  if (output == "combined") {
-    return(rep_design[['scale']] * rep_design[['rscales']])
-  }
+  result <- switch(type,
+    'overall' = rep_design[['scale']],
+    'specific' = rep_design[['rscales']],
+    'combined' = rep_design[['scale']] * rep_design[['rscales']]
+  )
+  return(result)
 }
