@@ -99,7 +99,6 @@ make_optim_boot_factors <- function(
 
   constrain_sums <- function(X, max_iter = 10) {
     X_dim <- nrow(X)
-    ones_vector <- torch::torch_ones(X_dim)
     iter <- 1
     while (iter <= max_iter) {
       X = (X / X$mean(1))
