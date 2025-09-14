@@ -140,9 +140,8 @@ generalized survey bootstrap can be used.
 data('library_stsys_sample', package = 'svrep')
 
 # First, ensure data are sorted in same order as was used in sampling
-library_stsys_sample <- library_stsys_sample[
-  order(library_stsys_sample$SAMPLING_SORT_ORDER),
-]
+library_stsys_sample <- library_stsys_sample |>
+  sort_by(~ SAMPLING_SORT_ORDER)
 
 # Create a survey design object
 design_obj <- svydesign(
