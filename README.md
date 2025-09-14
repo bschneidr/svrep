@@ -10,8 +10,7 @@ status](https://www.r-pkg.org/badges/version/svrep)](https://CRAN.R-project.org/
 [![Mentioned in Awesome Official
 Statistics](https://awesome.re/mentioned-badge.svg)](https://github.com/SNStatComp/awesome-official-statistics-software)
 [![Codecov test
-coverage](https://codecov.io/gh/bschneidr/svrep/branch/main/graph/badge.svg)](https://app.codecov.io/gh/bschneidr/svrep?branch=main)
-<!-- [![R-CMD-check](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml) -->
+coverage](https://codecov.io/gh/bschneidr/svrep/graph/badge.svg)](https://app.codecov.io/gh/bschneidr/svrep)
 <!-- badges: end -->
 
 svrep extends the survey package in R by implementing flexible
