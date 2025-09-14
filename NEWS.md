@@ -11,6 +11,10 @@
 
 -   Improvements to examples. Most notably, replaced all instances of `dontrun{}` with `donttest{}`. For GitHub issue #49. 
 
+-   Added new accessor functions, `get_rep_scale_coefs()` and `get_rep_type()`. For GitHub issue #44.
+
+-   Enhanced the functions for choosing the number of bootstrap replicates. The output from `estimate_boot_reps_for_target_cv()` now has generic S3 methods like `plot()` and `print()`. For GitHub issue #47.
+
 # svrep 0.8.0
 
 -   Added the doubled half bootstrap of Antal and Tillé (2014), which works for single stage designs with simple random sampling or unequal probability sampling, with or without replacement.
