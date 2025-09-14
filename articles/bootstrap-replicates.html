@@ -1139,14 +1139,18 @@ statistic.</p>
 <span>                                             return.replicates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Estimate the number of replicates needed to obtain a target simulation CV ----</span></span>
-<span>  <span class="fu"><a href="../reference/estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv</a></span><span class="op">(</span></span>
+<span>  <span class="va">required_boot_reps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv</a></span><span class="op">(</span></span>
 <span>    svrepstat <span class="op">=</span> <span class="va">estimated_means_and_proportions</span>,</span>
 <span>    target_cv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.10</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">required_boot_reps</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   TARGET_CV MAX_REPS api00 api99 stypeE stypeH stypeM</span></span>
 <span><span class="co">#&gt; 1      0.01    15068  6650  6649  15068  15068  15068</span></span>
 <span><span class="co">#&gt; 2      0.05      603   266   266    603    603    603</span></span>
-<span><span class="co">#&gt; 3      0.10      151    67    67    151    151    151</span></span></code></pre></div>
+<span><span class="co">#&gt; 3      0.10      151    67    67    151    151    151</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">required_boot_reps</span><span class="op">)</span></span></code></pre></div>
+<p><img src="bootstrap-replicates_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
 <p>To estimate the simulation CV for the current number of replicates
 used, it is possible to use the function
 <code><a href="../reference/estimate_boot_sim_cv.html">estimate_boot_sim_cv()</a></code>.</p>

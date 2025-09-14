@@ -59,7 +59,9 @@ with a function such as <code>svymean(..., return.replicates = TRUE)</code> or <
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with one row for each statistic.
+    <p>An object of class <code>sim_cv_estimate</code>,
+with methods <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.
+Call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to get a data frame with one row for each statistic.
 The column <code>STATISTIC</code> gives the name of the statistic.
 The column <code>SIMULATION_CV</code> gives the estimated simulation CV of the statistic.
 The column <code>N_REPLICATES</code> gives the number of bootstrap replicates.</p>
