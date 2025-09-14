@@ -57,6 +57,8 @@ reference:
   - matches("add_inactive_replicates")
   - matches("svyby_repwts")
   - matches("rescale_reps")
+  - matches("get_rep_scale_coefs")
+  - matches("get_rep_type")
 - title: Diagnostic Functions to Check Replicate Weights
 - contents:
   - matches("summarize_rep_weights")
