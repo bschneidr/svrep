@@ -415,7 +415,7 @@ ratio_calib_design <- calibrate_to_sample(
 )
 ```
 
-Note that for ratio estimation, the calibration formula includes `-1` to ensure that ratio estimation is used instead of regression estimation. This is similar to how, when fitting a regression model in R, we use `lm(y ~ -1 + x)` to fit a linear model without an intercept. Specifying the parameter `variance = 1` indicates that the working model used in calibration is homoskedastic, and so the same adjustment factor will be used for every case's weights. This can be seen when we compare the adjusted weights to the unadjusted weights.
+Note that for ratio estimation, the calibration formula includes `-1` to ensure that ratio estimation is used instead of regression estimation. This is similar to how, when fitting a regression model in R, we use `lm(y ~ -1 + x)` to fit a linear model without an intercept. Specifying the parameter `variance = 1` indicates that the working model used in calibration is homoscedastic, and so the same adjustment factor will be used for every case's weights. This can be seen when we compare the adjusted weights to the unadjusted weights.
 
 ```{r}
 ratio_adjusted_weights <- weights(ratio_calib_design, type = "sampling")

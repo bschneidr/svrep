@@ -36,7 +36,7 @@ The available types are the following: \cr
  \item \strong{"Antal-Tille"}: \cr
    The doubled half bootstrap method proposed by Antal and Tillé (2014), which is only applicable to single-stage designs or
    multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
-   Accomodates stratified designs. Sampling within each stratum can be simple random sampling or unequal probability sampling
+   Accommodates stratified designs. Sampling within each stratum can be simple random sampling or unequal probability sampling
    with or without replacement.
  \item \strong{"Preston"}: \cr
    Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs

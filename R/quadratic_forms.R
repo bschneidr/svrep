@@ -1194,7 +1194,7 @@ get_nearest_psd_matrix <- function(X) {
 #' representing the Horvitz-Thompson variance estimator.
 #' @details The quadratic form matrix of the Horvitz-Thompson variance estimator
 #' has \eqn{ij}-th entry equal to \eqn{(1-\frac{\pi_i \pi_j}{\pi_{ij}})}.
-#' The matrix of joint probabilties has \eqn{ij}-th entry equal to \eqn{\pi_{ij}}.
+#' The matrix of joint probabilities has \eqn{ij}-th entry equal to \eqn{\pi_{ij}}.
 #' @return The matrix of joint inclusion probabilities
 #' @keywords internal
 ht_matrix_to_joint_probs <- function(ht_quad_form) {

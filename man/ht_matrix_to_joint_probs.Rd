@@ -21,6 +21,6 @@ from the quadratic form of a Horvitz-Thompson variance estimator.
 \details{
 The quadratic form matrix of the Horvitz-Thompson variance estimator
 has \eqn{ij}-th entry equal to \eqn{(1-\frac{\pi_i \pi_j}{\pi_{ij}})}.
-The matrix of joint probabilties has \eqn{ij}-th entry equal to \eqn{\pi_{ij}}.
+The matrix of joint probabilities has \eqn{ij}-th entry equal to \eqn{\pi_{ij}}.
 }
 \keyword{internal}

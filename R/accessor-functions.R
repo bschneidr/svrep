@@ -35,7 +35,7 @@ get_rep_type <- function(rep_design) {
 }
 
 #' @title Access Replication Scale Coefficients
-#' @description Get the scale coefficents
+#' @description Get the scale coefficients
 #' used for variance estimation in a replicate design object.
 #' @inheritParams get_rep_type
 #' @param type Either \code{'overall'}, \code{'specific'}, 
@@ -55,7 +55,7 @@ get_rep_type <- function(rep_design) {
 #' \eqn{C} is the overall coefficient,
 #' and \eqn{c_r, r=1,\dots,R} are replicate-specific coefficients.
 #' 
-#' Specifying \code{get_rep_scale_coefs(type='overall')} returnrs
+#' Specifying \code{get_rep_scale_coefs(type='overall')} returns
 #' the overall coefficient \eqn{C}. Specifying \code{type='specific'}
 #' returns the replicate-specific coefficients \eqn{c_r, r=1,\dots,R}.
 #' 

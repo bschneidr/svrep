@@ -202,7 +202,7 @@ https://doi.org/10.3390/stats5020019
 
 Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 "Some recent work on resampling methods for complex surveys."
-\strong{Surv. Methodol.}, \emph{18}: 209-217.
+\strong{Survey Methodology}, \emph{18}: 209-217.
 }
 \seealso{
 If the survey design can be accurately represented using \code{\link[survey]{svydesign}},

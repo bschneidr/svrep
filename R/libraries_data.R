@@ -41,7 +41,7 @@
 #'   \item LONGITUD: Geocoded longitude (in WGS84 CRS)
 #'   \item LATITUD: Geocoded latitude (in WGS84 CRS)
 #'   \item STABR: Two-letter state abbreviation
-#'   \item CBSA: Five-digit identifer for a core-based statistical area (CBSA)
+#'   \item CBSA: Five-digit identifier for a core-based statistical area (CBSA)
 #'   \item MICROF: Flag for a metropolitan or micropolitan statistical area
 #'
 #' }
@@ -68,7 +68,7 @@
 #' but with additional design variables.
 #' \itemize{
 #'   \item PSU_ID: A unique identifier for primary sampling units
-#'   \item SSU_ID: A unique identifer for secondary sampling units
+#'   \item SSU_ID: A unique identifier for secondary sampling units
 #'   \item SAMPLING_PROB: Overall inclusion probability
 #'   \item PSU_SAMPLING_PROB: Inclusion probability for the PSU
 #'   \item SSU_SAMPLING_PROB: Inclusion probability for the SSU

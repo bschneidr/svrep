@@ -13,7 +13,7 @@ get_rep_scale_coefs(rep_design, type = "combined")
 or \code{'combined'}.}
 }
 \description{
-Get the scale coefficents
+Get the scale coefficients
 used for variance estimation in a replicate design object.
 }
 \details{
@@ -31,7 +31,7 @@ The terms \eqn{C} and \eqn{c_r, r=1,\dots,R} are scale coefficients.
 \eqn{C} is the overall coefficient,
 and \eqn{c_r, r=1,\dots,R} are replicate-specific coefficients.
 
-Specifying \code{get_rep_scale_coefs(type='overall')} returnrs
+Specifying \code{get_rep_scale_coefs(type='overall')} returns
 the overall coefficient \eqn{C}. Specifying \code{type='specific'}
 returns the replicate-specific coefficients \eqn{c_r, r=1,\dots,R}.
 

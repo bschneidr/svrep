@@ -85,7 +85,7 @@
 #'
 #' Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 #' "Some recent work on resampling methods for complex surveys."
-#' \strong{Surv. Methodol.}, \emph{18}: 209-217.
+#' \strong{Survey Methodology}, \emph{18}: 209-217.
 #'
 #' @return A matrix of with the same number of rows as \code{samp_unit_ids}
 #' and the number of columns equal to the value of the argument \code{num_replicates}.
