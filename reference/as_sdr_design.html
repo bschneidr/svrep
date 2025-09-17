@@ -199,9 +199,8 @@ Proceedings of the Section on Government Statistics, 154-159.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'library_stsys_sample'</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## First, ensure data are sorted in same order as was used in sampling</span></span></span>
-<span class="r-in"><span><span class="va">library_stsys_sample</span> <span class="op">&lt;-</span> <span class="va">library_stsys_sample</span><span class="op">[</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">library_stsys_sample</span><span class="op">$</span><span class="va">SAMPLING_SORT_ORDER</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">library_stsys_sample</span> <span class="op">&lt;-</span> <span class="va">library_stsys_sample</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/sort_by.html" class="external-link">sort_by</a></span><span class="op">(</span><span class="op">~</span> <span class="va">SAMPLING_SORT_ORDER</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Create a survey design object</span></span></span>
 <span class="r-in"><span><span class="va">design_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span></span></span>
