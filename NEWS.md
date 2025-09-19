@@ -7,13 +7,13 @@
 -   Fully removed `rescale_reps()`, since it was already deprecated in favor of the replacement `rescale_replicates()`. 
     For GitHub issue #45.
 
--   Some minor internal refactoring to improve memory efficiency and speed. For GitHub issue #46.
-
--   Improvements to examples. Most notably, replaced all instances of `dontrun{}` with `donttest{}`. For GitHub issue #49. 
+-   Enhanced the functions for choosing the number of bootstrap replicates. The output from `estimate_boot_reps_for_target_cv()` now has generic S3 methods like `plot()` and `print()`. For GitHub issue #47.
 
 -   Added new accessor functions, `get_rep_scale_coefs()` and `get_rep_type()`. For GitHub issue #44.
 
--   Enhanced the functions for choosing the number of bootstrap replicates. The output from `estimate_boot_reps_for_target_cv()` now has generic S3 methods like `plot()` and `print()`. For GitHub issue #47.
+-   Some minor internal refactoring to improve memory efficiency and speed. For GitHub issue #46.
+
+-   Improvements to examples. Most notably, replaced all instances of `dontrun{}` with `donttest{}`. For GitHub issue #49. 
 
 # svrep 0.8.0
 
