@@ -188,6 +188,67 @@ suppressWarnings({
 
   })
 
+# Test for one of the Deville variance estimators ----
+
+  test_that("Correct quadratic form for a Deville variance estimator", {
+      dev1_quad_form <- make_quad_form_matrix(
+        variance_estimator = "Deville-1",
+        cluster_ids = c(3,3,1,1,2,2) |> as.matrix(),
+        strata_ids = c(1,1,1,1,1,1) |> as.matrix(),
+        probs = c(0.258064516129032, 0.258064516129032, 0.129032258064516,
+                  0.129032258064516, 0.193548387096774, 0.193548387096774) |>
+          as.matrix()
+      )
+    
+      expect_equal(
+        object = svydesign(
+          data = data.frame(
+            psu = c(3,3,1,1,2,2),
+            stratum = c(1,1,1,1,1,1),
+            samp_prob = c(0.258064516129032, 0.258064516129032, 0.129032258064516,
+                          0.129032258064516, 0.193548387096774, 0.193548387096774)
+          ),
+          ids = ~ psu,
+          strata = ~ stratum,
+          probs = ~ samp_prob
+        ) |> get_design_quad_form("Deville-1"),
+        expected = dev1_quad_form
+      )
+  })
+
+# Test the BOSB variance estimator ----
+
+  test_that("Correct quadratic form for the BOSB variance estimator", {
+    
+    stsys_strata <- c(rep(1, times = 100),
+                      rep(2, times = 119))
+
+    library_stsys_sample[['strata']] <- stsys_strata
+    library_stsys_sample[['weights']] <- rep(1, times = nrow(library_stsys_sample))
+    
+    bosb_quad_form <- make_quad_form_matrix(
+      variance_estimator = 'BOSB',
+      cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+      strata_ids = matrix(stsys_strata,
+                          nrow = nrow(library_stsys_sample),
+                          ncol = 1),
+      aux_vars = library_stsys_sample[['SAMPLING_SORT_ORDER']] |>
+        factor() |> as.numeric() |> matrix(nrow = nrow(library_stsys_sample))
+    )
+    expect_equal(
+      object = svydesign(
+        data   = library_stsys_sample |>
+          transform(
+            AUX_VAR = SAMPLING_SORT_ORDER |>
+              factor() |> as.numeric()
+          ),
+        ids     = ~ FSCSKEY,
+        strata  = ~ strata,
+        weights = ~ weights
+      ) |> get_design_quad_form("BOSB", aux_var_names = "AUX_VAR"),
+      expected = bosb_quad_form
+    )
+  })
 
 # Informative messages for bad inputs ----
 

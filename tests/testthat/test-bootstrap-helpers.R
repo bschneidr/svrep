@@ -67,6 +67,22 @@ suppressWarnings({
     }
   )
 
+# Plotting works ----
+
+  test_that(
+    "Plot method works for `estimate_boot_reps_for_target_cv()`", {
+
+      output <- estimate_boot_reps_for_target_cv(
+        estimated_means_and_proportions,
+        target_cv = c(0.5, 0.1)
+      )
+
+      expect_true(
+        inherits(invisible(plot(output)), 'ggplot')
+      )
+    }
+  )
+
 # Sanity check ----
 
   library(survey)
