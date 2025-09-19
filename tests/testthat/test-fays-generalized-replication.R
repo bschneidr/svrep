@@ -540,6 +540,7 @@ test_that(
   desc = "Can use 'torch' for Fay's generalized replication", {
     skip_if_not_installed("torch")
     skip_if_not(torch::torch_is_installed())
+    skip_on_cran()
     
     non_torch_result <- svydesign(
       data = election_pps,
