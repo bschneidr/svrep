@@ -104,7 +104,6 @@ see the documentation for \link[svrep]{make_twophase_quad_form}.
 
 \examples{
 \donttest{
-library(survey)
 
 # Example 1: Quadratic form for successive-difference variance estimator ----
 

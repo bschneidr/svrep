@@ -56,12 +56,10 @@ Estimates the bootstrap simulation error, expressed as a "simulation coefficient
 
 \examples{
 \donttest{
-library(survey)
 
 set.seed(2022)
 
 # Create an example bootstrap survey design object ----
-library(survey)
 data('api', package = 'survey')
 
 boot_design <- svydesign(id=~1,strata=~stype, weights=~pw,

@@ -71,7 +71,6 @@ Whereas \code{svyby()} calculates statistics separately for each subset formed b
 }
 \examples{
 \donttest{
-suppressPackageStartupMessages(library(survey))
 data(api)
 
 dclus1 <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc)

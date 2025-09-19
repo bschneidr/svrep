@@ -111,7 +111,6 @@ When sharing a dataset that uses rescaled weights from a generalized survey boot
 
 \examples{
 \donttest{
-  library(survey)
 
 # Load an example dataset that uses unequal probability sampling ----
   data('election', package = 'survey')

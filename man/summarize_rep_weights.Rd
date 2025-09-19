@@ -57,7 +57,6 @@ Summarize the replicate weights of a design
 \examples{
 
 # Load example data
-suppressPackageStartupMessages(library(survey))
 data(api)
 
 dclus1 <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc)

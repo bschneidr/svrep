@@ -140,7 +140,6 @@ see the documentation for \link[svrep]{make_twophase_quad_form}.
 \examples{
 \donttest{
 
-  library(survey)
 
   ## Load an example systematic sample ----
   data('library_stsys_sample', package = 'svrep')

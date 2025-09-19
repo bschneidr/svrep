@@ -58,7 +58,6 @@ referred to in the paper as "the \eqn{\pi}-bootstrap."
 }
 \examples{
 \donttest{
- library(survey)
  
  # Example 1: A cluster sample
  

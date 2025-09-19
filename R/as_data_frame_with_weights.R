@@ -16,7 +16,6 @@
 #'
 #' data("lou_vax_survey", package = 'svrep')
 #'
-#' library(survey)
 #' # Create a survey design object
 #' survey_design <- svydesign(data = lou_vax_survey,
 #'                            weights = ~ SAMPLING_WEIGHT,

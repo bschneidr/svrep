@@ -188,7 +188,6 @@ if the total number of PSUs is not a multiple of the total number of replicates 
 }
 
 \examples{
-library(survey)
 
 # Load example data
 

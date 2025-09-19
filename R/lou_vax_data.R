@@ -59,9 +59,8 @@
 #' data(lou_pums_microdata)
 #'
 #' # Prepare the data for analysis with the survey package
-#'   library(survey)
 #'
-#'   lou_pums_rep_design <- survey::svrepdesign(
+#'   lou_pums_rep_design <- svrepdesign(
 #'     data       = lou_pums_microdata,
 #'     variables  = ~ UNIQUE_ID + AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
 #'     weights    = ~ PWGTP, 

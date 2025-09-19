@@ -85,7 +85,6 @@ either simple random sampling (with or without replacement)
 or unequal probability sampling (with or without replacement) may be used.
 }
 \examples{
-library(survey)
 # Example 1: A multistage sample with two stages of SRSWOR
 
   ## Load an example dataset from a multistage sample, with two stages of SRSWOR

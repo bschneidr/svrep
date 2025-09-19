@@ -83,7 +83,6 @@ and this simulation error is measured as a simulation coefficient of variation (
 set.seed(2022)
 
 # Create an example bootstrap survey design object ----
-library(survey)
 data('api', package = 'survey')
 
 boot_design <- svydesign(id=~1,strata=~stype, weights=~pw,

@@ -100,7 +100,6 @@
 #'
 #'
 #' @examples
-#' library(survey)
 #' # Example 1: A multistage sample with two stages of SRSWOR
 #'
 #'   ## Load an example dataset from a multistage sample, with two stages of SRSWOR

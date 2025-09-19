@@ -114,7 +114,6 @@
 #'
 #' @examples
 #' \donttest{
-#'   library(survey)
 #'
 #' # Load an example dataset that uses unequal probability sampling ----
 #'   data('election', package = 'survey')
@@ -462,7 +461,6 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
 #'
 #' @examples
 #' \donttest{
-#' library(survey)
 #'
 #'# Example 1: Bootstrap based on the Yates-Grundy estimator ----
 #'    set.seed(2014)

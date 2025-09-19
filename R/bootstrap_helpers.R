@@ -79,7 +79,6 @@
 #' set.seed(2022)
 #'
 #' # Create an example bootstrap survey design object ----
-#' library(survey)
 #' data('api', package = 'survey')
 #'
 #' boot_design <- svydesign(id=~1,strata=~stype, weights=~pw,
@@ -312,12 +311,10 @@ plot.sim_cv_curve <- function(x, ...) {
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #' @examples
 #' \donttest{
-#' library(survey)
 #' 
 #' set.seed(2022)
 #'
 #' # Create an example bootstrap survey design object ----
-#' library(survey)
 #' data('api', package = 'survey')
 #'
 #' boot_design <- svydesign(id=~1,strata=~stype, weights=~pw,

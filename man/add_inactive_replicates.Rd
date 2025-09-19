@@ -72,7 +72,6 @@ you can update the \code{mse} option to \code{TRUE} simply by using code such as
 }
 
 \examples{
-library(survey)
 set.seed(2023)
 
 # Create an example survey design object

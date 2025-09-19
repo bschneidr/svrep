@@ -59,7 +59,6 @@
 #' @export
 #'
 #' @examples
-#' library(survey)
 #' set.seed(2023)
 #'
 #' # Create an example survey design object

@@ -99,7 +99,6 @@ For raking, use the following option:
 
 # Load example data for primary survey ----
 
-  suppressPackageStartupMessages(library(survey))
   data(api)
 
   primary_survey <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc) |>

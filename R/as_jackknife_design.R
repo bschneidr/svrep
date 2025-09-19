@@ -174,7 +174,6 @@
 #' @export
 #'
 #' @examples
-#' library(survey)
 #'
 #' # Load example data
 #'

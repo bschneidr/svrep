@@ -83,7 +83,6 @@
 #' - Särndal, C.E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 #' @examples
 #' \donttest{
-#' library(survey)
 #' 
 #' # Example 1: Quadratic form for successive-difference variance estimator ----
 #'

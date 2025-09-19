@@ -111,7 +111,6 @@
 #' @export
 #' @examples
 #' \donttest{
-#'   library(survey)
 #'
 #' # Load an example dataset that uses unequal probability sampling ----
 #'   data('election', package = 'survey')
@@ -399,7 +398,6 @@ make_fays_gen_rep_factors <- function(
 #' @examples
 #' \donttest{
 #'
-#'   library(survey)
 #'
 #'   ## Load an example systematic sample ----
 #'   data('library_stsys_sample', package = 'svrep')

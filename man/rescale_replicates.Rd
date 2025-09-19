@@ -98,7 +98,6 @@ by rescaling the replicate factor matrix \eqn{\mathbf{A}} using the transformati
 
  # Example 3: Rescaling replicate weights of a survey design object
  set.seed(2023)
- library(survey)
  data('mu284', package = 'survey')
 
  ## First create a bootstrap design object

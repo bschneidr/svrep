@@ -197,7 +197,6 @@ see the documentation for \link[svrep]{make_twophase_quad_form}.
 
 \examples{
 \donttest{
-library(survey)
 
 # Example 1: Bootstrap based on the Yates-Grundy estimator ----
    set.seed(2014)
