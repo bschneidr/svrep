@@ -13,7 +13,7 @@
 
 -   Some minor internal refactoring to improve memory efficiency and speed. For GitHub issue #46.
 
--   Improvements to examples. Most notably, replaced all instances of `dontrun{}` with `donttest{}`. For GitHub issue #49. 
+-   Improvements to examples. Most notably, replaced all instances of `dontrun{}` with `donttest{}`. Also removed calls of `library(survey)` since the 'survey' package is now attached whenever 'svrep' is loaded. For GitHub issue #49.
 
 # svrep 0.8.0
 
