@@ -10,7 +10,16 @@ get_rep_scale_coefs(rep_design, type = "combined")
 \item{rep_design}{A replicate design object}
 
 \item{type}{Either \code{'overall'}, \code{'specific'}, 
-or \code{'combined'}.}
+or \code{'combined'}. See the details section below.
+The result for \code{'overall'} is the single overall
+scale coefficient. The result for \code{'specific'} is the vector of
+replicate-specific coefficients. The result for \code{'combined'}
+is the product of the overall and replicate-specific coefficients.}
+}
+\value{
+If \code{type = 'overall'}, the result is a single number.
+Otherwise, the result is a vector with length matching
+the number of replicates.
 }
 \description{
 Get the scale coefficients

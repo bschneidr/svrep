@@ -39,7 +39,14 @@ get_rep_type <- function(rep_design) {
 #' used for variance estimation in a replicate design object.
 #' @inheritParams get_rep_type
 #' @param type Either \code{'overall'}, \code{'specific'}, 
-#' or \code{'combined'}.
+#' or \code{'combined'}. See the details section below.
+#' The result for \code{'overall'} is the single overall
+#' scale coefficient. The result for \code{'specific'} is the vector of
+#' replicate-specific coefficients. The result for \code{'combined'}
+#' is the product of the overall and replicate-specific coefficients.
+#' @returns If \code{type = 'overall'}, the result is a single number.
+#' Otherwise, the result is a vector with length matching
+#' the number of replicates.
 #' @details
 #' For a statistic \eqn{\hat{\theta}},
 #' replication methods estimate the sampling variance
