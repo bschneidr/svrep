@@ -87,7 +87,6 @@ you can supply a character vector of variable names to keep.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lou_vax_survey"</span>, package <span class="op">=</span> <span class="st">'svrep'</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Create a survey design object</span></span></span>
 <span class="r-in"><span><span class="va">survey_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">lou_vax_survey</span>,</span></span>
 <span class="r-in"><span>                           weights <span class="op">=</span> <span class="op">~</span> <span class="va">SAMPLING_WEIGHT</span>,</span></span>
