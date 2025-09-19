@@ -61,9 +61,19 @@ used for variance estimation in a replicate design object.</p>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Either <code>'overall'</code>, <code>'specific'</code>,
-or <code>'combined'</code>.</p></dd>
+or <code>'combined'</code>. See the details section below.
+The result for <code>'overall'</code> is the single overall
+scale coefficient. The result for <code>'specific'</code> is the vector of
+replicate-specific coefficients. The result for <code>'combined'</code>
+is the product of the overall and replicate-specific coefficients.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>If <code>type = 'overall'</code>, the result is a single number.
+Otherwise, the result is a vector with length matching
+the number of replicates.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>For a statistic \(\hat{\theta}\),
