@@ -1,4 +1,4 @@
-# svrep (development version)
+# svrep 0.9.0
 
 -   The 'survey' package is now listed under 'Depends' rather than 'Imports'.
     This means it will be attached whenever 'svrep' is loaded, for example by calling `library(svrep)`.
