@@ -56,7 +56,6 @@ Estimates the bootstrap simulation error, expressed as a "simulation coefficient
 
 \examples{
 \donttest{
-
 set.seed(2022)
 
 # Create an example bootstrap survey design object ----

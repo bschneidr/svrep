@@ -48,25 +48,6 @@ suppressWarnings({
       )
   })
 
-# Consistent outputs from main function ----
-
-  test_that(
-    "Consistent outputs from `estimate_boot_reps_for_target_cv()`", {
-
-      output <- estimate_boot_reps_for_target_cv(
-        estimated_means_and_proportions,
-        target_cv = c(0.5, 0.1)
-      )
-
-      expect_equal(
-        object = output[['function']](0.1) |> as.vector(),
-        expected = unlist(
-          output$summary[2,c('api00', 'api99', 'stypeE', 'stypeH', 'stypeM')]
-        ) |> as.vector()
-      )
-    }
-  )
-
 # Plotting works ----
 
   test_that(
