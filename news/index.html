@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">svrep</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,8 +39,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
-</div>
+<h2 class="pkg-version" data-toc-text="0.9.1" id="svrep-091">svrep 0.9.1<a class="anchor" aria-label="anchor" href="#svrep-091"></a></h2>
+<ul><li><p>Added note in the documentation for <code><a href="../reference/estimate_boot_sim_cv.html">estimate_boot_sim_cv()</a></code> that this function’s output does not have a plot method. The closely-related function <code><a href="../reference/estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv()</a></code> does however have a plot method. For <a href="https://github.com/bschneidr/svrep/issues/54" class="external-link">#54</a>.</p></li>
+<li><p>Simplified structure of objects created by <code><a href="../reference/estimate_boot_reps_for_target_cv.html">estimate_boot_reps_for_target_cv()</a></code>, by removing the <code>function</code> component of output. For <a href="https://github.com/bschneidr/svrep/issues/54" class="external-link">#54</a>.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.0" id="svrep-090">svrep 0.9.0<a class="anchor" aria-label="anchor" href="#svrep-090"></a></h2><p class="text-muted">CRAN release: 2025-09-20</p>
 <ul><li><p>The ‘survey’ package is now listed under ‘Depends’ rather than ‘Imports’. This means it will be attached whenever ‘svrep’ is loaded, for example by calling <code><a href="https://bschneidr.github.io/svrep/">library(svrep)</a></code>. For GitHub issue <a href="https://github.com/bschneidr/svrep/issues/51" class="external-link">#51</a>.</p></li>
