@@ -306,6 +306,9 @@ plot.sim_cv_curve <- function(x, ...) {
 #' The column \code{STATISTIC} gives the name of the statistic.
 #' The column \code{SIMULATION_CV} gives the estimated simulation CV of the statistic.
 #' The column \code{N_REPLICATES} gives the number of bootstrap replicates.
+#' 
+#' This object has no plot method. To produce plots, use the 
+#' closely-related function \code{\link[svrep]{estimate_boot_reps_for_target_cv}}.
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #' @examples

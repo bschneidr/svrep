@@ -17,6 +17,9 @@ Call \code{summary()} to get a data frame with one row for each statistic.
 The column \code{STATISTIC} gives the name of the statistic.
 The column \code{SIMULATION_CV} gives the estimated simulation CV of the statistic.
 The column \code{N_REPLICATES} gives the number of bootstrap replicates.
+
+This object has no plot method. To produce plots, use the 
+closely-related function \code{\link[svrep]{estimate_boot_reps_for_target_cv}}.
 }
 \description{
 Estimates the bootstrap simulation error, expressed as a "simulation coefficient of variation" (CV).
