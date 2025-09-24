@@ -1,4 +1,8 @@
-# svrep (development version)
+# svrep 0.9.1
+
+-   Added note in the documentation for `estimate_boot_sim_cv()` that this function's output does not have a plot method. The closely-related function `estimate_boot_reps_for_target_cv()` does however have a plot method. For #54.
+
+-   Simplified structure of objects created by `estimate_boot_reps_for_target_cv()`, by removing the `function` component of output. For #54.
 
 # svrep 0.9.0
 
