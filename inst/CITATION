@@ -4,7 +4,7 @@ bibentry(
   author="Benjamin Schneider",
   year=2025,
   title="svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights",
-  note="R package version 0.9.0",
+  note="R package version 0.9.1",
   url="https://doi.org/10.32614/CRAN.package.svrep",
-  textVersion="Schneider, B. (2025). \"svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights\". R package version 0.9.0. DOI: https://doi.org/10.32614/CRAN.package.svrep."
+  textVersion="Schneider, B. (2025). \"svrep: Tools for Creating, Updating, and Analyzing Survey Replicate Weights\". R package version 0.9.1. DOI: https://doi.org/10.32614/CRAN.package.svrep."
 )
