@@ -705,6 +705,10 @@ draw_antal_tille_resample <- function(sel_probs) {
       
       pi_k_rescaled <- (sel_probs^(-1)) - 1
       pi_k_rescaled <- pi_k_rescaled / sum(pi_k_rescaled)
+      # Added fallback if majority of weights are 1 except for a few indices
+      epsilon <- .Machine$double.eps  # ~2.22e-16
+      pi_k_rescaled[pi_k_rescaled == 0] <- epsilon
+      ##
       psi_k <- 1 - sampling::inclusionprobabilities(a = pi_k_rescaled, n = 2)
       
       resamples <- sampling::UPmaxentropy(psi_k)
