@@ -87,8 +87,8 @@
 #' "Some recent work on resampling methods for complex surveys."
 #' \strong{Survey Methodology}, \emph{18}: 209-217.
 #'
-#' @return A matrix of with the same number of rows as \code{samp_unit_ids}
-#' and the number of columns equal to the value of the argument \code{num_replicates}.
+#' @return A matrix with the same number of rows as \code{samp_unit_ids}
+#' and with the number of columns equal to the value of the argument \code{num_replicates}.
 #' Specifying \code{output = "factors"} returns a matrix of replicate adjustment factors which can later be multiplied by
 #' the full-sample weights to produce a matrix of replicate weights.
 #' Specifying \code{output = "weights"} returns the matrix of replicate weights,
@@ -535,6 +535,17 @@ make_doubled_half_bootstrap_weights <- function(
   if ((length(num_replicates) != 1) || !is.numeric(num_replicates) || (!num_replicates > 0)) {
     stop("Must specify a single, positive number for the argument `num_replicates`.")
   }
+  # Throw a warning if every unit has a sampling probability of 1
+  if (all(samp_unit_sel_probs == 1)) {
+    paste(
+      "Every sampling unit apparently has a sampling probability of 1.",
+      "If that's not the case, check to make sure that the actual sampling probabilities",
+      "are being used.",
+      "If you created a survey design object using `svydesign()` or a similar function,",
+      "make sure to use the `probs` or `fpc` argument of that function,",
+      "or else ensure that the weights are inverses of sampling probabilities."
+    ) |> warning()
+  }
   
   # Initialize matrix of replicate adjustment factors
   adjustment_factors <- matrix(
@@ -682,16 +693,20 @@ draw_doubled_half_sample <- function(n) {
 #' @keywords internal
 draw_antal_tille_resample <- function(sel_probs) {
   
-  n <- length(sel_probs)
+  is_certainty <- sel_probs == 1
+  n_certainties <- sum(is_certainty)
+
+  n_all <- length(sel_probs)
+  n <- n_all - n_certainties
   
   resamples <- sampling::UPpoisson(sel_probs)
-  m   <- sum(resamples)
+  m <- sum(resamples) - n_certainties
   
   nonsampled <- which(resamples == 0)
   
   n_minus_m <- n - m
   
-  if (n_minus_m > 2) {
+  if (n_minus_m >= 2) {
     
     resamples[nonsampled] <- draw_doubled_half_sample(n_minus_m)
     
@@ -699,15 +714,15 @@ draw_antal_tille_resample <- function(sel_probs) {
     
     if (sample(c(TRUE, FALSE), size = 1)) {
       
-      resamples <- rep(1, times = n)
+      resamples <- rep(1, times = n_all)
       
     } else {
       
-      pi_k_rescaled <- (sel_probs^(-1)) - 1
+      pi_k_rescaled <- (sel_probs[!is_certainty]^(-1)) - 1
       pi_k_rescaled <- pi_k_rescaled / sum(pi_k_rescaled)
       psi_k <- 1 - sampling::inclusionprobabilities(a = pi_k_rescaled, n = 2)
       
-      resamples <- sampling::UPmaxentropy(psi_k)
+      resamples[!is_certainty] <- sampling::UPmaxentropy(psi_k)
       nonsampled <- which(resamples == 0)
       
       resamples[nonsampled] <- draw_doubled_half_sample(2)

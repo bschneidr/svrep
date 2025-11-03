@@ -241,6 +241,19 @@ set.seed(2014)
         regexp = "Cannot form bootstrap adjustment factors for a stratum"
       )
   })
+  test_that(
+    desc = "Expected warning when all weights are 1", {
+      expect_warning(
+        object = svydesign(
+          data = data.frame(wgt = c(1, 1, 1, 1)),
+          ids  = ~ 1,
+          weights = ~ wgt
+        ) |>
+          as_bootstrap_design(type = "Antal-Tille", replicates = 5),
+        regexp = "Every sampling unit apparently has a sampling probability of 1"
+      )
+    }
+  )
 
 # Check for correctness ----
   
@@ -251,6 +264,41 @@ set.seed(2014)
       expect_in(dclus2wr_reps,                0:3)
       expect_in(dclus1_reps,                  0:3)
       expect_in(election_pps_boot$repweights, 0:3)
+    }
+  )
+
+  ##_ Expected resamples when there are certainties ----
+
+  test_that(
+    "Expected resamples when a stratum has certainties", {
+    svy <- svydesign(
+      ids     = ~ 1,
+      weights = ~ wgt,
+      data = data.frame(
+        wgt = c(1, 1, 1, 1, 4, 4),
+        y   = c(30, 20, 15, 40, 19, 31)
+      )
+    )
+      
+    rep_factors <- svy |> 
+      as_bootstrap_design(type = "Antal-Tille", replicates = 5000) |>
+      weights(type = "replication")
+      
+    expect_equal(
+      object = rep_factors[1:4,] |> apply(MARGIN = 1, var),
+      expected = c(0, 0, 0, 0)
+    )
+      
+    expect_equal(
+      object = rep_factors |> colSums() |> unique(),
+      expected = 6
+    )
+      
+    expect_contains(
+      object = unique(as.vector(rep_factors)), 
+      expected = c(0, 1, 2)
+    )
+      
     }
   )
   
