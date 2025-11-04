@@ -49,8 +49,8 @@ the full-sample weights to produce a matrix of replicate weights. Specifying \co
 returns the matrix of replicate weights, where the full-sample weights are inferred using \code{samp_unit_sel_probs}.}
 }
 \value{
-A matrix of with the same number of rows as \code{samp_unit_ids}
-and the number of columns equal to the value of the argument \code{num_replicates}.
+A matrix with the same number of rows as \code{samp_unit_ids}
+and with the number of columns equal to the value of the argument \code{num_replicates}.
 Specifying \code{output = "factors"} returns a matrix of replicate adjustment factors which can later be multiplied by
 the full-sample weights to produce a matrix of replicate weights.
 Specifying \code{output = "weights"} returns the matrix of replicate weights,
