@@ -188,7 +188,7 @@ library(survey)
        replicates = 50,
        max_loss = 1e-7,
        torch_optimizer = \(params, ...) {
-         torch::optim_ignite_adamw(params, lr = 0.01)
+         torch::optim_ignite_adamw(params, lr = 0.001)
        }
      )
 

@@ -1,3 +1,33 @@
+get_support_decomposition <- function(Q, tol = 1e-10) {
+  eigens <- torch::linalg_eigh(Q)
+  evals <- eigens[[1]]
+  evecs <- eigens[[2]]
+  mask <- (evals > tol)$bool()
+  evals_support <- evals[mask]
+  U <- evecs[, mask, drop = FALSE]
+  
+  Pi <- U$matmul(U$t())
+  inv_sqrt <- evals_support$sqrt()$pow(-1)$diag()
+  Q_pinv_sqrt <- U$matmul(inv_sqrt)$matmul(U$t())
+  return(list("Pi" = Pi, "Q_pinv_sqrt" = Q_pinv_sqrt))
+}
+
+support_relative_spectral_norm <- function(Q, X, tol = 1e-10) {
+  if (!inherits(Q, "torch_tensor")) {
+    Q <- torch::torch_tensor(Q, dtype = torch::torch_float64())
+  }
+  if (!inherits(X, "torch_tensor")) {
+    X <- torch::torch_tensor(X, dtype = torch::torch_float64())
+  }
+  support_decomposition <- get_support_decomposition(Q, tol = tol)
+  Pi <- support_decomposition[['Pi']]
+  Q_pinv_sqrt <- support_decomposition[['Q_pinv_sqrt']]
+  
+  X_changed <- Q_pinv_sqrt$matmul(X)$matmul(Q_pinv_sqrt)
+  return(torch::torch_norm(X_changed - Pi, p = 2L))
+}
+
+
 #' @title Optimization-based Bootstrap Weights
 #' @description Create bootstrap replicate weights
 #' using an optimization algorithm.
@@ -95,7 +125,7 @@ make_optim_boot_factors <- function(
     stop("`min_factor` must be a number less than 1.")
   }
 
-  Sigma_tensor = Sigma |> as.matrix() |> torch::torch_tensor()
+  Sigma_tensor = Sigma |> as.matrix() |> torch::torch_tensor(dtype = torch::torch_float64())
 
   constrain_sums <- function(X, max_iter = 10) {
     X_dim <- nrow(X)
@@ -113,8 +143,8 @@ make_optim_boot_factors <- function(
   # target_sigma: The target quadratic form matrix
   loss_fn <- function(A, target_sigma) {
     A = A$clamp(min_factor) |> constrain_sums()
-    spectral_norm = torch::torch_norm(A$cov(0) - target_sigma, p = 2L)
-    return(spectral_norm)
+    norm_value = support_relative_spectral_norm(Q = target_sigma, X = A$cov(0))
+    return(norm_value)
   }
 
   # Create an initial solution
@@ -130,7 +160,7 @@ make_optim_boot_factors <- function(
     )
   initial_solution[sign(initial_solution) < 0] <- 0
 
-  A = torch::torch_tensor(initial_solution, requires_grad = TRUE)
+  A = torch::torch_tensor(initial_solution, requires_grad = TRUE, dtype = torch::torch_float64())
 
   # Create an optimizer
   optimizer = torch_optimizer(params = A, ...)
@@ -374,7 +404,7 @@ make_optim_boot_factors <- function(
 #'        replicates = 50,
 #'        max_loss = 1e-7,
 #'        torch_optimizer = \(params, ...) {
-#'          torch::optim_ignite_adamw(params, lr = 0.01)
+#'          torch::optim_ignite_adamw(params, lr = 0.001)
 #'        }
 #'      )
 #'
