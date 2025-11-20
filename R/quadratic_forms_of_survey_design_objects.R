@@ -498,4 +498,48 @@ compress_design.DBIsvydesign <- function(design, vars_to_keep = NULL) {
   }
 
   return(compressed_design_structure)
+}
+
+#' @title Quadratic Form Matrix of A Replicate Design
+#' @description Determines the quadratic form matrix corresponding
+#' to the replicate weights of a survey design object.
+#' @param rep_design A replicate survey design object created using the 'survey' (or 'srvyr') package,
+#' with class \code{'svyrep.design'}.
+#' @returns The quadratic form matrix implied by the replicate weights.
+#' The dimension of the matrix matches the number of observations in the data.
+#' @export
+#' @examples
+#' # Create an example survey design object
+#' data(scd)
+#' scd_svy <- svydesign(
+#'   data   = scd, 
+#'   prob   = ~1, 
+#'   id     = ~ambulance, 
+#'   strata = ~ESA,
+#'   nest   = TRUE
+#' )
+#' 
+#' # Create replicate weights
+#' scd_brr <- scd_svy |> as_bootstrap_design(mse = FALSE)
+#' 
+#' # Get the quadratic form matrix of the replicate weights
+#' brr_quad_form <- get_rep_design_quad_form(scd_brr)
+#' 
+#' # Compute the variance-covariance of an estimated total
+#' svytotal(x = ~ arrests, design = scd_brr) |> vcov()
+#' 
+#' # Check that the quadratic form gives the exact same result
+#' scd$arrests %*% brr_quad_form %*% scd$arrests
+#'
+get_rep_design_quad_form <- function(rep_design) {
+  rep_weights <- weights(rep_design, type = "replication")
+  scale_factors <- rep_design[['scale']] * rep_design[['rscales']]
+  n_reps <- sum(scale_factors > 0)
+  if (rep_design$mse) {
+    recentered_rep_weights <- rep_weights - 1
+  } else {
+    recentered_rep_weights <- rep_weights - (rowSums(rep_weights)/n_reps)
   }
+  Q_rep <- tcrossprod(recentered_rep_weights * sqrt(scale_factors))
+  return(Q_rep)
+}
