@@ -127,24 +127,35 @@ make_optim_boot_factors <- function(
 
   Sigma_tensor = Sigma |> as.matrix() |> torch::torch_tensor(dtype = torch::torch_float64())
 
-  constrain_sums <- function(X, max_iter = 10) {
-    X_dim <- nrow(X)
+  constrain_sums <- function(X, row = TRUE, col = TRUE, max_iter = 10) {
     iter <- 1
-    while (iter <= max_iter) {
+    if (row && col) {
+      while (iter <= max_iter) {
+        X = (X / X$mean(1))
+        X = (X$t() / X$mean(2))$t()
+  
+        iter <- iter + 1
+      }
+    } else if (col) {
       X = (X / X$mean(1))
+    } else if (row) {
       X = (X$t() / X$mean(2))$t()
-
-      iter <- iter + 1
     }
     return(X)
   }
 
-  # A: The matrix we're trying to optimize
-  # target_sigma: The target quadratic form matrix
-  loss_fn <- function(A, target_sigma) {
+  # Define the loss function 
+  # (maximum relative error on the support of Sigma)
+  Sigma_pinv <- Sigma_tensor$pinverse()
+  Sigma_pinv_eigen <- torch::linalg_eigh(Sigma_pinv) 
+  U_r <- Sigma_pinv_eigen[[2]][, Sigma_pinv_eigen[[1]] > 1e-10, drop = FALSE]
+  
+  loss_fn <- function(A) {
     A = A$clamp(min_factor) |> constrain_sums()
-    norm_value = support_relative_spectral_norm(Q = target_sigma, X = A$cov(0))
-    return(norm_value)
+    eigvals = torch::linalg_eigvalsh(
+      U_r$t()$matmul(Sigma_pinv$matmul(A$cov(0)))$matmul(U_r)
+    )
+    return(eigvals$subtract(1)$abs()$max())
   }
 
   # Create an initial solution
@@ -169,12 +180,12 @@ make_optim_boot_factors <- function(
 
   # Initialize loss and iteration index
   iteration <- 1L
-  loss <- loss_fn(A, Sigma_tensor)
+  loss <- loss_fn(A)
 
   if (inherits(optimizer, "optim_lbfgs")) {
     calc_loss <- function() {
       optimizer$zero_grad()
-      loss_value <- loss_fn(A, Sigma_tensor)
+      loss_value <- loss_fn(A)
       loss_value$backward()
       loss_value
     }
@@ -196,7 +207,7 @@ make_optim_boot_factors <- function(
       optimizer$zero_grad()
 
       # Determine loss at current iteration
-      loss = loss_fn(A, Sigma_tensor)
+      loss = loss_fn(A)
 
       # Calculate gradients
       loss$backward()
