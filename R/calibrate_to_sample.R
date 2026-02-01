@@ -389,7 +389,7 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
   calibrated_rep_design <- primary_rep_design
 
   calibrated_rep_design$pweights <- adjusted_fullsample_weights
-  names(calibrated_rep_design$pweights) <- names(primary_rep_design)
+  names(calibrated_rep_design$pweights) <- names(primary_rep_design$pweights)
 
   calibrated_rep_design$repweights <- adjusted_replicate_weights
   class(calibrated_rep_design$repweights) <- 'repweights'
