@@ -1,0 +1,274 @@
+# Weights for Rao-Wu-Yue-Beaumont Bootstrap
+
+Creates bootstrap replicate weights for a multistage stratified sample
+design using the method of Beaumont and Émond (2022), which is a
+generalization of the Rao-Wu-Yue bootstrap.  
+  
+The design may have different sampling methods used at different stages.
+Each stage of sampling may potentially use unequal probabilities (with
+or without replacement) and may potentially use Poisson sampling.
+
+## Usage
+
+``` r
+make_rwyb_bootstrap_weights(
+  num_replicates = 100,
+  samp_unit_ids,
+  strata_ids,
+  samp_unit_sel_probs,
+  samp_method_by_stage = rep("PPSWOR", times = ncol(samp_unit_ids)),
+  allow_final_stage_singletons = TRUE,
+  output = "weights"
+)
+```
+
+## Arguments
+
+- num_replicates:
+
+  Positive integer giving the number of bootstrap replicates to create
+
+- samp_unit_ids:
+
+  Matrix or data frame of sampling unit IDs for each stage of sampling
+
+- strata_ids:
+
+  Matrix or data frame of strata IDs for each sampling unit at each
+  stage of sampling
+
+- samp_unit_sel_probs:
+
+  Matrix or data frame of selection probabilities for each sampling unit
+  at each stage of sampling.
+
+- samp_method_by_stage:
+
+  A vector with length equal to the number of stages of sampling,
+  corresponding to the number of columns in `samp_unit_ids`. This
+  describes the method of sampling used at each stage. Each element
+  should be one of the following:  
+
+  - "SRSWOR" - Simple random sampling, without replacement
+
+  - "SRSWR" - Simple random sampling, with replacement
+
+  - "PPSWOR" - Unequal probabilities of selection, without replacement
+
+  - "PPSWR" - Unequal probabilities of selection, with replacement
+
+  - "Poisson" - Poisson sampling: each sampling unit is selected into
+    the sample at most once, with potentially different probabilities of
+    inclusion for each sampling unit.
+
+- allow_final_stage_singletons:
+
+  Logical value indicating whether to allow non-certainty singleton
+  strata at the final sampling stage (rather than throw an error
+  message).  
+  If `TRUE`, the sampling unit in a non-certainty singleton stratum will
+  have its final-stage adjustment factor calculated as if it was
+  selected with certainty at the final stage (i.e., its adjustment
+  factor will be 1), and then its final bootstrap weight will be
+  calculated by combining this adjustment factor with its final-stage
+  selection probability.
+
+- output:
+
+  Either `"weights"` (the default) or `"factors"`. Specifying
+  `output = "factors"` returns a matrix of replicate adjustment factors
+  which can later be multiplied by the full-sample weights to produce a
+  matrix of replicate weights. Specifying `output = "weights"` returns
+  the matrix of replicate weights, where the full-sample weights are
+  inferred using `samp_unit_sel_probs`.
+
+## Value
+
+A matrix with the same number of rows as `samp_unit_ids` and with the
+number of columns equal to the value of the argument `num_replicates`.
+Specifying `output = "factors"` returns a matrix of replicate adjustment
+factors which can later be multiplied by the full-sample weights to
+produce a matrix of replicate weights. Specifying `output = "weights"`
+returns the matrix of replicate weights, where the full-sample weights
+are inferred using `samp_unit_sel_probs`.
+
+## Details
+
+Beaumont and Émond (2022) describe a general algorithm for forming
+bootstrap replicate weights for multistage stratified samples, based on
+the method of Rao-Wu-Yue, with extensions to sampling without
+replacement and use of unequal probabilities of selection (i.e.,
+sampling with probability proportional to size) as well as Poisson
+sampling. These methods are guaranteed to produce nonnegative replicate
+weights and provide design-unbiased and design-consistent variance
+estimates for totals, for designs where sampling uses one or more of the
+following methods:
+
+- "SRSWOR" - Simple random sampling, without replacement
+
+- "SRSWR" - Simple random sampling, with replacement
+
+- "PPSWR" - Unequal probabilities of selection, with replacement
+
+- "Poisson" - Poisson sampling: each sampling unit is selected into the
+  sample at most once, with potentially different probabilities of
+  inclusion for each sampling unit.
+
+For designs where at least one stage's strata have sampling without
+replacement with unequal probabilities of selection ("PPSWOR"), the
+bootstrap method of Beaumont and Émond (2022) is guaranteed to produce
+nonnegative weights, but is not design-unbiased, since the method only
+approximates the joint selection probabilities which would be needed for
+unbiased estimation.  
+  
+Unless any stages use simple random sampling without replacement, the
+resulting bootstrap replicate weights are guaranteed to all be strictly
+positive, which may be useful for calibration or analyses of domains
+with small sample sizes. If any stages use simple random sampling
+without replacement, it is possible for some replicate weights to be
+zero.  
+  
+If there is survey nonresponse, it may be useful to represent the
+response/nonresponse as an additional stage of sampling, where sampling
+is conducted with Poisson sampling where each unit's "selection
+probability" at that stage is its response propensity (which typically
+has to be estimated).
+
+The formulas and algorithms for the replication factors are described by
+Beaumont and Émond (2022). Below, we list the relevant equations and
+sections of the paper for each sampling method.
+
+- "SRSWR" - Equation 19 of Beaumont and Émond (2022)
+
+- "PPSWR" - Equation 19 of Beaumont and Émond (2022)
+
+- "SRSWOR" - Equation 20 of Beaumont and Émond (2022)
+
+- "PPSWOR" - Equations 24 and 21 of Beaumont and Émond (2022)
+
+- "Poisson" - See section 3.1 of Beaumont and Émond (2022)
+
+For stratified sampling, the replicate factors are generated
+independently in each stratum. For cluster sampling at a given stage,
+the replicate factors are generated at the cluster level and then the
+cluster's replicate factors are applied to all units in the cluster.
+
+For multistage sampling, replicate factors are generated using the
+method described in Section 7 ("Bootstrap for Multistage Sampling").
+
+## References
+
+Beaumont, J.-F.; Émond, N. (2022). "A Bootstrap Variance Estimation
+Method for Multistage Sampling and Two-Phase Sampling When Poisson
+Sampling Is Used at the Second Phase." **Stats**, *5*: 339-357.
+https://doi.org/10.3390/stats5020019
+
+Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992). "Some recent work on resampling
+methods for complex surveys." **Survey Methodology**, *18*: 209-217.
+
+## See also
+
+If the survey design can be accurately represented using
+[`svydesign`](https://rdrr.io/pkg/survey/man/svydesign.html), then it is
+easier to simply use
+[`as_bootstrap_design`](https://bschneidr.github.io/svrep/reference/as_bootstrap_design.md)
+with argument `type = "Rao-Wu-Yue-Beaumont"`.
+
+Use
+[`estimate_boot_reps_for_target_cv`](https://bschneidr.github.io/svrep/reference/estimate_boot_reps_for_target_cv.md)
+to help choose the number of bootstrap replicates.
+
+## Examples
+
+``` r
+# \donttest{
+
+ # Example 1: A multistage sample with two stages of SRSWOR
+
+     ## Load an example dataset from a multistage sample, with two stages of SRSWOR
+     data("mu284", package = 'survey')
+     multistage_srswor_design <- svydesign(data = mu284,
+                                           ids = ~ id1 + id2,
+                                           fpc = ~ n1 + n2)
+
+     ## Create bootstrap replicate weights
+     set.seed(2022)
+     bootstrap_replicate_weights <- make_rwyb_bootstrap_weights(
+       num_replicates = 5000,
+       samp_unit_ids = multistage_srswor_design$cluster,
+       strata_ids = multistage_srswor_design$strata,
+       samp_unit_sel_probs = multistage_srswor_design$fpc$sampsize /
+                             multistage_srswor_design$fpc$popsize,
+       samp_method_by_stage = c("SRSWOR", "SRSWOR")
+     )
+
+     ## Create a replicate design object with the survey package
+     bootstrap_rep_design <- svrepdesign(
+       data = multistage_srswor_design$variables,
+       repweights = bootstrap_replicate_weights,
+       weights = weights(multistage_srswor_design, type = "sampling"),
+       type = "bootstrap"
+     )
+
+     ## Compare std. error estimates from bootstrap versus linearization
+     data.frame(
+       'Statistic' = c('total', 'mean', 'median'),
+       'SE (bootstrap)' = c(SE(svytotal(x = ~ y1, design = bootstrap_rep_design)),
+                            SE(svymean(x = ~ y1, design = bootstrap_rep_design)),
+                            SE(svyquantile(x = ~ y1, quantile = 0.5,
+                                           design = bootstrap_rep_design))),
+       'SE (linearization)' = c(SE(svytotal(x = ~ y1, design = multistage_srswor_design)),
+                                SE(svymean(x = ~ y1, design = multistage_srswor_design)),
+                                SE(svyquantile(x = ~ y1, quantile = 0.5,
+                                               design = multistage_srswor_design))),
+       check.names = FALSE
+     )
+#>   Statistic SE (bootstrap) SE (linearization)
+#> 1     total    2271.817031        2274.254701
+#> 2      mean       2.443630           2.273653
+#> 3    median       2.331234           2.521210
+
+ # Example 2: A single-stage sample selected with unequal probabilities, without replacement
+
+     ## Load an example dataset of U.S. counties states with 2004 Presidential vote counts
+     data("election", package = 'survey')
+     pps_wor_design <- svydesign(data = election_pps,
+                                 pps = "overton",
+                                 fpc = ~ p, # Inclusion probabilities
+                                 ids = ~ 1)
+
+     ## Create bootstrap replicate weights
+     set.seed(2022)
+     bootstrap_replicate_weights <- make_rwyb_bootstrap_weights(
+       num_replicates = 5000,
+       samp_unit_ids = pps_wor_design$cluster,
+       strata_ids = pps_wor_design$strata,
+       samp_unit_sel_probs = pps_wor_design$prob,
+       samp_method_by_stage = c("PPSWOR")
+     )
+
+     ## Create a replicate design object with the survey package
+     bootstrap_rep_design <- svrepdesign(
+       data = pps_wor_design$variables,
+       repweights = bootstrap_replicate_weights,
+       weights = weights(pps_wor_design, type = "sampling"),
+       type = "bootstrap"
+     )
+
+     ## Compare std. error estimates from bootstrap versus linearization
+     data.frame(
+       'Statistic' = c('total', 'mean'),
+       'SE (bootstrap)' = c(SE(svytotal(x = ~ Bush, design = bootstrap_rep_design)),
+                            SE(svymean(x = ~ I(Bush/votes),
+                                       design = bootstrap_rep_design))),
+       'SE (Overton\'s PPS approximation)' = c(SE(svytotal(x = ~ Bush,
+                                                           design = pps_wor_design)),
+                                               SE(svymean(x = ~ I(Bush/votes),
+                                                          design = pps_wor_design))),
+       check.names = FALSE
+     )
+#>   Statistic SE (bootstrap) SE (Overton's PPS approximation)
+#> 1     total   2.433612e+06                     2.939608e+06
+#> 2      mean   1.212457e-01                     1.089739e-01
+# }
+```

@@ -1,0 +1,90 @@
+# Weighting Class Adjustment
+
+Redistributes weight from one group to another: for example, from
+non-respondents to respondents. Redistribution is conducted for the
+full-sample weights as well as each set of replicate weights. This can
+be done separately for each combination of a set of grouping variables,
+for example to implement a nonresponse weighting class adjustment.
+
+## Usage
+
+``` r
+redistribute_weights(design, reduce_if, increase_if, by)
+```
+
+## Arguments
+
+- design:
+
+  A survey design object, created with either the `survey` or `srvyr`
+  packages.
+
+- reduce_if:
+
+  An expression indicating which cases should have their weights set to
+  zero. Must evaluate to a logical vector with only values of TRUE or
+  FALSE.
+
+- increase_if:
+
+  An expression indicating which cases should have their weights
+  increased. Must evaluate to a logical vector with only values of TRUE
+  or FALSE.
+
+- by:
+
+  (Optional) A character vector with the names of variables used to
+  group the redistribution of weights. For example, if the data include
+  variables named `"stratum"` and `"wt_class"`, one could specify
+  `by = c("stratum", "wt_class")`.
+
+## Value
+
+The survey design object, but with updated full-sample weights and
+updated replicate weights. The resulting survey design object always has
+its value of `combined.weights` set to `TRUE`.
+
+## References
+
+See Chapter 2 of Heeringa, West, and Berglund (2017) or Chapter 13 of
+Valliant, Dever, and Kreuter (2018) for an overview of nonresponse
+adjustment methods based on redistributing weights.
+
+\- Heeringa, S., West, B., Berglund, P. (2017). Applied Survey Data
+Analysis, 2nd edition. Boca Raton, FL: CRC Press. "Applied Survey Data
+Analysis, 2nd edition." Boca Raton, FL: CRC Press.
+
+\- Valliant, R., Dever, J., Kreuter, F. (2018). "Practical Tools for
+Designing and Weighting Survey Samples, 2nd edition." New York:
+Springer.
+
+## Examples
+
+``` r
+# Load example data
+suppressPackageStartupMessages(library(survey))
+data(api)
+
+dclus1 <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc)
+dclus1$variables$response_status <- sample(x = c("Respondent", "Nonrespondent",
+                                                 "Ineligible", "Unknown eligibility"),
+                                           size = nrow(dclus1),
+                                           replace = TRUE)
+rep_design <- as.svrepdesign(dclus1)
+
+# Adjust weights for cases with unknown eligibility
+ue_adjusted_design <- redistribute_weights(
+    design = rep_design,
+    reduce_if = response_status %in% c("Unknown eligibility"),
+    increase_if = !response_status %in% c("Unknown eligibility"),
+    by = c("stype")
+)
+
+# Adjust weights for nonresponse
+nr_adjusted_design <- redistribute_weights(
+    design = ue_adjusted_design,
+    reduce_if = response_status %in% c("Nonrespondent"),
+    increase_if = response_status == "Respondent",
+    by = c("stype")
+)
+```

@@ -40,7 +40,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="svrep-development-version">svrep (development version)<a class="anchor" aria-label="anchor" href="#svrep-development-version"></a></h2>
-<ul><li>Bug fix: The Antal-Tille bootstrap function could sometimes fail when a stratum contained certainty units (i.e., sampling units with a sampling probability of 1). This has been fixed and unit tests added for edge cases involving certainty units. For <a href="https://github.com/bschneidr/svrep/issues/58" class="external-link">#58</a>. Thanks to GitHub user <a href="https://github.com/gedbe02" class="external-link">@gedbe02</a> for the report and a reproducible example.</li>
+<ul><li><p>Added new function <code><a href="../reference/derive_twophase_rep_design.html">derive_twophase_rep_design()</a></code> to derive a replicate design object for a two-phase sample, based on a replicate design object created for the first-phase sample. This is based on the method developed by Kim and Yu (2011).</p></li>
+<li><p>Bug fix: The Antal-Tille bootstrap function could sometimes fail when a stratum contained certainty units (i.e., sampling units with a sampling probability of 1). This has been fixed and unit tests added for edge cases involving certainty units. For <a href="https://github.com/bschneidr/svrep/issues/58" class="external-link">#58</a>. Thanks to GitHub user <a href="https://github.com/gedbe02" class="external-link">@gedbe02</a> for the report and a reproducible example.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.1" id="svrep-091">svrep 0.9.1<a class="anchor" aria-label="anchor" href="#svrep-091"></a></h2><p class="text-muted">CRAN release: 2025-10-08</p>
@@ -220,7 +221,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
