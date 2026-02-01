@@ -1,5 +1,7 @@
 # svrep (development version)
 
+-   Added new function `derive_twophase_rep_design()` to derive a replicate design object for a two-phase sample, based on a replicate design object created for the first-phase sample. This is based on the method developed by Kim and Yu (2011).
+
 -   Bug fix: The Antal-Tille bootstrap function could sometimes fail when a stratum contained certainty units (i.e., sampling units with a sampling probability of 1). This has been fixed and unit tests added for edge cases involving certainty units. For #58. Thanks to GitHub user @gedbe02 for the report and a reproducible example.
 
 - Fixed an unhelpful warning message that could occur for quadratic forms that have a structurally rank deficient sparse matrix representation. For #59.

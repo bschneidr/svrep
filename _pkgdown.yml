@@ -47,6 +47,9 @@ reference:
 - contents:
   - matches("as_sdr_")
   - matches("make_sdr_")
+- title: Derive Replicate Weights for a Two-phase Sample
+- contents:
+  - matches("derive_twophase")
 - title: Calibrating to Estimated Control Totals
 - contents:
   - starts_with("calibrate_to")
