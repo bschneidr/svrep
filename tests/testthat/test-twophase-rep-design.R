@@ -34,10 +34,10 @@ phase_one_rep_design <- phase_one_design |>
 
 # Derive a replicate design for the two-phase sample
 phase_two_rep_design <- derive_twophase_rep_design(
-  design              = phase_one_rep_design,
-  phase_two_indicator = "PHASE_TWO_SAMPLED",
-  phase_two_probs     = "PHASE_TWO_PROB",
-  phase_two_strata    = "PHASE_TWO_STRATA"
+  design               = phase_one_rep_design,
+  phase_two_indicators = "PHASE_TWO_SAMPLED",
+  phase_two_probs      = "PHASE_TWO_PROB",
+  phase_two_strata     = "PHASE_TWO_STRATA"
 )
 
 test_that("Correct weights from `derive_twophase_rep_design()`", {
@@ -65,19 +65,19 @@ test_that("Correct weights from `derive_twophase_rep_design()`", {
 test_that("Informative errors from `derive_twophase_rep_design()`", {
   expect_error(
     derive_twophase_rep_design(
-      design              = phase_one_rep_design,
-      phase_two_indicator = "PHASE_TWO_SAMPLED",
-      phase_two_probs     = "DERP",
-      phase_two_strata    = "PHASE_TWO_STRATA"
+      design               = phase_one_rep_design,
+      phase_two_indicators = "PHASE_TWO_SAMPLED",
+      phase_two_probs      = "DERP",
+      phase_two_strata     = "PHASE_TWO_STRATA"
     ),
     regexp = "name of a variable"
   )
   expect_error(
     derive_twophase_rep_design(
-      design              = phase_one_rep_design |> transform(STRATA = rep(NA, times = 8)),
-      phase_two_indicator = "PHASE_TWO_SAMPLED",
-      phase_two_probs     = "PHASE_TWO_PROB",
-      phase_two_strata    = "STRATA"
+      design               = phase_one_rep_design |> transform(STRATA = rep(NA, times = 8)),
+      phase_two_indicators = "PHASE_TWO_SAMPLED",
+      phase_two_probs      = "PHASE_TWO_PROB",
+      phase_two_strata     = "STRATA"
     ),
     regexp = "cannot have any missing values"
   )

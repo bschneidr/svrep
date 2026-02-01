@@ -6,7 +6,7 @@
 \usage{
 derive_twophase_rep_design(
   design,
-  phase_two_indicator,
+  phase_two_indicators,
   phase_two_probs,
   phase_two_strata = NULL
 )
@@ -14,7 +14,7 @@ derive_twophase_rep_design(
 \arguments{
 \item{design}{A replicate survey design object for the first phase sample.}
 
-\item{phase_two_indicator}{A string giving the name of a variable in the data
+\item{phase_two_indicators}{A string giving the name of a variable in the data
 that indicates which cases are selected for the phase two sample.}
 
 \item{phase_two_probs}{A string giving the name of a variable in the data
@@ -76,24 +76,22 @@ phase_one_data <- data.frame(
                         TRUE, TRUE, TRUE, FALSE)
 )
 
-# Create replicate weights for the first phase 
+# Create replicate weights for the first phase
 phase_one_design <- svydesign(
   data    = phase_one_data,
   ids     = ~ PHASE_ONE_PSU,
   weights = ~ PHASE_ONE_WGT
 )
 
-set.seed(2026)
-
 phase_one_rep_design <- phase_one_design |>
-  as_fays_gen_rep_design("Ultimate Cluster")
+  as.svrepdesign(type = "JK1")
 
 # Derive a replicate design for the two-phase sample
 phase_two_rep_design <- derive_twophase_rep_design(
-  design              = phase_one_rep_design,
-  phase_two_indicator = "PHASE_TWO_SAMPLED",
-  phase_two_probs     = "PHASE_TWO_PROB",
-  phase_two_strata    = "PHASE_TWO_STRATA"
+  design               = phase_one_rep_design,
+  phase_two_indicators = "PHASE_TWO_SAMPLED",
+  phase_two_probs      = "PHASE_TWO_PROB",
+  phase_two_strata     = "PHASE_TWO_STRATA"
 )
 
 # Check estimates (and standard errors)
@@ -119,4 +117,7 @@ Opsomer, J. D., Jay Breidt, F., White, M., and Li, Y. (2016). "Successive Differ
 \seealso{
 Use \code{\link[=calibrate_to_sample]{calibrate_to_sample()}} to calibrate the second-phase sample
 to match the first-phase sample for specific calibration variables.
+
+The generalized replication functions \code{\link[=as_fays_gen_rep_design]{as_fays_gen_rep_design()}} and \code{\link[=as_gen_boot_design]{as_gen_boot_design()}}
+can be used to create replicate weights for a two-phase design object created with \code{\link[survey:twophase]{survey::twophase()}}.
 }

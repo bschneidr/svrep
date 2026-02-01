@@ -5,7 +5,7 @@
 #' The full-sample and replicate weights are adjusted to implement
 #' the reweighted expansion estimator (REE).
 #' @param design A replicate survey design object for the first phase sample.
-#' @param phase_two_indicator A string giving the name of a variable in the data
+#' @param phase_two_indicators A string giving the name of a variable in the data
 #' that indicates which cases are selected for the phase two sample.
 #' @param phase_two_strata A string giving the name of the stratification
 #' variable for the second phase sample, or \code{NULL} (the default) if
@@ -81,10 +81,10 @@
 #' 
 #' # Derive a replicate design for the two-phase sample
 #' phase_two_rep_design <- derive_twophase_rep_design(
-#'   design              = phase_one_rep_design,
-#'   phase_two_indicator = "PHASE_TWO_SAMPLED",
-#'   phase_two_probs     = "PHASE_TWO_PROB",
-#'   phase_two_strata    = "PHASE_TWO_STRATA"
+#'   design               = phase_one_rep_design,
+#'   phase_two_indicators = "PHASE_TWO_SAMPLED",
+#'   phase_two_probs      = "PHASE_TWO_PROB",
+#'   phase_two_strata     = "PHASE_TWO_STRATA"
 #' )
 #' 
 #' # Check estimates (and standard errors)
@@ -103,7 +103,7 @@
 #' @md
 derive_twophase_rep_design <- function(
   design,
-  phase_two_indicator,
+  phase_two_indicators,
   phase_two_probs,
   phase_two_strata = NULL
 ) {
