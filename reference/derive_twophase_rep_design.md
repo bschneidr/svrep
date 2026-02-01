@@ -10,7 +10,7 @@ reweighted expansion estimator (REE).
 ``` r
 derive_twophase_rep_design(
   design,
-  phase_two_indicator,
+  phase_two_indicators,
   phase_two_probs,
   phase_two_strata = NULL
 )
@@ -22,7 +22,7 @@ derive_twophase_rep_design(
 
   A replicate survey design object for the first phase sample.
 
-- phase_two_indicator:
+- phase_two_indicators:
 
   A string giving the name of a variable in the data that indicates
   which cases are selected for the phase two sample.
@@ -97,6 +97,14 @@ Use
 to calibrate the second-phase sample to match the first-phase sample for
 specific calibration variables.
 
+The generalized replication functions
+[`as_fays_gen_rep_design()`](https://bschneidr.github.io/svrep/reference/as_fays_gen_rep_design.md)
+and
+[`as_gen_boot_design()`](https://bschneidr.github.io/svrep/reference/as_gen_boot_design.md)
+can be used to create replicate weights for a two-phase design object
+created with
+[`survey::twophase()`](https://rdrr.io/pkg/survey/man/twophase.html).
+
 ## Examples
 
 ``` r
@@ -113,30 +121,30 @@ phase_one_data <- data.frame(
                         TRUE, TRUE, TRUE, FALSE)
 )
 
-# Create replicate weights for the first phase 
+# Create replicate weights for the first phase
 phase_one_design <- svydesign(
   data    = phase_one_data,
   ids     = ~ PHASE_ONE_PSU,
   weights = ~ PHASE_ONE_WGT
 )
 
-set.seed(2026)
-
 phase_one_rep_design <- phase_one_design |>
-  as_fays_gen_rep_design("Ultimate Cluster")
+  as.svrepdesign(type = "JK1")
 
 # Derive a replicate design for the two-phase sample
 phase_two_rep_design <- derive_twophase_rep_design(
-  design              = phase_one_rep_design,
-  phase_two_indicator = "PHASE_TWO_SAMPLED",
-  phase_two_probs     = "PHASE_TWO_PROB",
-  phase_two_strata    = "PHASE_TWO_STRATA"
+  design               = phase_one_rep_design,
+  phase_two_indicators = "PHASE_TWO_SAMPLED",
+  phase_two_probs      = "PHASE_TWO_PROB",
+  phase_two_strata     = "PHASE_TWO_STRATA"
 )
-#> Error in derive_twophase_rep_design(design = phase_one_rep_design, phase_two_indicator = "PHASE_TWO_SAMPLED",     phase_two_probs = "PHASE_TWO_PROB", phase_two_strata = "PHASE_TWO_STRATA"): could not find function "derive_twophase_rep_design"
+#> Warning: Setting `mse` to TRUE; variance estimates will be centered around full-sample estimate, not mean of replicates.
 
 # Check estimates (and standard errors)
 svytotal(x = ~ x + y, design = phase_two_rep_design)
-#> Error: object 'phase_two_rep_design' not found
+#>   total      SE
+#> x 83067  3225.6
+#> y 81000 11925.7
 svytotal(x = ~ x + y, design = phase_one_rep_design)
 #>   total     SE
 #> x 82400 2520.8
@@ -151,5 +159,4 @@ calibrated_phase_two_rep_design <- calibrate_to_sample(
   cal_formula         = ~ x,
   control_col_matches = seq_len(ncol(phase_two_rep_design$repweights))
 )
-#> Error: object 'phase_two_rep_design' not found
 ```

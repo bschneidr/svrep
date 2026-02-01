@@ -243,7 +243,7 @@ replicate weights.
 #> 1   183    15           14   15        6194    403.1741           0    36.26464
   summarize_rep_weights(calibrated_rep_design, type = 'overall')
 #>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt
-#> 1   183    15           14   15        6194 4.734925e-09           0
+#> 1   183    15           14   15        6194 4.136423e-09           0
 #>   max_rep_wgt
 #> 1    119.1069
 
