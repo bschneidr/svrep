@@ -157,6 +157,9 @@ derive_twophase_rep_design.svyrep.design <- function(
   
   # Adjust the full-sample weights using the conditional phase-two probabilities
   phase_two_rep_design[['pweights']] <- phase_two_rep_design[['pweights']] / phase_two_probs
+  if (phase_two_rep_design$combined.weights) {
+    phase_two_rep_design$repweights <- weights(phase_two_rep_design, "analysis") / phase_two_probs
+  }
 
   # Adjust full-sample and replicate weights within strata,
   # so that the second-phase weight sums match the first-phase weight sums

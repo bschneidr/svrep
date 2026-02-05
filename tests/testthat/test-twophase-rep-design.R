@@ -50,7 +50,7 @@ test_that("Correct weights from `derive_twophase_rep_design()`", {
   expected_full_weight <- expected_full_weight[phase_one_rep_design$variables$PHASE_TWO_SAMPLED]
   expected_full_weight[1:2] <- expected_full_weight[1:2] * (400 / sum(expected_full_weight[1:2]))
   expected_full_weight[3:5] <- expected_full_weight[3:5] * (400 / sum(expected_full_weight[3:5]))
-  
+
   expect_equal(unname(full_weights), unname(expected_full_weight))
 
   # Replicate weights should yield identical variance estimates
@@ -59,7 +59,35 @@ test_that("Correct weights from `derive_twophase_rep_design()`", {
     svytotal(x = ~ factor(PHASE_TWO_STRATA), design = phase_two_rep_design) |> vcov(),
     svytotal(x = ~ factor(PHASE_TWO_STRATA), design = phase_one_rep_design) |> vcov()
   )
-  
+})
+
+test_that("Correct results regardless of `combined.weights`", {
+
+  separate_weights_design <- phase_one_design |>
+    as.svrepdesign(type = "JK1", mse = TRUE)
+  combined_weights_design <- separate_weights_design
+
+  combined_weights_design$repweights <- separate_weights_design |>
+    weights(type = "analysis")
+  combined_weights_design$combined.weights <- TRUE
+
+  combined_weights_result <- derive_twophase_rep_design(
+    design               = phase_one_rep_design,
+    phase_two_indicators = "PHASE_TWO_SAMPLED",
+    phase_two_probs      = "PHASE_TWO_PROB",
+    phase_two_strata     = "PHASE_TWO_STRATA"
+  )
+  separate_weights_result <- derive_twophase_rep_design(
+    design               = phase_one_rep_design,
+    phase_two_indicators = "PHASE_TWO_SAMPLED",
+    phase_two_probs      = "PHASE_TWO_PROB",
+    phase_two_strata     = "PHASE_TWO_STRATA"
+  )
+
+  expect_equal(
+    weights(combined_weights_result, type = "analysis"), 
+    weights(separate_weights_result, type = "analysis")
+  )
 })
 
 test_that("Informative errors from `derive_twophase_rep_design()`", {
