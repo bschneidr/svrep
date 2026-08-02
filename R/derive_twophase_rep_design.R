@@ -77,7 +77,7 @@
 #' )
 #' 
 #' phase_one_rep_design <- phase_one_design |>
-#'   as.svrepdesign(type = "JK1")
+#'   as.svrepdesign(type = "JK1", mse = TRUE)
 #' 
 #' # Derive a replicate design for the two-phase sample
 #' phase_two_rep_design <- derive_twophase_rep_design(
@@ -100,6 +100,8 @@
 #'   cal_formula         = ~ x,
 #'   control_col_matches = seq_len(ncol(phase_two_rep_design$repweights))
 #' )
+#' 
+#' svytotal(x = ~ x + y, design = calibrated_phase_two_rep_design)
 #' @md
 derive_twophase_rep_design <- function(
   design,
