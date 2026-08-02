@@ -244,8 +244,8 @@ quadratic form's matrix, which can then be used as an input to
 svytotal(x = ~ Bush + Kerry,
          design = election_pps_bootstrap_design)
 #>          total      SE
-#> Bush  64518472 2314048
-#> Kerry 51202102 2503331
+#> Bush  64518472 2681210
+#> Kerry 51202102 2553358
 svytotal(x = ~ Bush + Kerry,
          design = election_pps_ht_design)
 #>          total      SE

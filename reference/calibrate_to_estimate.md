@@ -233,8 +233,8 @@ replicate weights.
 #> api99 624.68 9.5003
     svymean(x = ~ api00 + api99, design = calibrated_rep_design)
 #>         mean     SE
-#> api00 642.69 27.995
-#> api99 606.91 28.681
+#> api00 642.69 27.336
+#> api99 606.91 28.236
 
 # Inspect weights before and after calibration ----
 
@@ -242,16 +242,14 @@ replicate weights.
 #>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
 #> 1   183    15           14   15        6194    403.1741           0    36.26464
   summarize_rep_weights(calibrated_rep_design, type = 'overall')
-#>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt
-#> 1   183    15           14   15        6194 4.136423e-09           0
-#>   max_rep_wgt
-#> 1    119.1069
+#>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
+#> 1   183    15           14   15        6194 4.84015e-09           0    119.1069
 
 # For reproducibility, specify which columns are randomly selected for Fuller method ----
 
   column_selection <- calibrated_rep_design$col_selection
   print(column_selection)
-#> [1]  2  1 12  5
+#> [1]  4 11  7  8
 
   calibrated_rep_design <- calibrate_to_estimate(
     rep_design = primary_survey,

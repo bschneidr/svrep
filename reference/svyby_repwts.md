@@ -163,13 +163,13 @@ nr_adjusted_design <- redistribute_weights(
 
   print(means_by_design)
 #>                                               Design_Name    api00    api99
-#> nonresponse adjusted                 nonresponse adjusted 659.2546 621.2605
+#> nonresponse adjusted                 nonresponse adjusted 647.1131 608.7525
 #> original                                         original 644.1694 606.9781
-#> unknown eligibility adjusted unknown eligibility adjusted 646.6053 610.3512
+#> unknown eligibility adjusted unknown eligibility adjusted 639.1914 601.6096
 #>                                   se1      se2
-#> nonresponse adjusted         25.97634 27.08759
+#> nonresponse adjusted         28.73366 28.65897
 #> original                     26.32936 26.99854
-#> unknown eligibility adjusted 29.94415 30.30699
+#> unknown eligibility adjusted 29.30072 29.49201
 
   ##_ Next compare domain means for two variables
   domain_means_by_design <- svyby_repwts(formula = ~ api00 + api99,
@@ -179,25 +179,25 @@ nr_adjusted_design <- redistribute_weights(
 
   print(domain_means_by_design)
 #>                                                 Design_Name stype    api00
-#> nonresponse adjusted.E                 nonresponse adjusted     E 653.1171
+#> nonresponse adjusted.E                 nonresponse adjusted     E 652.4038
 #> original.E                                         original     E 648.8681
-#> unknown eligibility adjusted.E unknown eligibility adjusted     E 651.3125
-#> nonresponse adjusted.H                 nonresponse adjusted     H 652.1111
+#> unknown eligibility adjusted.E unknown eligibility adjusted     E 642.8462
+#> nonresponse adjusted.H                 nonresponse adjusted     H 592.7500
 #> original.H                                         original     H 618.5714
-#> unknown eligibility adjusted.H unknown eligibility adjusted     H 588.5556
-#> nonresponse adjusted.M                 nonresponse adjusted     M 698.6071
+#> unknown eligibility adjusted.H unknown eligibility adjusted     H 603.8889
+#> nonresponse adjusted.M                 nonresponse adjusted     M 647.0818
 #> original.M                                         original     M 631.4400
-#> unknown eligibility adjusted.M unknown eligibility adjusted     M 652.0000
+#> unknown eligibility adjusted.M unknown eligibility adjusted     M 637.9091
 #>                                   api99      se1      se2
-#> nonresponse adjusted.E         611.7074 27.59979 29.41816
+#> nonresponse adjusted.E         609.1058 27.77889 27.59123
 #> original.E                     607.7917 25.37430 25.83542
-#> unknown eligibility adjusted.E 611.5089 27.88088 28.29264
-#> nonresponse adjusted.H         619.6667 41.14686 45.16570
+#> unknown eligibility adjusted.E 600.5962 27.98111 27.85828
+#> nonresponse adjusted.H         570.0833 57.36322 59.46811
 #> original.H                     595.7143 46.34412 50.75106
-#> unknown eligibility adjusted.H 554.5556 52.06838 53.00316
-#> nonresponse adjusted.M         677.1786 25.05233 24.46042
+#> unknown eligibility adjusted.H 583.3333 48.59150 51.31940
+#> nonresponse adjusted.M         628.3727 42.78019 39.90191
 #> original.M                     608.6000 33.68762 34.82521
-#> unknown eligibility adjusted.M 634.9286 44.08112 43.25907
+#> unknown eligibility adjusted.M 617.6818 38.62199 39.56364
 
 # Calculate confidence interval for difference between estimates
 
@@ -211,13 +211,13 @@ differences_in_estimates <- svycontrast(stat = ests_by_design, contrasts = list(
 ))
 
 print(differences_in_estimates)
-#>                                         contrast      SE
-#> Mean of api00: NR-adjusted vs. Original   15.085  8.6849
-#> Mean of api99: NR-adjusted vs. Original   14.282 10.3497
+#>                                         contrast     SE
+#> Mean of api00: NR-adjusted vs. Original   2.9437 5.5208
+#> Mean of api99: NR-adjusted vs. Original   1.7744 5.5037
 
 confint(differences_in_estimates, level = 0.95)
 #>                                             2.5 %   97.5 %
-#> Mean of api00: NR-adjusted vs. Original -1.936883 32.10732
-#> Mean of api99: NR-adjusted vs. Original -6.002725 34.56735
+#> Mean of api00: NR-adjusted vs. Original -7.876906 13.76433
+#> Mean of api99: NR-adjusted vs. Original -9.012608 12.56141
 # }
 ```

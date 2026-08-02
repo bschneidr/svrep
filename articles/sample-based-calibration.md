@@ -53,6 +53,7 @@ Fuller (1998), requiring a variance-covariance matrix for the estimated
 control totals.
 
 ``` r
+
 calibrate_to_estimate(
   rep_design = rep_design,
   estimate = vector_of_control_totals,
@@ -95,6 +96,7 @@ status and a handful of demographic variables, based on a simple random
 sample of 1,000 residents of Louisville, Kentucky.
 
 ``` r
+
 # Load the data
 library(svrep)
 #> Loading required package: survey
@@ -112,19 +114,20 @@ data("lou_vax_survey")
 head(lou_vax_survey) |> knitr::kable()
 ```
 
-| RESPONSE_STATUS | RACE_ETHNICITY                                          | SEX    | EDUC_ATTAINMENT       | VAX_STATUS | SAMPLING_WEIGHT |
-|:----------------|:--------------------------------------------------------|:-------|:----------------------|:-----------|----------------:|
-| Nonrespondent   | White alone, not Hispanic or Latino                     | Female | Less than high school | NA         |         596.702 |
-| Nonrespondent   | Black or African American alone, not Hispanic or Latino | Female | High school or beyond | NA         |         596.702 |
-| Respondent      | White alone, not Hispanic or Latino                     | Female | Less than high school | Vaccinated |         596.702 |
-| Nonrespondent   | White alone, not Hispanic or Latino                     | Female | Less than high school | NA         |         596.702 |
-| Nonrespondent   | White alone, not Hispanic or Latino                     | Female | High school or beyond | NA         |         596.702 |
-| Respondent      | White alone, not Hispanic or Latino                     | Female | High school or beyond | Vaccinated |         596.702 |
+| RESPONSE_STATUS | RACE_ETHNICITY | SEX | EDUC_ATTAINMENT | VAX_STATUS | SAMPLING_WEIGHT |
+|:---|:---|:---|:---|:---|---:|
+| Nonrespondent | White alone, not Hispanic or Latino | Female | Less than high school | NA | 596.702 |
+| Nonrespondent | Black or African American alone, not Hispanic or Latino | Female | High school or beyond | NA | 596.702 |
+| Respondent | White alone, not Hispanic or Latino | Female | Less than high school | Vaccinated | 596.702 |
+| Nonrespondent | White alone, not Hispanic or Latino | Female | Less than high school | NA | 596.702 |
+| Nonrespondent | White alone, not Hispanic or Latino | Female | High school or beyond | NA | 596.702 |
+| Respondent | White alone, not Hispanic or Latino | Female | High school or beyond | Vaccinated | 596.702 |
 
 For the purpose of variance estimation, we’ll create jackknife replicate
 weights.
 
 ``` r
+
 suppressPackageStartupMessages(
   library(survey)
 )
@@ -145,6 +148,7 @@ for respondents, we’ll do a quick nonresponse weighting adjustment to
 help make reasonable estimates for this outcome.
 
 ``` r
+
 # Conduct nonresponse weighting adjustment
 
 nr_adjusted_design <- lou_vax_survey_rep |>
@@ -171,10 +175,12 @@ we can use for the calibration. We’ll use a Public-Use Microdata Sample
 race/ethnicity, sex, and educational attainment.
 
 ``` r
+
 data("lou_pums_microdata")
 ```
 
 ``` r
+
 # Inspect some of the rows/columns of data ----
 tail(lou_pums_microdata, n = 5) |> 
   dplyr::select(AGE, SEX, RACE_ETHNICITY, EDUC_ATTAINMENT) |>
@@ -193,6 +199,7 @@ Next, we’ll prepare the PUMS data to use replication variance estimation
 using provided replicate weights.
 
 ``` r
+
 # Convert to a survey design object ----
   pums_rep_design <- svrepdesign(
       data = lou_pums_microdata,
@@ -208,7 +215,7 @@ using provided replicate weights.
 #>     repweights = "PWGTP\\d{1,2}", type = "successive-difference", 
 #>     variables = ~AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT, 
 #>     mse = TRUE)
-#> with 80 replicates and MSE variances.
+#> Successive difference with 80 replicates and MSE variances.
 ```
 
 When conduction calibration, we have to make sure that the data from the
@@ -217,6 +224,7 @@ Since the Louisville vaccination survey only represents adults, we need
 to subset the control survey design to adults.
 
 ``` r
+
 # Subset to only include adults
 pums_rep_design <- pums_rep_design |> subset(AGE >= 18)
 ```
@@ -226,6 +234,7 @@ calibration variables that align with the variables in the primary
 survey design of interest. This may require some data manipulation.
 
 ``` r
+
 suppressPackageStartupMessages(
   library(dplyr)
 )
@@ -251,6 +260,7 @@ suppressPackageStartupMessages(
 ```
 
 ``` r
+
 # Estimates from the control survey (ACS)
 svymean(
   design = pums_rep_design,
@@ -314,6 +324,7 @@ totals, and an accompanying variance-covariance matrix for the
 estimates.
 
 ``` r
+
 acs_control_totals <- svytotal(
   x = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
   design = pums_rep_design
@@ -359,6 +370,7 @@ as the estimates produced by using
 the primary survey design object whose weights we plan to adjust.
 
 ``` r
+
 svytotal(x = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
          design = nr_adjusted_design)
 #>                                                                        total
@@ -390,6 +402,7 @@ use for
 use a raking adjustment, we specify `calfun = survey::cal.raking`.
 
 ``` r
+
 raked_design <- calibrate_to_estimate(
   rep_design = nr_adjusted_design,
   estimate = control_totals_for_raking$estimates,
@@ -409,6 +422,7 @@ errors for the estimated totals match the standard errors of the control
 totals.
 
 ``` r
+
 # Estimated totals after calibration
 svytotal(x = ~ RACE_ETHNICITY + SEX + EDUC_ATTAINMENT,
          design = raked_design)
@@ -464,6 +478,7 @@ by about one percentage point and results in a similar standard error
 estimate.
 
 ``` r
+
 estimates_by_design <- svyby_repwts(
   rep_designs = list(
     "NR-adjusted" = nr_adjusted_design,
@@ -477,24 +492,24 @@ t(estimates_by_design[,-1]) |>
   knitr::kable()
 ```
 
-|                                                                       | NR-adjusted |       Raked |
-|:----------------------------------------------------------------------|------------:|------------:|
-| RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino |  101035.199 | 119041.0000 |
-| RACE_ETHNICITYHispanic or Latino                                      |   20207.040 |  27001.0000 |
-| RACE_ETHNICITYOther Race, not Hispanic or Latino                      |   34470.833 |  27633.0000 |
-| RACE_ETHNICITYWhite alone, not Hispanic or Latino                     |  440988.928 | 423027.0000 |
-| SEXFemale                                                             |  319746.689 | 313014.0000 |
-| SEXMale                                                               |  276955.311 | 283688.0000 |
-| EDUC_ATTAINMENTHigh school or beyond                                  |  273389.363 | 231136.0000 |
-| EDUC_ATTAINMENTLess than high school                                  |  323312.637 | 365566.0000 |
-| se1                                                                   |   10002.951 |    633.6287 |
-| se2                                                                   |    4824.430 |    107.9829 |
-| se3                                                                   |    6222.719 |    472.4107 |
-| se4                                                                   |   11713.138 |    594.1448 |
-| se5                                                                   |   13301.627 |    616.0314 |
-| se6                                                                   |   13301.627 |    596.2990 |
-| se7                                                                   |   13289.206 |   2004.8048 |
-| se8                                                                   |   13289.206 |   2067.3494 |
+|  | NR-adjusted | Raked |
+|:---|---:|---:|
+| RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino | 101035.199 | 119041.0000 |
+| RACE_ETHNICITYHispanic or Latino | 20207.040 | 27001.0000 |
+| RACE_ETHNICITYOther Race, not Hispanic or Latino | 34470.833 | 27633.0000 |
+| RACE_ETHNICITYWhite alone, not Hispanic or Latino | 440988.928 | 423027.0000 |
+| SEXFemale | 319746.689 | 313014.0000 |
+| SEXMale | 276955.311 | 283688.0000 |
+| EDUC_ATTAINMENTHigh school or beyond | 273389.363 | 231136.0000 |
+| EDUC_ATTAINMENTLess than high school | 323312.637 | 365566.0000 |
+| se1 | 10002.951 | 633.6287 |
+| se2 | 4824.430 | 107.9829 |
+| se3 | 6222.719 | 472.4107 |
+| se4 | 11713.138 | 594.1448 |
+| se5 | 13301.627 | 616.0314 |
+| se6 | 13301.627 | 596.2990 |
+| se7 | 13289.206 | 2004.8048 |
+| se8 | 13289.206 | 2067.3494 |
 
 Instead of doing the raking using a vector of control totals and their
 variance-covariance matrix, we could have instead done the raking by
@@ -506,6 +521,7 @@ in contrast to
 which uses Fuller’s method of adjusting replicate weights.
 
 ``` r
+
 raked_design_opsomer_erciulescu <- calibrate_to_sample(
   primary_rep_design = nr_adjusted_design,
   control_rep_design = pums_rep_design,
@@ -531,6 +547,7 @@ may have better statistical properties than the Fuller method used in
 [`calibrate_to_estimate()`](https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.md).
 
 ``` r
+
 estimates_by_design <- svyby_repwts(
   rep_designs = list(
     "calibrate_to_estimate()" = raked_design,
@@ -544,28 +561,28 @@ t(estimates_by_design[,-1]) |>
   knitr::kable()
 ```
 
-|                                                                       | calibrate_to_estimate() | calibrate_to_sample() |
-|:----------------------------------------------------------------------|------------------------:|----------------------:|
-| VAX_STATUSUnvaccinated                                                |             282904.4084 |           282904.4084 |
-| VAX_STATUSVaccinated                                                  |             313797.5916 |           313797.5916 |
-| RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino |             119041.0000 |           119041.0000 |
-| RACE_ETHNICITYHispanic or Latino                                      |              27001.0000 |            27001.0000 |
-| RACE_ETHNICITYOther Race, not Hispanic or Latino                      |              27633.0000 |            27633.0000 |
-| RACE_ETHNICITYWhite alone, not Hispanic or Latino                     |             423027.0000 |           423027.0000 |
-| SEXFemale                                                             |             313014.0000 |           313014.0000 |
-| SEXMale                                                               |             283688.0000 |           283688.0000 |
-| EDUC_ATTAINMENTHigh school or beyond                                  |             231136.0000 |           231136.0000 |
-| EDUC_ATTAINMENTLess than high school                                  |             365566.0000 |           365566.0000 |
-| se1                                                                   |              13429.6614 |            13386.1701 |
-| se2                                                                   |              13392.3319 |            13397.3449 |
-| se3                                                                   |                633.6287 |              633.6287 |
-| se4                                                                   |                107.9829 |              107.9829 |
-| se5                                                                   |                472.4107 |              472.4107 |
-| se6                                                                   |                594.1448 |              594.1448 |
-| se7                                                                   |                616.0314 |              616.0314 |
-| se8                                                                   |                596.2990 |              596.2990 |
-| se9                                                                   |               2004.8048 |             2004.8048 |
-| se10                                                                  |               2067.3494 |             2067.3494 |
+|  | calibrate_to_estimate() | calibrate_to_sample() |
+|:---|---:|---:|
+| VAX_STATUSUnvaccinated | 282904.4084 | 282904.4084 |
+| VAX_STATUSVaccinated | 313797.5916 | 313797.5916 |
+| RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino | 119041.0000 | 119041.0000 |
+| RACE_ETHNICITYHispanic or Latino | 27001.0000 | 27001.0000 |
+| RACE_ETHNICITYOther Race, not Hispanic or Latino | 27633.0000 | 27633.0000 |
+| RACE_ETHNICITYWhite alone, not Hispanic or Latino | 423027.0000 | 423027.0000 |
+| SEXFemale | 313014.0000 | 313014.0000 |
+| SEXMale | 283688.0000 | 283688.0000 |
+| EDUC_ATTAINMENTHigh school or beyond | 231136.0000 | 231136.0000 |
+| EDUC_ATTAINMENTLess than high school | 365566.0000 | 365566.0000 |
+| se1 | 13429.6614 | 13386.1701 |
+| se2 | 13392.3319 | 13397.3449 |
+| se3 | 633.6287 | 633.6287 |
+| se4 | 107.9829 | 107.9829 |
+| se5 | 472.4107 | 472.4107 |
+| se6 | 594.1448 | 594.1448 |
+| se7 | 616.0314 | 616.0314 |
+| se8 | 596.2990 | 596.2990 |
+| se9 | 2004.8048 | 2004.8048 |
+| se10 | 2067.3494 | 2067.3494 |
 
 ### Post-stratification
 
@@ -577,6 +594,7 @@ variable. In the Louisville vaccination survey, that variable is called
 educational attainment.
 
 ``` r
+
 # Create matching post-stratification variable in both datasets
   nr_adjusted_design <- nr_adjusted_design |>
     transform(POSTSTRATUM = interaction(RACE_ETHNICITY, SEX, EDUC_ATTAINMENT,
@@ -608,24 +626,24 @@ educational attainment.
     knitr::kable()
 ```
 
-|                                                                                                   | estimate |
-|:--------------------------------------------------------------------------------------------------|---------:|
-| POSTSTRATUMBlack or African American alone, not Hispanic or Latino\|Female\|High school or beyond |    12168 |
-| POSTSTRATUMHispanic or Latino\|Female\|High school or beyond                                      |     3998 |
-| POSTSTRATUMOther Race, not Hispanic or Latino\|Female\|High school or beyond                      |     6190 |
-| POSTSTRATUMWhite alone, not Hispanic or Latino\|Female\|High school or beyond                     |    84041 |
-| POSTSTRATUMBlack or African American alone, not Hispanic or Latino\|Male\|High school or beyond   |    17648 |
-| POSTSTRATUMHispanic or Latino\|Male\|High school or beyond                                        |     4132 |
-| POSTSTRATUMOther Race, not Hispanic or Latino\|Male\|High school or beyond                        |     6687 |
-| POSTSTRATUMWhite alone, not Hispanic or Latino\|Male\|High school or beyond                       |    96272 |
-| POSTSTRATUMBlack or African American alone, not Hispanic or Latino\|Female\|Less than high school |    41944 |
-| POSTSTRATUMHispanic or Latino\|Female\|Less than high school                                      |    10321 |
-| POSTSTRATUMOther Race, not Hispanic or Latino\|Female\|Less than high school                      |     6753 |
-| POSTSTRATUMWhite alone, not Hispanic or Latino\|Female\|Less than high school                     |   118273 |
-| POSTSTRATUMBlack or African American alone, not Hispanic or Latino\|Male\|Less than high school   |    47281 |
-| POSTSTRATUMHispanic or Latino\|Male\|Less than high school                                        |     8550 |
-| POSTSTRATUMOther Race, not Hispanic or Latino\|Male\|Less than high school                        |     8003 |
-| POSTSTRATUMWhite alone, not Hispanic or Latino\|Male\|Less than high school                       |   124441 |
+|  | estimate |
+|:---|---:|
+| POSTSTRATUMBlack or African American alone, not Hispanic or Latino\|Female\|High school or beyond | 12168 |
+| POSTSTRATUMHispanic or Latino\|Female\|High school or beyond | 3998 |
+| POSTSTRATUMOther Race, not Hispanic or Latino\|Female\|High school or beyond | 6190 |
+| POSTSTRATUMWhite alone, not Hispanic or Latino\|Female\|High school or beyond | 84041 |
+| POSTSTRATUMBlack or African American alone, not Hispanic or Latino\|Male\|High school or beyond | 17648 |
+| POSTSTRATUMHispanic or Latino\|Male\|High school or beyond | 4132 |
+| POSTSTRATUMOther Race, not Hispanic or Latino\|Male\|High school or beyond | 6687 |
+| POSTSTRATUMWhite alone, not Hispanic or Latino\|Male\|High school or beyond | 96272 |
+| POSTSTRATUMBlack or African American alone, not Hispanic or Latino\|Female\|Less than high school | 41944 |
+| POSTSTRATUMHispanic or Latino\|Female\|Less than high school | 10321 |
+| POSTSTRATUMOther Race, not Hispanic or Latino\|Female\|Less than high school | 6753 |
+| POSTSTRATUMWhite alone, not Hispanic or Latino\|Female\|Less than high school | 118273 |
+| POSTSTRATUMBlack or African American alone, not Hispanic or Latino\|Male\|Less than high school | 47281 |
+| POSTSTRATUMHispanic or Latino\|Male\|Less than high school | 8550 |
+| POSTSTRATUMOther Race, not Hispanic or Latino\|Male\|Less than high school | 8003 |
+| POSTSTRATUMWhite alone, not Hispanic or Latino\|Male\|Less than high school | 124441 |
 
 To post-stratify the design, we can either supply the estimates and
 their variance-covariance matrix to
@@ -639,6 +657,7 @@ use a post-stratification adjustment (rather than raking), we specify
 `calfun = survey::cal.linear`.
 
 ``` r
+
 # Post-stratify the design using the estimates
 poststrat_design_fuller <- calibrate_to_estimate(
   rep_design = nr_adjusted_design,
@@ -652,6 +671,7 @@ poststrat_design_fuller <- calibrate_to_estimate(
 ```
 
 ``` r
+
 # Post-stratify the design using the two samples
 poststrat_design_opsomer_erciulescu <- calibrate_to_sample(
   primary_rep_design = nr_adjusted_design,
@@ -670,6 +690,7 @@ identical, while the standard errors for other variables differ
 slightly.
 
 ``` r
+
 estimates_by_design <- svyby_repwts(
   rep_designs = list(
     "calibrate_to_estimate()" = poststrat_design_fuller,
@@ -683,28 +704,28 @@ t(estimates_by_design[,-1]) |>
   knitr::kable()
 ```
 
-|                                                                       | calibrate_to_estimate() | calibrate_to_sample() |
-|:----------------------------------------------------------------------|------------------------:|----------------------:|
-| VAX_STATUSUnvaccinated                                                |               0.4779776 |             0.4779776 |
-| VAX_STATUSVaccinated                                                  |               0.5220224 |             0.5220224 |
-| RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino |               0.1994982 |             0.1994982 |
-| RACE_ETHNICITYHispanic or Latino                                      |               0.0452504 |             0.0452504 |
-| RACE_ETHNICITYOther Race, not Hispanic or Latino                      |               0.0463095 |             0.0463095 |
-| RACE_ETHNICITYWhite alone, not Hispanic or Latino                     |               0.7089418 |             0.7089418 |
-| SEXFemale                                                             |               0.4754266 |             0.4754266 |
-| SEXMale                                                               |               0.5245734 |             0.5245734 |
-| EDUC_ATTAINMENTHigh school or beyond                                  |               0.3873558 |             0.3873558 |
-| EDUC_ATTAINMENTLess than high school                                  |               0.6126442 |             0.6126442 |
-| se1                                                                   |               0.0234218 |             0.0234672 |
-| se2                                                                   |               0.0234218 |             0.0234672 |
-| se3                                                                   |               0.0009764 |             0.0009766 |
-| se4                                                                   |               0.0001856 |             0.0001856 |
-| se5                                                                   |               0.0007810 |             0.0007809 |
-| se6                                                                   |               0.0007040 |             0.0007039 |
-| se7                                                                   |               0.0007461 |             0.0007464 |
-| se8                                                                   |               0.0007461 |             0.0007464 |
-| se9                                                                   |               0.0033341 |             0.0033339 |
-| se10                                                                  |               0.0033341 |             0.0033339 |
+|  | calibrate_to_estimate() | calibrate_to_sample() |
+|:---|---:|---:|
+| VAX_STATUSUnvaccinated | 0.4779776 | 0.4779776 |
+| VAX_STATUSVaccinated | 0.5220224 | 0.5220224 |
+| RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino | 0.1994982 | 0.1994982 |
+| RACE_ETHNICITYHispanic or Latino | 0.0452504 | 0.0452504 |
+| RACE_ETHNICITYOther Race, not Hispanic or Latino | 0.0463095 | 0.0463095 |
+| RACE_ETHNICITYWhite alone, not Hispanic or Latino | 0.7089418 | 0.7089418 |
+| SEXFemale | 0.4754266 | 0.4754266 |
+| SEXMale | 0.5245734 | 0.5245734 |
+| EDUC_ATTAINMENTHigh school or beyond | 0.3873558 | 0.3873558 |
+| EDUC_ATTAINMENTLess than high school | 0.6126442 | 0.6126442 |
+| se1 | 0.0234262 | 0.0234672 |
+| se2 | 0.0234262 | 0.0234672 |
+| se3 | 0.0009765 | 0.0009766 |
+| se4 | 0.0001857 | 0.0001856 |
+| se5 | 0.0007811 | 0.0007809 |
+| se6 | 0.0007040 | 0.0007039 |
+| se7 | 0.0007464 | 0.0007464 |
+| se8 | 0.0007464 | 0.0007464 |
+| se9 | 0.0033336 | 0.0033339 |
+| se10 | 0.0033336 | 0.0033339 |
 
 ## Reproducibility
 
@@ -717,15 +738,16 @@ replicate weights are assigned to a given perturbation of the control
 totals. In the
 [`calibrate_to_sample()`](https://bschneidr.github.io/svrep/reference/calibrate_to_sample.md)
 method of Fuller (1998), if the control totals are a vector of dimension
-$p$, then $p$ columns of replicate weights will be calibrated to $p$
-different vectors of perturbed control totals, formed using the $p$
-scaled eigenvectors from a spectral decomposition of the control totals’
-variance-covariance matrix (sorted in order by the largest to smallest
-eigenvalues). To control which columns of replicate weights will be
-calibrated to each set of perturbed control totals, we can use the
-function argument `col_selection`.
+$`p`$, then $`p`$ columns of replicate weights will be calibrated to
+$`p`$ different vectors of perturbed control totals, formed using the
+$`p`$ scaled eigenvectors from a spectral decomposition of the control
+totals’ variance-covariance matrix (sorted in order by the largest to
+smallest eigenvalues). To control which columns of replicate weights
+will be calibrated to each set of perturbed control totals, we can use
+the function argument `col_selection`.
 
 ``` r
+
 # Randomly select which columns will be assigned to each set of perturbed control totals
 dimension_of_control_totals <- length(poststratification_totals$estimate)
 
@@ -752,6 +774,7 @@ to the perturbed control totals; this can be useful to save and use as
 an input to `col_selection` to ensure reproducibility.
 
 ``` r
+
 poststratified_design$perturbed_control_cols
 #> NULL
 ```
@@ -767,6 +790,7 @@ columns. So we can match these 80 columns to the 1,000 replicates by
 specifying 1,000 values consisting of `NA` or integers between 1 and 80.
 
 ``` r
+
 # Randomly match the primary replicates to control replicates
 set.seed(1999)
 
@@ -791,6 +815,7 @@ The calibrated survey design object contains an element
 survey replicate column was matched to.
 
 ``` r
+
 str(poststratified_design$control_column_matches)
 #>  int [1:1000] NA NA NA 34 NA NA NA 68 NA NA ...
 ```

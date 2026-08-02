@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Calibrating to Estimated Control Totals • svrep</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Calibrating to Estimated Control Totals">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
@@ -349,7 +349,7 @@ estimation using provided replicate weights.</p>
 <span><span class="co">#&gt;     repweights = "PWGTP\\d{1,2}", type = "successive-difference", </span></span>
 <span><span class="co">#&gt;     variables = ~AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT, </span></span>
 <span><span class="co">#&gt;     mse = TRUE)</span></span>
-<span><span class="co">#&gt; with 80 replicates and MSE variances.</span></span></code></pre></div>
+<span><span class="co">#&gt; Successive difference with 80 replicates and MSE variances.</span></span></code></pre></div>
 <p>When conduction calibration, we have to make sure that the data from
 the control survey represent the same population as the primary survey.
 Since the Louisville vaccination survey only represents adults, we need
@@ -1081,27 +1081,27 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">0.0234218</td>
+<td align="right">0.0234262</td>
 <td align="right">0.0234672</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">0.0234218</td>
+<td align="right">0.0234262</td>
 <td align="right">0.0234672</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
-<td align="right">0.0009764</td>
+<td align="right">0.0009765</td>
 <td align="right">0.0009766</td>
 </tr>
 <tr class="even">
 <td align="left">se4</td>
-<td align="right">0.0001856</td>
+<td align="right">0.0001857</td>
 <td align="right">0.0001856</td>
 </tr>
 <tr class="odd">
 <td align="left">se5</td>
-<td align="right">0.0007810</td>
+<td align="right">0.0007811</td>
 <td align="right">0.0007809</td>
 </tr>
 <tr class="even">
@@ -1111,22 +1111,22 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se7</td>
-<td align="right">0.0007461</td>
+<td align="right">0.0007464</td>
 <td align="right">0.0007464</td>
 </tr>
 <tr class="even">
 <td align="left">se8</td>
-<td align="right">0.0007461</td>
+<td align="right">0.0007464</td>
 <td align="right">0.0007464</td>
 </tr>
 <tr class="odd">
 <td align="left">se9</td>
-<td align="right">0.0033341</td>
+<td align="right">0.0033336</td>
 <td align="right">0.0033339</td>
 </tr>
 <tr class="even">
 <td align="left">se10</td>
-<td align="right">0.0033341</td>
+<td align="right">0.0033336</td>
 <td align="right">0.0033339</td>
 </tr>
 </tbody>
@@ -1218,7 +1218,7 @@ primary survey replicate column was matched to.</p>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-10.2307/24306529" class="csl-entry">
 Fuller, Wayne A. 1998. <span>“Replication <span>Variance
 Estimation</span> for <span>Two-Phase Samples</span>.”</span>
@@ -1242,7 +1242,7 @@ Methodology, Statistics Canada</em> Vol. 47 (No. 2).
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

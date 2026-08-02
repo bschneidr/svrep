@@ -82,6 +82,7 @@ weights described in a given row of the data frame. The contents of the
 ## Examples
 
 ``` r
+
 # Load example data
 data(api)
 
@@ -131,41 +132,41 @@ summarize_rep_weights(rep_design, type = "both")
 summarize_rep_weights(ue_adjusted_design, type = 'overall',
                       by = c("response_status"))
 #>       response_status nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums
-#> 1          Ineligible    39    15           14   15    1883.610    164.0280
-#> 2       Nonrespondent    47    15           14   15    2291.801    117.9820
-#> 3          Respondent    42    15           13   14    2018.589    145.4286
-#> 4 Unknown eligibility    55    15           -1    0       0.000      0.0000
+#> 1          Ineligible    39    15           13   14    1896.620    164.4527
+#> 2       Nonrespondent    47    15           14   15    2296.912    133.9403
+#> 3          Respondent    41    15           13   14    2000.468    130.3750
+#> 4 Unknown eligibility    56    15           -1    0       0.000      0.0000
 #>   min_rep_wgt max_rep_wgt
-#> 1           0    66.48517
-#> 2           0    66.48517
-#> 3           0    66.48517
+#> 1           0    56.98729
+#> 2           0    56.98729
+#> 3           0    56.98729
 #> 4           0     0.00000
 
 summarize_rep_weights(ue_adjusted_design, type = 'overall',
                       by = c("stype", "response_status"))
 #>    stype     response_status nrows ncols degf_svy_pkg rank avg_wgt_sum
-#> 1      E          Ineligible    29    15            9   10   1385.9323
-#> 2      H          Ineligible     5    15            4    5    215.5218
-#> 3      M          Ineligible     5    15            4    5    282.1557
-#> 4      E       Nonrespondent    37    15           14   15   1767.8095
-#> 5      H       Nonrespondent     3    15            2    3    129.0337
-#> 6      M       Nonrespondent     7    15            6    7    394.9578
-#> 7      E          Respondent    36    15            9   10   1720.2257
-#> 8      H          Respondent     3    15            2    3    129.3024
-#> 9      M          Respondent     3    15            2    3    169.0614
-#> 10     E Unknown eligibility    42    15           -1    0      0.0000
-#> 11     H Unknown eligibility     3    15           -1    0      0.0000
-#> 12     M Unknown eligibility    10    15           -1    0      0.0000
+#> 1      E          Ineligible    29    15            7    8  1413.77685
+#> 2      H          Ineligible     6    15            2    3   283.80822
+#> 3      M          Ineligible     4    15            3    4   199.03463
+#> 4      E       Nonrespondent    36    15           12   13  1753.97013
+#> 5      H       Nonrespondent     2    15            1    2    95.02487
+#> 6      M       Nonrespondent     9    15            5    6   447.91713
+#> 7      E          Respondent    35    15           10   11  1706.22048
+#> 8      H          Respondent     2    15            1    2    95.02487
+#> 9      M          Respondent     4    15            2    3   199.22315
+#> 10     E Unknown eligibility    44    15           -1    0     0.00000
+#> 11     H Unknown eligibility     4    15           -1    0     0.00000
+#> 12     M Unknown eligibility     8    15           -1    0     0.00000
 #>    sd_wgt_sums min_rep_wgt max_rep_wgt
-#> 1    157.68757           0    52.64222
-#> 2     26.35779           0    48.35285
-#> 3     29.62667           0    66.48517
-#> 4    103.43058           0    52.64222
-#> 5     19.24917           0    48.35285
-#> 6     30.12000           0    66.48517
-#> 7    136.71653           0    52.64222
-#> 8     20.44378           0    48.35285
-#> 9     23.88955           0    66.48517
+#> 1    149.65790           0    53.40068
+#> 2     40.20252           0    56.98729
+#> 3     23.57306           0    56.98729
+#> 4    121.79339           0    53.40068
+#> 5     18.18279           0    56.98729
+#> 6     46.50443           0    56.98729
+#> 7    135.21908           0    53.40068
+#> 8     18.18279           0    56.98729
+#> 9     32.77474           0    56.98729
 #> 10     0.00000           0     0.00000
 #> 11     0.00000           0     0.00000
 #> 12     0.00000           0     0.00000
@@ -183,6 +184,6 @@ print(rep_wt_summaries)
 #> 
 #> $adjusted
 #>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
-#> 1   183    15           14   15        6194    403.1741           0    66.48517
+#> 1   183    15           14   15        6194    403.1741           0    56.98729
 #> 
 ```

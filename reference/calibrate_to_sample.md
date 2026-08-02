@@ -242,8 +242,8 @@ estimate and its variance-covariance are available.
 #> api99 624.68 9.5003
     svymean(x = ~ api00 + api99, design = calibrated_rep_design)
 #>         mean     SE
-#> api00 642.69 27.393
-#> api99 606.91 28.302
+#> api00 642.69 27.476
+#> api99 606.91 28.318
 
 # Inspect weights before and after calibration ----
 
@@ -252,9 +252,9 @@ estimate and its variance-covariance are available.
 #> 1   183    15           14   15        6194    403.1741           0    36.26464
   summarize_rep_weights(calibrated_rep_design, type = 'overall')
 #>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt
-#> 1   183   210           47   48        6194 1.320559e-09           0
+#> 1   183   210           47   48        6194 1.394329e-09           0
 #>   max_rep_wgt
-#> 1    124.8867
+#> 1    123.9153
 
 # For reproducibility, specify how to match replicates between surveys ----
 

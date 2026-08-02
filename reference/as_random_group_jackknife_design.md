@@ -232,6 +232,7 @@ NY: Springer New York. https://doi.org/10.1007/978-0-387-35099-8.
 ## Examples
 
 ``` r
+
 # Load example data
 
  data('api', package = 'survey')

@@ -42,6 +42,7 @@ than or equal to `target_number_of_replicates`).
 ## Examples
 
 ``` r
+
 # Note that one of the replicates has every factor equal to 1
 # Also note that this matches Table 1 in Ash (2014)
 make_sdr_replicate_factors(

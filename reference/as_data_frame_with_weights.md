@@ -45,6 +45,7 @@ design object
 ## Examples
 
 ``` r
+
 data("lou_vax_survey", package = 'svrep')
 
 # Create a survey design object
@@ -86,33 +87,33 @@ head(nr_adjusted_data)
 #> 5 Female High school or beyond       <NA>         596.702           0.000
 #> 6 Female High school or beyond Vaccinated         596.702        1059.068
 #>   NR_ADJUSTED_REP_WGT_1 NR_ADJUSTED_REP_WGT_2 NR_ADJUSTED_REP_WGT_3
-#> 1                 0.000                 0.000                 0.000
-#> 2                 0.000                 0.000                 0.000
-#> 3              2418.717              2411.163                 0.000
-#> 4                 0.000                 0.000                 0.000
-#> 5                 0.000                 0.000                 0.000
-#> 6              1063.961                 0.000              1069.499
+#> 1                     0                 0.000                     0
+#> 2                     0                 0.000                     0
+#> 3                     0              2572.449                     0
+#> 4                     0                 0.000                     0
+#> 5                     0                 0.000                     0
+#> 6                     0                 0.000                     0
 #>   NR_ADJUSTED_REP_WGT_4 NR_ADJUSTED_REP_WGT_5 NR_ADJUSTED_REP_WGT_6
 #> 1                 0.000                 0.000                 0.000
 #> 2                 0.000                 0.000                 0.000
-#> 3              1186.883                 0.000              1113.019
+#> 3              1260.888                 0.000                 0.000
 #> 4                 0.000                 0.000                 0.000
 #> 5                 0.000                 0.000                 0.000
-#> 6                 0.000              2331.301              1075.340
+#> 6              2058.492              3243.364              1056.924
 #>   NR_ADJUSTED_REP_WGT_7 NR_ADJUSTED_REP_WGT_8 NR_ADJUSTED_REP_WGT_9
-#> 1                 0.000                 0.000                 0.000
-#> 2                 0.000                 0.000                 0.000
-#> 3              2320.171              1130.892              1108.161
-#> 4                 0.000                 0.000                 0.000
-#> 5                 0.000                 0.000                 0.000
-#> 6              1001.025              1968.179              2003.435
+#> 1                     0                 0.000                     0
+#> 2                     0                 0.000                     0
+#> 3                     0              1219.633                     0
+#> 4                     0                 0.000                     0
+#> 5                     0                 0.000                     0
+#> 6                     0              1024.285                     0
 #>   NR_ADJUSTED_REP_WGT_10
 #> 1                  0.000
 #> 2                  0.000
-#> 3               2412.065
+#> 3               1202.584
 #> 4                  0.000
 #> 5                  0.000
-#> 6               1054.884
+#> 6               2074.098
 
 # Check the column names of the result
 colnames(nr_adjusted_data)

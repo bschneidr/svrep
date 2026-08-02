@@ -86,16 +86,14 @@ variance estimator.
 
 In order to mimic a target variance estimator, we have to specify the
 target variance estimator for a population total
-$\widehat{Y} = \sum_{i = 1}^{n}\left( y_{i}/\pi_{i} \right)$ as a
-quadratic form. That is, we have to specify a variance estimator
-$v\left( \widehat{Y} \right)$ as
-$v\left( \widehat{Y} \right) = \sum_{i = 1}^{n}\sum_{i = 1}^{n}\sigma_{ij}\left( w_{i}y_{i} \right)\left( w_{j}y_{j} \right)$,
-for some set of values $\sigma_{ij},i,j \in \{ 1,\ldots,n\}$. In matrix
-notation, we write
-$v\left( \widehat{Y} \right) = {\breve{y}}^{\prime}\Sigma\breve{y}$,
-where $\Sigma$ is the symmetric, positive semi-definite matrix of
-dimension $n \times n$, with element $ij$ equal to $\sigma_{ij}$, and
-$\breve{y}$ is a vector whose $i$-th element is $w_{i}y_{i}$.
+$`\hat{Y}=\sum_{i=1}^{n}(y_i/\pi_i)`$ as a quadratic form. That is, we
+have to specify a variance estimator $`v(\hat{Y})`$ as
+$`v(\hat{Y})=\sum_{i=1}^{n}\sum_{i=1}^{n} \sigma_{ij}(w_iy_i)(w_jy_j)`$,
+for some set of values $`\sigma_{ij},i,j \in \{1,\dots,n\}`$. In matrix
+notation, we write $`v(\hat{Y})=\breve{y}^{\prime}\Sigma\breve{y}`$,
+where $`\Sigma`$ is the symmetric, positive semi-definite matrix of
+dimension $`n \times n`$, with element $`ij`$ equal to $`\sigma_{ij}`$,
+and $`\breve{y}`$ is a vector whose $`i`$-th element is $`w_iy_i`$.
 
 When using the generalized bootstrap, the difficult part of the variance
 estimation process is simply identifying the quadratic form. Once the
@@ -139,6 +137,7 @@ The particular dataset we’ll use comes from the Public Libraries Survey
 FY2020.
 
 ``` r
+
 data('library_multistage_sample', package = 'svrep')
 
 # Load first-phase sample
@@ -164,6 +163,7 @@ the first element of the list describes the first phase of sampling, and
 the second element of the list describes the second phase of sampling.
 
 ``` r
+
 # Declare survey design
   twophase_design <- twophase(
     method = "full",
@@ -193,6 +193,7 @@ target variance estimators may be used for each phase, since each phase
 might have a very different design.
 
 ``` r
+
 # Obtain a generalized bootstrap replicates
 # based on 
 #   - The phase 1 estimator is the usual variance estimator
@@ -215,6 +216,7 @@ estimation with the usual functions from the ‘survey’ and ‘srvyr’
 packages.
 
 ``` r
+
 twophase_boot_design |> svymean(x = ~ LIBRARIA, na.rm = TRUE)
 #>            mean     SE
 #> LIBRARIA 7.6044 1.9818
@@ -227,6 +229,7 @@ warning message about needing to approximate the first-phase variance
 estimator’s quadratic form.
 
 ``` r
+
 twophase_boot_design <- as_gen_boot_design(
   design = twophase_design,
   variance_estimator = list(
@@ -261,6 +264,7 @@ generalized replication method. The R code looks almost exactly the same
 as for the generalized bootstrap.
 
 ``` r
+
 twophase_genrep_design <- as_fays_gen_rep_design(
   design = twophase_design,
   variance_estimator = list(
@@ -322,6 +326,7 @@ calibration do not have any missing values in either the first-phase or
 second-phase sample. Some imputation might be necessary.
 
 ``` r
+
 # Impute missing values (if necessary)
 twophase_sample <- twophase_sample |>
   mutate(
@@ -349,6 +354,7 @@ the entire two-phase design. We did that already in this document, but
 we’ll repeat that code again below.
 
 ``` r
+
 # Describe the two-phase survey design
   twophase_design <- twophase(
     method = "full",
@@ -391,6 +397,7 @@ There are many ways to estimate the first-phase variance, but for
 convenience we’ll use the generalized bootstrap.
 
 ``` r
+
 # Extract a survey design object representing the first phase sample
   first_phase_design <- twophase_design$phase1$full
 
@@ -429,6 +436,7 @@ totals. This function is discussed in more detail in the vignette titled
 Fuller (1998).
 
 ``` r
+
 calibrated_twophase_design <- calibrate_to_estimate(
   rep_design = twophase_boot_design,
   # Specify the variables in the data to use for calibration
@@ -445,6 +453,7 @@ Let’s examine the results from calibration. First, we’ll check that the
 calibrated second-phase estimates match the first-phase estimates.
 
 ``` r
+
 # Display second-phase estimates for calibration variables
 svytotal(
   x = ~ TOTCIR + TOTSTAFF,
@@ -465,6 +474,7 @@ Next, we’ll inspect an estimate for a variable that wasn’t used in
 calibration.
 
 ``` r
+
 # Inspect calibrated second-phase estimate
 svytotal(
   x = ~ LIBRARIA, na.rm = TRUE,
@@ -503,6 +513,7 @@ To do this, we first create replicate weights for the first-phase design
 using the generalized bootstrap (or any other replication method).
 
 ``` r
+
 # Extract a survey design object representing the first phase sample
   first_phase_design <- twophase_design$phase1$full
 
@@ -521,9 +532,10 @@ created using the first-phase replicate design. This function is
 discussed in more detail in the vignette titled “Sample-based
 Calibration”. See Section 4.3.1 of this vignette for the underlying
 theory, which is based on Fuller (1998) and Opsomer and Erciulescu
-(2021).[¹](#fn1)
+(2021).[^1]
 
 ``` r
+
 calibrated_twophase_design <- calibrate_to_sample(
   primary_rep_design = twophase_boot_design,
   # Supply the first-phase replicate design
@@ -539,6 +551,7 @@ Let’s examine the results from calibration. First, we’ll check that the
 calibrated second-phase estimates match the first-phase estimates.
 
 ``` r
+
 # Display second-phase estimates for calibration variables
 calibrated_ests <- svytotal(
   x = ~ TOTCIR + TOTSTAFF,
@@ -567,6 +580,7 @@ estimate is the same as the variance estimate for the first-phase
 estimate, allowing a small tolerance for numeric differences.
 
 ``` r
+
 ratio_of_variances <- vcov(calibrated_ests)/vcov(first_phase_ests)
 ratio_of_variances
 #>             TOTCIR  TOTSTAFF
@@ -581,6 +595,7 @@ Next, we’ll inspect an estimate for a variable that wasn’t used in
 calibration.
 
 ``` r
+
 # Inspect calibrated second-phase estimate
 svytotal(
   x = ~ LIBRARIA, na.rm = TRUE,
@@ -616,6 +631,7 @@ or
 the syntax is very similar.
 
 ``` r
+
 ratio_calib_design <- calibrate_to_sample(
   primary_rep_design = twophase_boot_design,
   # Supply the first-phase replicate design
@@ -641,6 +657,7 @@ used for every case’s weights. This can be seen when we compare the
 adjusted weights to the unadjusted weights.
 
 ``` r
+
 ratio_adjusted_weights <- weights(ratio_calib_design, type = "sampling")
 unadjusted_weights <- weights(twophase_boot_design, type = "sampling")
 
@@ -654,6 +671,7 @@ Note that the adjustment factor for the weights is simply the ratio of
 the first-phase estimated total to the second-phase estimated total.
 
 ``` r
+
 phase1_total <- svytotal(
   x = ~ TOTSTAFF,
   first_phase_design
@@ -679,9 +697,9 @@ using information from the first-phase sample. We’ll examine both the
 theoretical sampling variance of each estimator as well as approaches
 for estimating variance using replication methods.
 
-The interested reader is encouraged to consult chapter 9.3 of Särndal,
-Swensson, and Wretman (1992) or chapter 12 of Lohr (2022) for a more
-detailed discussion of two-phase sampling.
+The interested reader is encouraged to consult chapter 9.3 of Särndal et
+al. (1992) or chapter 12 of Lohr (2022) for a more detailed discussion
+of two-phase sampling.
 
 ### Notation
 
@@ -700,188 +718,207 @@ of units in }s_2 \\ \end{aligned} \$\$
 We use the following notation to denote the **inclusion probability** of
 each unit, for each phase:
 
-$$\begin{aligned}
-\pi_{i}^{(a)} & {:{\text{The probability unit}\mspace{6mu}}i{\mspace{6mu}\text{is included in}\mspace{6mu}}s_{a}} \\
-\pi_{i}^{(b|s_{a})} & {:{\text{The conditional probability unit}\mspace{6mu}}i{\mspace{6mu}\text{is included in}\mspace{6mu}}s_{b},} \\
- & {{\mspace{6mu}\text{given the realized first-phase sample}\mspace{6mu}}s_{a}} \\
-\pi_{i} & {:{\text{The}\mspace{6mu}}\textbf{𝐮𝐧𝐜𝐨𝐧𝐝𝐢𝐭𝐢𝐨𝐧𝐚𝐥}{\mspace{6mu}\text{probability unit}\mspace{6mu}}i{\mspace{6mu}\text{is included in}\mspace{6mu}}s_{b}} \\
- & 
-\end{aligned}$$
+``` math
+\begin{aligned}
+\pi^{(a)}_{i} &: \text{The probability unit }i \text{ is included in } s_a \\
+\pi^{(b|s_a)}_{i} &: \text{The conditional probability unit }i \text{ is included in } s_b, \\
+& \text{ given the realized first-phase sample }s_a \\
+\pi_i &: \text{The } \textbf{unconditional} \text{ probability unit }i \text{ is included in }s_b \\
+\end{aligned}
+```
 
-In practice, the probability $\pi_{i}$ is prohibitively difficult to
-calculate, because it requires us to figure out $\pi_{i}^{(b|s_{a})}$
-for every possible first-phase sample $s_{a}$, not just the particular
-$s_{a}$ that we actually selected. So instead, we define the useful
-quantity $\pi^{*}$, which depends only on the particular first-phase
-sample $s_{a}$ that we actually selected.
+In practice, the probability $`\pi_i`$ is prohibitively difficult to
+calculate, because it requires us to figure out $`\pi^{(b|s_a)}_{i}`$
+for every possible first-phase sample $`s_a`$, not just the particular
+$`s_a`$ that we actually selected. So instead, we define the useful
+quantity $`\pi^{*}`$, which depends only on the particular first-phase
+sample $`s_a`$ that we actually selected.
 
-$$\pi_{i}^{*}:=\pi_{i}^{(b|s_{a})} \times \pi_{i}^{(a)}$$
+``` math
+\pi_i^{*} := \pi^{(b|s_a)}_{i} \times \pi^{(a)}_{i}
+```
 
 For variance estimation, it’s also necessary to consider the **joint
 inclusion probability** (sometimes referred to as “second order
-probability”), which is simply the probability that a pair of units $i$
-and $j$ are both included in a sample.
+probability”), which is simply the probability that a pair of units
+$`i`$ and $`j`$ are both included in a sample.
 
-$$\begin{aligned}
-\pi_{ij}^{(a)} & {:{\text{The probability units}\mspace{6mu}}i{\mspace{6mu}\text{and}\mspace{6mu}}j{\mspace{6mu}\text{are both included in}\mspace{6mu}}s_{a}} \\
-\pi_{ij}^{(b|s_{a})} & {:{\text{The conditional probability units}\mspace{6mu}}i{\mspace{6mu}\text{and}\mspace{6mu}}j{\mspace{6mu}\text{are both included in}\mspace{6mu}}s_{b},} \\
- & {{\mspace{6mu}\text{given the realized first-phase sample}\mspace{6mu}}s_{a}} \\
- & 
-\end{aligned}$$
+``` math
+\begin{aligned}
+\pi^{(a)}_{ij} &: \text{The probability units }i \text{ and } j \text{ are both included in } s_a \\
+\pi^{(b|s_a)}_{ij} &: \text{The conditional probability units }i \text{ and } j \text{ are both included in } s_b, \\
+& \text{ given the realized first-phase sample }s_a \\
+\end{aligned}
+```
 
-We also define the quantity $\pi_{ij}^{*}$ similar to $\pi_{i}^{*}$.
+We also define the quantity $`\pi^{*}_{ij}`$ similar to $`\pi^{*}_i`$.
 
-$$\pi_{ij}^{*}:=\pi_{ij}^{(b|s_{a})} \times \pi_{ij}^{(a)}$$
+``` math
+\pi_{ij}^{*} := \pi^{(b|s_a)}_{ij} \times \pi^{(a)}_{ij}
+```
 
-The probabilities and the $\pi_{i}^{*}$ values are used to define
+The probabilities and the $`\pi_{i}^{*}`$ values are used to define
 sampling weights for the survey.
 
-$$\begin{aligned}
-w_{i}^{(a)} & {:=1/\pi_{i}^{(a)}} \\
-w_{i}^{(b|s_{a})} & {:=1/\pi_{i}^{(b|s_{a})}} \\
-w_{i}^{*} & {:=1/\pi_{i}^{*} = w_{i}^{(b|s_{a})} \times w_{i}^{(a)}}
-\end{aligned}$$
+``` math
+\begin{aligned}
+w^{(a)}_i &:= 1/\pi^{(a)}_i \\
+w^{(b|s_a)}_i &:= 1/\pi^{(b|s_a)}_{i} \\
+w^{*}_i &:= 1/\pi^{*}_i = w^{(b|s_a)}_i \times w^{(a)}_i
+\end{aligned}
+```
 
 ### The Double Expansion Estimator
 
-Suppose we wish to estimate a population total $Y$, using observed
-values $y_{i}$ in our second-phase sample, $s_{b}$. Särndal, Swensson,
-and Wretman (1992) show that we can produce an unbiased estimate of $Y$
-using the second-phase sample $s_{b}$, as follows:
+Suppose we wish to estimate a population total $`Y`$, using observed
+values $`y_i`$ in our second-phase sample, $`s_b`$. Särndal et al.
+(1992) show that we can produce an unbiased estimate of $`Y`$ using the
+second-phase sample $`s_b`$, as follows:
 
-$$\begin{aligned}
-{\widehat{Y}}^{(b)} & {= \sum\limits_{i = 1}^{n_{(b)}}w_{i}^{*} \times y_{i}} \\
- & {= \sum\limits_{i = 1}^{n_{(b)}}w_{i}^{(b|s_{a})} \times w_{i}^{(a)} \times y_{i}}
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{Y}^{(b)} &= \sum_{i=1}^{n_{(b)}} w^{*}_i \times y_i  \\
+&= \sum_{i=1}^{n_{(b)}} w^{(b|s_a)}_i \times w^{(a)}_i \times y_i
+\end{aligned}
+```
 
 This estimator has been dubbed the “double expansion estimator”, using
-the sampling jargon that refers to weighting a sample value $y_{i}$ as
-“expanding” $y_{i}$ from the sample to the population. The name “double
-expansion” is used because the weight $w_{i}^{*}$ can be thought of as
-first using the weight $w_{i}^{(b|s_{a})}$ to “expand” the quantity
-$y_{i}$ and then using the weight $w_{i}^{(a)}$ to expand the quantity
-$w_{i}^{(b|s_{a})} \times y_{i}$.
+the sampling jargon that refers to weighting a sample value $`y_i`$ as
+“expanding” $`y_i`$ from the sample to the population. The name “double
+expansion” is used because the weight $`w^{*}_i`$ can be thought of as
+first using the weight $`w^{(b|s_a)}_i`$ to “expand” the quantity
+$`y_i`$ and then using the weight $`w^{(a)}_i`$ to expand the quantity
+$`w^{(b|s_a)}_i \times y_i`$.
 
 #### Variance of the Double Expansion Estimator
 
 The sampling variance of the double expansion estimator is the sum of
 two different components.
 
-$$\begin{aligned}
-{V\left( {\widehat{Y}}^{(b)} \right)} & {= V\left( {\widehat{Y}}^{(a)} \right) + E\left( V\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack \right)} \\
- & \\
-{\text{where:}\mspace{6mu}} & {{\widehat{Y}}^{(a)} = \sum\limits_{i = 1}^{n_{(a)}}w_{i}^{(a)} \times y_{i}} \\
-{\text{and}\mspace{6mu}} & {V\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack{\mspace{6mu}\text{is the variance of}\mspace{6mu}}{\widehat{Y}}^{(b)}} \\
- & {{\mspace{6mu}\text{across all samples}\mspace{6mu}}s_{b}} \\
- & {{\mspace{6mu}\text{drawn from a given}\mspace{6mu}}s_{a}}
-\end{aligned}$$
+``` math
+\begin{aligned}
+V\left(\hat{Y}^{(b)}\right) &= V\left(\hat{Y}^{(a)}\right)+E\left(V\left[\hat{Y}^{(b)} \mid s_a \right]\right) \\
+\\
+\text{where: }& \hat{Y}^{(a)} = \sum_{i=1}^{n_{(a)}} w^{(a)}_i \times y_i \\
+\text{and }& V\left[\hat{Y}^{(b)} \mid s_a \right] \text{ is the variance of } \hat{Y}^{(b)} \\
+&\text{ across all samples } s_b \\
+&\text{ drawn from a given } s_a
+\end{aligned}
+```
 
-The first component is the variance of the estimate
-${\widehat{Y}}^{(a)}$ that we would obtain if we used the entire
-first-phase sample $s_{a}$ for our estimate, rather than using the
-subset $s_{b}$.
+The first component is the variance of the estimate $`\hat{Y}^{(a)}`$
+that we would obtain if we used the entire first-phase sample $`s_a`$
+for our estimate, rather than using the subset $`s_b`$.
 
 The second component is the additional variance caused by using the
-subset $s_{b}$ instead of $s_{a}$. It is equal to the expected value
-(across all samples $s_{a}$) of the conditional variance of
-${\widehat{Y}}^{(b)}$ across all samples $s_{b}$ (conditioning on a
-given first-phase sample $s_{a}$).
+subset $`s_b`$ instead of $`s_a`$. It is equal to the expected value
+(across all samples $`s_a`$) of the conditional variance of
+$`\hat{Y}^{(b)}`$ across all samples $`s_b`$ (conditioning on a given
+first-phase sample $`s_a`$).
 
 ##### Estimating the Variance of the Double Expansion Estimator
 
-Both variance components can be estimated using only the values $y_{i}$
-observed in $s_{b}$. For the second component, we simply estimate
-$V\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack$, which is
-an unbiased estimate for its expectation,
-$E\left( V\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack \right)$.
+Both variance components can be estimated using only the values $`y_i`$
+observed in $`s_b`$. For the second component, we simply estimate
+$`V\left[\hat{Y}^{(b)} \mid s_a \right]`$, which is an unbiased estimate
+for its expectation,
+$`E\left(V\left[\hat{Y}^{(b)} \mid s_a \right]\right)`$.
 
 Thus, our variance estimate for the double expansion estimator takes the
 following form:
 
-$$\widehat{V}\left( {\widehat{Y}}^{(b)} \right) = \widehat{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack + \widehat{V}\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack$$
+``` math
+\hat{V}\left(\hat{Y}^{(b)}\right) = \hat{V}\left[\hat{Y}^{(a)} \right] + \hat{V}\left[\hat{Y}^{(b)} \mid s_a \right]
+```
 
 ###### Estimating the second-phase variance component
 
-For estimating
-$\widehat{V}\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack$,
-we simply choose a variance estimator for the second-phase design,
-taking the first-phase sample as a given. We assume that this variance
+For estimating $`\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right]`$, we
+simply choose a variance estimator for the second-phase design, taking
+the first-phase sample as a given. We assume that this variance
 estimator can be written as a quadratic form.
 
-$$\begin{aligned}
-{\widehat{V}\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack} & {= \sum\limits_{i = 1}^{n_{b}}\sum\limits_{i = 1}^{n_{b}}\sigma_{ij}^{(b)}\left( w_{i}^{*}y_{i} \right)\left( w_{j}^{*}y_{j} \right)} \\
- & 
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right] &= \sum_{i=1}^{n_b} \sum_{i=1}^{n_b} \sigma^{(b)}_{ij} (w^{*}_i y_i) (w^{*}_j y_j) \\
+\end{aligned}
+```
 
 For the Horvitz-Thompson estimator, for instance, we would use
-$\sigma_{ij}^{(b)} = \left( 1 - \frac{\pi_{i}^{b|s_{a}}\pi_{j}^{b|s_{a}}}{\pi_{ij}^{b|s_{a}}} \right)$.
+$`\sigma^{(b)}_{ij}=\left(1 - \frac{\pi^{b|s_a}_i\pi^{b|s_a}_j}{\pi^{b|s_a}_{ij}}\right)`$.
 
 This quadratic form can also be written in matrix notation:
 
-$$\begin{aligned}
-{\widehat{V}\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack} & {= \left( W^{*}y \right)^{\prime}\Sigma_{b}\left( W^{*}y \right)} \\
-{\text{where}\mspace{6mu}} & {\Sigma_{b}{\mspace{6mu}\text{is an}\mspace{6mu}}n_{b} \times n_{b}{\mspace{6mu}\text{symmetric matrix}}} \\
- & {{\mspace{6mu}\text{with entry}\mspace{6mu}}ij{\mspace{6mu}\text{equal to}\mspace{6mu}}\sigma_{ij}^{(b)}} \\
-{\text{and}\mspace{6mu}} & {W^{*}{\mspace{6mu}\text{is the}\mspace{6mu}}n_{b} \times n_{b}{\mspace{6mu}\text{diagonal matrix}}} \\
- & {{\mspace{6mu}\text{with entry}\mspace{6mu}}ii{\mspace{6mu}\text{equal to}\mspace{6mu}}w_{i}^{*}} \\
- & {y{\mspace{6mu}\text{is the}\mspace{6mu}}n_{b} \times 1{\mspace{6mu}\text{vector of values}}} \\
- & \text{for the variable of interest}
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right] &= {(W^{*} y)}^{\prime} \Sigma_b {(W^{*} y)} \\
+\text{where }& \Sigma_b \text{ is an } n_b \times n_b \text{ symmetric matrix} \\
+& \text{ with entry } ij \text{ equal to } \sigma^{(b)}_{ij} \\
+\text{and } & W^{*} \text{ is the } n_b \times n_b \text{ diagonal matrix} \\
+& \text{ with entry } ii \text{ equal to } w^{*}_i  \\
+& y \text{ is the } n_b \times 1 \text{ vector of values} \\
+& \text{for the variable of interest}
+\end{aligned}
+```
 
 ###### Estimating the first-phase variance component
 
 Estimating the first variance component,
-$V\left( {\widehat{Y}}^{(a)} \right)$, is only slightly trickier. First,
-we need to choose a variance estimator appropriate to the first-phase
-design, which we would use if we had $y_{i}$ observed for the entire
-sample $s_{a}$. We’ll denote that variance estimator
-$\widetilde{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack$.
+$`V\left(\hat{Y}^{(a)}\right)`$, is only slightly trickier. First, we
+need to choose a variance estimator appropriate to the first-phase
+design, which we would use if we had $`y_i`$ observed for the entire
+sample $`s_a`$. We’ll denote that variance estimator
+$`\tilde{V}\left[\hat{Y}^{(a)}\right]`$.
 
-$$\begin{aligned}
-{\widetilde{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack} & {= \sum\limits_{i = 1}^{n_{a}}\sum\limits_{i = 1}^{n_{a}}\sigma_{ij}^{(a)}\left( w_{i}^{(a)}y_{i} \right)\left( w_{i}^{(a)}y_{j} \right)} \\
- & 
-\end{aligned}$$
+``` math
+\begin{aligned}
+\tilde{V}\left[\hat{Y}^{(a)} \right] &= \sum_{i=1}^{n_a} \sum_{i=1}^{n_a} \sigma^{(a)}_{ij} (w^{(a)}_i y_i) (w^{(a)}_i y_j) \\
+\end{aligned}
+```
 
 In matrix notation, we can write:
 
-$$\begin{aligned}
-{\widetilde{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack} & {= \left( W^{(a)}y \right)^{\prime}\left( \Sigma_{a} \right)\left( W^{(a)}y \right)} \\
-{\text{where}\mspace{6mu}} & {\Sigma_{a}{\mspace{6mu}\text{is an}\mspace{6mu}}n_{a} \times n_{a}{\mspace{6mu}\text{symmetric matrix}}} \\
- & {{\mspace{6mu}\text{with entry}\mspace{6mu}}ij{\mspace{6mu}\text{equal to}\mspace{6mu}}\sigma_{ij}} \\
-{\text{and}\mspace{6mu}} & {W^{(a)}{\mspace{6mu}\text{is the}\mspace{6mu}}n_{a} \times n_{a}{\mspace{6mu}\text{diagonal matrix}}} \\
- & {{\mspace{6mu}\text{with entry}\mspace{6mu}}ii{\mspace{6mu}\text{equal to}\mspace{6mu}}w_{i}^{(a)}}
-\end{aligned}$$
+``` math
+\begin{aligned}
+\tilde{V}\left[\hat{Y}^{(a)} \right] &= {(W^{(a)} y)}^{\prime} (\Sigma_{a} ) {(W^{(a)} y)} \\
+\text{where }& \Sigma_{a} \text{ is an } n_a \times n_a \text{ symmetric matrix} \\
+& \text{ with entry } ij \text{ equal to } \sigma_{ij} \\
+\text{and } & W^{(a)} \text{ is the } n_a \times n_a \text{ diagonal matrix} \\
+& \text{ with entry } ii \text{ equal to } w^{(a)}_i 
+\end{aligned}
+```
 
-However, since we’re working with the subsample $s_{b}$ instead of
-$s_{a}$, we need to estimate
-$\widetilde{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack$ using only
-the data from $s_{b}$. We can use the second-phase joint inclusion
-probabilities $\pi_{ij}^{(b \mid s_{a})}$ to produce an unbiased
-estimate of
-$\widetilde{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack$ using only
-the data from $s_{b}$.
+However, since we’re working with the subsample $`s_b`$ instead of
+$`s_a`$, we need to estimate $`\tilde{V}\left[\hat{Y}^{(a)} \right]`$
+using only the data from $`s_b`$. We can use the second-phase joint
+inclusion probabilities $`\pi^{(b \mid s_a)}_{ij}`$ to produce an
+unbiased estimate of $`\tilde{V}\left[\hat{Y}^{(a)} \right]`$ using only
+the data from $`s_b`$.
 
-$$\begin{aligned}
-{\widehat{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack} & {= \sum\limits_{i = 1}^{n_{b}}\sum\limits_{i = 1}^{n_{b}}\frac{1}{\pi_{ij}^{(b \mid s_{a})}}\sigma_{ij}^{(a)}\left( w_{i}^{(a)}y_{i} \right)\left( w_{i}^{(a)}y_{j} \right)} \\
- & 
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{V}\left[\hat{Y}^{(a)} \right] &=  \sum_{i=1}^{n_b} \sum_{i=1}^{n_b} \frac{1}{\pi^{(b \mid s_a)}_{ij}} \sigma^{(a)}_{ij} (w^{(a)}_i y_i) (w^{(a)}_i y_j) \\
+\end{aligned}
+```
 
 We can also write this in matrix notation:
 
-$$\begin{aligned}
-{\widehat{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack} & {= \left( W^{(a)}y \right)^{\prime}\left( \Sigma_{a^{\prime}} \circ D_{b} \right)\left( W^{(a)}y \right)} \\
-{\text{where}\mspace{6mu}} & {\Sigma_{a^{\prime}}{\mspace{6mu}\text{is an}\mspace{6mu}}n_{b} \times n_{b}{\mspace{6mu}\text{symmetric matrix}}} \\
- & {{\mspace{6mu}\text{with entry}\mspace{6mu}}ij{\mspace{6mu}\text{equal to}\mspace{6mu}}\sigma_{ij}} \\
-{\text{and}\mspace{6mu}} & {W^{(a)}{\mspace{6mu}\text{is the}\mspace{6mu}}n_{b} \times n_{b}{\mspace{6mu}\text{diagonal matrix}}} \\
- & {{\mspace{6mu}\text{with entry}\mspace{6mu}}ii{\mspace{6mu}\text{equal to}\mspace{6mu}}w_{i}^{(a)}} \\
-{\mspace{6mu}\text{and}\mspace{6mu}} & {D_{b}{\mspace{6mu}\text{is an}\mspace{6mu}}n_{b} \times n_{b}{\mspace{6mu}\text{symmetric matrix}}} \\
- & {{\mspace{6mu}\text{with entry}\mspace{6mu}}ij{\mspace{6mu}\text{equal to}\mspace{6mu}}\frac{1}{\pi_{ij}^{(b \mid s_{a})}}} \\
- & 
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{V}\left[\hat{Y}^{(a)} \right] &= {(W^{(a)} y)}^{\prime} (\Sigma_{a^{\prime}} \circ D_b ) {(W^{(a)} y)} \\
+\text{where }& \Sigma_{a^{\prime}} \text{ is an } n_b \times n_b \text{ symmetric matrix} \\
+& \text{ with entry } ij \text{ equal to } \sigma_{ij} \\
+\text{and } & W^{(a)} \text{ is the } n_b \times n_b \text{ diagonal matrix} \\
+& \text{ with entry } ii \text{ equal to } w^{(a)}_i 
+\\
+\text{ and }& D_b \text{ is an } n_b \times n_b \text{ symmetric matrix} \\
+& \text{ with entry } ij \text{ equal to } \frac{1}{\pi^{(b \mid s_a)}_{ij}}\\
+\end{aligned}
+```
 
-As a sidenote, that matrix $D_{b}$ is very likely the source of any
+As a sidenote, that matrix $`D_b`$ is very likely the source of any
 warning messages you’ll see about a two-phase variance estimator not
-being positive semidefinite. [²](#fn2)
+being positive semidefinite. [^2]
 
 ###### Combining the two estimated variance components
 
@@ -889,42 +926,47 @@ Putting the two estimated variance components together, we thus obtain
 the following unbiased variance estimator for the double expansion
 estimator.
 
-$$\begin{aligned}
-{\widehat{V}\left( {\widehat{Y}}^{(b)} \right)} & {= \widehat{V}\left( {\widehat{Y}}^{(a)} \right) + \widehat{V}\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack} \\
- & {= \sum\limits_{i = 1}^{n_{b}}\sum\limits_{i = 1}^{n_{b}}\frac{1}{\pi_{ij}^{(b \mid s_{a})}}\sigma_{ij}^{(a)}\left( w_{i}^{(a)}y_{i} \right)\left( w_{i}^{(a)}y_{j} \right)} \\
- & {+ \sum\limits_{i = 1}^{n_{b}}\sum\limits_{i = 1}^{n_{b}}\sigma_{ij}^{(b)}\left( w_{i}^{*}y_{i} \right)\left( w_{j}^{*}y_{j} \right)} \\
- & 
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{V}\left(\hat{Y}^{(b)}\right) &= \hat{V}\left(\hat{Y}^{(a)}\right)+\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right] \\
+&= \sum_{i=1}^{n_b} \sum_{i=1}^{n_b} \frac{1}{\pi^{(b \mid s_a)}_{ij}} \sigma^{(a)}_{ij} (w^{(a)}_i y_i) (w^{(a)}_i y_j) \\
+&+ \sum_{i=1}^{n_b} \sum_{i=1}^{n_b} \sigma^{(b)}_{ij} (w^{*}_i y_i) (w^{*}_j y_j) \\
+\end{aligned}
+```
 
 In matrix notation, we can write this as follows:
 
-$$\begin{aligned}
-{\widehat{V}\left( {\widehat{Y}}^{(b)} \right)} & {= \widehat{V}\left( {\widehat{Y}}^{(a)} \right) + \widehat{V}\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack} \\
- & {= \left( W^{(a)}y \right)^{\prime}\left( \Sigma_{a^{\prime}} \circ D_{b} \right)\left( W^{(a)}y \right)} \\
- & {+ \left( W^{*}y \right)^{\prime}\Sigma_{b}\left( W^{*}y \right)} \\
- & 
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{V}\left(\hat{Y}^{(b)}\right) &= \hat{V}\left(\hat{Y}^{(a)}\right)+\hat{V}\left[\hat{Y}^{(b)} \mid s_a \right] \\
+&= {(W^{(a)} y)}^{\prime} (\Sigma_{a^{\prime}} \circ D_b ) {(W^{(a)} y)} \\
+&+ {(W^{*} y)}^{\prime} \Sigma_b {(W^{*} y)} \\
+\end{aligned}
+```
 
 Because quadratic forms are additive and because
-$W^{*} = W^{(a)}W^{(b \mid s_{a})}$, we can more compactly write the
+$`W^{*}=W^{(a)}W^{(b \mid s_a)}`$, we can more compactly write the
 estimator as follows:
 
-$$\begin{aligned}
-{\widehat{V}\left( {\widehat{Y}}^{(b)} \right)} & {= \left( W^{*}y \right)^{\prime}\Sigma_{ab}\left( W^{*}y \right)} \\
-{\text{where}\mspace{6mu}} & \\
-\Sigma_{ab} & {= {W^{(b)}}^{- 1}\left( \Sigma_{a^{\prime}} \circ D_{b} \right){W^{(b)}}^{- 1} + \Sigma_{b}} \\
-{\text{where}\mspace{6mu}} & {W^{(b)}{\mspace{6mu}\text{is the}\mspace{6mu}}n_{b} \times n_{b}{\mspace{6mu}\text{diagonal matrix}}} \\
- & {{\mspace{6mu}\text{with entry}\mspace{6mu}}ii{\mspace{6mu}\text{equal to}\mspace{6mu}}w_{i}^{(b \mid s_{a})}}
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{V}\left(\hat{Y}^{(b)}\right) &= (W^{*}y)^{\prime} \Sigma_{ab} (W^{*}y) \\
+\text{where } & \\
+\Sigma_{ab} &=  {W^{(b)}}^{-1} (\Sigma_{a^{\prime}} \circ D_b ) {W^{(b)}}^{-1} + \Sigma_b \\
+\text{where } & W^{(b)} \text{ is the } n_b \times n_b \text{ diagonal matrix} \\
+& \text{ with entry } ii \text{ equal to } w^{(b \mid s_a)}_i 
+\end{aligned}
+```
 
-In the ‘svrep’ package, $\Sigma_{ab}$ can be constructed with the inputs
-$\Sigma_{a^{\prime}}$, $\Sigma_{b}$, and $\left( 1/D_{b} \right)$, using
-the function
+In the ‘svrep’ package, $`\Sigma_{ab}`$ can be constructed with the
+inputs $`\Sigma_{a^{\prime}}`$, $`\Sigma_b`$, and $`(1/D_b)`$, using the
+function
 [`make_twophase_quad_form()`](https://bschneidr.github.io/svrep/reference/make_twophase_quad_form.md).
 
 Click to show/hide example of using `make_twophase_quad_form()`
 
 ``` r
+
 set.seed(2022)
 y <- rnorm(n = 100)
 
@@ -994,8 +1036,8 @@ The matrix notation is useful for understanding replication methods of
 variance estimation for two-phase samples. Any unbiased replication
 variance estimator for two-phase samples should generate each set of
 adjustment factors so that the sets of replicate weights have
-expectation $\mathbf{1}_{n_{b}}$ and variance-covariance matrix
-$\mathbf{\Sigma}_{ab}$.
+expectation $`\mathbf{1}_{n_b}`$ and variance-covariance matrix
+$`\boldsymbol{\Sigma}_{ab}`$.
 
 The generalized bootstrap does this by generating draws from a
 multivariate normal distribution with those parameters. For some
@@ -1004,72 +1046,84 @@ there are jackknife and BRR methods which have been developed to
 accomplish this same goal (see Lohr (2022) for some examples). The
 generalized bootstrap however is much easier to use for the complex
 designs actually encountered in most settings and also enjoys other
-advantages [³](#fn3).
+advantages [^3].
 
 ### Calibration Estimators
 
 This section describes calibration estimators (such as raking,
 post-stratification, or ratio estimators) commonly used for two-phase
 designs. For a more detailed treatment of such estimators, see Chapter
-11 of Lohr (2022) or Chapter 6 of Särndal, Swensson, and Wretman (1992).
+11 of Lohr (2022) or Chapter 6 of Särndal et al. (1992).
 
 In two-phase sampling, it can be helpful to calibrate the weights from
-the small second-phase sample $s_{b}$ so that estimates for variables
-$x_{1},\ldots,x_{p}$ measured in both phases match the estimates
-produced using the larger, more reliable sample $s_{a}$. For a variable
-$y$ measured only in the second-phase sample, this can lead to more
-precise estimates if the calibration variables $x_{1},\ldots,x_{p}$ are
-associated with $y$.
+the small second-phase sample $`s_b`$ so that estimates for variables
+$`x_1, \dots, x_p`$ measured in both phases match the estimates produced
+using the larger, more reliable sample $`s_a`$. For a variable $`y`$
+measured only in the second-phase sample, this can lead to more precise
+estimates if the calibration variables $`x_1, \dots, x_p`$ are
+associated with $`y`$.
 
 If generalized regression (GREG) is used, the two-phase GREG estimator
 can be written as follows:
 
-$${\widehat{Y}}_{\text{GREG}}^{(b)} = {\widehat{Y}}^{(a)} + \left( {\widehat{\mathbf{X}}}^{(a)} - {\widehat{\mathbf{X}}}^{(b)} \right){\widehat{\mathbf{B}}}^{(b)}$$
+``` math
+\hat{Y}^{(b)}_{\text{GREG}} = \hat{Y}^{(a)} + \left(\hat{\mathbf{X}}^{(a)} - \hat{\mathbf{X}}^{(b)}\right)\hat{\mathbf{B}}^{(b)}
+```
 
-where ${\widehat{\mathbf{X}}}^{(a)}$ is the $p$-length vector of
-estimated population totals for variables $x_{1},\ldots,x_{p}$ estimates
-using the first-phase data, ${\widehat{\mathbf{X}}}^{(b)}$ is the vector
-of estimated population totals using the second-phase data, and
-${\widehat{\mathbf{B}}}^{(b)}$ is estimated using the following:
+where $`\hat{\mathbf{X}}^{(a)}`$ is the $`p`$-length vector of estimated
+population totals for variables $`x_1, \dots, x_p`$ estimates using the
+first-phase data, $`\hat{\mathbf{X}}^{(b)}`$ is the vector of estimated
+population totals using the second-phase data, and
+$`\hat{\mathbf{B}}^{(b)}`$ is estimated using the following:
 
-$${\widehat{\mathbf{B}}}^{(b)} = \left( \sum\limits_{i = 1}^{n_{(b)}}w_{i}^{*}\frac{1}{\sigma_{i}^{2}}\mathbf{x}_{i}\mathbf{x}_{i}^{T} \right)^{- 1}\sum\limits_{i = 1}^{n_{(b)}}w_{i}^{*}\frac{1}{\sigma_{i}^{2}}\mathbf{x}_{i}y_{i}$$
+``` math
+\hat{\mathbf{B}}^{(b)} = \left(\sum_{i=1}^{n_{(b)}} w^{*}_i \frac{1}{\sigma_i^2} \mathbf{x}_i \mathbf{x}_i^T\right)^{-1} \sum_{i=1}^{n_{(b)}} w^{*}_i \frac{1}{\sigma_i^2} \mathbf{x}_i y_i
+```
 
-where the constants $\sigma_{i}$ are chosen based on the specific type
-of calibration desired.[⁴](#fn4)
+where the constants $`\sigma_i`$ are chosen based on the specific type
+of calibration desired.[^4]
 
 The GREG estimator can also be expressed as a weighted estimator based
-on modified weights ${\widetilde{w}}_{i}^{*}:=g_{i}w_{i}^{*}$ where the
-modification factor $g$ is suitably chosen for the specific method of
+on modified weights $`\tilde{w}^{*}_i := g_i w^{*}_i`$ where the
+modification factor $`g`$ is suitably chosen for the specific method of
 calibration used (post-stratification, raking, etc.)
 
-$$\begin{aligned}
-{\widehat{Y}}_{\text{GREG}}^{(b)} & {= \sum\limits_{i = 1}^{n_{(b)}}{\widetilde{w}}_{i}^{*}y_{i} = \sum\limits_{i = 1}^{n_{(b)}}\left( g_{i}w_{i}^{*} \right)y_{i}}
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{Y}^{(b)}_{\text{GREG}} &= \sum_{i=1}^{n_{(b)}} \tilde{w}^{*}_i y_i = \sum_{i=1}^{n_{(b)}} (g_i w^{*}_i) y_i
+\end{aligned}
+```
 
-The modification factors $g_{i}$ (commonly referred to as “g-weights”)
+The modification factors $`g_i`$ (commonly referred to as “g-weights”)
 can be expressed as:
 
-$$g_{i} = 1 + \left( {\widehat{\mathbf{X}}}^{(a)} - {\widehat{\mathbf{X}}}^{(b)} \right)^{\prime}\left( \sum\limits_{i = 1}^{n_{(b)}}w_{i}^{*}\frac{1}{\sigma_{i}^{2}}\mathbf{x}_{i}\mathbf{x}_{i}^{T} \right)^{- 1}\sum\limits_{i = 1}^{n_{(b)}}w_{i}^{*}\frac{1}{\sigma_{i}^{2}}\mathbf{x}_{i}$$
+``` math
+g_i = 1+ \left(\hat{\mathbf{X}}^{(a)} - \hat{\mathbf{X}}^{(b)}\right)^{\prime} \left(\sum_{i=1}^{n_{(b)}} w^{*}_i \frac{1}{\sigma_i^2} \mathbf{x}_i \mathbf{x}_i^T\right)^{-1} \sum_{i=1}^{n_{(b)}} w^{*}_i \frac{1}{\sigma_i^2} \mathbf{x}_i 
+```
 
-The calibrated second-phase weights
-${\widetilde{w}}_{i}^{*} = g_{i}w_{i}^{*}$ from the GREG estimator
-ensure that the second-phase estimates for the variables
-$x_{1},\ldots,x_{p}$ match the first-phase estimates.
+The calibrated second-phase weights $`\tilde{w}^{*}_i = g_i w^{*}_i`$
+from the GREG estimator ensure that the second-phase estimates for the
+variables $`x_1, \dots, x_p`$ match the first-phase estimates.
 
-$$\sum\limits_{i = 1}^{n_{(b)}}{\widetilde{w}}_{i}^{*}x_{i} = \sum\limits_{i = 1}^{n_{(a)}}w^{(a)}x_{i}$$
+``` math
+\sum_{i=1}^{n_{(b)}} \tilde{w}^{*}_ix_i = \sum_{i=1}^{n_{(a)}} w^{(a)}x_i
+```
 
 #### Variance of the Calibration Estimator
 
 If we assume that the second-phase calibration estimator
-${\widehat{Y}}_{GREG}^{(b)}$ is unbiased for the first-phase estimate
-${\widehat{Y}}^{(a)}$ (which should at least approximately the case),
-then we can decompose the calibration estimator’s variance into a
+$`\hat{Y}_{\mathrm{GREG}}^{(b)}`$ is unbiased for the first-phase
+estimate $`\hat{Y}^{(a)}`$ (which should at least approximately the
+case), then we can decompose the calibration estimator’s variance into a
 first-phase component and a second-phase component as follows:
 
-$$\begin{aligned}
-{V\left( {\widehat{Y}}_{GREG}^{(b)} \right)} & {= V\left\lbrack E\left( {\widehat{Y}}_{GREG}^{(b)} \mid \mathbf{Z} \right) \right\rbrack + E\left\lbrack V\left( {\widehat{Y}}_{GREG}^{(b)} \mid \mathbf{Z} \right) \right\rbrack} \\
- & {= V\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack + E\left\lbrack V\left( {\widehat{Y}}_{GREG}^{(b)} \mid \mathbf{Z} \right) \right\rbrack}
-\end{aligned}$$
+``` math
+\begin{aligned}
+V\left(\hat{Y}_{\mathrm{GREG}}^{(b)}\right) &= V\left[E\left(\hat{Y}_{\mathrm{GREG}}^{(b)} \mid \mathbf{Z}\right)\right]+E\left[V\left(\hat{Y}_{\mathrm{GREG}}^{(b)} \mid \mathbf{Z}\right)\right]
+\\
+&= V\left[\hat{Y}^{(a)}\right]+E\left[V\left(\hat{Y}_{\mathrm{GREG}}^{(b)} \mid \mathbf{Z}\right)\right]
+\end{aligned}
+```
 
 where the first term is the first-phase variance component and the
 second term is the second-phase variance component.
@@ -1077,18 +1131,22 @@ second term is the second-phase variance component.
 Using only the second-phase sample, the variance of the calibration
 estimator can thus be estimated unbiasedly by the following estimator:
 
-$$V\left( {\widehat{Y}}_{GREG}^{(b)} \right) = \widehat{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack + \widehat{V}\left\lbrack {\widehat{E}}^{(b)} \mid s_{a} \right\rbrack$$
+``` math
+V\left(\hat{Y}_{\mathrm{GREG}}^{(b)}\right) =\hat{V}\left[\hat{Y}^{(a)}\right] + \hat{V}\left[\hat{E}^{(b)} \mid s_a\right]
+```
 
-where ${\widehat{E}}^{(b)} = \sum_{i = 1}^{n_{(b)}}w^{*}e_{i}$ and
-$e_{i} = y_{i} - \mathbf{x}_{i}^{\prime}{\widehat{\mathbf{B}}}^{(b)}$ is
-the “residual” of the GREG model.
+where $`\hat{E}^{(b)} = \sum_{i=1}^{n_{(b)}} w^{*}e_i`$ and
+$`e_i= y_i - \mathbf{x}^{\prime}_i\hat{\mathbf{B}}^{(b)}`$ is the
+“residual” of the GREG model.
 
 This is the same as the variance estimator we saw earlier for the
-uncalibrated estimator, ${\widehat{Y}}^{(b)}$, except that the
-second-phase component for the GREG estimator uses ${\widehat{E}}^{(b)}$
-in place of ${\widehat{Y}}^{(b)}$
+uncalibrated estimator, $`\hat{Y}^{(b)}`$, except that the second-phase
+component for the GREG estimator uses $`\hat{E}^{(b)}`$ in place of
+$`\hat{Y}^{(b)}`$
 
-$$\widehat{V}\left( {\widehat{Y}}^{(b)} \right) = \widehat{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack + \widehat{V}\left\lbrack {\widehat{Y}}^{(b)} \mid s_{a} \right\rbrack$$
+``` math
+\hat{V}\left(\hat{Y}^{(b)}\right) = \hat{V}\left[\hat{Y}^{(a)} \right] + \hat{V}\left[\hat{Y}^{(b)} \mid s_a \right]
+```
 
 This decomposition is useful for understanding the theoretical variance
 of the calibration estimator and how it can be estimated in general.
@@ -1099,71 +1157,77 @@ For variance estimation using replication methods, another (approximate)
 decomposition proves to be more useful. Fuller (1998) decomposes the
 two-phase calibration estimator’s variance as follows.
 
-$$V\left( {\widehat{Y}}_{GREG}^{(b)} \right) \approx E\left\lbrack V\left( {\widetilde{E}}^{(b)} \mid s_{a} \right) \right\rbrack + \mathbf{B}^{\prime}\mathbf{V}\left( {\widehat{\mathbf{X}}}^{(a)} \right)\mathbf{B}$$
+``` math
+V\left(\hat{Y}_{\mathrm{GREG}}^{(b)}\right) \approx E \left[ V \left( \tilde{E}^{(b)} \mid s_a \right) \right] + \mathbf{B}^{\prime} \mathbf{V}\left(\hat{\mathbf{X}}^{(a)}\right)\mathbf{B}
+```
 
-where $\mathbf{B}$ is the finite-population version of
-${\widehat{\mathbf{B}}}^{(b)}$ that we could calculate if we had data
-from the entire population rather than just the second-phase sample
-$s_{b}$, and
-${\widetilde{E}}^{(b)} = \sum_{i = 1}^{n_{(b)}}w_{i}^{*}\left( y_{i} - \mathbf{x}_{i}^{\prime}\mathbf{B} \right)$
+where $`\mathbf{B}`$ is the finite-population version of
+$`\hat{\mathbf{B}}^{(b)}`$ that we could calculate if we had data from
+the entire population rather than just the second-phase sample $`s_b`$,
+and
+$`\tilde{E}^{(b)}=\sum_{i=1}^{n_{(b)}} w^{*}_i\left(y_i - \mathbf{x}_i^{\prime}\mathbf{B}\right)`$
 is the weighted sum of second-phase residuals based on using
-$\mathbf{B}$.
+$`\mathbf{B}`$.
 
 This decomposition of the variance suggests the following estimator:
 
-$$\widehat{V}\left( {\widehat{Y}}_{GREG}^{(b)} \right):=\widehat{V}\left( {\widehat{E}}^{(b)} \mid s_{a} \right) + \left( {\widehat{\mathbf{B}}}^{(b)} \right)^{\prime}\widehat{\mathbf{V}}\left( {\widehat{\mathbf{X}}}^{(a)} \right)\left( {\widehat{\mathbf{B}}}^{(b)} \right)$$
+``` math
+\hat{V}\left(\hat{Y}_{\mathrm{GREG}}^{(b)}\right) := \hat{V} \left( \hat{E}^{(b)} \mid s_a \right) + (\hat{\mathbf{B}}^{(b)})^{\prime} \hat{\mathbf{V}}\left(\hat{\mathbf{X}}^{(a)}\right)(\hat{\mathbf{B}}^{(b)})
+```
 
 The first component is estimated using only the second-phase data and a
 conditional variance estimator for the second-phase design (taking the
 selected first-phase sample as given). The second component depends on
-the first-phase estimates ${\widehat{\mathbf{X}}}^{(a)}$ as well as the
-first-phase variance estimate
-$\widehat{V}\left( {\widehat{\mathbf{X}}}^{(a)} \right)$ and the values
-$\mathbf{B}^{(b)}$ used in the calibration.
+the first-phase estimates $`\hat{\mathbf{X}}^{(a)}`$ as well as the
+first-phase variance estimate $`\hat{V}(\hat{\mathbf{X}}^{(a)})`$ and
+the values $`\mathbf{B}^{(b)}`$ used in the calibration.
 
 Fuller (1998) proposed a replication-based version of this estimator. To
 describe this estimator, first we suppose that we have developed
 two-phase replicate weights appropriate for the double-expansion
 estimator.
 
-$$\begin{aligned}
-{\widehat{V}\left( {\widehat{Y}}^{(b)} \right)} & {= K_{(b)}\sum\limits_{r = 1}^{R_{(b)}}\left( {\widehat{Y}}_{(r)}^{(b)} - {\widehat{Y}}^{(b)} \right)^{2}} \\
-{\text{where}\mspace{6mu}} & {{\widehat{Y}}_{(r)}^{(b)} = \sum\limits_{i = 1}^{n_{(b)}}w_{r,i}y_{i}} \\
- & {{\text{is the}\mspace{6mu}}r\text{-th}{\mspace{6mu}\text{replicate estimate}}} \\
- & {\text{for the second-phase sample}\mspace{6mu}} \\
-{\text{and}\mspace{6mu}} & {K_{(b)}{\mspace{6mu}\text{is a constant specific}}} \\
- & \text{to the replication method}
-\end{aligned}$$
+``` math
+\begin{aligned}
+\hat{V}\left(\hat{Y}^{(b)}\right) &= K_{(b)}\sum_{r=1}^{R_{(b)}} \left( \hat{Y}^{(b)}_{(r)} - \hat{Y}^{(b)} \right)^2 \\
+\text{where }& \hat{Y}^{(b)}_{(r)}= \sum_{i=1}^{n_{(b)}}w_{r,i} y_i \\
+& \text{is the }r\text{-th} \text{ replicate estimate} \\
+& \text{for the second-phase sample } \\
+\text{and }& K_{(b)}\text{ is a constant specific} \\
+&\text{to the replication method}
+\end{aligned}
+```
 
-Now suppose that we have a $k$-length vector of estimated first-phase
-totals, ${\widehat{\mathbf{X}}}^{(a)}$, which will be used in
-calibration of the second phase weights. And we suppose that these
-estimated totals also have an estimated variance-covariance matrix,
-denoted
-$\widehat{\mathbf{V}}\left( {\widehat{\mathbf{X}}}^{(a)} \right)$, which
-is a $k \times k$ matrix.
+Now suppose that we have a $`k`$-length vector of estimated first-phase
+totals, $`\hat{\mathbf{X}}^{(a)}`$, which will be used in calibration of
+the second phase weights. And we suppose that these estimated totals
+also have an estimated variance-covariance matrix, denoted
+$`\hat{\mathbf{V}}\left(\hat{\mathbf{X}}^{(a)}\right)`$, which is a
+$`k \times k`$ matrix.
 
 Then we can decompose the variance-covariance matrix as follows:
 
-$$\widehat{\mathbf{V}}\left( {\widehat{\mathbf{X}}}^{(a)} \right) = K_{(b)}\sum\limits_{i = 1}^{R_{(b)}}{\mathbf{δ}}_{i}^{\prime}{\mathbf{δ}}_{i}$$
+``` math
+\hat{\mathbf{V}}\left(\hat{\mathbf{X}}^{(a)}\right) = K_{(b)} \sum_{i=1}^{R_{(b)}} \boldsymbol{\delta}_i^{\prime} \boldsymbol{\delta}_i
+```
 
-where ${\mathbf{δ}}_{i}$ is a vector of dimension $k$, and $K_{(b)}$ is
-the constant mentioned earlier. There are multiple ways to do this
-decomposition. Two particularly useful methods are to either use an
-eigendecomposition, as suggested by Fuller (1998), or instead use
+where $`\boldsymbol{\delta}_i`$ is a vector of dimension $`k`$, and
+$`K_{(b)}`$ is the constant mentioned earlier. There are multiple ways
+to do this decomposition. Two particularly useful methods are to either
+use an eigendecomposition, as suggested by Fuller (1998), or instead use
 replicate estimates from the first-phase survey, as suggested by Opsomer
 and Erciulescu (2021).
 
 Fuller demonstrates that we can obtain a reasonable variance estimator
-for the two-phase calibration estimator by using these $R_{(b)}$ vectors
-${\mathbf{δ}}_{r}$ to form $R_{(b)}$ different control totals to use as
-the calibration targets for the $R_{(b)}$ second-phase replicates. In
-other words, we simply calibrate the $r$-th set of replicate weights to
-the $r$-th control total
-${\widehat{\mathbf{X}}}^{(a)} + {\mathbf{δ}}_{r}$. Crucially, the order
-of the vectors ${\mathbf{δ}}_{r}$ should be totally random, so that the
-vectors ${\mathbf{δ}}_{r}$ are independent of the sets of replicate
-weights $\mathbf{w}_{r}$.
+for the two-phase calibration estimator by using these $`R_{(b)}`$
+vectors $`\boldsymbol{\delta}_{r}`$ to form $`R_{(b)}`$ different
+control totals to use as the calibration targets for the $`R_{(b)}`$
+second-phase replicates. In other words, we simply calibrate the
+$`r`$-th set of replicate weights to the $`r`$-th control total
+$`\hat{\mathbf{X}}^{(a)} + \boldsymbol{\delta}_{r}`$. Crucially, the
+order of the vectors $`\boldsymbol{\delta}_{r}`$ should be totally
+random, so that the vectors $`\boldsymbol{\delta}_{r}`$ are independent
+of the sets of replicate weights $`\mathbf{w}_{r}`$.
 
 Fuller (1998) shows that calibrating the second-phase replicates to the
 random calibration targets described above results in a variance
@@ -1176,14 +1240,15 @@ vignette through the use of the functions
 or
 [`calibrate_to_sample()`](https://bschneidr.github.io/svrep/reference/calibrate_to_sample.md).
 The essential difference between the two functions is in how they form
-the vectors ${\mathbf{δ}}_{r}$.
+the vectors $`\boldsymbol{\delta}_r`$.
 
 The function
 [`calibrate_to_estimate()`](https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.md)
-forms the vectors ${\mathbf{δ}}_{r}$ using an eigen-decomposition of a
-specified variance-covariance matrix.
+forms the vectors $`\boldsymbol{\delta}_{r}`$ using an
+eigen-decomposition of a specified variance-covariance matrix.
 
 ``` r
+
 # Print first phase estimates and their variance-covariance
 print(first_phase_totals)
 #>       TOTCIR     TOTSTAFF 
@@ -1211,10 +1276,11 @@ calibrated_twophase_design <- calibrate_to_estimate(
 
 In contrast, the function
 [`calibrate_to_sample()`](https://bschneidr.github.io/svrep/reference/calibrate_to_sample.md)
-forms the vectors ${\mathbf{δ}}_{r}$ by using replicate estimates from
-the first-phase sample.
+forms the vectors $`\boldsymbol{\delta}_{r}`$ by using replicate
+estimates from the first-phase sample.
 
 ``` r
+
 calibrated_twophase_design <- calibrate_to_sample(
   primary_rep_design = twophase_boot_design,
   # Supply the first-phase replicate design
@@ -1233,20 +1299,20 @@ well-aware that variance estimators for two-phase designs are often not
 the positive semidefinite quadratic form we’d like them to be. Instead,
 they’re usually close to but not quite a positive semidefinite quadratic
 form, owing to the difficulty of estimating the first-phase variance
-component.[⁵](#fn5)
+component.[^5]
 
-One solution for handling a quadratic form matrix $\Sigma_{ab}$ which is
-not positive semidefinite is to approximate it by
-${\widetilde{\Sigma}}_{ab} = \Gamma\Lambda^{*}\Gamma^{\prime}$, where
-$\Gamma$ is a matrix of eigenvalues of $\Sigma_{ab}$, $\Lambda$ is the
-diagonal matrix of eigenvalues of $\Sigma_{ab}$, and $\Lambda^{*}$ is an
-updated version of $\Lambda$ where negative eigenvalues have been
-replaced by $0$. This solution is suggested by Beaumont and Patak (2012)
-as a general-purpose solution for implementing the generalized bootstrap
-when the target variance estimator that it’s mimicking isn’t positive
-semidefinite. Beaumont and Patak (2012) argue that using
-${\widetilde{\Sigma}}_{ab}$ instead of $\Sigma_{ab}$ should only result
-in a small overestimation.
+One solution for handling a quadratic form matrix $`\Sigma_{ab}`$ which
+is not positive semidefinite is to approximate it by
+$`\tilde{\Sigma}_{ab} = \Gamma \Lambda^{*} \Gamma^{\prime}`$, where
+$`\Gamma`$ is a matrix of eigenvalues of $`\Sigma_{ab}`$, $`\Lambda`$ is
+the diagonal matrix of eigenvalues of $`\Sigma_{ab}`$, and
+$`\Lambda^{*}`$ is an updated version of $`\Lambda`$ where negative
+eigenvalues have been replaced by $`0`$. This solution is suggested by
+Beaumont and Patak (2012) as a general-purpose solution for implementing
+the generalized bootstrap when the target variance estimator that it’s
+mimicking isn’t positive semidefinite. Beaumont and Patak (2012) argue
+that using $`\tilde{\Sigma}_{ab}`$ instead of $`\Sigma_{ab}`$ should
+only result in a small overestimation.
 
 ### Usage with the Generalized Bootstrap
 
@@ -1258,6 +1324,7 @@ will let you know that it will therefore approximate the target variance
 estimator using the method described above.
 
 ``` r
+
 gen_boot_design <- as_gen_boot_design(
   design = twophase_design,
   variance_estimator = list(
@@ -1285,6 +1352,7 @@ estimating the matrix’s eigenvalues and determining whether any of them
 are negative.
 
 ``` r
+
 twophase_quad_form_matrix <- get_design_quad_form(
   design = twophase_design,
   variance_estimator = list(
@@ -1307,6 +1375,7 @@ semidefinite leads to a very similar (but slightly larger) estimated
 standard error.
 
 ``` r
+
 approx_quad_form <- get_nearest_psd_matrix(twophase_quad_form_matrix)
 ```
 
@@ -1316,6 +1385,7 @@ estimate which is only slightly larger than the standard error estimate
 based on the quadratic form which wasn’t quite positive semidefinite.
 
 ``` r
+
 # Extract weights and a single variable from the second-phase sample
 ## NOTE: To get second-phase data,
 ##       we use `my_design$phase1$sample$variables`.
@@ -1356,60 +1426,52 @@ Fuller, Wayne A. 1998. “Replication Variance Estimation for Two-Phase
 Samples.” *Statistica Sinica* 8 (4): 1153–64.
 
 Lohr, Sharon L. 2022. *Sampling: Design and Analysis*. Third edition.
-Chapman & Hall CRC Texts in Statistical Science. Boca Raton: CRC Press.
+Chapman & Hall CRC Texts in Statistical Science. CRC Press.
 
 Opsomer, J. D., and A. L. Erciulescu. 2021. “Replication Variance
 Estimation After Sample-Based Calibration.” *Survey Methodology,
 Statistics Canada* Vol. 47 (No. 2).
 
 Särndal, Carl-Erik, Bengt Swensson, and Jan Wretman. 1992. *Model
-Assisted Survey Sampling*. Springer Series in Statistics. New York, NY:
-Springer New York.
+Assisted Survey Sampling*. Springer Series in Statistics. Springer New
+York.
 
-------------------------------------------------------------------------
-
-1.  This method is justified by the arguments made in Fuller (1998),
+[^1]: This method is justified by the arguments made in Fuller (1998),
     although the idea of using one sample’s replicate estimates as
     control totals for another survey’s replicate estimates appears to
     have first been proposed by Opsomer and Erciulescu (2021), in the
     context of two independent samples.
 
-2.  When a two-phase variance estimator is not positive semidefinite,
-    the culprit is usually the matrix $D_{b}$. The matrix $D_{b}$ is
+[^2]: When a two-phase variance estimator is not positive semidefinite,
+    the culprit is usually the matrix $`D_b`$. The matrix $`D_b`$ is
     frequently not positive semidefinite and as a result causes the
     whole quadratic form not to be positive semidefinite. The matrices
-    $\Sigma_{a}$ and $\Sigma_{b}$ are positive semidefinite for the
+    $`\Sigma_{a}`$ and $`\Sigma_{b}`$ are positive semidefinite for the
     usual single-phase variance estimators for most single-phase designs
-    in practice, and so $\Sigma_{a^{\prime}}$ is too (since it is a
-    principal submatrix of $\Sigma_{a}$). But when $D_{b}$ isn’t also
-    positive semidefinite, then
-    $\left( \Sigma_{a^{\prime}} \circ D_{b} \right)$ generally won’t be
-    either. For one simple example of a $D_{b}$ which is not positive
-    semidefinite, consider a simple random sample without replacement of
-    size $n = 2$ from a population of $N = 4$. The matrix
-    $D_{b} = (\begin{matrix}
-    (1/2)^{- 1} & (1/6)^{- 1} \\
-    (1/6)^{- 1} & (1/2)^{- 1}
-    \end{matrix}) = (\begin{matrix}
-    2 & 6 \\
-    6 & 2
-    \end{matrix})$ is not positive semidefinite, since it has
-    eigenvalues $8$ and $- 4$.
+    in practice, and so $`\Sigma_{a^{\prime}}`$ is too (since it is a
+    principal submatrix of $`\Sigma_{a}`$). But when $`D_b`$ isn’t also
+    positive semidefinite, then $`(\Sigma_{a^{\prime}} \circ D_b)`$
+    generally won’t be either. For one simple example of a $`D_b`$ which
+    is not positive semidefinite, consider a simple random sample
+    without replacement of size $`n=2`$ from a population of $`N=4`$.
+    The matrix
+    $`D_b= \bigl( \begin{smallmatrix}(1/2)^{-1} & (1/6)^{-1} \\ (1/6)^{-1} & (1/2)^{-1} \end{smallmatrix}\bigr) =\bigl( \begin{smallmatrix}2 & 6\\ 6 & 2\end{smallmatrix}\bigr)`$
+    is not positive semidefinite, since it has eigenvalues $`8`$ and
+    $`-4`$.
 
-3.  See the vignette “Bootstrap Methods for Surveys”
+[^3]: See the vignette “Bootstrap Methods for Surveys”
 
-4.  The specific type of calibration used depends both on the number and
-    nature of the variables available and on the “working model” chosen
-    to characterize the relationship between the variables $y$ and
-    $x_{1},\ldots,x_{p}$. The choice of calibration method affects the
-    choice of predictors $x_{1},...,x_{p}$ as well as the choice of
-    constants $\sigma_{i}$ used in the GREG model.
+[^4]: The specific type of calibration used depends both on the number
+    and nature of the variables available and on the “working model”
+    chosen to characterize the relationship between the variables $`y`$
+    and $`x_1,\dots,x_p`$. The choice of calibration method affects the
+    choice of predictors $`x_1, ..., x_p`$ as well as the choice of
+    constants $`\sigma_i`$ used in the GREG model.
 
-5.  Recall that the first-phase variance component is estimated by an
+[^5]: Recall that the first-phase variance component is estimated by an
     estimator of an estimator. To be precise,
-    $\widehat{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack$ is an
-    estimate using the second-phase sample $s_{b}$ of the variance
-    estimator
-    $\widetilde{V}\left\lbrack {\widehat{Y}}^{(a)} \right\rbrack$ based
-    on $s_{a}$ that we would have used if we had observed values of $y$
-    for the entire first-phase sample.
+    $`\hat{V}\left[\hat{Y}^{(a)} \right]`$ is an estimate using the
+    second-phase sample $`s_b`$ of the variance estimator
+    $`\tilde{V}\left[\hat{Y}^{(a)}\right]`$ based on $`s_a`$ that we
+    would have used if we had observed values of $`y`$ for the entire
+    first-phase sample.

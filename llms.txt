@@ -49,6 +49,7 @@ You can install the released version of svrep from
 [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
+
 install.packages("svrep")
 ```
 
@@ -56,6 +57,7 @@ You can install the development version from
 [GitHub](https://github.com/) with:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("bschneidr/svrep")
 ```
@@ -85,6 +87,7 @@ method such as cluster sampling. To represent the complex survey design,
 we can create a survey design object using the survey package.
 
 ``` r
+
 library(survey)
 library(svrep)
 data(api, package = "survey")
@@ -109,6 +112,7 @@ as well as additional methods such as the Rao-Wu-Yue-Beaumont method (a
 generalization of the Rao-Wu bootstrap).
 
 ``` r
+
 # Create replicate-weights survey design
 orig_rep_design <- dclus1 |> as_bootstrap_design( 
   replicates = 500,
@@ -124,6 +128,7 @@ For especially complex survey designs (e.g., systematic samples), the
 generalized survey bootstrap can be used.
 
 ``` r
+
 # Load example data for a stratified systematic sample
 data('library_stsys_sample', package = 'svrep')
 
@@ -152,6 +157,7 @@ For relatively simple designs, we can also use the random-groups
 jackknife.
 
 ``` r
+
 # Create random-group jackknife replicates
 # for a single-stage survey with many first-stage sampling units
 rand_grp_jk_design <- apisrs |>
@@ -172,6 +178,7 @@ typically classified as “respondents”, “nonrespondents”, “ineligible
 cases”, and “unknown eligibility” cases.
 
 ``` r
+
 # Create variable giving response status
 orig_rep_design$variables[['response_status']] <- sample(
   x       = c("Respondent", "Nonrespondent",
@@ -200,6 +207,7 @@ implemented using the
 function.
 
 ``` r
+
 # Adjust weights for unknown eligibility
 ue_adjusted_design <- redistribute_weights(
   design      = orig_rep_design,
@@ -214,6 +222,7 @@ adjustments are conducted separately in different groups. This can be
 used to conduct nonresponse weighting class adjustments.
 
 ``` r
+
 nr_adjusted_design <- redistribute_weights(
   design      = ue_adjusted_design,
   reduce_if   = response_status == "Nonrespondent",
@@ -231,6 +240,7 @@ different sets of weights. The function
 makes it easy to compare estimates from different sets of weights.
 
 ``` r
+
 # Estimate overall means (and their standard errors) from each design
 overall_estimates <- svyby_repwts(
   rep_designs = list('original'             = orig_rep_design,
@@ -265,6 +275,7 @@ We can even test for differences in estimates from the two sets of
 weights and calculate confidence intervals for their difference.
 
 ``` r
+
 estimates <- svyby_repwts(
   rep_designs = list('original'             = orig_rep_design,
                      'nonresponse-adjusted' = nr_adjusted_design),
@@ -307,6 +318,7 @@ to compare summary statistics for each replicate, and we can use its
 `by` argument to group the summaries by one or more variables.
 
 ``` r
+
 summarize_rep_weights(
   rep_design = nr_adjusted_design,
   type       = 'specific',
@@ -329,6 +341,7 @@ and columns and examine the variability of the weights across all of the
 replicates.
 
 ``` r
+
 nr_adjusted_design |>
   subset(response_status == "Respondent") |>
   summarize_rep_weights(
@@ -359,6 +372,7 @@ adults in Louisville, Kentucky. For variance estimation, we use 100
 bootstrap replicates.
 
 ``` r
+
 data("lou_vax_survey")
 
 # Load example data
@@ -388,6 +402,7 @@ population totals for raking purposes, we can use microdata with
 replicate weights.
 
 ``` r
+
 # Load microdata to use for estimating control totals
 data("lou_pums_microdata")
 
@@ -405,6 +420,7 @@ We can see that the distribution of race/ethnicity among respondents
 differs from the distribution of race/ethnicity in the ACS benchmarks.
 
 ``` r
+
 # Compare demographic estimates from the two data sources
 estimate_comparisons <- data.frame(
   'Vax_Survey'    = lou_vax_survey |>
@@ -430,6 +446,7 @@ estimates and their variance-covariance matrix to the function
 [`calibrate_to_estimate()`](https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.md).
 
 ``` r
+
 # Estimate control totals and their variance-covariance matrix
 control_totals <- svymean(
   x      = ~ RACE_ETHNICITY + EDUC_ATTAINMENT,
@@ -453,6 +470,7 @@ design to
 [`calibrate_to_sample()`](https://bschneidr.github.io/svrep/reference/calibrate_to_sample.md).
 
 ``` r
+
 vax_survey_raked_to_acs_sample <- calibrate_to_sample(
   primary_rep_design = lou_vax_survey,
   control_rep_design = acs_benchmark_survey,
@@ -466,6 +484,7 @@ decreased, and the estimated standard error of the estimated vaccination
 rate has increased.
 
 ``` r
+
 # Compare the two sets of estimates
 svyby_repwts(
   rep_design = list(
@@ -491,6 +510,7 @@ replicate weights. This format is easy to export to data files that can
 be loaded into R or other software later.
 
 ``` r
+
 data_frame_with_final_weights <- vax_survey_raked_to_estimates |>
   as_data_frame_with_weights(
     full_wgt_name  = "RAKED_WGT",
@@ -504,6 +524,7 @@ colnames(data_frame_with_final_weights) |> head(10)
 ```
 
 ``` r
+
 # Write the data to a CSV file
 write.csv(
   x    = data_frame_with_final_weights,

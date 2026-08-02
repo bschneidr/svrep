@@ -155,20 +155,20 @@ for a description of each variance estimator.
 Below are the arguments that are required or optional for each variance
 estimator.
 
-|                           |          |             |             |            |                  |            |          |
-|---------------------------|----------|-------------|-------------|------------|------------------|------------|----------|
-| variance_estimator        | probs    | joint_probs | cluster_ids | strata_ids | strata_pop_sizes | sort_order | aux_vars |
-| Stratified Multistage SRS |          |             | Required    | Required   | Required         |            |          |
-| Ultimate Cluster          |          |             | Required    | Required   | Optional         |            |          |
-| SD1                       |          |             | Required    | Optional   | Optional         | Required   |          |
-| SD2                       |          |             | Required    | Optional   | Optional         | Required   |          |
-| Deville-1                 | Required |             | Required    | Optional   |                  |            |          |
-| Deville-2                 | Required |             | Required    | Optional   |                  |            |          |
-| Beaumont-Emond            | Required |             | Required    | Optional   |                  |            |          |
-| Deville-Tille             | Required |             | Required    | Optional   |                  |            | Required |
-| BOSB                      |          |             | Required    | Optional   |                  |            | Required |
-| Yates-Grundy              |          | Required    |             |            |                  |            |          |
-| Horvitz-Thompson          |          | Required    |             |            |                  |            |          |
+|  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|
+| variance_estimator | probs | joint_probs | cluster_ids | strata_ids | strata_pop_sizes | sort_order | aux_vars |
+| Stratified Multistage SRS |  |  | Required | Required | Required |  |  |
+| Ultimate Cluster |  |  | Required | Required | Optional |  |  |
+| SD1 |  |  | Required | Optional | Optional | Required |  |
+| SD2 |  |  | Required | Optional | Optional | Required |  |
+| Deville-1 | Required |  | Required | Optional |  |  |  |
+| Deville-2 | Required |  | Required | Optional |  |  |  |
+| Beaumont-Emond | Required |  | Required | Optional |  |  |  |
+| Deville-Tille | Required |  | Required | Optional |  |  | Required |
+| BOSB |  |  | Required | Optional |  |  | Required |
+| Yates-Grundy |  | Required |  |  |  |  |  |
+| Horvitz-Thompson |  | Required |  |  |  |  |  |
 
 ## See also
 

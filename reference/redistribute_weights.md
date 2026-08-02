@@ -61,6 +61,7 @@ Springer.
 ## Examples
 
 ``` r
+
 # Load example data
 suppressPackageStartupMessages(library(survey))
 data(api)
