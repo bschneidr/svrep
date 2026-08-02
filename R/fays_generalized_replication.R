@@ -175,7 +175,22 @@ make_fays_gen_rep_factors <- function(
   # Calculate spectral decomposition ----
   eigen_decomposition <- compute_eigen_decomposition(Sigma)
   
-  Sigma_rank <- Matrix::rankMatrix(Sigma, method = "qr")
+  # Determine rank of Sigma ----
+  # (For sparse matrices, there is a warning that is helpful in modeling contexts
+  #  but is not at all helpful in this context 
+  #  where structural rank deficiency is very much intentional)
+  withCallingHandlers(
+    expr = {
+      Sigma_rank <- Matrix::rankMatrix(Sigma, method = "qr")
+    },
+    warning = function(w) {
+      # Check if the warning message contains your specific text
+      if (grepl("matrix is structurally rank deficient", conditionMessage(w))) {
+        invokeRestart("muffleWarning") # Suppress this specific warning
+      }
+    }
+  )
+  
 
   # Obtain eigenvectors scaled by square roots of eigenvalues ----
   v <- sapply(X = seq_along(eigen_decomposition$values),

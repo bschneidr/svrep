@@ -2,6 +2,8 @@
 
 -   Bug fix: The Antal-Tille bootstrap function could sometimes fail when a stratum contained certainty units (i.e., sampling units with a sampling probability of 1). This has been fixed and unit tests added for edge cases involving certainty units. For #58. Thanks to GitHub user @gedbe02 for the report and a reproducible example.
 
+- Fixed an unhelpful warning message that could occur for quadratic forms that have a structurally rank deficient sparse matrix representation. For #59.
+
 # svrep 0.9.1
 
 -   Patch release to address requests from editorial team at Journal of Statistical Software.
