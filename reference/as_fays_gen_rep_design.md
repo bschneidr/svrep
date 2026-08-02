@@ -279,7 +279,6 @@ quadratic form's matrix, which can then be used as an input to
     mse = TRUE
   )
 #> For `variance_estimator='SD2', assumes rows of data are sorted in the same order used in sampling.
-#> Warning: matrix is structurally rank deficient; using augmented matrix with additional 6 row(s) of zeros
 
   svytotal(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_rep_design_sd2)
 #>           total    SE

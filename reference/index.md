@@ -82,11 +82,6 @@ generalized replication methods).*
 - [`make_sdr_replicate_factors()`](https://bschneidr.github.io/svrep/reference/make_sdr_replicate_factors.md)
   : Factors for the Successive Difference Replication Method
 
-## Derive Replicate Weights for a Two-phase Sample
-
-- [`derive_twophase_rep_design()`](https://bschneidr.github.io/svrep/reference/derive_twophase_rep_design.md)
-  : Replicate Design Object for a Two-phase Sample
-
 ## Calibrating to Estimated Control Totals
 
 - [`calibrate_to_estimate()`](https://bschneidr.github.io/svrep/reference/calibrate_to_estimate.md)
