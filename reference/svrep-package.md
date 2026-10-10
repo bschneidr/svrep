@@ -29,3 +29,8 @@ Useful links:
 
 **Maintainer**: Ben Schneider <benjamin.julius.schneider@gmail.com>
 ([ORCID](https://orcid.org/0000-0002-0406-8470))
+
+Authors:
+
+- Ben Schneider <benjamin.julius.schneider@gmail.com>
+  ([ORCID](https://orcid.org/0000-0002-0406-8470))
