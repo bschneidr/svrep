@@ -22,5 +22,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Ben Schneider \email{benjamin.julius.schneider@gmail.com} (\href{https://orcid.org/0000-0002-0406-8470}{ORCID})
 
+Authors:
+\itemize{
+  \item Ben Schneider \email{benjamin.julius.schneider@gmail.com} (\href{https://orcid.org/0000-0002-0406-8470}{ORCID})
+}
+
 }
 \keyword{internal}

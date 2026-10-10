@@ -25,7 +25,6 @@ URL: https://bschneidr.github.io/svrep/,
 BugReports: https://github.com/bschneidr/svrep/issues
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
 Imports: 
     DBI,
     Matrix,
@@ -54,3 +53,4 @@ Depends:
     R (>= 4.1.0),
     survey (>= 4.1)
 VignetteBuilder: knitr, rmarkdown
+Config/roxygen2/version: 8.0.0
