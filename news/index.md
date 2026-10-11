@@ -1,6 +1,6 @@
 # Changelog
 
-## svrep (development version)
+## svrep 0.9.2
 
 - Bug fix: The Antal-Tille bootstrap function could sometimes fail when
   a stratum contained certainty units (i.e., sampling units with a

@@ -242,10 +242,8 @@ replicate weights.
 #>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
 #> 1   183    15           14   15        6194    403.1741           0    36.26464
   summarize_rep_weights(calibrated_rep_design, type = 'overall')
-#>   nrows ncols degf_svy_pkg rank avg_wgt_sum  sd_wgt_sums min_rep_wgt
-#> 1   183    15           14   15        6194 4.251105e-09           0
-#>   max_rep_wgt
-#> 1    119.1069
+#>   nrows ncols degf_svy_pkg rank avg_wgt_sum sd_wgt_sums min_rep_wgt max_rep_wgt
+#> 1   183    15           14   15        6194 4.84015e-09           0    119.1069
 
 # For reproducibility, specify which columns are randomly selected for Fuller method ----
 
