@@ -402,6 +402,37 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
   return(Sigma)
 }
 
+#' @export
+get_design_quad_form.svyrep.design <- function(
+  design, variance_estimator,
+  ensure_psd = FALSE,
+  aux_var_names = NULL
+) {
+  if (!missing(variance_estimator) || is.null(variance_estimator)) {
+    stop("For a replicate design object, `variance_estimator` should be NULL or left unspecified by the user.")
+  }
+  if (!is.null(aux_var_names)) {
+    stop("For a replicate design object, `aux_var_names` should be NULL.")
+  }
+  if (!design[['combined.weights']]) {
+    rep_factors <- design |> weights(type = "replication")
+  } else {
+    rep_factors <- design |> weights(type = "analysis")
+    full_sample_weights <- design |> weights(type = "sampling")
+    rep_factors <- sweep(x = rep_factors, MARGIN = 2, STATS = full_sample_weights, FUN = "/")
+  }
+  scale_coefs <- get_rep_scale_coefs(design, type = "combined")
+  if (design[['mse']]) {
+    centers <- rep(1, times = nrow(rep_factors))
+  } else {
+    centers <- rowMeans(rep_factors)
+  }
+
+  centered_rep_factors <- sweep(x = rep_factors, MARGIN = 1, STATS = centers, FUN = "-")
+  Sigma <- tcrossprod(sweep(centered_rep_factors, 2, sqrt(scale_coefs), "*"))
+  return(Sigma)
+}
+
 #' @title Produce a compressed representation of a survey design object
 #'
 #' @param design A survey design object
@@ -498,4 +529,5 @@ compress_design.DBIsvydesign <- function(design, vars_to_keep = NULL) {
   }
 
   return(compressed_design_structure)
-  }
+}
+  
