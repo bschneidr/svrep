@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/bschneidr/svrep/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/bschneidr/svrep/blob/v0.9.2/inst/CITATION)
 
 Schneider, B. (2026). "svrep: Tools for Creating, Updating, and
 Analyzing Survey Replicate Weights". R package version 0.9.2. DOI:
