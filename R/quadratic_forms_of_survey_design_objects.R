@@ -2,10 +2,10 @@
 #' @description Determines the quadratic form matrix of a specified variance estimator,
 #' by parsing the information stored in a survey design object created using
 #' the 'survey' package.
-#' @param design A survey design object created using the 'survey' (or 'srvyr') package,
-#' with class \code{'survey.design'} or \code{'svyimputationList'}. Also accepts two-phase design objects
-#' with class \code{'twophase2'}; see the section below titled "Two-Phase Designs" for
-#' more information about handling of two-phase designs.
+#' @param design A survey design object created using the 'survey' (or 'srvyr') package. 
+#' Also accepts two-phase design objects with class \code{'twophase2'}; 
+#' see the section below titled "Two-Phase Designs" for more information
+#' about handling of two-phase designs.
 #' @param variance_estimator The name of the variance estimator
 #' whose quadratic form matrix should be created. \cr
 #' See the section "Variance Estimators" below.
@@ -42,6 +42,7 @@
 #'     with the bandwidth automatically chosen to result in the smallest possible
 #'     nonempty kernel window.
 #' }
+#' If `design` is a replicate design object, then `variance_estimator` should be `NULL`.
 #' @param ensure_psd If \code{TRUE} (the default), ensures
 #' that the result is a positive semidefinite matrix. This
 #' is necessary if the quadratic form is used as an input for
@@ -61,6 +62,7 @@
 #' @return A matrix representing the quadratic form of a specified variance estimator,
 #' based on extracting information about clustering, stratification,
 #' and selection probabilities from the survey design object.
+#' For a replicate design object, the quadratic form is determined based on the replicate weights.
 #' @inheritSection make_quad_form_matrix Variance Estimators
 #' @inheritSection as_gen_boot_design Two-Phase Designs
 #' @references
@@ -157,16 +159,29 @@
 #'     )
 #'   )
 #' }
+#' 
+#' # Example 3: Replicate design object ----
+#' 
+#' simple_survey_design <- svydesign(
+#'   data = data.frame(PSU = c(1,2,3)),
+#'   ids = ~ PSU,
+#'   probs = ~ 1
+#' )
+#' jk_design <- simple_survey_design |> as.svrepdesign(type = "JK1")
+#' jk_design |> get_design_quad_form()
+#' 
+#' simple_survey_design |> get_design_quad_form(variance_estimator = "Ultimate Cluster")
+#' 
 #' @export
 
-get_design_quad_form <- function(design, variance_estimator,
+get_design_quad_form <- function(design, variance_estimator = NULL,
                                  ensure_psd = FALSE,
                                  aux_var_names = NULL) {
   UseMethod("get_design_quad_form", design)
 }
 
 #' @export
-get_design_quad_form.survey.design <- function(design, variance_estimator,
+get_design_quad_form.survey.design <- function(design, variance_estimator = NULL,
                                                ensure_psd = FALSE,
                                                aux_var_names = NULL) {
 
@@ -320,7 +335,7 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
 }
 
 #' @export
-get_design_quad_form.twophase2 <- function(design, variance_estimator,
+get_design_quad_form.twophase2 <- function(design, variance_estimator = NULL,
                                            ensure_psd = FALSE,
                                            aux_var_names = NULL) {
 
@@ -404,12 +419,12 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
 
 #' @export
 get_design_quad_form.svyrep.design <- function(
-  design, variance_estimator,
+  design, variance_estimator = NULL,
   ensure_psd = FALSE,
   aux_var_names = NULL
 ) {
-  if (!missing(variance_estimator) || is.null(variance_estimator)) {
-    stop("For a replicate design object, `variance_estimator` should be NULL or left unspecified by the user.")
+  if (!missing(variance_estimator) && !is.null(variance_estimator)) {
+    stop("For a replicate design object, `variance_estimator` should be NULL.")
   }
   if (!is.null(aux_var_names)) {
     stop("For a replicate design object, `aux_var_names` should be NULL.")
@@ -419,7 +434,7 @@ get_design_quad_form.svyrep.design <- function(
   } else {
     rep_factors <- design |> weights(type = "analysis")
     full_sample_weights <- design |> weights(type = "sampling")
-    rep_factors <- sweep(x = rep_factors, MARGIN = 2, STATS = full_sample_weights, FUN = "/")
+    rep_factors <- sweep(x = rep_factors, MARGIN = 1, STATS = full_sample_weights, FUN = "/")
   }
   scale_coefs <- get_rep_scale_coefs(design, type = "combined")
   if (design[['mse']]) {

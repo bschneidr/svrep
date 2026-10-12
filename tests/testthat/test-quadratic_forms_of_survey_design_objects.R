@@ -250,6 +250,49 @@ suppressWarnings({
     )
   })
 
+# Tests for a replicate design as input ----
+
+  test_that(
+    "Correct results for a replicate design object", {
+        # Basic result in a simple example
+        dmu284 <- svydesign(ids = ~id1+id2, fpc = ~n1 + n2, data = mu284)
+        rmu284 <- dmu284 |> 
+          as_gen_boot_design(
+            variance_estimator = "Stratified Multistage SRS", 
+            exact_vcov = TRUE,
+            mse = TRUE
+          )
+        expected_quad_form <- dmu284 |> 
+          get_design_quad_form("Stratified Multistage SRS") |>
+          as.matrix()
+        actual_quad_form <- rmu284 |> get_design_quad_form()
+        expect_lt(
+          object = max(abs(actual_quad_form - expected_quad_form)),
+          expected = 1e-12
+        )
+      
+        # Result for a design with varying values for 'rscales'
+        # and `combined.weights = TRUE`
+        suppressWarnings({
+          jk_design <- dmu284 |> as_random_group_jackknife_design(replicates = 3)
+          initial_quad_form <- jk_design |> get_design_quad_form()
+          jk_design[['repweights']] <- weights(jk_design, type = "analysis")
+          jk_design$combined.weights <- TRUE
+        })
+        combined_weights_quad_form <- jk_design |> get_design_quad_form()
+        expect_lt(
+          object = max(abs(combined_weights_quad_form - initial_quad_form)),
+          expected = 1e-12
+        )
+      
+        # Expected error message if the user specifies a variance estimator
+        expect_error(
+          object = jk_design |> get_design_quad_form(variance_estimator = "Ultimate Cluster"),
+          regexp = "`variance_estimator` should be NULL"
+        )
+    }
+  )
+
 # Informative messages for bad inputs ----
 
   test_that(

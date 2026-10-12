@@ -6,16 +6,16 @@
 \usage{
 get_design_quad_form(
   design,
-  variance_estimator,
+  variance_estimator = NULL,
   ensure_psd = FALSE,
   aux_var_names = NULL
 )
 }
 \arguments{
-\item{design}{A survey design object created using the 'survey' (or 'srvyr') package,
-with class \code{'survey.design'} or \code{'svyimputationList'}. Also accepts two-phase design objects
-with class \code{'twophase2'}; see the section below titled "Two-Phase Designs" for
-more information about handling of two-phase designs.}
+\item{design}{A survey design object created using the 'survey' (or 'srvyr') package. 
+Also accepts two-phase design objects with class \code{'twophase2'}; 
+see the section below titled "Two-Phase Designs" for more information
+about handling of two-phase designs.}
 
 \item{variance_estimator}{The name of the variance estimator
 whose quadratic form matrix should be created. \cr
@@ -52,7 +52,8 @@ Options include:
     or other finely stratified designs. Uses the Epanechnikov kernel
     with the bandwidth automatically chosen to result in the smallest possible
     nonempty kernel window.
-}}
+}
+If `design` is a replicate design object, then `variance_estimator` should be `NULL`.}
 
 \item{ensure_psd}{If \code{TRUE} (the default), ensures
 that the result is a positive semidefinite matrix. This
@@ -76,6 +77,7 @@ of Breidt, Opsomer, and Sanchez-Borrego (2016).}
 A matrix representing the quadratic form of a specified variance estimator,
 based on extracting information about clustering, stratification,
 and selection probabilities from the survey design object.
+For a replicate design object, the quadratic form is determined based on the replicate weights.
 }
 \description{
 Determines the quadratic form matrix of a specified variance estimator,
@@ -178,6 +180,19 @@ see the documentation for \link[svrep]{make_twophase_quad_form}.
     )
   )
 }
+
+# Example 3: Replicate design object ----
+
+simple_survey_design <- svydesign(
+  data = data.frame(PSU = c(1,2,3)),
+  ids = ~ PSU,
+  probs = ~ 1
+)
+jk_design <- simple_survey_design |> as.svrepdesign(type = "JK1")
+jk_design |> get_design_quad_form()
+
+simple_survey_design |> get_design_quad_form(variance_estimator = "Ultimate Cluster")
+
 }
 \references{
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
